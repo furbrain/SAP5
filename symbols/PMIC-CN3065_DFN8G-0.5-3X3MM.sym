@@ -1,0 +1,105 @@
+v 20130925 2
+P 0 1000 100 1000 3 0 0
+{
+T 50 1015 5 7 1 1 0 3 1
+pinnumber=1
+T 115 1000 3 5 1 1 0 1 1
+pinlabel=TEMP
+T 50 1015 5 7 0 1 0 3 1
+pinseq=1
+T 50 1015 5 7 0 1 0 3 1
+pintype=in
+}
+P 0 800 100 800 3 0 0
+{
+T 50 815 5 7 1 1 0 3 1
+pinnumber=2
+T 115 800 3 5 1 1 0 1 1
+pinlabel=ISET
+T 50 815 5 7 0 1 0 3 1
+pinseq=2
+T 50 815 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 600 100 600 3 0 0
+{
+T 50 615 5 7 1 1 0 3 1
+pinnumber=3
+T 115 600 3 5 1 1 0 1 1
+pinlabel=GND
+T 50 615 5 7 0 1 0 3 1
+pinseq=3
+T 50 615 5 7 0 1 0 3 1
+pintype=sup
+}
+P 0 400 100 400 3 0 0
+{
+T 50 415 5 7 1 1 0 3 1
+pinnumber=4
+T 115 400 3 5 1 1 0 1 1
+pinlabel=VIN
+T 50 415 5 7 0 1 0 3 1
+pinseq=4
+T 50 415 5 7 0 1 0 3 1
+pintype=in
+}
+P 1100 400 1000 400 3 0 0
+{
+T 1050 415 5 7 1 1 0 3 1
+pinnumber=5
+T 985 400 3 5 1 1 0 7 1
+pinlabel=BAT
+T 1050 415 5 7 0 1 0 3 1
+pinseq=5
+T 1050 415 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1100 600 1000 600 3 0 0
+{
+T 1050 615 5 7 1 1 0 3 1
+pinnumber=6
+T 985 600 3 5 1 1 0 7 1
+pinlabel=DONE
+T 1050 615 5 7 0 1 0 3 1
+pinseq=6
+T 1050 615 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1100 800 1000 800 3 0 0
+{
+T 1050 815 5 7 1 1 0 3 1
+pinnumber=7
+T 985 800 3 5 1 1 0 7 1
+pinlabel=CHRG
+T 1050 815 5 7 0 1 0 3 1
+pinseq=7
+T 1050 815 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1100 1000 1000 1000 3 0 0
+{
+T 1050 1015 5 7 1 1 0 3 1
+pinnumber=8
+T 985 1000 3 5 1 1 0 7 1
+pinlabel=FB
+T 1050 1015 5 7 0 1 0 3 1
+pinseq=8
+T 1050 1015 5 7 0 1 0 3 1
+pintype=in
+}
+P 500 100 500 200 3 0 0
+{
+T 750 135 5 7 1 1 180 3 1
+pinnumber=HEAT
+T 550 215 3 5 1 1 90 1 1
+pinlabel=H
+T 535 150 5 7 0 1 90 3 1
+pinseq=9
+T 535 150 5 7 0 1 90 3 1
+pintype=pas
+}
+T 1400 1080 3 7 0 0 0 0 1
+numslots=0
+B 100 200 900 1000 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 850 320 3 7 0 0 0 0 1
+footprint=DFN8G-0.5-3X3MM

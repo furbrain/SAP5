@@ -1,0 +1,26 @@
+Kit:
+
+3v Laser rangefinder off aliexpress with serial comms
+4-way conector for this...
+MPU 9250
+SSD1306 display
+
+MCP1710 power supply for PIC
+PIC32MM0256GPL028 - processor
+5-way connector for programming
+
+Also a.N.other LDO to provide power for peripherals...
+TC1240A chargepump - configure as a tripler with some extra diodes and caps
+use CC0805KKX5R8BB475 as caps - 4.7uF 25V cap in 0805 package
+use SS0520-7-F as diodes with voltage tripler layout SOD-123 package
+
+CN3065 usb lipo charger
+
+300mAH lipo battery
+JST connector
+
+A button
+Hammond enclosure as before
+possibly 3d printed adapter for rangefinder within enclosure
+waterproof micro usb connector + dust plug
+

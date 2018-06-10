@@ -1,0 +1,270 @@
+v 20110115 1
+P 0 500 100 500 3 0 0
+{
+T 50 515 5 7 1 1 0 3 1
+pinnumber=9
+T 115 500 3 5 1 1 0 1 1
+pinlabel=AD0SDO
+T 50 515 5 7 0 1 0 3 1
+pinseq=1
+T 50 515 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 700 100 700 3 0 0
+{
+T 50 715 5 7 1 1 0 3 1
+pinnumber=7
+T 115 700 3 5 1 1 0 1 1
+pinlabel=AUX_CL
+T 50 715 5 7 0 1 0 3 1
+pinseq=2
+T 50 715 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 1000 1250 1000 3 0 0
+{
+T 1300 1015 5 7 1 1 0 3 1
+pinnumber=21
+T 1235 1000 3 5 1 1 0 7 1
+pinlabel=AUX_DA
+T 1300 1015 5 7 0 1 0 3 1
+pinseq=3
+T 1300 1015 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 300 100 300 3 0 0
+{
+T 50 315 5 7 1 1 0 3 1
+pinnumber=11
+T 115 300 3 5 1 1 0 1 1
+pinlabel=FSYNC
+T 50 315 5 7 0 1 0 3 1
+pinseq=4
+T 50 315 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 700 1250 700 3 0 0
+{
+T 1300 715 5 7 1 1 0 3 1
+pinnumber=18
+T 1235 700 3 5 1 1 0 7 1
+pinlabel=GND
+T 1300 715 5 7 0 1 0 3 1
+pinseq=5
+T 1300 715 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 200 100 200 3 0 0
+{
+T 50 215 5 7 1 1 0 3 1
+pinnumber=12
+T 115 200 3 5 1 1 0 1 1
+pinlabel=INT
+T 50 215 5 7 0 1 0 3 1
+pinseq=6
+T 50 215 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 1200 100 1200 3 0 0
+{
+T 50 1215 5 7 1 1 0 3 1
+pinnumber=2
+T 115 1200 3 5 1 1 0 1 1
+pinlabel=NC
+T 50 1215 5 7 0 1 0 3 1
+pinseq=7
+T 50 1215 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 1100 100 1100 3 0 0
+{
+T 50 1115 5 7 1 1 0 3 1
+pinnumber=3
+T 115 1100 3 5 1 1 0 1 1
+pinlabel=NC@1
+T 50 1115 5 7 0 1 0 3 1
+pinseq=8
+T 50 1115 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 1000 100 1000 3 0 0
+{
+T 50 1015 5 7 1 1 0 3 1
+pinnumber=4
+T 115 1000 3 5 1 1 0 1 1
+pinlabel=NC@2
+T 50 1015 5 7 0 1 0 3 1
+pinseq=9
+T 50 1015 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 900 100 900 3 0 0
+{
+T 50 915 5 7 1 1 0 3 1
+pinnumber=5
+T 115 900 3 5 1 1 0 1 1
+pinlabel=NC@3
+T 50 915 5 7 0 1 0 3 1
+pinseq=10
+T 50 915 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 800 100 800 3 0 0
+{
+T 50 815 5 7 1 1 0 3 1
+pinnumber=6
+T 115 800 3 5 1 1 0 1 1
+pinlabel=NC@4
+T 50 815 5 7 0 1 0 3 1
+pinseq=11
+T 50 815 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 300 1250 300 3 0 0
+{
+T 1300 315 5 7 1 1 0 3 1
+pinnumber=14
+T 1235 300 3 5 1 1 0 7 1
+pinlabel=NC@5
+T 1300 315 5 7 0 1 0 3 1
+pinseq=12
+T 1300 315 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 400 1250 400 3 0 0
+{
+T 1300 415 5 7 1 1 0 3 1
+pinnumber=15
+T 1235 400 3 5 1 1 0 7 1
+pinlabel=NC@6
+T 1300 415 5 7 0 1 0 3 1
+pinseq=13
+T 1300 415 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 500 1250 500 3 0 0
+{
+T 1300 515 5 7 1 1 0 3 1
+pinnumber=16
+T 1235 500 3 5 1 1 0 7 1
+pinlabel=NC@7
+T 1300 515 5 7 0 1 0 3 1
+pinseq=14
+T 1300 515 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 600 1250 600 3 0 0
+{
+T 1300 615 5 7 1 1 0 3 1
+pinnumber=17
+T 1235 600 3 5 1 1 0 7 1
+pinlabel=NC@8
+T 1300 615 5 7 0 1 0 3 1
+pinseq=15
+T 1300 615 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 1100 1250 1100 3 0 0
+{
+T 1300 1115 5 7 1 1 0 3 1
+pinnumber=22
+T 1235 1100 3 5 1 1 0 7 1
+pinlabel=NCS
+T 1300 1115 5 7 0 1 0 3 1
+pinseq=16
+T 1300 1115 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 400 100 400 3 0 0
+{
+T 50 415 5 7 1 1 0 3 1
+pinnumber=10
+T 115 400 3 5 1 1 0 1 1
+pinlabel=REGOUT
+T 50 415 5 7 0 1 0 3 1
+pinseq=17
+T 50 415 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 1300 100 1300 3 0 0
+{
+T 50 1315 5 7 1 1 0 3 1
+pinnumber=1
+T 115 1300 3 5 1 1 0 1 1
+pinlabel=RESV
+T 50 1315 5 7 0 1 0 3 1
+pinseq=18
+T 50 1315 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 800 1250 800 3 0 0
+{
+T 1300 815 5 7 1 1 0 3 1
+pinnumber=19
+T 1235 800 3 5 1 1 0 7 1
+pinlabel=RESV@1
+T 1300 815 5 7 0 1 0 3 1
+pinseq=19
+T 1300 815 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 900 1250 900 3 0 0
+{
+T 1300 915 5 7 1 1 0 3 1
+pinnumber=20
+T 1235 900 3 5 1 1 0 7 1
+pinlabel=RESV@2
+T 1300 915 5 7 0 1 0 3 1
+pinseq=20
+T 1300 915 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 1200 1250 1200 3 0 0
+{
+T 1300 1215 5 7 1 1 0 3 1
+pinnumber=23
+T 1235 1200 3 5 1 1 0 7 1
+pinlabel=SCLSCLK
+T 1300 1215 5 7 0 1 0 3 1
+pinseq=21
+T 1300 1215 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 1300 1250 1300 3 0 0
+{
+T 1300 1315 5 7 1 1 0 3 1
+pinnumber=24
+T 1235 1300 3 5 1 1 0 7 1
+pinlabel=SDASDI
+T 1300 1315 5 7 0 1 0 3 1
+pinseq=22
+T 1300 1315 5 7 0 1 0 3 1
+pintype=pas
+}
+P 1350 200 1250 200 3 0 0
+{
+T 1300 215 5 7 1 1 0 3 1
+pinnumber=13
+T 1235 200 3 5 1 1 0 7 1
+pinlabel=VDD
+T 1300 215 5 7 0 1 0 3 1
+pinseq=23
+T 1300 215 5 7 0 1 0 3 1
+pintype=pas
+}
+P 0 600 100 600 3 0 0
+{
+T 50 615 5 7 1 1 0 3 1
+pinnumber=8
+T 115 600 3 5 1 1 0 1 1
+pinlabel=VDDIO
+T 50 615 5 7 0 1 0 3 1
+pinseq=24
+T 50 615 5 7 0 1 0 3 1
+pintype=pas
+}
+T 1650 1230 3 7 0 0 0 0 1
+numslots=0
+B 100 0 1150 1500 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 950 320 3 7 0 0 0 0 1
+footprint=QFN24G-0.4-3X3MM
