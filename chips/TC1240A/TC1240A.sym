@@ -1,0 +1,89 @@
+v 20180520 1
+P 100 1200 400 1200 1 0 0
+{
+T 300 1250 5 8 1 1 0 6 1
+pinnumber=1
+T 300 1150 5 8 0 1 0 8 1
+pinseq=1
+T 450 1200 9 8 1 1 0 0 1
+pinlabel=Vin
+T 450 1200 5 8 0 1 0 2 1
+pintype=pwr
+}
+P 1100 100 1100 400 1 0 0
+{
+T 1150 300 5 8 1 1 0 2 1
+pinnumber=2
+T 1050 300 5 8 0 1 0 8 1
+pinseq=2
+T 1100 450 9 8 1 1 0 3 1
+pinlabel=GND
+T 1100 600 5 8 0 1 0 3 1
+pintype=pwr
+}
+P 900 1900 900 1600 1 0 0
+{
+T 950 1700 5 8 1 1 0 0 1
+pinnumber=3
+T 850 1700 5 8 0 1 0 6 1
+pinseq=3
+T 900 1550 9 8 1 1 0 5 1
+pinlabel=C-
+T 900 1400 5 8 0 1 0 5 1
+pintype=io
+}
+P 100 800 300 800 1 0 0
+{
+T 300 850 5 8 1 1 0 6 1
+pinnumber=4
+T 300 750 5 8 0 1 0 8 1
+pinseq=4
+T 450 800 9 8 1 1 0 0 1
+pinlabel=\_SHDN\_
+T 450 800 5 8 0 1 0 2 1
+pintype=in
+}
+V 350 800 50 6 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+P 2100 1200 1800 1200 1 0 0
+{
+T 1900 1250 5 8 1 1 0 0 1
+pinnumber=5
+T 1900 1150 5 8 0 1 0 2 1
+pinseq=5
+T 1750 1200 9 8 1 1 0 6 1
+pinlabel=Vout
+T 1750 1200 5 8 0 1 0 8 1
+pintype=pwr
+}
+P 1300 1900 1300 1600 1 0 0
+{
+T 1350 1700 5 8 1 1 0 0 1
+pinnumber=6
+T 1250 1700 5 8 0 1 0 6 1
+pinseq=6
+T 1300 1550 9 8 1 1 0 5 1
+pinlabel=C+
+T 1300 1400 5 8 0 1 0 5 1
+pintype=io
+}
+B 400 400 1400 1200 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 1800 1700 8 10 1 1 0 6 1
+refdes=U?
+T 900 900 9 10 1 0 0 0 1
+TC1240A
+T 900 1200 5 10 0 0 0 0 1
+device=TC1240A
+T 900 1400 5 10 0 0 0 0 1
+footprint=SOT-236
+T 900 1600 5 10 0 0 0 0 1
+author=Phil Underwood
+T 900 1800 5 10 0 0 0 0 1
+documentation=http://www.microchip.com/wwwproducts/en/TC1240A
+T 900 2000 5 10 0 0 0 0 1
+description=Positive Doubling Charge Pumps with Shutdown in a SOT-23 Package
+T 900 2200 5 10 0 0 0 0 1
+numslots=0
+T 900 2400 5 10 0 0 0 0 1
+dist-license=GPL2
+T 900 2600 5 10 0 0 0 0 1
+use-license=GPL2
