@@ -47,7 +47,7 @@ C 32800 39100 1 0 0 input-1.sym
 T 32800 39400 5 10 0 0 0 0 1
 device=INPUT
 T 32800 39100 5 10 0 1 0 0 1
-netname=SCL:1
+net=SCL:1
 T 32800 39100 5 10 1 1 0 0 1
 value=SCL
 }
