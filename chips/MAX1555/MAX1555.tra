@@ -25,7 +25,7 @@ version	20180520 1
 name	MAX1555				
 device	MAX1555					
 refdes	U?					
-footprint	SOT-235			
+footprint	SOT25			
 description	SOT23 Dual-Input USB/AC Adapter 1-Cell Li+ Battery Charger
 documentation	https://www.maximintegrated.com/en/products/power/battery-management/MAX1555.html
 author	Phil Underwood					

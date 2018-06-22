@@ -25,7 +25,7 @@ version	20180520 1
 name	MC78LC				
 device	MC78LC					
 refdes	U?					
-footprint	SOT-89			
+footprint	SOT89			
 description	Micropower Voltage Regulator
 documentation	http://www.onsemi.com/pub/Collateral/MC78LC00-D.PDF
 author	Phil Underwood					

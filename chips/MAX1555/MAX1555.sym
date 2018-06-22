@@ -63,7 +63,7 @@ MAX1555
 T 400 1900 5 10 0 0 0 0 1
 device=MAX1555
 T 400 2100 5 10 0 0 0 0 1
-footprint=SOT-235
+footprint=SOT25
 T 400 2300 5 10 0 0 0 0 1
 author=Phil Underwood
 T 400 2500 5 10 0 0 0 0 1
