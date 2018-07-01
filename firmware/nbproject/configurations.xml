@@ -30,6 +30,7 @@
       <itemPath>font.h</itemPath>
       <itemPath>images.h</itemPath>
       <itemPath>i2c_util.h</itemPath>
+      <itemPath>utils.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -60,6 +61,7 @@
       <itemPath>font.c</itemPath>
       <itemPath>images.c</itemPath>
       <itemPath>i2c_util.c</itemPath>
+      <itemPath>utils.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

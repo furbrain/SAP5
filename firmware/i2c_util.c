@@ -1,5 +1,6 @@
 #include "mcc_generated_files/mcc.h"
 #include "i2c_util.h"
+#include "utils.h"
 
 #include <string.h>
 
@@ -12,10 +13,10 @@ void i2c_init(){
 
 void i2c_close(){
     /* FIXME */
-    CloseI2C();
+    //CloseI2C();
 }
 
-int8_t write_i2c_block(uint8_t address, const uint8_t *data, uint8_t length) {
+int8_t write_i2c_block(uint8_t address, uint8_t *data, uint8_t length) {
     I2C1_MESSAGE_STATUS status = I2C1_MESSAGE_PENDING;
     int timeout = I2C_TIMEOUT;
     int retries = I2C_RETRIES;
@@ -25,10 +26,7 @@ int8_t write_i2c_block(uint8_t address, const uint8_t *data, uint8_t length) {
         // wait for the message to be sent or status has changed.
         while(status == I2C1_MESSAGE_PENDING)
         {
-            // add some delay here
-            TMR1_Start();
-            while(!TMR1_GetElapsedThenClear()){}
-            
+            delay_ms(1);
             // timeout checking
             // check for max retry and skip this byte
             if (timeout <= 0)
@@ -73,9 +71,7 @@ int8_t read_i2c_block(uint8_t address, uint8_t *data, uint8_t length) {
         I2C1_MasterRead(data, length, address, &status);
         while(status == I2C1_MESSAGE_PENDING)
         {
-            // add some delay here
-            TMR1_Start();
-            while(!TMR1_GetElapsedThenClear()){}
+            delay_ms(1);
             if (timeout <= 0)
                 break;
             else
@@ -118,7 +114,7 @@ int8_t write_i2c_data1(uint8_t address, uint8_t command) {
 
 
 int8_t read_i2c_data(uint8_t address, uint8_t command, uint8_t *data, uint8_t length) {
-    if (write_i2c_data1(address, command)==0) {
+    if (write_i2c_data1(address, command)==0)
         if(read_i2c_block(address, data, length)==0)
             return 0;
     return -1;

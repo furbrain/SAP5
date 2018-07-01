@@ -20,7 +20,7 @@ void display_set_brightness(uint8_t brightness);
 void render_data_to_page(uint8_t page, uint8_t column, const uint8_t* data, uint8_t length);
 
 #ifndef BOOTLOADER
-#include <font.h>
+#include "font.h"
 void display_write_text(int page, int column, const char* text, const struct FONT *font, bool right_justify);
 
 void display_write_multiline(int page,const char* text, const struct FONT *font);

@@ -17,14 +17,14 @@ int cur_column = 0;
 int cur_page = 0;
 
 int8_t send1(uint8_t command) {
-	write_i2c_command_block(DISPLAY_ADDRESS,0x00,&command,1,I2C_FAST);
+	write_i2c_command_block(DISPLAY_ADDRESS,0x00,&command,1);
 }
 
 int8_t send2(uint8_t command, uint8_t data) {
 	uint8_t both_bytes[2];
 	both_bytes[0] = command;
 	both_bytes[1] = data;
-	return write_i2c_command_block(DISPLAY_ADDRESS,0x00,both_bytes,2,I2C_FAST);
+	return write_i2c_command_block(DISPLAY_ADDRESS,0x00,both_bytes,2);
 }
 
 void display_init() {
@@ -73,7 +73,7 @@ void display_send_data(const uint8_t *data, uint8_t length) {
 		memcpy(&(buffer[cur_page][cur_column]),data,length);
 	}
 #endif
-	write_i2c_command_block(DISPLAY_ADDRESS,0x40,data,length,I2C_FAST);
+	write_i2c_command_block(DISPLAY_ADDRESS,0x40,data,length);
 }
 
 void render_data_to_page(uint8_t page, uint8_t column, const uint8_t *data, uint8_t length) {
@@ -91,10 +91,10 @@ void display_clear_page(uint8_t page) {
 #ifdef BOOTLOADER
 	uint8_t buffer[128];
 	memset(buffer,0,128);
-	write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer,128,I2C_FAST);
+	write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer,128);
 #else
 	memset(buffer[page],0,128);
-	write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer[page],128,I2C_FAST);
+	write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer[page],128);
 #endif
 }
 void display_clear_screen() {
