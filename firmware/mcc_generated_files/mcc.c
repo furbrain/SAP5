@@ -92,9 +92,10 @@ void SYSTEM_Initialize(void)
     INTERRUPT_Initialize();
     OSCILLATOR_Initialize();
     I2C1_Initialize();
-    USBDeviceInit();
     UART1_Initialize();
+    USBDeviceInit();
     ADC1_Initialize();
+    TMR1_Initialize();
     RTCC_Initialize();
     USBDeviceAttach();
     INTERRUPT_GlobalEnable();
