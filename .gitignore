@@ -11,3 +11,5 @@
 *old.pcb
 *.bak
 *svg
+/firmware/dist/default/
+/firmware/build/default/
