@@ -1,5 +1,6 @@
 #include "display.h"
 #include "i2c_util.h"
+#include "utils.h"
 #include <string.h>
 
 #define SCROLL_RATE 0
@@ -31,7 +32,7 @@ void display_init() {
 	//set up and power up display
 	send1(0xAD);
 	send1(0x8B);
-	__delay_ms(500);
+	delay_ms(500);
 	send2(0xA8,0x3F);
 	send2(0xD5,0x50);
 	send2(0xDA,0x12);
@@ -218,7 +219,7 @@ void display_scroll_page(uint8_t *data,  bool up){
 		        temp_buffer[j] = data[j] & mask;
 	        }
 	        display_send_data(temp_buffer,128);
-	        __delay_ms(SCROLL_RATE);
+	        delay_ms(SCROLL_RATE);
         }
         top_page = (top_page+1) % NUM_PAGES;
 	} else {
@@ -234,7 +235,7 @@ void display_scroll_page(uint8_t *data,  bool up){
 		        temp_buffer[j] = data[j] & mask;
 	        }
 	        display_send_data(temp_buffer,128);
-            __delay_ms(SCROLL_RATE);
+            delay_ms(SCROLL_RATE);
 	    }
         top_page = (top_page+NUM_PAGES-1) % NUM_PAGES;
 	    }
@@ -306,7 +307,7 @@ void display_swipe_pages(int start_page, uint8_t *data, int page_count, bool lef
                 set_column(0);
                 display_send_data(temp_buffer,128);
             }
-            __delay_ms(SCROLL_RATE);
+            delay_ms(SCROLL_RATE);
         }
     } else {
         for(offset=0;offset<128;offset+=SWIPE_STEP){
@@ -320,7 +321,7 @@ void display_swipe_pages(int start_page, uint8_t *data, int page_count, bool lef
                 set_column(0);
                 display_send_data(temp_buffer,128);
             }
-            __delay_ms(SCROLL_RATE);
+            delay_ms(SCROLL_RATE);
         }
     }
 };
