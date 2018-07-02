@@ -6,7 +6,6 @@
 void main(void)
 {
     SYSTEM_Initialize();
-    INTERRUPT_GlobalDisable();
     PERIPH_EN_SetHigh();
     delay_ms(1000);
     display_init();
