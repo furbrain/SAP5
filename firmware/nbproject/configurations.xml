@@ -31,6 +31,8 @@
       <itemPath>images.h</itemPath>
       <itemPath>i2c_util.h</itemPath>
       <itemPath>utils.h</itemPath>
+      <itemPath>sensors.h</itemPath>
+      <itemPath>config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -62,6 +64,7 @@
       <itemPath>images.c</itemPath>
       <itemPath>i2c_util.c</itemPath>
       <itemPath>utils.c</itemPath>
+      <itemPath>sensors.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
