@@ -2,6 +2,7 @@
 #define SENSORS_H
 #include <stdint.h>
 #include <stdbool.h>
+#include "config.h"
 //#define LIDAR_TESTING
 
 struct RAW_SENSORS {

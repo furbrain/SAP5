@@ -1,14 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
-#define USE_AND_OR
-#define FCY 16000000L
-#define FCY_PER_MS 16000L //this is useful where working with 16-bit numbers
-#include <libpic30.h>
-#define delay_ms(delay) __delay_ms(delay)
-
+#include <time.h>
+#include "utils.h"
 #define FIRMWARE_VERSION 1
 
-#define INT0_ACTIVE_HIGH 1
 
 /* define sensor axes in reference to unit *
  * all references are imagined with the display facing uppermost and the laser pointing north *
@@ -106,15 +101,7 @@ struct CONFIG {
 };
 
 struct LEG {
-    /* date/time encoded in BCD format */
-    struct {
-        uint8_t year;
-        uint8_t month;
-        uint8_t day;
-        uint8_t hour;
-        uint8_t minute;
-        uint8_t second;
-    } dt;        //6 bytes
+    time_t dt;
     /* leg count */
     uint16_t number; //2 bytes
     /* differential readings, stored as multiples of 0.25cm */
