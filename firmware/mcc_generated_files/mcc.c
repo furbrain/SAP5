@@ -89,7 +89,7 @@
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    //OSCILLATOR_Initialize();
+    OSCILLATOR_Initialize();
     INTERRUPT_Initialize();
     I2C1_Initialize();
     USBDeviceInit();
@@ -114,9 +114,9 @@ void OSCILLATOR_Initialize(void)
     // SBOREN disabled; VREGS disabled; RETEN disabled; 
     PWRCON = 0x0;
     //Clear NOSC,CLKLOCK and OSWEN bits
-    OSCCONCLR = _OSCCON_NOSC_MASK | _OSCCON_CLKLOCK_MASK | _OSCCON_OSWEN_MASK;
+    //OSCCONCLR = _OSCCON_NOSC_MASK | _OSCCON_CLKLOCK_MASK | _OSCCON_OSWEN_MASK;
     // CF No Clock Failure; FRCDIV FRC/1; SLPEN Device will enter Idle mode when a WAIT instruction is issued; NOSC SPLL; SOSCEN disabled; CLKLOCK Clock and PLL selections are locked; OSWEN Oscillator switch initiate; 
-    OSCCON = (0x180 | _OSCCON_OSWEN_MASK);
+    //OSCCON = (0x180 | _OSCCON_OSWEN_MASK);
     SYSTEM_RegLock();
     // ON disabled; DIVSWEN disabled; RSLP disabled; ROSEL SYSCLK; OE disabled; SIDL disabled; RODIV 0; 
     REFO1CON = 0x0;
