@@ -48,16 +48,16 @@
 #include "pin_manager.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "i2c1.h"
-#include "usb/usb.h"
 #include "interrupt_manager.h"
 #include "exceptions.h"
-#include "rtcc.h"
-#include "adc1.h"
 #include "tmr1.h"
+#include "usb/usb.h"
+#include "adc1.h"
+#include "i2c1.h"
 #include "uart1.h"
+#include "rtcc.h"
 
-#define _XTAL_FREQ  96000000UL
+#define _XTAL_FREQ  24000000UL
 
 /**
  * @Param

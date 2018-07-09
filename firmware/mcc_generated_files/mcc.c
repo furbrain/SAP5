@@ -72,7 +72,7 @@
 #pragma config FWDTEN = OFF    // Watchdog Timer Enable bit->WDT is disabled
 
 // FOSCSEL
-#pragma config FNOSC = PLL    // Oscillator Selection bits->Fast RC oscillator (FRC) with divide-by-N
+#pragma config FNOSC = FRCDIV    // Oscillator Selection bits->Fast RC oscillator (FRC) with divide-by-N
 #pragma config PLLSRC = FRC    // System PLL Input Clock Selection bit->FRC oscillator is selected as PLL reference input on device reset
 #pragma config SOSCEN = OFF    // Secondary Oscillator Enable bit->Secondary oscillator (SOSC) is disabled
 #pragma config IESO = OFF    // Two Speed Startup Enable bit->Two speed startup is disabled
@@ -89,14 +89,14 @@
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    OSCILLATOR_Initialize();
     INTERRUPT_Initialize();
+    OSCILLATOR_Initialize();
     I2C1_Initialize();
     USBDeviceInit();
     UART1_Initialize();
     ADC1_Initialize();
-    RTCC_Initialize();
     TMR1_Initialize();
+    RTCC_Initialize();
     USBDeviceAttach();
     INTERRUPT_GlobalEnable();
 }
@@ -107,16 +107,16 @@ void OSCILLATOR_Initialize(void)
     SYSTEM_RegUnlock();
     // ORPOL disabled; SIDL disabled; SRC USB; TUN Center frequency; POL disabled; ON disabled; 
     OSCTUN = 0x1000;
-    // PLLODIV 1:1; PLLMULT 12x; PLLICLK FRC; 
-    SPLLCON = 0x50080;
+    // PLLODIV 1:4; PLLMULT 12x; PLLICLK FRC; 
+    SPLLCON = 0x2050080;
     // WDTO disabled; GNMI disabled; CF disabled; WDTS disabled; NMICNT 0; LVD disabled; SWNMI disabled; 
     RNMICON = 0x0;
     // SBOREN disabled; VREGS disabled; RETEN disabled; 
     PWRCON = 0x0;
     //Clear NOSC,CLKLOCK and OSWEN bits
-    //OSCCONCLR = _OSCCON_NOSC_MASK | _OSCCON_CLKLOCK_MASK | _OSCCON_OSWEN_MASK;
+    OSCCONCLR = _OSCCON_NOSC_MASK | _OSCCON_CLKLOCK_MASK | _OSCCON_OSWEN_MASK;
     // CF No Clock Failure; FRCDIV FRC/1; SLPEN Device will enter Idle mode when a WAIT instruction is issued; NOSC SPLL; SOSCEN disabled; CLKLOCK Clock and PLL selections are locked; OSWEN Oscillator switch initiate; 
-    //OSCCON = (0x180 | _OSCCON_OSWEN_MASK);
+    OSCCON = (0x180 | _OSCCON_OSWEN_MASK);
     SYSTEM_RegLock();
     // ON disabled; DIVSWEN disabled; RSLP disabled; ROSEL SYSCLK; OE disabled; SIDL disabled; RODIV 0; 
     REFO1CON = 0x0;
