@@ -16,18 +16,18 @@ void main(void)
     int i;
     SYSTEM_Initialize();
     PERIPH_EN_SetHigh();
-    delay_ms(1000);
+    delay_ms(1);
     display_init();
     display_clear_screen();
-    delay_ms(1000);
     while (1)
     {
         sensors_read_raw(&sensors,false);
-        display_clear_screen();
-        for (i=0; i< 3; i++){
-            snprintf(text, TXT_LENGTH, "%d", sensors.accel[i]);
-            display_write_text(i*2,1,text, &small_font, false);
+        i = getsUSBUSART(text, TXT_LENGTH);
+        if (i) {
+            //display_clear_screen();
+            display_write_text(1,1,text, &small_font, false);
         }
-        delay_ms(500);
+        delay_ms(100);
+        
     }
 }
