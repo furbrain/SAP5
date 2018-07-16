@@ -13,3 +13,5 @@
 *svg
 /firmware/dist/default/
 /firmware/build/default/
+MPLABXLog*
+*#
