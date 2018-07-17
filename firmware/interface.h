@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define TRIS_BUTTON TRISBbits.TRISB7
-#define PORT_BUTTON PORTBbits.RB7
 enum ACTION {
     NONE = 0,
     FLIP_DOWN,

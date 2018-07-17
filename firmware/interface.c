@@ -1,21 +1,16 @@
 #define USE_AND_OR
 #include "config.h"
-#include <libpic30.h>
 #include <stdint.h>
-#include <timer.h>
-#include <ports.h>
 #include <stdio.h>
 #include <string.h>
-#include <Rtcc.h>
 #include <math.h>
+#include <time.h>
 #include "interface.h"
 #include "sensors.h"
 #include "display.h"
-#include "power.h"
-#include "calibrate.h"
-#include "debug.h"
-#include "battery.h"
-#include "measure.h"
+#include "mcc_generated_files/rtcc.h"
+#include "mcc_generated_files/tmr2.h"
+#include "mcc_generated_files/pin_manager.h"
 
 struct menu_entry {
 	int16_t index;
@@ -24,16 +19,18 @@ struct menu_entry {
 	void (*action) (void); /*action to perform when selected */
 };
 
-
 volatile enum ACTION last_click = NONE;
+
+void beep(int a, int b) {}
+
 void set_date() {
 		/* first display date */
 	char text[18];
 	int pos = 0;
 	int pos_arr[] = {0,1,3,4,6,7,9,10,12,13,15};
 	int done = false;
-	rtccTimeDate dt;
-	RtccReadTimeDate(&dt);
+	struct tm dt;
+	RTCC_TimeGet(&dt);
 	display_clear_screen();
 	while (true) {
 		strcpy(text,"                ");
@@ -42,26 +39,22 @@ void set_date() {
 		text[pos_arr[pos]] = '^';
 		display_write_text(5,0,text,&small_font,false);
 		//sprintf(text,"%02X/%02X/%02X %02X:%02X X",1,2,3,4,5);
-		sprintf(text,"%02d/%02d/%02d %02d:%02d X",dt.f.mday,dt.f.mon,dt.f.year,dt.f.hour,dt.f.min);
+		sprintf(text,"%02d/%02d/%02d %02d:%02d X", dt.tm_mday, dt.tm_mon,dt.tm_year,dt.tm_hour,dt.tm_min);
 		display_write_text(3,0,text,&small_font,false);
 		switch (get_action()) {
 			case FLIP_LEFT:
-				beep(3600,20);   
 				pos = (pos+11-1)%11;
 				delay_ms(600);
 				break;
 			case FLIP_RIGHT:
-				beep(3600,20);   
 				pos = (pos+1)%11;
 				delay_ms(600);
 				break;
 			case FLIP_UP:
 			case FLIP_DOWN:
-				beep(3600,20);   
 				break;
 			case SINGLE_CLICK:
 			case DOUBLE_CLICK:
-				beep(3600,20);   
 				return;
 		}
 		delay_ms(50);
@@ -77,48 +70,42 @@ void set_time() {}
 const struct menu_entry menu_items[] = {
 	/* main menu */
 	{-2,NULL,0,NULL},
-	{0,"Measure",FUNCTION,measure},
+	{0,"Measure",FUNCTION,set_time},
 	{1,"Calibrate  >",10,NULL},
 	{2,"Settings  >",20,NULL},
-	{3,"Off",-1,hibernate},
+	{3,"Off",FUNCTION, set_time},
 	{4,NULL,0,NULL},
 	
 	/* calibrate menu */
-	{10,"Quick",FUNCTION,quick_cal},
-	{11,"Laser",FUNCTION,laser_cal},
-	{12,"Align",FUNCTION,align_cal},
-	{13,"Full",FUNCTION,full_cal},
+	{10,"Quick",FUNCTION,set_time},
+	//{11,"Laser",FUNCTION,laser_cal},
+	//{12,"Align",FUNCTION,align_cal},
+	//{13,"Full",FUNCTION,full_cal},
 	{14,"Back",BACK,NULL},
 	{15,NULL,10,NULL},
 	
 	/* settings menu */
 	{20,"Units  >",30,NULL},
 	{21,"Function  >",40,NULL},
-	{22,"Display  >",50,NULL},
-	{23,"Set  Date",FUNCTION,set_date},
+	//{22,"Display  >",50,NULL},
+	{23,"Set  Date",FUNCTION,set_time},
 	{24,"Set  Time",FUNCTION,set_time},
 	{25,"Back",BACK,NULL},
 	{26,NULL,20,NULL},
 	
 	/* Units menu */
-	{30,"Metric",FUNCTION,set_metric},
-	{31,"Imperial",FUNCTION,set_imperial},
+	{30,"Metric",FUNCTION,set_time},
+	{31,"Imperial",FUNCTION,set_time},
 	{32,"Back",BACK,NULL},
 	{33,NULL,30,NULL},
 	
 	/* Function menu */
-	{40,"Cartesian",FUNCTION,set_cartesian},
-	{41,"Polar",FUNCTION,set_polar},
-	{42,"Grad",FUNCTION,set_grad},
+	{40,"Cartesian",FUNCTION,set_time},
+	{41,"Polar",FUNCTION,set_time},
+	{42,"Grad",FUNCTION,set_time},
 	{43,"Back",BACK,NULL},
 	{44,NULL,40,NULL},
-	
-	/* Display menu */
-	{50,"Day",FUNCTION,set_day},
-	{51,"Night",FUNCTION,set_night},
-	{52,"Back",BACK,NULL},
-	{53,NULL,50,NULL},
-	
+		
 	/*end */
 	{-1,NULL,-1,NULL}
 };
@@ -130,38 +117,28 @@ const struct menu_entry menu_items[] = {
 #define CLICKS_PER_MS (FCY_PER_MS/256)
 #define T2_DELAY (2*CLICKS_PER_MS)
 
-void interface_init() {
-    OpenTimer2(T2_ON | T2_IDLE_CON | T2_PS_1_256 | T2_32BIT_MODE_OFF,T2_DELAY);
-    OpenTimer3(T3_ON | T3_IDLE_CON | T3_PS_1_256 ,1000*CLICKS_PER_MS);
-    // enable CN23 interrupt
-    ConfigIntTimer2(T2_INT_ON | T2_INT_PRIOR_3);
-    WriteTimer2(0);
-    WriteTimer3(0);
-}
 
 /* change notification interrupt */
-void __attribute__ ((interrupt,no_auto_psv,shadow)) _T2Interrupt() {
+void TMR2_CallBack(void) {
     static uint16_t state = 0x0001;
-    T2_Clear_Intr_Status_Bit;
-    state = ((state << 1) | PORT_BUTTON) & 0x0fff;
-    if (state == (INT0_ACTIVE_HIGH?0x07ff:0x0800)) {
+    state = ((state << 1) | SWITCH_GetValue()) & 0x0fff;
+    if (state == (SWITCH_ACTIVE_HIGH?0x07ff:0x0800)) {
         /* we have just transitioned to a '1' and held it for 11 T2 cycles*/
-        if (IFS0bits.T3IF || (ReadTimer3()>(400*CLICKS_PER_MS))) {
+        if (TMR2_SoftwareCounterGet()>200) {
             /* it's been more than a quarter second since the last press started */
             last_click = SINGLE_CLICK;
         } else {
             last_click = DOUBLE_CLICK;
         }
-        T3_Clear_Intr_Status_Bit;
-        WriteTimer3(0);
+        TMR2_SoftwareCounterClear();
    }
-    if (state == (INT0_ACTIVE_HIGH?0x0800:0x07ff)) {
+    if (state == (SWITCH_ACTIVE_HIGH?0x0800:0x07ff)) {
         /* we have justtransitiioned to a '0' and held it for 11 T2 cycles */
-         if (IFS0bits.T3IF) {
+        if (TMR2_SoftwareCounterGet()>1000) {
             last_click = LONG_CLICK;
-        }        
+        }
+        TMR2_SoftwareCounterClear();
     }
-    WriteTimer2(0);
 }
 
 void swipe_text(uint8_t index, bool left) {
@@ -240,10 +217,8 @@ enum ACTION get_action() {
 	/* search for a click */
 	if (last_click != NONE) {
 		/* momentarily disable interrupts */
-		__builtin_disi(0x0100);
 		temp = last_click;
 		last_click = NONE;
-		__builtin_disi(0x0000);
 		return temp;
 	}
 	//nothing else found - so return NONE
@@ -266,14 +241,13 @@ void show_status(){
 	char footer[17] = "                "; //16 spaces
 	#define FOOTER_LENGTH 16
 	int x;
-	rtccTime time;
-	rtccDate date;
+    struct tm dt;
 	/* batt icon 50% charge: 0x1f,0x20,0x2f*9,0x20*9,0x20,0x1f,0x04,0x03 */
 	/* reverse bit order for second line */
 	char bat_status[24];
 	uint8_t charge;
 	double bat_charge;
-	bat_charge = get_bat_charge();
+	bat_charge = 4.0;
 	bat_charge -= 3.6; //our minimum acceptable voltage
 	bat_charge /= 0.6; //3.6+0.6 = 4.2V - ideal max voltage
 	bat_charge *= 19; //there are 19 possible status levels
@@ -288,8 +262,7 @@ void show_status(){
 	    bat_status[21] = 0xf8;
 	    bat_status[22] = 0x20;
 	    bat_status[23] = 0xC0;
-	    RtccReadDate(&date);
-	    RtccReadTime(&time);
+        RTCC_TimeGet(&dt);
 	    switch (config.length_units) {
 	        case METRIC:
 	            memcpy(footer,"Metric",6);
@@ -309,8 +282,7 @@ void show_status(){
 	            memcpy(&footer[FOOTER_LENGTH-5],"Cart.",5);
 	            break;
 	    }
-	    snprintf(header,17,"%02d:%02d        ",
-		    bcdtobyte(time.f.hour),	bcdtobyte(time.f.min));
+	    snprintf(header,17,"%02d:%02d        ",dt.tm_hour, dt.tm_min);
 	    display_write_text(0,0,header,&small_font,false);
 	    display_write_text(6,0,footer,&small_font,false);
 	    render_data_to_page(0,104,bat_status,24);
@@ -375,7 +347,7 @@ bool show_menu(int16_t index, bool first_time) {
 //                 if (!first_time) return false;
 //                 break;
 			case DOUBLE_CLICK:
-				hibernate();
+				//hibernate();
 				break;
             }   
         if (action!=NONE) {

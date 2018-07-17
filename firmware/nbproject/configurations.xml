@@ -25,6 +25,7 @@
         <itemPath>mcc_generated_files/usb/usb_device_cdc.h</itemPath>
         <itemPath>mcc_generated_files/uart1.h</itemPath>
         <itemPath>mcc_generated_files/tmr1.h</itemPath>
+        <itemPath>mcc_generated_files/tmr2.h</itemPath>
       </logicalFolder>
       <itemPath>display.h</itemPath>
       <itemPath>font.h</itemPath>
@@ -34,6 +35,7 @@
       <itemPath>sensors.h</itemPath>
       <itemPath>config.h</itemPath>
       <itemPath>maths.h</itemPath>
+      <itemPath>interface.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -58,6 +60,7 @@
         <itemPath>mcc_generated_files/usb/usb_device_cdc.c</itemPath>
         <itemPath>mcc_generated_files/uart1.c</itemPath>
         <itemPath>mcc_generated_files/tmr1.c</itemPath>
+        <itemPath>mcc_generated_files/tmr2.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>display.c</itemPath>
@@ -67,6 +70,7 @@
       <itemPath>utils.c</itemPath>
       <itemPath>sensors.c</itemPath>
       <itemPath>maths.c</itemPath>
+      <itemPath>interface.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

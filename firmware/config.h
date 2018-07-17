@@ -1,7 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 #include <time.h>
-#include "utils.h"
+#include <stdint.h>
+#include <stdbool.h>
 #define FIRMWARE_VERSION 1
 
 
@@ -75,8 +76,7 @@
 #define AZ_POLARITY +1
 #endif
 
-#include <stdint.h>
-#include <stdbool.h>
+#define SWITCH_ACTIVE_HIGH false
 
 enum DISPLAY_STYLE {
     UNINITIALISED = 0,
