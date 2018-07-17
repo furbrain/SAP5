@@ -327,7 +327,6 @@ void display_swipe_pages(int start_page, uint8_t *data, int page_count, bool lef
 };
 
 void display_flip(bool invert) {
-    int i;
 	if (invert) {
 		send1(0xA1);
 		send1(0xC8);
@@ -336,12 +335,7 @@ void display_flip(bool invert) {
 		send1(0xC0);
 	}
 	display_inverted = invert;
-	for (i=0; i<8; ++i) {
-	    set_column(0);
-	    set_page(i);
-	    display_send_data(buffer[i],128);
-	}
-	
+	display_show_buffer();	
 }
 
 void display_set_day(bool day) {
@@ -352,6 +346,27 @@ void display_set_day(bool day) {
        	send2(0xA8,0x3F);
         send2(0xD3,0x00);
     }
+}
+
+void display_show_buffer(void) {
+    int i;
+	for (i=0; i<8; ++i) {
+	    set_column(0);
+	    set_page(i);
+	    display_send_data(buffer[i],128);
+	}
+}
+
+void display_setbuffer_xy(int x, int y) {
+	int page;
+	page = ((y/8) + top_page) % 8;
+	buffer[page][x] |= 1 << (y%8);
+}
+
+void display_clearbuffer_xy(uint8_t x, uint8_t y) {
+	int page;
+	page = ((y/8) + top_page) % 8;
+	buffer[page][x] &= ~(1 << (y%8));	
 }
 
 #endif

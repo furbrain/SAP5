@@ -39,5 +39,8 @@ void display_flip(bool invert);
 
 void display_set_day(bool day);
 
+void display_show_buffer(void);
+void display_setbuffer_xy(int x, int y);
+void display_clearbuffer_xy(uint8_t x, uint8_t y);
 #endif
 #endif

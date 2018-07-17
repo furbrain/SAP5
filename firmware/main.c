@@ -25,10 +25,10 @@ void main(void)
     display_write_text(4,1,"On",&large_font,false);
     while (1)
     {
-        action = get_action();
-        if (action!=NONE) {
-            snprintf(text,TXT_LENGTH,"action: %d",action);
-            display_write_text(4,1,text, &large_font, false);
-        }        
+    	for (i=0; i<16; i++) {
+	    	display_setbuffer_xy(i,i);
+    		display_show_buffer();
+    	}
+    	display_clear_screen();
     }
 }
