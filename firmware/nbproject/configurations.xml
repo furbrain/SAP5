@@ -71,6 +71,7 @@
       <itemPath>sensors.c</itemPath>
       <itemPath>maths.c</itemPath>
       <itemPath>interface.c</itemPath>
+      <itemPath>config.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
