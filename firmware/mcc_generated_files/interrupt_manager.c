@@ -70,6 +70,11 @@ void INTERRUPT_Initialize (void)
         IPC2bits.CNCIP = 1;
     //    Sub Priority: 0
         IPC2bits.CNCIS = 0;
+    //    TI: Timer 2
+    //    Priority: 1
+        IPC4bits.T2IP = 1;
+    //    Sub Priority: 0
+        IPC4bits.T2IS = 0;
     //    UERI: UART 1 Error
     //    Priority: 1
         IPC13bits.U1EIP = 1;

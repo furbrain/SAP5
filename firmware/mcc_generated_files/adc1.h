@@ -278,8 +278,7 @@ bool ADC1_IsConversionComplete( void );
     ADC1_Initializer() function should have been 
     called before calling this function.
  
-  @Returns
-    None
+  @Returns None
 
   @Param
     Pass in required channel from the ADC1_CHANNEL list
