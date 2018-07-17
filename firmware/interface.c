@@ -68,52 +68,52 @@ void set_time() {}
 
 
 const struct menu_entry menu_items[] = {
-	/* main menu */
-	{-2,NULL,0,NULL},
-	{0,"Measure",FUNCTION,set_time},
-	{1,"Calibrate  >",10,NULL},
-	{2,"Settings  >",20,NULL},
-	{3,"Off",FUNCTION, set_time},
-	{4,NULL,0,NULL},
-	
-	/* calibrate menu */
-	{10,"Quick",FUNCTION,set_time},
-	//{11,"Laser",FUNCTION,laser_cal},
-	//{12,"Align",FUNCTION,align_cal},
-	//{13,"Full",FUNCTION,full_cal},
-	{14,"Back",BACK,NULL},
-	{15,NULL,10,NULL},
-	
-	/* settings menu */
-	{20,"Units  >",30,NULL},
-	{21,"Function  >",40,NULL},
-	{22,"Display  >",50,NULL},
-	{23,"Set  Date",FUNCTION,set_time},
-	{24,"Set  Time",FUNCTION,set_time},
-	{25,"Back",BACK,NULL},
-	{26,NULL,20,NULL},
-	
-	/* Units menu */
-	{30,"Metric",FUNCTION,set_time},
-	{31,"Imperial",FUNCTION,set_time},
-	{32,"Back",BACK,NULL},
-	{33,NULL,30,NULL},
-	
-	/* Function menu */
-	{40,"Cartesian",FUNCTION,set_time},
-	{41,"Polar",FUNCTION,set_time},
-	{42,"Grad",FUNCTION,set_time},
-	{43,"Back",BACK,NULL},
-	{44,NULL,40,NULL},
-	
-	/* Display menu */
-	{50,"Day",FUNCTION,set_day},
-	{51,"Night",FUNCTION,set_night},
-	{52,"Back",BACK,NULL},
-	{53,NULL,50,NULL},
-	
-	/*end */
-	{-1,NULL,-1,NULL}
+    /* main menu */
+    {-2, NULL, 0, NULL},
+    {0, "Measure", FUNCTION, set_time},
+    {1, "Calibrate  >", 10, NULL},
+    {2, "Settings  >", 20, NULL},
+    {3, "Off", FUNCTION, set_time},
+    {4, NULL, 0, NULL},
+
+    /* calibrate menu */
+    {10, "Quick", FUNCTION, set_time},
+    //{11,"Laser",FUNCTION,laser_cal},
+    //{12,"Align",FUNCTION,align_cal},
+    //{13,"Full",FUNCTION,full_cal},
+    {14, "Back", BACK, NULL},
+    {15, NULL, 10, NULL},
+
+    /* settings menu */
+    {20, "Units  >", 30, NULL},
+    {21, "Function  >", 40, NULL},
+    {22, "Display  >", 50, NULL},
+    {23, "Set  Date", FUNCTION, set_time},
+    {24, "Set  Time", FUNCTION, set_time},
+    {25, "Back", BACK, NULL},
+    {26, NULL, 20, NULL},
+
+    /* Units menu */
+    {30, "Metric", FUNCTION, config_set_metric},
+    {31, "Imperial", FUNCTION, config_set_imperial},
+    {32, "Back", BACK, NULL},
+    {33, NULL, 30, NULL},
+
+    /* Function menu */
+    {40, "Cartesian", FUNCTION, config_set_cartesian},
+    {41, "Polar", FUNCTION, config_set_polar},
+    {42, "Grad", FUNCTION, config_set_grad},
+    {43, "Back", BACK, NULL},
+    {44, NULL, 40, NULL},
+
+    /* Display menu */
+    {50, "Day", FUNCTION, set_day},
+    {51, "Night", FUNCTION, set_night},
+    {52, "Back", BACK, NULL},
+    {53, NULL, 50, NULL},
+
+    /*end */
+    {-1, NULL, -1, NULL}
 };
 
 /* set up timer interrupts etc */

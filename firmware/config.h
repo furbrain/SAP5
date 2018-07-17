@@ -119,15 +119,14 @@ extern bool day;
 void config_init();
 void config_save();
 
-void set_metric();
-void set_imperial();
-void set_cartesian();
-void set_polar();
-void set_grad();
+void config_set_metric();
+void config_set_imperial();
+void config_set_cartesian();
+void config_set_polar();
+void config_set_grad();
 void set_day();
 void set_night();
 
-void write_eeprom(unsigned int address, void *buffer, unsigned int len);
 
 #endif
 #endif

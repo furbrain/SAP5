@@ -37,27 +37,27 @@ void config_save(){
 }
 
 /* config management */
-void set_metric() {
+void config_set_metric() {
     config.length_units = METRIC;
     config_save();
 }
 
-void set_imperial() {
+void config_set_imperial() {
     config.length_units = IMPERIAL;
     config_save();
 }
 
-void set_cartesian() {
+void config_set_cartesian() {
     config.display_style = CARTESIAN;
     config_save();
 }
 
-void set_polar() {
+void config_set_polar() {
     config.display_style = POLAR;
     config_save();
 }
 
-void set_grad() {
+void config_set_grad() {
     config.display_style = GRAD;
     config_save();
 }
