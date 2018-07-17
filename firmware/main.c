@@ -5,6 +5,7 @@
 #include "display.h"
 #include "font.h"
 #include "sensors.h"
+#include "interface.h"
 
 #define TXT_LENGTH 50
 
@@ -12,16 +13,22 @@ void main(void)
 {
     
     struct RAW_SENSORS sensors;
-    char text[TXT_LENGTH-1];
+    char text[TXT_LENGTH];
     int i;
+    enum ACTION action;
     SYSTEM_Initialize();
     PERIPH_EN_SetHigh();
+    TMR2_Start();
     delay_ms(1000);
     display_init();
     display_clear_screen();
     display_write_text(4,1,"On",&large_font,false);
     while (1)
     {
-        show_menu(get_menu_item_offset(0),true);
+        action = get_action();
+        if (action!=NONE) {
+            snprintf(text,TXT_LENGTH,"action: %d",action);
+            display_write_text(4,1,text, &large_font, false);
+        }        
     }
 }

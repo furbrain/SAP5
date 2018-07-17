@@ -127,23 +127,25 @@ const struct menu_entry menu_items[] = {
 /* change notification interrupt */
 void TMR2_CallBack(void) {
     static uint16_t state = 0x0001;
+    static uint32_t button_counter = 0;
+    button_counter++;
     state = ((state << 1) | SWITCH_GetValue()) & 0x0fff;
-    if (state == (SWITCH_ACTIVE_HIGH?0x07ff:0x0800)) {
+    if (state == (SWITCH_ACTIVE_HIGH ? 0x07ff : 0x0800)) {
         /* we have just transitioned to a '1' and held it for 11 T2 cycles*/
-        if (TMR2_SoftwareCounterGet()>200) {
+        if (button_counter > 200) {
             /* it's been more than a quarter second since the last press started */
             last_click = SINGLE_CLICK;
         } else {
             last_click = DOUBLE_CLICK;
         }
-        TMR2_SoftwareCounterClear();
-   }
-    if (state == (SWITCH_ACTIVE_HIGH?0x0800:0x07ff)) {
+        button_counter=0;
+    }
+    if (state == (SWITCH_ACTIVE_HIGH ? 0x0800 : 0x07ff)) {
         /* we have justtransitiioned to a '0' and held it for 11 T2 cycles */
-        if (TMR2_SoftwareCounterGet()>1000) {
+        if (button_counter > 1000) {
             last_click = LONG_CLICK;
         }
-        TMR2_SoftwareCounterClear();
+        button_counter=0;
     }
 }
 
