@@ -87,7 +87,7 @@ const struct menu_entry menu_items[] = {
 	/* settings menu */
 	{20,"Units  >",30,NULL},
 	{21,"Function  >",40,NULL},
-	//{22,"Display  >",50,NULL},
+	{22,"Display  >",50,NULL},
 	{23,"Set  Date",FUNCTION,set_time},
 	{24,"Set  Time",FUNCTION,set_time},
 	{25,"Back",BACK,NULL},
@@ -105,7 +105,13 @@ const struct menu_entry menu_items[] = {
 	{42,"Grad",FUNCTION,set_time},
 	{43,"Back",BACK,NULL},
 	{44,NULL,40,NULL},
-		
+	
+	/* Display menu */
+	{50,"Day",FUNCTION,set_day},
+	{51,"Night",FUNCTION,set_night},
+	{52,"Back",BACK,NULL},
+	{53,NULL,50,NULL},
+	
 	/*end */
 	{-1,NULL,-1,NULL}
 };

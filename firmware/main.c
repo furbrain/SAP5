@@ -22,19 +22,6 @@ void main(void)
     display_write_text(4,1,"On",&large_font,false);
     while (1)
     {
-        CDCTxService();
-        i = getsUSBUSART(text, TXT_LENGTH);
-        if (i>0) {
-            UART1_WriteBuffer(text,i);
-        }
-        i = UART1_ReadBuffer(text, TXT_LENGTH);
-        if (i>0) {
-            text[i] = '\0';
-            putUSBUSART(text,i);
-            display_clear_page(1);
-            display_clear_page(2);
-            display_write_text(1,1,text,&small_font,false);
-        }
-        delay_ms(10);
+        show_menu(get_menu_item_offset(0),true);
     }
 }
