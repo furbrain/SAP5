@@ -225,7 +225,7 @@ refdes=LED1
 T 52200 47500 5 10 0 0 270 0 1
 symversion=0.1
 T 51400 48300 5 10 0 0 0 0 1
-footprint=0603
+footprint=0805
 }
 C 53100 48600 1 0 0 led-1.sym
 {
@@ -236,7 +236,7 @@ refdes=LED2
 T 53900 49400 5 10 0 0 0 0 1
 symversion=0.1
 T 53100 48600 5 10 0 0 0 0 1
-footprint=0603
+footprint=0805
 }
 C 51700 45800 1 90 0 resistor-1.sym
 {
