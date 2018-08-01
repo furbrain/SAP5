@@ -107,10 +107,10 @@ int8_t write_i2c_data2(uint8_t address, uint8_t command, uint8_t data) {
 	return write_i2c_block(address,data_list,2);
 }
 
-#ifndef BOOTLOADER
 int8_t write_i2c_data1(uint8_t address, uint8_t command) {
 	return write_i2c_block(address, &command, 1);
 }
+#ifndef BOOTLOADER
 
 
 int8_t read_i2c_data(uint8_t address, uint8_t command, uint8_t *data, uint8_t length) {

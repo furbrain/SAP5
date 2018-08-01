@@ -2,7 +2,7 @@
 #include "i2c_util.h"
 #include "display.h"
 
-
+#ifndef BOOTLOADER
 struct CONFIG config = {
             { //calib section
                 {{1.0,0,0},{0,1.0,0},{0,0,1.0}}, //accel matrix
@@ -73,23 +73,4 @@ void set_night() {
     display_set_day(day);
 //    laser_set_day(day);
 }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
+#endif    
