@@ -1,1 +1,1 @@
-../program/battery.c
+../firmware/battery.c

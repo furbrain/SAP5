@@ -1,1 +1,1 @@
-../program/battery.h
+../firmware/battery.h
