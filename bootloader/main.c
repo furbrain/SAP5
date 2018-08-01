@@ -24,30 +24,15 @@
  * 2013-05-03
  */
 /* define processor clock speed for use in delay funcs*/
-#define FCY 16000000
-#include "usb.h"
 #include <xc.h>
 #include <string.h>
-#define USE_AND_OR
-#include <i2c.h>
-#include <PPS.h>
-#include <outcompare.h>
-#include <libpic30.h>
-#include <dpslp.h>
-#include <stdint.h>
-#include <Rtcc.h>
-#include "i2c_util.h"
-#include "usb_config.h"
-#include "usb_ch9.h"
+#include "config.h"
+#include "mcc_generated_files/mcc.h"
+#include "usb/usb.h"
+#include "memory.h"
 #include "battery.h"
-#include "display.h"
-
-_CONFIG1(WDTPS_PS16 & FWPSA_PR32 & WINDIS_OFF & FWDTEN_OFF & ICS_PGx3 & GWRP_OFF & GCP_OFF & JTAGEN_OFF)
-_CONFIG2(POSCMOD_NONE & I2C1SEL_PRI & IOL1WAY_OFF & OSCIOFNC_OFF & FCKSM_CSDCMD & FNOSC_FRCPLL & PLL96MHZ_ON & PLLDIV_NODIV & IESO_OFF)
-_CONFIG3(WPFP_WPFP0 & SOSCSEL_IO & WUTSEL_LEG & WPDIS_WPDIS & WPCFG_WPCFGDIS & WPEND_WPENDMEM)
-_CONFIG4(DSWDTPS_DSWDTPS3 & DSWDTOSC_SOSC & RTCOSC_LPRC & DSBOREN_OFF & DSWDTEN_OFF)
-
-
+#include "i2c_util.h"
+#include "utils.h"
 
 /* Variables from linker script.
  * 
@@ -67,24 +52,6 @@ _CONFIG4(DSWDTPS_DSWDTPS3 & DSWDTOSC_SOSC & RTCOSC_LPRC & DSBOREN_OFF & DSWDTEN_
  * use that value as an initializer for a constant.  Becaause of this, the
  * assignment of the uint32_t "constants" below has to be done in main().
  */
-const extern __prog__ uint8_t _IVT_MAP_BASE;
-const extern __prog__ uint8_t _APP_BASE;
-const extern __prog__ uint8_t _APP_LENGTH;
-const extern __prog__ uint8_t _FLASH_BLOCK_SIZE;
-const extern __prog__ uint8_t _FLASH_TOP;
-const extern __prog__ uint8_t _CONFIG_WORDS_BASE;
-const extern __prog__ uint8_t _CONFIG_WORDS_TOP;
-
-#define LINKER_VAR(X) (((uint32_t) &_##X) & 0x00ffffff)
-/* "Constants" for linker script values. These are assigned in main() using the
- * LINKER_VAR() macro. See the above comment for rationale. */
-static uint32_t IVT_MAP_BASE;
-static uint32_t APP_BASE;
-static uint32_t APP_LENGTH;
-static uint32_t FLASH_BLOCK_SIZE;
-static uint32_t FLASH_TOP;
-static uint32_t CONFIG_WORDS_BASE;
-static uint32_t CONFIG_WORDS_TOP;
 
 /* Flash block(s) where the bootloader resides.*/
 #define USER_REGION_BASE  IVT_MAP_BASE
@@ -97,7 +64,9 @@ static uint32_t CONFIG_WORDS_TOP;
 	#define BYTES_PER_INSTRUCTION 4
 	#define WORDS_PER_INSTRUCTION 2
 #else
-	#error "Define instruction sizes for your platform"
+    #define INSTRUCTIONS_PER_ROW 64
+    #define BYTES_PER_INSTRUCTION 4
+    #define WORDS_PER_INSTRUCTION 2
 #endif
 
 #define BUFFER_LENGTH (INSTRUCTIONS_PER_ROW * WORDS_PER_INSTRUCTION)
@@ -142,106 +111,34 @@ static struct chip_info chip_info = { };
 
 void clear_flash()
 {
-	uint32_t prog_addr = USER_REGION_BASE;
-	size_t offset;
-
-	/* Clear each flash block. TBLPAG/offset is set to the
-	 * base address (lowest address) of each block. */
-	while (prog_addr < USER_REGION_TOP) {
-		TBLPAG = prog_addr >> 16;
-		offset = prog_addr & 0xffff;
-
-		__builtin_tblwtl(offset, 0x00);
-		NVMCON = 0x4042;
-		asm("DISI #5");
-		__builtin_write_NVM();
-
-		while (NVMCONbits.WR == 1)
-			;
-
-		prog_addr += FLASH_BLOCK_SIZE;
-	}
+    erase_memory();
 }
 
 void write_flash_row()
 {
-	size_t offset;
-	uint8_t i;
-	uint32_t prog_addr = write_address;
-
-	NVMCON = 0x4001;
-	TBLPAG = prog_addr >> 16;
-	offset = prog_addr & 0xffff;
-
-	/* Write the data provided */
-	for (i = 0; i < write_length; i++) {
-		__builtin_tblwtl(offset, prog_buf[i]);
-		__builtin_tblwth(offset, prog_buf[++i]);
-		offset += 2;
-	}
-
-	/* Pad the rest of the row out with 0xff */
-	for (; i < BUFFER_LENGTH; i += 2) {
-		__builtin_tblwtl(offset, 0xffff);
-		__builtin_tblwth(offset, 0xffff);
-		offset += 2;
-	}
-
-	asm("DISI #5");
-	__builtin_write_NVM();
-
-	while (NVMCONbits.WR == 1)
-		;
+    uint16_t data[BUFFER_LENGTH];
+    memcpy(data,prog_buf, write_length);
+    memset(data+write_length*2,0xff,(BUFFER_LENGTH-write_length)*2);
+    write_row((void*)write_address,data);
 }
 
-/* Read an instruction from flash. word_addr is the word address, not
- * the byte address. */
-static void read_flash(uint32_t word_addr, uint16_t *low, uint16_t *high)
-{
-	TBLPAG = word_addr >> 16 & 0xff;
-	*high = __builtin_tblrdh(word_addr & 0xffff);
-	*low  = __builtin_tblrdl(word_addr & 0xffff);
-}
 
-/* Read data starting at prog_addr into the global prog_buf. prog_addr
- * and len are in words, not bytes. */
-static void read_prog_data(uint32_t prog_addr, uint32_t len/*words*/)
+/* Read data starting at prog_addr into the global prog_buf*/
+static void read_prog_data(uint32_t prog_addr, uint32_t len/*bytes*/)
 {
-	int i;
-	for (i = 0; i < len; i += 2) {
-		read_flash(prog_addr + i,
-		           &prog_buf[i]   /*low*/,
-		           &prog_buf[i+1] /*high*/);
-	}
+    memcpy((void *)prog_buf, (void*)prog_addr, len);
 }
 
 
 static int8_t write_i2c(uint8_t device_address, uint8_t* buffer, uint16_t len) {
-	return write_i2c_block(device_address,buffer,len,I2C_STANDARD);
+	return write_i2c_block(device_address,buffer,len);
 }
 
 static int8_t write_display(uint8_t page, uint8_t column, uint8_t* buffer, uint16_t len) {
-    write_i2c_data1(DISPLAY_ADDRESS,0xB0+page,I2C_FAST);
-    write_i2c_data1(DISPLAY_ADDRESS,column & 0x0F,I2C_FAST);
-    write_i2c_data1(DISPLAY_ADDRESS,16 + (column / 16),I2C_FAST);
-    return write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer,len,I2C_FAST);
-}
-
-
-static int8_t check_i2c_ready(uint8_t device_address) {
-	IdleI2C1();
-	StartI2C1();
-	IdleI2C1();
-	MasterWriteI2C1((device_address * 2));       //Write Slave address and set master for transmission
-	IdleI2C1();
-	if(I2C1STATbits.ACKSTAT) {
-		StopI2C1();
-		IdleI2C1();
-		return -1;
-	}
-	StopI2C1();
-	IdleI2C1();
-	return 0;
+    write_i2c_data1(DISPLAY_ADDRESS,0xB0+page);
+    write_i2c_data1(DISPLAY_ADDRESS,column & 0x0F);
+    write_i2c_data1(DISPLAY_ADDRESS,16 + (column / 16));
+    return write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer,len);
 }
 
 
@@ -276,39 +173,20 @@ void display_show_bat(int charge) {
 	render_data_to_page(1,104,bat_status,24);
 }
 
-
-void __attribute__ ((interrupt,no_auto_psv,shadow)) _USB1Interrupt() {
-	U1OTGIEbits.SESVDIE = 0;
-	IEC5bits.USB1IE = 0;
-	__asm__("reset");
-}
-
 int main(void)
 {
 	uint32_t pll_startup_counter = 600;
 	int display_initialised = 0;
 	int counter = 0;
 	enum BAT_STATUS bat_status;
-	
-	IVT_MAP_BASE = LINKER_VAR(IVT_MAP_BASE);
-	APP_BASE = LINKER_VAR(APP_BASE);
-	APP_LENGTH = LINKER_VAR(APP_LENGTH);
-	FLASH_BLOCK_SIZE = LINKER_VAR(FLASH_BLOCK_SIZE);
-	FLASH_TOP = LINKER_VAR(FLASH_TOP);
-	CONFIG_WORDS_BASE = LINKER_VAR(CONFIG_WORDS_BASE);
-	CONFIG_WORDS_TOP = LINKER_VAR(CONFIG_WORDS_TOP);
-	ReleaseDeepSleep();
+    SYSTEM_Initialize();
 	/* setup ports */
 	/* enable peripherals */
-	setup_pins();
 	/* first look to see if we should be running bootloader at all... */
-	CLKDIVbits.PLLEN = 1;
-	while(pll_startup_counter--);
-	peripherals_on(true);
 	display_init();
 	display_clear_screen();
 	usb_init();
-	__delay_ms(3);
+	delay_ms(3);
 	while (1) {
 		bat_status = get_bat_status();
 		if (bat_status==DISCHARGING) break;
@@ -318,13 +196,10 @@ int main(void)
 			if (bat_status==CHARGING) display_show_bat(-1);
 			if (bat_status==CHARGED) display_show_bat(18);
 		}
-		usb_service();
+        usb_service();
 	}
-	/* set up a reset that will fire when USB connected... */
-	U1OTGIEbits.SESVDIE = 1;
-	IEC5bits.USB1IE = 1;
 	/* Jump to application */
-	__asm__("goto %0"
+	__asm__("j %0"
 		: /* no outputs */
 		: "r" (IVT_MAP_BASE)
 		: /* no clobber*/);
@@ -343,8 +218,7 @@ static void reset_cb(bool transfer_ok, void *context)
 	uint16_t i = 65535;
 	while(i--)
 		;
-
-	asm("reset");
+    abort();
 }
 
 static void write_data_cb(bool transfer_ok, void *context)
@@ -377,7 +251,7 @@ static void write_display_cb(bool transfer_ok, void *context)
 
 static void write_datetime_cb(bool transfer_ok, void *context) {
 	if (transfer_ok) {
-		RtccWriteTimeDate((rtccTimeDate*)prog_buf,false);
+		RTCC_TimeSet((struct tm*)prog_buf);
 	}
 }
 
@@ -441,8 +315,6 @@ int8_t app_unknown_setup_request_callback(const struct setup_packet *setup)
 			if (setup->wLength > sizeof(prog_buf))
 				return -1;
 
-			if (check_i2c_ready(write_address))
-				return -1;
 			write_length = setup->wLength;
 			usb_start_receive_ep0_data_stage((char*)prog_buf, setup->wLength, &write_i2c_cb, NULL);
 		}
@@ -457,7 +329,7 @@ int8_t app_unknown_setup_request_callback(const struct setup_packet *setup)
             
 		}
 		else if (setup->bRequest == WRITE_DATETIME) {
-			if (setup->wLength != sizeof(rtccTimeDate))
+			if (setup->wLength != sizeof(struct tm))
 				return -1;
 			usb_start_receive_ep0_data_stage((char*)prog_buf, setup->wLength, &write_datetime_cb, NULL);			
 		}
@@ -507,30 +379,13 @@ int8_t app_unknown_setup_request_callback(const struct setup_packet *setup)
 			write_address = setup->wValue;
 			if (setup->wLength > sizeof(prog_buf))
  				return -1;
-			read_i2c_block(setup->wValue,(uint8_t*)prog_buf,setup->wLength,I2C_STANDARD);
-			usb_send_data_stage((char*)prog_buf, setup->wLength, empty_cb/*TODO*/, NULL);
-		}
-		else if (setup->bRequest == CHECK_I2C_READY) {
-			write_address = setup->wValue;
-			if (setup->wLength > 1)
-				return -1;
-			if (check_i2c_ready(write_address)) {
-				prog_buf[0]=0;
-			} else {
-				prog_buf[0]=1;
-			}
-			usb_send_data_stage((char*)prog_buf, setup->wLength, empty_cb/*TODO*/, NULL);			
-		}
-		else if (setup->bRequest == READ_EEPROM_DATA) {
-			if (setup->wLength > sizeof(prog_buf))
- 				return -1;
-			read_eeprom_data(setup->wValue,(uint8_t*)prog_buf,setup->wLength);
+			read_i2c_block(setup->wValue,(uint8_t*)prog_buf,setup->wLength);
 			usb_send_data_stage((char*)prog_buf, setup->wLength, empty_cb/*TODO*/, NULL);
 		}
 		else if (setup->bRequest == READ_DATETIME) {
-			if (setup->wLength != sizeof(rtccTimeDate))
+			if (setup->wLength != sizeof(struct tm))
 				return -1;
-			RtccReadTimeDate((rtccTimeDate*)prog_buf);
+			RTCC_TimeGet((struct tm*)prog_buf);
 			usb_send_data_stage((char*)prog_buf, setup->wLength, empty_cb/*TODO*/,NULL);
 		}
 	}

@@ -455,14 +455,14 @@ struct buffer_descriptor {
 #define SFR_USB_STALL_IF         U1IRbits.STALLIF
 #define SFR_USB_TOKEN_IF         U1IRbits.TRNIF
 #define SFR_USB_SOF_IF           U1IRbits.SOFIF
-#define SFR_USB_IF               IFS1bits.USBIF
+#define SFR_USB_IF               IFS0bits.USBIF
 
 #define SFR_USB_INTERRUPT_EN     U1IE
 #define SFR_TRANSFER_IE          U1IEbits.TRNIE
 #define SFR_STALL_IE             U1IEbits.STALLIE
 #define SFR_RESET_IE             U1IEbits.URSTIE
 #define SFR_SOF_IE               U1IEbits.SOFIE
-#define SFR_USB_IE               IEC1bits.USBIE
+#define SFR_USB_IE               IEC0bits.USBIE
 
 #define SFR_USB_EXTENDED_INTERRUPT_EN U1EIE
 
