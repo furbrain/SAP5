@@ -133,27 +133,6 @@ typedef enum
 
 void ADC1_Initialize (void);
 
-/**
-  @Summary
-    Starts sampling manually.
-
-  @Description
-    This routine is used to start the sampling manually.
- 
-  @Preconditions
-    ADC1_Initializer function should have been called 
-    before calling this function.
-
-  @Param
-    None.
-
-  @Returns
-    None.
-
-  @Example
-    Refer to ADC1_Initializer() for an example
-
-*/
 
 void ADC1_Start(void);
 /**
