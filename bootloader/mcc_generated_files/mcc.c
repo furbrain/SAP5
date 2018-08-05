@@ -89,14 +89,16 @@
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    OSCILLATOR_Initialize();
     INTERRUPT_Initialize();
+    OSCILLATOR_Initialize();
     I2C1_Initialize();
+    USBDeviceInit();
     UART1_Initialize();
     ADC1_Initialize();
     TMR2_Initialize();
     TMR1_Initialize();
     RTCC_Initialize();
+    USBDeviceAttach();
     INTERRUPT_GlobalEnable();
 }
 

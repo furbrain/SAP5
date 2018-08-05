@@ -46,10 +46,11 @@ unsigned int NVMUnlock (unsigned int nvmop) {
 */
 int erase_page(void *ptr) {
     unsigned int res;
-    if ((unsigned int) ptr % 2048) return -1;
-    ptr = ptr & 0x1fffffff;
+    unsigned int page;
+    page = (unsigned int) ptr & 0x1fffffff;
+    if (page % 2048) return -1;
     // Set NVMADDR to the Start Address of page to erase
-    NVMADDR = (unsigned int) ptr;
+    NVMADDR = page;
     // Unlock and Erase Page
     res = NVMUnlock(0x4004);
     // Return Result
@@ -99,10 +100,11 @@ int erase_memory() {
 */
 int write_row(void *ptr, const void* src) {
     unsigned int res;
-    if ((unsigned int)ptr % 256) return -1;
-    ptr = ptr & 0x1fffffff;
+    unsigned int row;
+    row = (unsigned int)ptr & 0x1fffffff;
+    if (row % 256) return -1;
     // Set NVMADDR to Start Address of row to program
-    NVMADDR = (unsigned int) ptr;
+    NVMADDR = row;
     // Set NVMSRCADDR to the SRAM data buffer Address
     NVMSRCADDR = (unsigned int) src;
     // Unlock and Write Row
@@ -130,13 +132,14 @@ int write_row(void *ptr, const void* src) {
 */
 int write_dword(void *ptr, const int* src){
     unsigned int res;
+    unsigned int dword;
     // Load data into NVMDATA register
-    if ((unsigned int)ptr % 8) return -1;
-    ptr = ptr & 0x1fffffff;
+    dword = (unsigned int)ptr & 0x1fffffff;
+    if (dword % 8) return -1;
     NVMDATA0 = src[0];
     NVMDATA1 = src[1];
     // Load address to program into NVMADDR register
-    NVMADDR = (unsigned int) ptr;
+    NVMADDR = dword;
     // Unlock and Write Word
     res = NVMUnlock (0x4010);
     // Return Result

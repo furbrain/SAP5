@@ -13,16 +13,7 @@
         <itemPath>mcc_generated_files/mcc.h</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.h</itemPath>
         <itemPath>mcc_generated_files/exceptions.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_ch9.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_common.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_config.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_local.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_hal.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_hal_pic32mm.h</itemPath>
         <itemPath>mcc_generated_files/rtcc.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_cdc.h</itemPath>
         <itemPath>mcc_generated_files/uart1.h</itemPath>
         <itemPath>mcc_generated_files/tmr1.h</itemPath>
         <itemPath>mcc_generated_files/tmr2.h</itemPath>
@@ -36,10 +27,12 @@
       <itemPath>config.h</itemPath>
       <itemPath>maths.h</itemPath>
       <itemPath>interface.h</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/app_type.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
+      <itemPath>/home/phil/Projects/SAP5/firmware/linker.ld</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -53,11 +46,7 @@
         <itemPath>mcc_generated_files/mcc.c</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
         <itemPath>mcc_generated_files/exceptions.c</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_descriptors.c</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_events.c</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device.c</itemPath>
         <itemPath>mcc_generated_files/rtcc.c</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_cdc.c</itemPath>
         <itemPath>mcc_generated_files/uart1.c</itemPath>
         <itemPath>mcc_generated_files/tmr1.c</itemPath>
         <itemPath>mcc_generated_files/tmr2.c</itemPath>
@@ -78,10 +67,12 @@
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
       <itemPath>MyConfig.mc3</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/bootloader/specs.txt</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
     <Elem>.</Elem>
+    <Elem>/home/phil/Projects/SAP5/bootloader</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -246,6 +237,7 @@
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
         <property key="wpo-lto" value="false"/>
+        <appendMe value="-specs=specs.txt"/>
       </C32Global>
       <PICkit3PlatformTool>
         <property key="ADC 1" value="true"/>
@@ -283,6 +275,7 @@
         <property key="UART1" value="true"/>
         <property key="UART2" value="true"/>
         <property key="UART3" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
@@ -297,7 +290,7 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d03ffff"/>
-        <property key="poweroptions.powerenable" value="true"/>
+        <property key="poweroptions.powerenable" value="false"/>
         <property key="programmertogo.imagename" value=""/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
