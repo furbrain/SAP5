@@ -41,10 +41,12 @@
  *  This file is provided only as a convenience when adding a custom linker script
  *  to your application.
  */
+#include "app_type.h"
+#include "mem_locations.h"
 
-OUTPUT_FORMAT("elf32-tradlittlemips")
-OUTPUT_ARCH(pic32mx)
-ENTRY(_reset)
+OUTPUT_FORMAT("elf32-tradlittlemips");
+OUTPUT_ARCH(pic32mx);
+ENTRY(_reset);
 /*
  * Provide for a minimum stack and heap size
  * - _min_stack_size - represents the minimum space that must be made
@@ -53,40 +55,27 @@ ENTRY(_reset)
  * - _min_heap_size  - represents the minimum space that must be made
  *                     available for the heap.  Must be specified on
  *                     the command line using the linker's --defsym option.
+ *
  */
-EXTERN (_min_stack_size _min_heap_size)
-PROVIDE(_min_stack_size = 0x400) ;
+EXTERN (_min_stack_size _min_heap_size);
+PROVIDE(_min_stack_size = 0x400);
 
 /*************************************************************************
  * Processor-specific object file.  Contains SFR definitions.
  *************************************************************************/
-INPUT("processor.o")
+INPUT("processor.o");
 
-
-/* Definitions used for bootloader */
-#define SPECIAL 0x3000 /* includes boot mem, exception mem, debug exec mem */
-#define BL_LENGTH 0x4000 /* Length of bootloader's main flash component */
-
-/* Variables to pass into the bootloader. All addresses are virtual.
-   These represent the base and length of the user or application
-   flash memory. */
-_APP_BASE = 0x9D000000 + BL_LENGTH;
-_APP_LENGTH =  0x40000 - BL_LENGTH;
-_FLASH_BLOCK_SIZE = 0x1000; /* From the datasheet */
-_CONFIG_WORDS_BASE = 0x1fc02ff0;
-_CONFIG_WORDS_TOP  = 0x1fc03ff0;
-
-#if !defined(BOOTLOADER) && !defined(BOOTLOADER_APP)
-	#error "Must define BOOTLOADER or BOOTLOADER_APP to use this linker script"
+#if !defined(BOOTLOADER) && !defined(BOOTLOADER_APP) && !defined(STANDALONE)
+	#error "Must define BOOTLOADER or BOOTLOADER_APP or STANDALONE to use this linker script"
 #endif
 
 /*************************************************************************
  * For interrupt vector handling
  *************************************************************************/
 PROVIDE(_vector_spacing = 0x00000001);
-#ifdef BOOTLOADER
+#if defined(BOOTLOADER) || defined (STANDALONE)
 PROVIDE(_ebase_address = 0x9FC01000);
-#else
+#elif defined(BOOTLOADER_APP)
 PROVIDE(_ebase_address = 0x9D001000 + BL_LENGTH);
 #endif
 
@@ -99,7 +88,7 @@ PROVIDE(_ebase_address = 0x9D001000 + BL_LENGTH);
  * _DBG_CODE_SIZE                 -- In-circuit Debug Executive size
  * _GEN_EXCPT_ADDR                -- General Exception Vector
  *************************************************************************/
-#ifdef BOOTLOADER
+#if defined(BOOTLOADER) || defined(STANDALONE)
 _RESET_ADDR                    = 0xBFC00000;
 _BEV_EXCPT_ADDR                = 0xBFC00380;
 _DBG_EXCPT_ADDR                = 0xBFC00480;
@@ -131,37 +120,20 @@ _GEN_EXCPT_ADDR                = _ebase_address + 0x180;
  *************************************************************************/
 MEMORY
 {
-  kseg0_program_mem     (rx)  : ORIGIN = 0x9D000000, LENGTH = 0x40000
-  debug_exec_mem              : ORIGIN = 0x9FC00490, LENGTH = 0x760
-  kseg0_boot_mem              : ORIGIN = 0x9FC00490, LENGTH = 0x0
-  kseg1_boot_mem              : ORIGIN = 0xBFC00000, LENGTH = 0x490
-  config_BFC01744             : ORIGIN = 0xBFC01744, LENGTH = 0x4
-  config_BFC01748             : ORIGIN = 0xBFC01748, LENGTH = 0x4
-  config_BFC0174C             : ORIGIN = 0xBFC0174C, LENGTH = 0x4
-  config_BFC01750             : ORIGIN = 0xBFC01750, LENGTH = 0x4
-  config_BFC01754             : ORIGIN = 0xBFC01754, LENGTH = 0x4
-  config_BFC01758             : ORIGIN = 0xBFC01758, LENGTH = 0x4
-  config_BFC01760             : ORIGIN = 0xBFC01760, LENGTH = 0x4
-  config_BFC017C4             : ORIGIN = 0xBFC017C4, LENGTH = 0x4
-  config_BFC017C8             : ORIGIN = 0xBFC017C8, LENGTH = 0x4
-  config_BFC017CC             : ORIGIN = 0xBFC017CC, LENGTH = 0x4
-  config_BFC017D0             : ORIGIN = 0xBFC017D0, LENGTH = 0x4
-  config_BFC017D4             : ORIGIN = 0xBFC017D4, LENGTH = 0x4
-  config_BFC017D8             : ORIGIN = 0xBFC017D8, LENGTH = 0x4
-  config_BFC017E0             : ORIGIN = 0xBFC017E0, LENGTH = 0x4
-  kseg0_data_mem       (w!x)  : ORIGIN = 0x80000000, LENGTH = 0x8000
-  sfrs                        : ORIGIN = 0xBF800000, LENGTH = 0x100000
-  configsfrs_BFC01740         : ORIGIN = 0xBFC01740, LENGTH = 0x1C
-  configsfrs_BFC017C0         : ORIGIN = 0xBFC017C0, LENGTH = 0x1C
-
-#ifdef BOOTLOADER
+#if defined(BOOTLOADER) 
   kseg0_program_mem     (rx)  : ORIGIN = 0x9D000000, LENGTH = BL_LENGTH
   kseg0_boot_mem              : ORIGIN = 0x9FC00490, LENGTH = 0x970
   exception_mem               : ORIGIN = 0x9FC01000, LENGTH = 0x1000
   kseg1_boot_mem              : ORIGIN = 0xBFC00000, LENGTH = 0x490
   debug_exec_mem              : ORIGIN = 0xBFC02000, LENGTH = 0xFF0
+#elif defined(STANDALONE)
+  kseg0_program_mem     (rx)  : ORIGIN = 0x9D000000, LENGTH = 0x40000
+  kseg0_boot_mem              : ORIGIN = 0x9FC00490, LENGTH = 0x970
+  exception_mem               : ORIGIN = 0x9FC01000, LENGTH = 0x1000
+  kseg1_boot_mem              : ORIGIN = 0xBFC00000, LENGTH = 0x490
+  debug_exec_mem              : ORIGIN = 0xBFC02000, LENGTH = 0xFF0
 #else
-  kseg0_program_mem     (rx)  : ORIGIN = 0x9D000000+BL_LENGTH+SPECIAL, LENGTH = 0x80000 - BL_LENGTH - SPECIAL
+  kseg0_program_mem     (rx)  : ORIGIN = 0x9D000000+BL_LENGTH+SPECIAL, LENGTH = 0x40000 - BL_LENGTH - SPECIAL
   kseg0_boot_mem              : ORIGIN = 0x9D000490+BL_LENGTH, LENGTH = 0x970
   exception_mem               : ORIGIN = 0x9D001000+BL_LENGTH, LENGTH = 0x1000
   kseg1_boot_mem              : ORIGIN = 0xBD000000+BL_LENGTH, LENGTH = 0x490
@@ -1081,5 +1053,8 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
   /DISCARD/ : { *(.note.GNU-stack) }
   /DISCARD/ : { *(.note.GNU-stack) *(.gnu_debuglink) *(.gnu.lto_*) *(.discard) }
+#ifdef BOOTLOADER_APP
+  /DISCARD/ : { *(._debug_exception) }
+#endif
 }
 

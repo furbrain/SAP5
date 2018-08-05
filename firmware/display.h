@@ -1,6 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include "app_type.h"
 #include <stdbool.h>
 #include <stdint.h>
 

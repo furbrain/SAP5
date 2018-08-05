@@ -1,6 +1,7 @@
 /* I2C utility funcs*/
 #ifndef I2C_UTIL_H
 #define I2C_UTIL_H
+#include "app_type.h"
 #include <stdint.h>
 
 #define EEPROM_ADDRESS 0x50

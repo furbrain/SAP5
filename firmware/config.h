@@ -1,16 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+#include "app_type.h"
 #include <time.h>
 #include <stdint.h>
 #include <stdbool.h>
-/* MEMORY ALLOCATION DATA DO NOT CHANGE*/
-#define IVT_MAP_BASE 0
-#define APP_BASE 0
-#define APP_LENGTH 0
-#define FLASH_BLOCK_SIZE 0
-#define FLASH_TOP 0
-#define CONFIG_WORDS_BASE 0
-#define CONFIG_WORDS_TOP 0
 
 #define FIRMWARE_VERSION 1
 

@@ -12,11 +12,12 @@ enum BAT_STATUS get_bat_status(){
 #ifndef BOOTLOADER
 double get_bat_charge(){
 	double bat_voltage, bg_voltage;
+    int i;
     ADC1_Initialize();
     ADC1_ChannelSelect(ADC1_BAT_SENSE);
     ADC1_Start();
     //Provide Delay
-    for(int i=0;i <1000;i++)
+    for(i=0;i <1000;i++)
     {
     }
     ADC1_Stop();
@@ -28,7 +29,7 @@ double get_bat_charge(){
     ADC1_ChannelSelect(ADC1_CHANNEL_VBG);
     ADC1_Start();
     //Provide Delay
-    for(int i=0;i <1000;i++)
+    for(i=0;i <1000;i++)
     {
     }
     ADC1_Stop();

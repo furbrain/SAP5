@@ -21,21 +21,24 @@
  *
  * Alan Ott
  * Signal 11 Software
- * 2013-05-03
+ * 2016-03-31
  */
-/* define processor clock speed for use in delay funcs*/
+
 #include <xc.h>
+#include <sys/kmem.h>
 #include <string.h>
 #include "config.h"
 #include "mcc_generated_files/mcc.h"
 #include "usb/usb.h"
+#include "usb/usb_ch9.h"
+#include "usb/protocol.h"
 #include "memory.h"
 #include "battery.h"
 #include "i2c_util.h"
 #include "utils.h"
 
 /* Variables from linker script.
- * 
+ *
  * The way to pass values from the linker script to the program is to create
  * variables in the linker script and extern them in the program.  The only
  * catch is that assignment operations in the linker script only set
@@ -45,38 +48,37 @@
  * but the GNU LD manual cites it as the recommended way to do it.  See
  * section 3.5.5 "Source Code Reference."
  *
- * It's also worth noting that on Extended Data Space (EDS) PIC24F parts,
- * the linker will but a 0x01 in the high byte of each of these addresses. 
- * Unfortunately, it's impossible with GCC to take the address of a
- * varialbe, apply a mask (in our cause we'd want to use 0x00ffffff), and
- * use that value as an initializer for a constant.  Becaause of this, the
- * assignment of the uint32_t "constants" below has to be done in main().
+ * It's also worth noting that addresses in the Linker Script are virtual,
+ * and what we want in most cases in a bootloader are physical addresses.
  */
 
+#include "app_type.h"
+#include "mem_locations.h"
+
+#define LINKER_VAR(X) (((uint32_t) &_##X) & 0x1fffffff) /* convert to physical */
+/* "Constants" for linker script values. These are assigned in main() using the
+ * LINKER_VAR() macro. See the above comment for rationale. */
+static uint32_t APP_BASE;
+static uint32_t APP_LENGTH;
+static uint32_t FLASH_BLOCK_SIZE;
+static uint32_t CONFIG_WORDS_BASE;
+static uint32_t CONFIG_WORDS_TOP;
+
 /* Flash block(s) where the bootloader resides.*/
-#define USER_REGION_BASE  IVT_MAP_BASE
-#define USER_REGION_TOP   (FLASH_TOP - FLASH_BLOCK_SIZE) /* The last page has the config words. Don't clear that one*/
+#define USER_REGION_BASE  APP_BASE
+#define USER_REGION_TOP   (APP_BASE + APP_LENGTH)
 
 
 /* Instruction sizes */
-#ifdef __PIC24F__
-	#define INSTRUCTIONS_PER_ROW 64
+#ifdef __XC32__
+	#define INSTRUCTIONS_PER_ROW 128
 	#define BYTES_PER_INSTRUCTION 4
-	#define WORDS_PER_INSTRUCTION 2
+	#define WORDS_PER_INSTRUCTION 1
 #else
-    #define INSTRUCTIONS_PER_ROW 64
-    #define BYTES_PER_INSTRUCTION 4
-    #define WORDS_PER_INSTRUCTION 2
+	#error "Define instruction sizes for your platform"
 #endif
 
-#define BUFFER_LENGTH (INSTRUCTIONS_PER_ROW * WORDS_PER_INSTRUCTION)
-
-/* Protocol commands */
-#define CLEAR_FLASH 100
-#define SEND_DATA 101
-#define GET_CHIP_INFO 102
-#define REQUEST_DATA 103
-#define SEND_RESET 105
+#define BUFFER_LENGTH (INSTRUCTIONS_PER_ROW * BYTES_PER_INSTRUCTION)
 
 /* I2C commands */
 #define WRITE_I2C_DATA 110
@@ -89,17 +91,6 @@
 #define WRITE_DATETIME 120
 #define READ_DATETIME 121
 
-struct chip_info {
-	uint32_t user_region_base;
-	uint32_t user_region_top;
-	uint32_t config_words_base;
-	uint32_t config_words_top;
-
-	uint8_t bytes_per_instruction;
-	uint8_t instructions_per_row;
-	uint8_t pad0;
-	uint8_t pad1;
-};
 
 /* Data-to-program: buffer and attributes. */
 static uint32_t write_address; /* program space word address */
@@ -109,24 +100,44 @@ static uint8_t i2c_on;
 
 static struct chip_info chip_info = { };
 
-void clear_flash()
+static int8_t clear_flash()
 {
-    erase_memory();
+
+	uint32_t prog_addr = USER_REGION_BASE;
+	int8_t res;
+
+	while (prog_addr < USER_REGION_TOP) {
+		res = erase_page((void*)prog_addr);
+		if (res < 0)
+			return res;
+
+		prog_addr += FLASH_BLOCK_SIZE;
+	}
+
+	return 0;
 }
 
-void write_flash_row()
+static int8_t write_flash_row()
 {
-    uint16_t data[BUFFER_LENGTH];
-    memcpy(data,prog_buf, write_length);
-    memset(data+write_length*2,0xff,(BUFFER_LENGTH-write_length)*2);
-    write_row((void*)write_address,data);
+	/* Make sure a short buffer is padded with 0xff. */
+	if (write_length < BUFFER_LENGTH)
+		memset(prog_buf + write_length, 0xff,
+		       BUFFER_LENGTH - write_length);
+	return write_row((void *)write_address, prog_buf);
 }
 
 
-/* Read data starting at prog_addr into the global prog_buf*/
+
+/* Read data starting at prog_addr into the global prog_buf. prog_addr
+ * is a physical address. */
 static void read_prog_data(uint32_t prog_addr, uint32_t len/*bytes*/)
 {
-    memcpy((void *)prog_buf, (void*)prog_addr, len);
+	uint32_t *virt_addr_uncached = (uint32_t*) PA_TO_KVA1(prog_addr);
+
+	if (len > sizeof(prog_buf))
+		len = sizeof(prog_buf);
+
+	memcpy(prog_buf, virt_addr_uncached, len);
 }
 
 
@@ -173,6 +184,34 @@ void display_show_bat(int charge) {
 	render_data_to_page(1,104,bat_status,24);
 }
 
+static int8_t reset_cb(bool transfer_ok, void *context)
+{
+	uint32_t x;
+	uint16_t i = 65535;
+
+	/* Delay before resetting*/
+	while(i--)
+		;
+
+	/* The following reset procedure is from the Family Reference Manual,
+	 * Chapter 7, "Resets," under "Software Resets." */
+
+	/* Unlock sequence */
+	SYSKEY = 0x00000000;
+	SYSKEY = 0xaa996655;
+	SYSKEY = 0x556699aa;
+
+	/* Set the reset bit and then read it to trigger the reset. */
+	RSWRSTSET = 1;
+	x = RSWRST;
+
+	/* Required NOP instructions */
+	asm("nop\n nop\n nop\n nop\n");
+
+	return 0;
+}
+
+
 int main(void)
 {
 	uint32_t pll_startup_counter = 600;
@@ -182,55 +221,61 @@ int main(void)
     SYSTEM_Initialize();
 	/* setup ports */
 	/* enable peripherals */
+    PERIPH_EN_SetHigh();
+    TMR2_Start();
+
 	/* first look to see if we should be running bootloader at all... */
-	display_init();
-	display_clear_screen();
+	/* If there was a software reset, jump to the application. In real
+	 * life, this is where you'd put your logic for whether you are
+	 * to enter the bootloader or the application */
+	//if (RCONbits.SWR) {
+    //	/* Jump to application */
+	//	asm volatile ("JR %0\n"
+	//	              "NOP\n"
+	//	              : /* no outputs */
+	//		      : "r" (PA_TO_KVA1(APP_BASE))
+	//		      : /* no clobber*/);
+	//}
+
 	usb_init();
-	delay_ms(3);
+	//display_init();
+	//display_clear_screen();
+	//delay_ms(3);
 	while (1) {
 		bat_status = get_bat_status();
-		if (bat_status==DISCHARGING) break;
+		if (bat_status==DISCHARGING) reset_cb(true, NULL);
 		counter++;
 		if ((counter & 0x3fff)==0) {
 			// only update display every 32 cycles
-			if (bat_status==CHARGING) display_show_bat(-1);
-			if (bat_status==CHARGED) display_show_bat(18);
+			//if (bat_status==CHARGING) display_show_bat(-1);
+			//if (bat_status==CHARGED) display_show_bat(18);
 		}
         usb_service();
 	}
-	/* Jump to application */
-	__asm__("j %0"
-		: /* no outputs */
-		: "r" (IVT_MAP_BASE)
-		: /* no clobber*/);
+}
 
+static int8_t empty_cb(bool transfer_ok, void *context)
+{
+	/* Nothing to do here. */
 	return 0;
 }
 
-static void empty_cb(bool transfer_ok, void *context)
-{
-	/* Nothing to do here. */
-}
 
-static void reset_cb(bool transfer_ok, void *context)
-{
-	/* Delay before resetting*/
-	uint16_t i = 65535;
-	while(i--)
-		;
-    abort();
-}
-
-static void write_data_cb(bool transfer_ok, void *context)
+static int8_t write_data_cb(bool transfer_ok, void *context)
 {
 	/* For OUT control transfers, data from the data stage of the request
-	 * is in buf[]. */
+	 * is in prog_buf[]. */
+	int8_t res = -1;
 
-	if (transfer_ok)
-		write_flash_row();
+	if (!transfer_ok)
+		return -1;
+
+	res = write_flash_row();
+
+	return res;
 }
 
-static void write_i2c_cb(bool transfer_ok, void *context)
+static int8_t write_i2c_cb(bool transfer_ok, void *context)
 {
 	/* For OUT control transfers, data from the data stage of the request
 	 * is in buf[]. */
@@ -239,7 +284,7 @@ static void write_i2c_cb(bool transfer_ok, void *context)
 		write_i2c(write_address,(char*)prog_buf,write_length);
 }
 
-static void write_display_cb(bool transfer_ok, void *context)
+static int8_t write_display_cb(bool transfer_ok, void *context)
 {
 	/* For OUT control transfers, data from the data stage of the request
 	 * is in buf[]. */
@@ -249,7 +294,7 @@ static void write_display_cb(bool transfer_ok, void *context)
 	}
 }
 
-static void write_datetime_cb(bool transfer_ok, void *context) {
+static int8_t write_datetime_cb(bool transfer_ok, void *context) {
 	if (transfer_ok) {
 		RTCC_TimeSet((struct tm*)prog_buf);
 	}
@@ -268,7 +313,7 @@ int8_t app_unknown_setup_request_callback(const struct setup_packet *setup)
 		if (setup->bRequest == CLEAR_FLASH) {
 			/* Clear flash Request */
 			clear_flash();
-			
+
 			/* There will be NO data stage. This sends back the
 			 * STATUS stage packet. */
 			usb_send_data_stage(NULL, 0, empty_cb, NULL);
@@ -279,9 +324,7 @@ int8_t app_unknown_setup_request_callback(const struct setup_packet *setup)
 				return -1;
 
 			write_address = setup->wValue | ((uint32_t) setup->wIndex) << 16;
-			write_address /= 2; /* Convert to word address. */
 			write_length = setup->wLength;
-			write_length /= 2;  /* Convert to word length. */
 
 			/* Make sure it is within writable range (ie: don't
 			 * overwrite the bootloader or config words). */
@@ -341,15 +384,24 @@ int8_t app_unknown_setup_request_callback(const struct setup_packet *setup)
 
 		if (setup->bRequest == GET_CHIP_INFO) {
 			/* Request Device Info Struct */
-			chip_info.user_region_base = USER_REGION_BASE * 2;
-			chip_info.user_region_top = USER_REGION_TOP * 2;
-			chip_info.config_words_base = CONFIG_WORDS_BASE * 2;
-			chip_info.config_words_top = CONFIG_WORDS_TOP * 2;
+			chip_info.user_region_base = USER_REGION_BASE;
+			chip_info.user_region_top = USER_REGION_TOP;
+			chip_info.config_words_base = CONFIG_WORDS_BASE;
+			chip_info.config_words_top = CONFIG_WORDS_TOP;
 
 			chip_info.bytes_per_instruction = BYTES_PER_INSTRUCTION;
 			chip_info.instructions_per_row = INSTRUCTIONS_PER_ROW;
+			chip_info.number_of_skip_regions = 1;
 
-			usb_send_data_stage((char*)&chip_info, sizeof(struct chip_info), empty_cb/*TODO*/, NULL);
+			/* Skip the debug executive which it's impossible
+			 * to remove using the linker script. This has to be
+			 * aligned (at least the base) to a flash row. */
+			chip_info.skip_regions[0].base = 0x1fc00400;
+			chip_info.skip_regions[0].top = 0x1fc01480;
+
+			usb_send_data_stage((char*)&chip_info,
+				MIN(sizeof(struct chip_info), setup->wLength),
+				empty_cb/*TODO*/, NULL);
 		}
 
 		if (setup->bRequest == REQUEST_DATA) {
@@ -357,10 +409,11 @@ int8_t app_unknown_setup_request_callback(const struct setup_packet *setup)
 			uint32_t read_address;
 
 			read_address = setup->wValue | ((uint32_t) setup->wIndex) << 16;
-			read_address /= 2;
 
 			/* Range-check address */
-			if (read_address + setup->wLength > FLASH_TOP)
+			if (write_address < USER_REGION_BASE)
+				return -1;
+			if (read_address + setup->wLength > USER_REGION_TOP)
 				return -1;
 
 			/* Check for overflow (unlikely on known MCUs) */
@@ -371,8 +424,7 @@ int8_t app_unknown_setup_request_callback(const struct setup_packet *setup)
 			if (setup->wLength > sizeof(prog_buf))
 				return -1;
 
-			
-			read_prog_data(read_address, setup->wLength / 2);
+			read_prog_data(read_address, setup->wLength);
 			usb_send_data_stage((char*)prog_buf, setup->wLength, empty_cb/*TODO*/, NULL);
 		}
 		else if (setup->bRequest == READ_I2C_DATA) {
@@ -398,3 +450,4 @@ void app_usb_reset_callback(void)
 {
 
 }
+
