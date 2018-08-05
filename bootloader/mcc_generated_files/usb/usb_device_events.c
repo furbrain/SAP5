@@ -24,6 +24,7 @@ please contact mla_licensing@microchip.com
 #include <stdint.h>
 #include "usb_device.h"
 #include "usb_device_generic.h"
+#include "../../usb_callbacks.h"
 
 /*******************************************************************
  * Function:        bool USER_USB_CALLBACK_EVENT_HANDLER(
@@ -81,6 +82,7 @@ bool USER_USB_CALLBACK_EVENT_HANDLER(USB_EVENT event, void *pdata, uint16_t size
         case EVENT_EP0_REQUEST:
             /* We have received a non-standard USB request.  The vendor driver
              * needs to check to see if the request was for it. */
+            app_unknown_setup_request_callback();
             USBCheckVendorRequest();
             break;
 
