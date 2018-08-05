@@ -13,11 +13,11 @@
 /* Variables to pass into the bootloader. All addresses are virtual.
    These represent the base and length of the user or application
    flash memory. */
-#define _APP_BASE = 0x9D000000 + BL_LENGTH
-#define _APP_LENGTH =  0x40000 - BL_LENGTH
-#define _FLASH_BLOCK_SIZE = 0x0800 /* From the datasheet */
-#define _CONFIG_WORDS_BASE = 0x1fc01740
-#define _CONFIG_WORDS_TOP  = 0x1fc017F0
+#define APP_BASE  (0x9D000000 + BL_LENGTH)
+#define APP_LENGTH  (0x40000 - BL_LENGTH)
+#define FLASH_BLOCK_SIZE 0x0800 /* From the datasheet */
+#define CONFIG_WORDS_BASE 0x1fc01740
+#define CONFIG_WORDS_TOP  0x1fc017F0
 
 #endif	/* MEM_LOCATIONS_H */
 
