@@ -31,10 +31,13 @@ Hardware Tasks:
 
 
 
-Software Tasks:
+Firmware Tasks:
 . Get button working - probably as an interrupt
 . get flick working  - repeatedly poll and use hysteresis
 . get rangefinder working
 . Get menu working
 . Get sleep and wakeup working
 
+
+PC software
+. note needs freetype-py and sparse_list
