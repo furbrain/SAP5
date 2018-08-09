@@ -1,6 +1,7 @@
 #include <sys/kmem.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
 #include "config.h"
 #include "mcc_generated_files/mcc.h"
 #include "memory.h"
@@ -33,7 +34,7 @@ static struct chip_info chip_info = { };
 
 /* Instruction sizes */
 #ifdef __XC32__
-	#define INSTRUCTIONS_PER_ROW 128
+	#define INSTRUCTIONS_PER_ROW 64
 	#define BYTES_PER_INSTRUCTION 4
 	#define WORDS_PER_INSTRUCTION 1
 #else
@@ -92,18 +93,6 @@ static void write_flash_row()
 }
 
 
-
-/* Read data starting at prog_addr into the global prog_buf. prog_addr
- * is a physical address. */
-static void read_prog_data(uint32_t prog_addr, uint32_t len/*bytes*/)
-{
-	uint32_t *virt_addr_uncached = (uint32_t*) PA_TO_KVA1(prog_addr);
-
-	if (len > sizeof(prog_buf))
-		len = sizeof(prog_buf);
-
-	memcpy(prog_buf, virt_addr_uncached, len);
-}
 
 
 static void write_i2c(uint8_t device_address, uint8_t* buffer, uint16_t len) {
@@ -167,7 +156,7 @@ static void write_display_cb(void)
 }
 
 static void write_datetime_cb(void) {
-    RTCC_TimeSet((struct tm*)prog_buf);
+    RTCC_TimeSet(gmtime((time_t*)prog_buf));
 }
 
 
@@ -251,7 +240,7 @@ int8_t app_unknown_setup_request_callback()
             
 		}
 		else if (SetupPkt.bRequest == WRITE_DATETIME) {
-			if (SetupPkt.wLength != sizeof(struct tm))
+			if (SetupPkt.wLength != sizeof(time_t))
 				return -1;
             USBEP0Receive((char*)prog_buf, SetupPkt.wLength, &write_datetime_cb);			
 		}
@@ -281,7 +270,7 @@ int8_t app_unknown_setup_request_callback()
 			read_address = SetupPkt.wValue | ((uint32_t) SetupPkt.wIndex) << 16;
 
 			/* Range-check address */
-			if (write_address < USER_REGION_BASE)
+			if (read_address < USER_REGION_BASE)
 				return -1;
 			if (read_address + SetupPkt.wLength > USER_REGION_TOP)
 				return -1;
@@ -294,8 +283,7 @@ int8_t app_unknown_setup_request_callback()
 			if (SetupPkt.wLength > sizeof(prog_buf))
 				return -1;
 
-			read_prog_data(read_address, SetupPkt.wLength);
-            USBEP0SendRAMPtr((char*)prog_buf, SetupPkt.wLength, USB_EP0_NO_OPTIONS);
+            USBEP0SendROMPtr((const uint8_t*)read_address, SetupPkt.wLength, USB_EP0_ROM);
 		}
 		else if (SetupPkt.bRequest == READ_I2C_DATA) {
 			write_address = SetupPkt.wValue;
@@ -305,9 +293,10 @@ int8_t app_unknown_setup_request_callback()
             USBEP0SendRAMPtr((char*)prog_buf, SetupPkt.wLength, USB_EP0_NO_OPTIONS);
 		}
 		else if (SetupPkt.bRequest == READ_DATETIME) {
-			if (SetupPkt.wLength != sizeof(struct tm))
+			if (SetupPkt.wLength != sizeof(time_t))
 				return -1;
-			RTCC_TimeGet((struct tm*)prog_buf);
+			RTCC_TimeGet((struct tm*)(&prog_buf[4]));
+            ((time_t*)prog_buf)[0] = mktime((struct tm*)(&prog_buf[4]));
             USBEP0SendRAMPtr((char*)prog_buf, SetupPkt.wLength, USB_EP0_NO_OPTIONS);
 		}
 	}

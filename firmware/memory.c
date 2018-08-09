@@ -1,5 +1,6 @@
 #include <xc.h>
 #include <stdlib.h>
+#include <sys/kmem.h>
 #include "mcc_generated_files/mcc.h"
 #include "memory.h"
 
@@ -47,7 +48,7 @@ unsigned int NVMUnlock (unsigned int nvmop) {
 int erase_page(void *ptr) {
     unsigned int res;
     unsigned int page;
-    page = (unsigned int) ptr & 0x1fffffff;
+    page = (unsigned int) KVA_TO_PA(ptr);
     if (page % 2048) return -1;
     // Set NVMADDR to the Start Address of page to erase
     NVMADDR = page;
@@ -101,12 +102,14 @@ int erase_memory() {
 int write_row(void *ptr, const void* src) {
     unsigned int res;
     unsigned int row;
-    row = (unsigned int)ptr & 0x1fffffff;
+    unsigned int src_addr;
+    row = (unsigned int) KVA_TO_PA(ptr);
+    src_addr = (unsigned int) KVA_TO_PA(src);
     if (row % 256) return -1;
     // Set NVMADDR to Start Address of row to program
     NVMADDR = row;
     // Set NVMSRCADDR to the SRAM data buffer Address
-    NVMSRCADDR = (unsigned int) src;
+    NVMSRCADDR = (unsigned int) src_addr;
     // Unlock and Write Row
     res = NVMUnlock(0x4003);
     // Return Result
@@ -134,7 +137,7 @@ int write_dword(void *ptr, const int* src){
     unsigned int res;
     unsigned int dword;
     // Load data into NVMDATA register
-    dword = (unsigned int)ptr & 0x1fffffff;
+    dword = (unsigned int) KVA_TO_PA(ptr);
     if (dword % 8) return -1;
     NVMDATA0 = src[0];
     NVMDATA1 = src[1];
