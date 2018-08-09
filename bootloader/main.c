@@ -96,6 +96,17 @@ void display_show_bat(int charge) {
 	render_data_to_page(1,104,bat_status,24);
 }
 
+void JumpToApp(void)
+{       
+        void (*fptr)(void);
+        PERIPH_EN_SetDigitalOutput();
+        PERIPH_EN_SetHigh();
+        INTERRUPT_GlobalDisable();
+        DMACONbits.ON = 0;
+        fptr = (void (*)(void))APP_BASE+1;
+        fptr();
+}       
+
 
 int main(void)
 {
@@ -103,26 +114,21 @@ int main(void)
 	int display_initialised = 0;
 	int counter = 0;
 	enum BAT_STATUS bat_status;
+	/* first look to see if we should be running bootloader at all... */
+	/* If there was a software reset, jump to the application. In real
+	 * life, this is where you'd put your logic for whether you are
+	 * to enter the bootloader or the application */
+	if (RCONbits.SWR) {
+        JumpToApp();
+	}
+
+    RTCC_TimeReset(true);
     SYSTEM_Initialize();
 	/* setup ports */
 	/* enable peripherals */
     PERIPH_EN_SetHigh();
     TMR2_Start();
 
-	/* first look to see if we should be running bootloader at all... */
-	/* If there was a software reset, jump to the application. In real
-	 * life, this is where you'd put your logic for whether you are
-	 * to enter the bootloader or the application */
-	//if (RCONbits.SWR) {
-    //	/* Jump to application */
-	//	asm volatile ("JR %0\n"
-	//	              "NOP\n"
-	//	              : /* no outputs */
-	//		      : "r" (PA_TO_KVA1(APP_BASE))
-	//		      : /* no clobber*/);
-	//}
-
-	//usb_init();
 	display_init();
 	display_clear_screen();
 	delay_ms(3);
