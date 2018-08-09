@@ -24,3 +24,5 @@ MPLABXLog*
 *#
 /bootloader/dist/default/
 /bootloader/build/default/
+/bootloader/nbproject/private/
+/firmware/nbproject/private/
