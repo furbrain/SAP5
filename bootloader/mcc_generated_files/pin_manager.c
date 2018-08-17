@@ -67,15 +67,15 @@ void PIN_MANAGER_Initialize(void)
     /****************************************************************************
      * Setting the GPIO Direction SFR(s)
      ***************************************************************************/
-    TRISA = 0x001F;
-    TRISB = 0xBF7F;
+    TRISA = 0x0000;
+    TRISB = 0x9F4B;
     TRISC = 0x0200;
 
     /****************************************************************************
      * Setting the Weak Pull Up and Weak Pull Down SFR(s)
      ***************************************************************************/
     CNPDA = 0x0000;
-    CNPDB = 0x0000;
+    CNPDB = 0x0040;
     CNPDC = 0x0000;
     CNPUA = 0x0000;
     CNPUB = 0x0000;
@@ -91,9 +91,15 @@ void PIN_MANAGER_Initialize(void)
     /****************************************************************************
      * Setting the Analog/Digital Configuration SFR(s)
      ***************************************************************************/
-    ANSELA = 0x000F;
-    ANSELB = 0x201C;
+    ANSELA = 0x0000;
+    ANSELB = 0x0008;
 
+
+    /****************************************************************************
+     * Interrupt On Change for group CNCONB - config
+     ***************************************************************************/
+	CNCONBbits.ON = 1; 
+	CNCONBbits.CNSTYLE = 1; 
 
     /****************************************************************************
      * Interrupt On Change for group CNCONC - config
@@ -102,9 +108,19 @@ void PIN_MANAGER_Initialize(void)
 	CNCONCbits.CNSTYLE = 1; 
 
     /****************************************************************************
+     * Interrupt On Change for group CNEN0B - positive
+     ***************************************************************************/
+	CNEN0Bbits.CNIE0B6 = 1; // Pin : RB6
+
+    /****************************************************************************
      * Interrupt On Change for group CNEN0C - positive
      ***************************************************************************/
 	CNEN0Cbits.CNIE0C9 = 0; // Pin : RC9
+
+    /****************************************************************************
+     * Interrupt On Change for group CNEN1B - negative
+     ***************************************************************************/
+	CNEN1Bbits.CNIE1B6 = 0; // Pin : RB6
 
     /****************************************************************************
      * Interrupt On Change for group CNEN1C - negative
@@ -112,15 +128,36 @@ void PIN_MANAGER_Initialize(void)
 	CNEN1Cbits.CNIE1C9 = 1; // Pin : RC9
 
     /****************************************************************************
+     * Interrupt On Change for group CNFB - flag
+     ***************************************************************************/
+	CNFBbits.CNFB6 = 0; // Pin : RB6
+
+    /****************************************************************************
      * Interrupt On Change for group CNFC - flag
      ***************************************************************************/
 	CNFCbits.CNFC9 = 0; // Pin : RC9
 
+    IEC0bits.CNBIE = 1; // Enable CNBI interrupt 
     IEC0bits.CNCIE = 1; // Enable CNCI interrupt 
 }
 
+/* Interrupt service routine for the CNBI interrupt. */
+void __attribute__ ((vector(_CHANGE_NOTICE_B_VECTOR), interrupt(IPL7SOFT))) _CHANGE_NOTICE_B( void )
+{
+    if(IFS0bits.CNBIF == 1)
+    {
+        // Clear the flag
+        IFS0CLR= 1 << _IFS0_CNBIF_POSITION; //Clear IFS0bits.CNBIF
+        // interrupt on change for group CNFB
+        if(CNFBbits.CNFB6 == 1)
+        {
+            CNFBCLR = 0x40;  //Clear CNFBbits.CNFB6
+            // Add handler code here for Pin - RB6
+        }
+    }
+}
 /* Interrupt service routine for the CNCI interrupt. */
-void __attribute__ ((vector(_CHANGE_NOTICE_C_VECTOR), interrupt(IPL1SOFT))) _CHANGE_NOTICE_C( void )
+void __attribute__ ((vector(_CHANGE_NOTICE_C_VECTOR), interrupt(IPL7SOFT))) _CHANGE_NOTICE_C( void )
 {
     if(IFS0bits.CNCIF == 1)
     {

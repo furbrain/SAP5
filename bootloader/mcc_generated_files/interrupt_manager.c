@@ -65,9 +65,14 @@ void INTERRUPT_Initialize (void)
         IPC16bits.I2C1MIP = 1;
     //    Sub Priority: 0
         IPC16bits.I2C1MIS = 0;
+    //    CNBI: PORT B Change Notification
+    //    Priority: 7
+        IPC2bits.CNBIP = 7;
+    //    Sub Priority: 0
+        IPC2bits.CNBIS = 0;
     //    CNCI: PORT C Change Notification
-    //    Priority: 1
-        IPC2bits.CNCIP = 1;
+    //    Priority: 7
+        IPC2bits.CNCIP = 7;
     //    Sub Priority: 0
         IPC2bits.CNCIS = 0;
     //    TI: Timer 2

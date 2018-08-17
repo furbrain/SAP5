@@ -52,6 +52,8 @@
 #include "i2c_util.h"
 #include "display.h"
 #include "usb_callbacks.h"
+#include "utils.h"
+#include "mcc_generated_files/usb/usb_hal_pic32mm.h"
 
 #define DISPLAY_ADDRESS 0x3C
 
@@ -107,41 +109,116 @@ void JumpToApp(void)
         fptr();
 }       
 
+void sleep(void) {
+    //TRISA = 0;
+    //TRISB = 0;
+    //TRISC = 0;
+    TRISCbits.TRISC9 = 1;
+    TRISBbits.TRISB6 = 1;
+    //LATA = 0;
+    //LATB = 0;
+    //LATC = 0;
+    INTCONbits.MVEC = 1;
+    //    CNBI: PORT B Change Notification
+    //    Priority: 7
+        IPC2bits.CNBIP = 7;
+    //    Sub Priority: 0
+        IPC2bits.CNBIS = 0;
+    //    CNCI: PORT C Change Notification
+    //    Priority: 7
+        IPC2bits.CNCIP = 7;
+    //    Sub Priority: 0
+        IPC2bits.CNCIS = 0;
 
-int main(void)
-{
-	uint32_t pll_startup_counter = 600;
-	int display_initialised = 0;
-	int counter = 0;
+    SYSKEY = 0x12345678; //write invalid key to force lock
+    SYSKEY = 0xAA996655; //write Key1 to SYSKEY
+    SYSKEY = 0x556699AA; //write Key2 to SYSKEY
+    PMDCONbits.PMDLOCK = 0;
+    PMD1 = 0xffffffff;
+    PMD2 = 0xffffffff;
+    PMD3 = 0xffffffff;
+    PMD4 = 0xffffffff;
+    PMD5 = 0xffffffff;
+    PMD6 = 0xfffffffe; //leave RTCC on...
+    PMD7 = 0xffffffff;
+    PMDCONbits.PMDLOCK = 1;
+    PWRCONbits.VREGS = 0;
+    PWRCONbits.RETEN = 0;    
+    OSCCONbits.SLPEN = 1;
+    SYSKEY = 0x12345678;
+    __builtin_enable_interrupts();
+    asm("wait");
+    asm("nop;nop;nop;nop;");
+    //re-enable modules
+    SYSKEY = 0x12345678; //write invalid key to force lock
+    SYSKEY = 0xAA996655; //write Key1 to SYSKEY
+    SYSKEY = 0x556699AA; //write Key2 to SYSKEY
+    PMDCONbits.PMDLOCK = 0;
+    PMD1 = 0x0;
+    PMD2 = 0x0;
+    PMD3 = 0x0;
+    PMD4 = 0x0;
+    PMD5 = 0x0;
+    PMD6 = 0x0;
+    PMD7 = 0x0;
+    PMDCONbits.PMDLOCK = 1;
+    SYSKEY = 0x12345678;
+}
+
+void run_usb(void) {
+    int counter = 0;
+    //Re-enable peripherals...
+    
 	enum BAT_STATUS bat_status;
-	/* first look to see if we should be running bootloader at all... */
-	/* If there was a software reset, jump to the application. In real
-	 * life, this is where you'd put your logic for whether you are
-	 * to enter the bootloader or the application */
-	if (RCONbits.SWR) {
-        JumpToApp();
-	}
-
     RTCC_TimeReset(true);
     SYSTEM_Initialize();
-	/* setup ports */
-	/* enable peripherals */
+	/* setup ports */	
+/* enable peripherals */
+    PIN_MANAGER_Initialize();
     PERIPH_EN_SetHigh();
     TMR2_Start();
-
+    delay_ms(100);
 	display_init();
 	display_clear_screen();
 	delay_ms(3);
 	while (1) {
 		bat_status = get_bat_status();
-		if (bat_status==DISCHARGING) reset_cb();
+		if (bat_status==DISCHARGING) {
+            U1PWRCbits.USBPWR = 0;
+            sys_reset();
+        }
 		counter++;
-		if ((counter & 0x3fff)==0) {
+		if ((counter & 0xffff)==0) {
 			// only update display every 32 cycles
 			if (bat_status==CHARGING) display_show_bat(-1);
 			if (bat_status==CHARGED) display_show_bat(18);
 		}
-        //usb_service();
-	}
+        wdt_clear();
+	}    
+}
+
+int main(void)
+{
+	/* first look to see if we should be running bootloader at all... */
+	/* If there was a software reset, jump to the application. In real
+	 * life, this is where you'd put your logic for whether you are
+	 * to enter the bootloader or the application */
+    //INTERRUPT_Initialize();
+    while(1) {
+        PIN_MANAGER_Initialize();
+        wdt_clear();
+        sleep();
+        wdt_clear();
+        if (PORTBbits.RB6) {
+            /* USB connected */
+            PERIPH_EN_SetHigh();
+            run_usb();
+        }
+        if (!SWITCH_GetValue()) {
+            /* button has been pressed*/
+            RCON = 0x0;
+            JumpToApp();
+        }
+    }
 }
 

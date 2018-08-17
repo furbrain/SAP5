@@ -58,12 +58,14 @@ static struct chip_info chip_info = { };
 /*datetime commands*/
 #define WRITE_DATETIME 120
 #define READ_DATETIME 121
-
+/*UART commands*/
+#define WRITE_UART 130
+#define READ_UART 131
 
 /* Data-to-program: buffer and attributes. */
 static uint32_t write_address; /* program space word address */
 static size_t write_length;    /* number of words, not bytes */
-static uint16_t prog_buf[BUFFER_LENGTH];
+static uint8_t prog_buf[BUFFER_LENGTH];
 static uint8_t i2c_on;
 
 
@@ -107,22 +109,7 @@ void reset_cb(void)
 	/* Delay before resetting*/
 	while(i--)
 		;
-
-	/* The following reset procedure is from the Family Reference Manual,
-	 * Chapter 7, "Resets," under "Software Resets." */
-
-	/* Unlock sequence */
-	SYSKEY = 0x00000000;
-	SYSKEY = 0xaa996655;
-	SYSKEY = 0x556699aa;
-
-	/* Set the reset bit and then read it to trigger the reset. */
-	RSWRSTSET = 1;
-	x = RSWRST;
-
-	/* Required NOP instructions */
-	asm("nop\n nop\n nop\n nop\n");
-
+    sys_reset();
 }
 
 static void empty_cb(void)
@@ -159,6 +146,9 @@ static void write_datetime_cb(void) {
     RTCC_TimeSet(gmtime((time_t*)prog_buf));
 }
 
+static void write_uart_cb(void) {
+    UART1_WriteBuffer(prog_buf, write_length);
+}
 
 
 void app_usb_reset_callback(void)
@@ -244,6 +234,12 @@ int8_t app_unknown_setup_request_callback()
 				return -1;
             USBEP0Receive((char*)prog_buf, SetupPkt.wLength, &write_datetime_cb);			
 		}
+
+		else if (SetupPkt.bRequest == WRITE_UART) {
+			if (SetupPkt.wLength > UART1_TransmitBufferSizeGet())
+				return -1;
+            USBEP0Receive((char*)prog_buf, SetupPkt.wLength, &write_uart_cb);			
+		}
 	}
 
 	if (SetupPkt.requestInfo.recipient == USB_SETUP_RECIPIENT_OTHER &&
@@ -298,6 +294,10 @@ int8_t app_unknown_setup_request_callback()
 			RTCC_TimeGet((struct tm*)(&prog_buf[4]));
             ((time_t*)prog_buf)[0] = mktime((struct tm*)(&prog_buf[4]));
             USBEP0SendRAMPtr((char*)prog_buf, SetupPkt.wLength, USB_EP0_NO_OPTIONS);
+		}
+		else if (SetupPkt.bRequest == READ_UART) {
+            write_length = UART1_ReadBuffer(prog_buf, SetupPkt.wLength);
+            USBEP0SendRAMPtr((char*)prog_buf, write_length, USB_EP0_NO_OPTIONS);
 		}
 	}
 
