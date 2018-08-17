@@ -12,6 +12,7 @@
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
+#include "utils.h"
 
 struct menu_entry {
     int16_t index;
@@ -77,7 +78,7 @@ const struct menu_entry menu_items[] = {
     {0, "Measure", FUNCTION, set_time},
     {1, "Calibrate  >", 10, NULL},
     {2, "Settings  >", 20, NULL},
-    {3, "Off", FUNCTION, set_time},
+    {3, "Off", FUNCTION, sys_reset},
     {4, NULL, 0, NULL},
 
     /* calibrate menu */
@@ -149,6 +150,9 @@ void TMR2_CallBack(void) {
             last_click = LONG_CLICK;
         }
         button_counter=0;
+    }
+    if (button_counter>10000) {
+        sys_reset();
     }
 }
 
@@ -313,6 +317,7 @@ bool show_menu(int16_t index, bool first_time) {
         swipe_text(index, true);
     }
     while (true) {
+        wdt_clear();
         delay_ms(50);
         show_status();
         action = get_action();

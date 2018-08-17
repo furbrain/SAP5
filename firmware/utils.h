@@ -3,4 +3,8 @@
 
 void delay_ms(int count);
 
+void wdt_clear(void);
+
+void sys_reset(void);
+
 #endif

@@ -5,7 +5,7 @@
 
 enum BAT_STATUS get_bat_status(){
     
-	if (U1OTGSTATbits.SESVD) return CHARGING;
+	if (PORTBbits.RB6) return CHARGING;
     return DISCHARGING;
 }
 
