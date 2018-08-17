@@ -31,6 +31,9 @@ READ_EEPROM_DATA = 114
 WRITE_DATETIME = 120
 READ_DATETIME = 121
 
+# UART commands
+WRITE_UART = 130
+READ_UART = 131
 
 def clean_list(buffer):
     for i in range(0,len(buffer)):
@@ -111,13 +114,13 @@ class Programmer:
                     return None
         raise ProgrammerError("Bootloader not found")
         
-    def read_data(self,command,address,size,timeout=10000):
+    def read_data(self,command,address,size,timeout=10000, allow_fewer=False):
         index=0
         if address > 0xFFFF:
             index = address >> 16
             address = address & 0xFFFF
         buf = self.handle.controlMsg(usb.ENDPOINT_IN | usb.TYPE_VENDOR | usb.RECIP_OTHER,command,size,value=address,index=index,timeout=timeout)
-        if len(buf) != size:
+        if len(buf) != size and not allow_fewer:
             print len(buf)
             raise ProgrammerError("Error reading data : only got %d bytes, expecting %d" % (len(buf),size))
         return buf
@@ -214,16 +217,16 @@ class Programmer:
     	tm = time.mktime(dt.utctimetuple())
         return self.write_data(WRITE_DATETIME,0,struct.pack("i",tm))
         
+    def read_uart(self):
+        
+        return ''.join(chr(x) for x in self.read_data(READ_UART, 0, 16, allow_fewer=True))
+    
+    def write_uart(self, text):
+        return self.write_data(WRITE_UART, 0, [ord(x) for x in text])
+        
+
 if __name__=="__main__":
-    import time
-    EEPROM=0x50
-    MPU = 0x68
-    LIDAR = 0x62
     p = Programmer()
-    print "0x%X: 0x%X" % (p.user_range[0], p.user_range[1])
-    print p.read_datetime()
-    p.write_datetime(datetime.datetime.now())
-    print p.read_datetime()
-    time.sleep(6)
-    print p.read_datetime()    
-    p.reset()
+    p.write_uart("O")
+    time.sleep(0.3)
+    print p.read_uart()
