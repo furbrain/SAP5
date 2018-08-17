@@ -33,10 +33,17 @@ Hardware Tasks:
 
 Firmware Tasks:
 . Get button working - probably as an interrupt
-. get flick working  - repeatedly poll and use hysteresis
+. get flick working  - repeatedly poll and use hysteresis DONE
 . get rangefinder working
-. Get menu working
-. Get sleep and wakeup working
+. Get menu working DONE
+. Get sleep and wakeup working DONE
+
+need laser.c
+laser_on
+laser_off
+laser_read(speed, timeout)
+laser_start
+laser_ready
 
 
 PC software
