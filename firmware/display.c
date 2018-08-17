@@ -13,7 +13,7 @@ uint8_t buffer[NUM_PAGES][128];
 #endif
 
 int top_page = 0;
-bool display_inverted = false;
+bool display_inverted = true;
 int cur_column = 0;
 int cur_page = 0;
 
@@ -37,8 +37,8 @@ void display_init() {
 	send2(0xD5,0x50);
 	send2(0xDA,0x12);
 	send1(0xAF);
-	send1(0xA0);
-	send1(0xC0);
+	send1(0xA1);
+	send1(0xC8);
 	display_set_brightness(0xFF);
 	send2(0xD3,0);
 	send1(0x40);
