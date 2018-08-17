@@ -6,7 +6,7 @@
 #include "font.h"
 #include "sensors.h"
 #include "interface.h"
-
+#include "laser.h"
 #define TXT_LENGTH 50
 
 void main(void)
@@ -15,20 +15,30 @@ void main(void)
     struct RAW_SENSORS sensors;
     char text[TXT_LENGTH];
     int i;
+    double f;
     enum ACTION action;
+    wdt_clear();
     SYSTEM_Initialize();
+    wdt_clear();
     PERIPH_EN_SetHigh();
     TMR2_Start();
-    delay_ms(1000);
+    wdt_clear();
+    delay_ms(100);
+    wdt_clear();
     display_init();
+    wdt_clear();
     display_clear_screen();
-    display_write_text(4,1,"On",&large_font,false);
+    wdt_clear();
+    display_write_text(5,1,"Fish!",&large_font,false);
+    wdt_clear();
     while (1)
     {
-    	for (i=0; i<16; i++) {
-	    	display_setbuffer_xy(i,i);
-    		display_show_buffer();
-    	}
-    	display_clear_screen();
+        wdt_clear();
+        f = laser_read(LASER_FAST, 500);
+        wdt_clear();
+        snprintf(text, TXT_LENGTH, "%06.3f", f);
+        display_write_text(5,1,text,&large_font, false);
+        wdt_clear();
+        delay_ms(200);
     }
 }
