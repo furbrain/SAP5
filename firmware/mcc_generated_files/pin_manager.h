@@ -201,6 +201,152 @@
 #define BAT_SENSE_SetDigitalOutput()   ( TRISBCLR = (1 << 3) )
 /**
   @Summary
+    Sets the GPIO pin, RB6, high using LATBbits.LATB6.
+
+  @Description
+    Sets the GPIO pin, RB6, high using LATBbits.LATB6.
+
+  @Preconditions
+    The RB6 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB6 high (1)
+    VUSB_SetHigh();
+    </code>
+
+*/
+#define VUSB_SetHigh()          ( LATBSET = (1 << 6) )
+/**
+  @Summary
+    Sets the GPIO pin, RB6, low using LATBbits.LATB6.
+
+  @Description
+    Sets the GPIO pin, RB6, low using LATBbits.LATB6.
+
+  @Preconditions
+    The RB6 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB6 low (0)
+    VUSB_SetLow();
+    </code>
+
+*/
+#define VUSB_SetLow()           ( LATBCLR = (1 << 6) )
+/**
+  @Summary
+    Toggles the GPIO pin, RB6, using LATBbits.LATB6.
+
+  @Description
+    Toggles the GPIO pin, RB6, using LATBbits.LATB6.
+
+  @Preconditions
+    The RB6 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Toggle RB6
+    VUSB_Toggle();
+    </code>
+
+*/
+#define VUSB_Toggle()           ( LATBINV = (1 << 6) )
+/**
+  @Summary
+    Reads the value of the GPIO pin, RB6.
+
+  @Description
+    Reads the value of the GPIO pin, RB6.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    uint16_t portValue;
+
+    // Read RB6
+    postValue = VUSB_GetValue();
+    </code>
+
+*/
+#define VUSB_GetValue()         PORTBbits.RB6
+/**
+  @Summary
+    Configures the GPIO pin, RB6, as an input.
+
+  @Description
+    Configures the GPIO pin, RB6, as an input.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB6 as an input
+    VUSB_SetDigitalInput();
+    </code>
+
+*/
+#define VUSB_SetDigitalInput()   ( TRISBSET = (1 << 6) )
+/**
+  @Summary
+    Configures the GPIO pin, RB6, as an output.
+
+  @Description
+    Configures the GPIO pin, RB6, as an output.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB6 as an output
+    VUSB_SetDigitalOutput();
+    </code>
+
+*/
+#define VUSB_SetDigitalOutput()   ( TRISBCLR = (1 << 6) )
+/**
+  @Summary
     Sets the GPIO pin, RB7, high using LATBbits.LATB7.
 
   @Description

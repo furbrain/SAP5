@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdfix.h>
 
 #define FIRMWARE_VERSION 1
 

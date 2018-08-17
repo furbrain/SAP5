@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=mcc_generated_files/adc1.c mcc_generated_files/i2c1.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/interrupt_manager.c mcc_generated_files/exceptions.c mcc_generated_files/rtcc.c mcc_generated_files/uart1.c mcc_generated_files/tmr1.c mcc_generated_files/tmr2.c main.c display.c font.c images.c i2c_util.c utils.c sensors.c maths.c interface.c config.c
+SOURCEFILES_QUOTED_IF_SPACED=mcc_generated_files/adc1.c mcc_generated_files/i2c1.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/interrupt_manager.c mcc_generated_files/exceptions.c mcc_generated_files/rtcc.c mcc_generated_files/uart1.c mcc_generated_files/tmr1.c mcc_generated_files/tmr2.c main.c display.c font.c images.c i2c_util.c utils.c sensors.c maths.c interface.c config.c /home/phil/Projects/SAP5/firmware/laser.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/exceptions.o ${OBJECTDIR}/mcc_generated_files/rtcc.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/tmr1.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/main.o ${OBJECTDIR}/display.o ${OBJECTDIR}/font.o ${OBJECTDIR}/images.o ${OBJECTDIR}/i2c_util.o ${OBJECTDIR}/utils.o ${OBJECTDIR}/sensors.o ${OBJECTDIR}/maths.o ${OBJECTDIR}/interface.o ${OBJECTDIR}/config.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/mcc_generated_files/adc1.o.d ${OBJECTDIR}/mcc_generated_files/i2c1.o.d ${OBJECTDIR}/mcc_generated_files/pin_manager.o.d ${OBJECTDIR}/mcc_generated_files/mcc.o.d ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o.d ${OBJECTDIR}/mcc_generated_files/exceptions.o.d ${OBJECTDIR}/mcc_generated_files/rtcc.o.d ${OBJECTDIR}/mcc_generated_files/uart1.o.d ${OBJECTDIR}/mcc_generated_files/tmr1.o.d ${OBJECTDIR}/mcc_generated_files/tmr2.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/display.o.d ${OBJECTDIR}/font.o.d ${OBJECTDIR}/images.o.d ${OBJECTDIR}/i2c_util.o.d ${OBJECTDIR}/utils.o.d ${OBJECTDIR}/sensors.o.d ${OBJECTDIR}/maths.o.d ${OBJECTDIR}/interface.o.d ${OBJECTDIR}/config.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/exceptions.o ${OBJECTDIR}/mcc_generated_files/rtcc.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/tmr1.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/main.o ${OBJECTDIR}/display.o ${OBJECTDIR}/font.o ${OBJECTDIR}/images.o ${OBJECTDIR}/i2c_util.o ${OBJECTDIR}/utils.o ${OBJECTDIR}/sensors.o ${OBJECTDIR}/maths.o ${OBJECTDIR}/interface.o ${OBJECTDIR}/config.o ${OBJECTDIR}/_ext/908305067/laser.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/mcc_generated_files/adc1.o.d ${OBJECTDIR}/mcc_generated_files/i2c1.o.d ${OBJECTDIR}/mcc_generated_files/pin_manager.o.d ${OBJECTDIR}/mcc_generated_files/mcc.o.d ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o.d ${OBJECTDIR}/mcc_generated_files/exceptions.o.d ${OBJECTDIR}/mcc_generated_files/rtcc.o.d ${OBJECTDIR}/mcc_generated_files/uart1.o.d ${OBJECTDIR}/mcc_generated_files/tmr1.o.d ${OBJECTDIR}/mcc_generated_files/tmr2.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/display.o.d ${OBJECTDIR}/font.o.d ${OBJECTDIR}/images.o.d ${OBJECTDIR}/i2c_util.o.d ${OBJECTDIR}/utils.o.d ${OBJECTDIR}/sensors.o.d ${OBJECTDIR}/maths.o.d ${OBJECTDIR}/interface.o.d ${OBJECTDIR}/config.o.d ${OBJECTDIR}/_ext/908305067/laser.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/exceptions.o ${OBJECTDIR}/mcc_generated_files/rtcc.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/tmr1.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/main.o ${OBJECTDIR}/display.o ${OBJECTDIR}/font.o ${OBJECTDIR}/images.o ${OBJECTDIR}/i2c_util.o ${OBJECTDIR}/utils.o ${OBJECTDIR}/sensors.o ${OBJECTDIR}/maths.o ${OBJECTDIR}/interface.o ${OBJECTDIR}/config.o
+OBJECTFILES=${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/exceptions.o ${OBJECTDIR}/mcc_generated_files/rtcc.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/tmr1.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/main.o ${OBJECTDIR}/display.o ${OBJECTDIR}/font.o ${OBJECTDIR}/images.o ${OBJECTDIR}/i2c_util.o ${OBJECTDIR}/utils.o ${OBJECTDIR}/sensors.o ${OBJECTDIR}/maths.o ${OBJECTDIR}/interface.o ${OBJECTDIR}/config.o ${OBJECTDIR}/_ext/908305067/laser.o
 
 # Source Files
-SOURCEFILES=mcc_generated_files/adc1.c mcc_generated_files/i2c1.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/interrupt_manager.c mcc_generated_files/exceptions.c mcc_generated_files/rtcc.c mcc_generated_files/uart1.c mcc_generated_files/tmr1.c mcc_generated_files/tmr2.c main.c display.c font.c images.c i2c_util.c utils.c sensors.c maths.c interface.c config.c
+SOURCEFILES=mcc_generated_files/adc1.c mcc_generated_files/i2c1.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/interrupt_manager.c mcc_generated_files/exceptions.c mcc_generated_files/rtcc.c mcc_generated_files/uart1.c mcc_generated_files/tmr1.c mcc_generated_files/tmr2.c main.c display.c font.c images.c i2c_util.c utils.c sensors.c maths.c interface.c config.c /home/phil/Projects/SAP5/firmware/laser.c
 
 
 CFLAGS=
@@ -226,6 +226,12 @@ ${OBJECTDIR}/config.o: config.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/config.o 
 	@${FIXDEPS} "${OBJECTDIR}/config.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/config.o.d" -o ${OBJECTDIR}/config.o config.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
 	
+${OBJECTDIR}/_ext/908305067/laser.o: /home/phil/Projects/SAP5/firmware/laser.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/908305067" 
+	@${RM} ${OBJECTDIR}/_ext/908305067/laser.o.d 
+	@${RM} ${OBJECTDIR}/_ext/908305067/laser.o 
+	@${FIXDEPS} "${OBJECTDIR}/_ext/908305067/laser.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/908305067/laser.o.d" -o ${OBJECTDIR}/_ext/908305067/laser.o /home/phil/Projects/SAP5/firmware/laser.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
+	
 else
 ${OBJECTDIR}/mcc_generated_files/adc1.o: mcc_generated_files/adc1.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/mcc_generated_files" 
@@ -346,6 +352,12 @@ ${OBJECTDIR}/config.o: config.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/config.o.d 
 	@${RM} ${OBJECTDIR}/config.o 
 	@${FIXDEPS} "${OBJECTDIR}/config.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/config.o.d" -o ${OBJECTDIR}/config.o config.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
+	
+${OBJECTDIR}/_ext/908305067/laser.o: /home/phil/Projects/SAP5/firmware/laser.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/908305067" 
+	@${RM} ${OBJECTDIR}/_ext/908305067/laser.o.d 
+	@${RM} ${OBJECTDIR}/_ext/908305067/laser.o 
+	@${FIXDEPS} "${OBJECTDIR}/_ext/908305067/laser.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/908305067/laser.o.d" -o ${OBJECTDIR}/_ext/908305067/laser.o /home/phil/Projects/SAP5/firmware/laser.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
 	
 endif
 
