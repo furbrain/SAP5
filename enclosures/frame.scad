@@ -49,7 +49,7 @@ module beta(width, height) {
                 translate(i) cylinder(d=6.2+4,h=6);
             }
             //laser holder
-            translate([-22,-2,0]) cube([29,42,height+3]);
+            translate([-22,-2,0]) cube([29,42,height+6]);
             
             //battery holder
             translate([-12.25,8,0]) cube([24.5,32,height]);
@@ -66,7 +66,9 @@ module beta(width, height) {
 
         //battery pack
         translate([-10.25,10,-5]) cube([20.5,28,30]);
-        translate([-20,0,height]) cube([25,45,14]);
+        //laser_holder
+        translate([-20,0,height+3]) cube([25,45,14]);
+        translate([-17,-4,height+3]) cube([16,8,8]);
     }
 }
        
