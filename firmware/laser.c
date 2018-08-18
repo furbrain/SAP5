@@ -33,9 +33,7 @@ double laser_read(enum LASER_SPEED speed, int timeout) {
 void laser_start(enum LASER_SPEED speed) {
     char text[32];
     int i;
-    i = UART1_ReadBuffer(text,32);
-    text[i] = 0;
-    display_write_text(3,1,text,&small_font,false);
+    UART1_ReceiveBufferClear();
     switch (speed){
         case LASER_SLOW:
             UART1_Write('M');
@@ -50,7 +48,7 @@ void laser_start(enum LASER_SPEED speed) {
 }
 
 bool laser_result_ready(void) {
-    if (UART1_ReceiveBufferSizeGet()>=11) {
+    if ((22-UART1_ReceiveBufferSizeGet())>=11) {
         if (UART1_Peek(4)=='.') {
             return true;
         }
@@ -60,13 +58,9 @@ bool laser_result_ready(void) {
 
 double laser_get_result(void) {
     char text[15];
-    char d_text[30];
     int read_count, i;
-    i = UART1_ReceiveBufferSizeGet();
-    read_count = UART1_ReadBuffer(text, 15);
+    UART1_ReadBuffer(text, 15);
     text[read_count]=0;
-    snprintf(d_text, 30, "%d:%d; %s", i, read_count, text);
-    display_write_text(1,1,d_text,&small_font,false);
     return atof(text+2);
 }
 

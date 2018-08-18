@@ -29,15 +29,15 @@ void main(void)
     wdt_clear();
     display_clear_screen();
     wdt_clear();
-    display_write_text(5,1,"Fish!",&large_font,false);
+    display_write_text(3,1,"On",&large_font,false);
     wdt_clear();
     while (1)
     {
         wdt_clear();
-        f = laser_read(LASER_FAST, 500);
+        f = laser_read(LASER_MEDIUM, 500);
         wdt_clear();
         snprintf(text, TXT_LENGTH, "%06.3f", f);
-        display_write_text(5,1,text,&large_font, false);
+        display_write_text(3,1,text,&large_font, false);
         wdt_clear();
         delay_ms(200);
     }

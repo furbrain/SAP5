@@ -418,8 +418,8 @@ bool UART1_TransmitBufferIsFull(void)
 
 
 void UART1_ReceiveBufferClear(void) {
-    uint8_t buffer[UART1_CONFIG_TX_BYTEQ_LENGTH];
-    UART1_ReadBuffer(buffer, UART1_CONFIG_TX_BYTEQ_LENGTH);
+    uint8_t buffer[UART1_CONFIG_RX_BYTEQ_LENGTH];
+    UART1_ReadBuffer(buffer, UART1_CONFIG_RX_BYTEQ_LENGTH);
 }
 
 UART1_STATUS UART1_StatusGet (void)

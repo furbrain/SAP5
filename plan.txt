@@ -38,13 +38,6 @@ Firmware Tasks:
 . Get menu working DONE
 . Get sleep and wakeup working DONE
 
-need laser.c
-laser_on
-laser_off
-laser_read(speed, timeout)
-laser_start
-laser_ready
-
 
 PC software
 . note needs freetype-py and sparse_list
