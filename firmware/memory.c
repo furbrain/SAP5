@@ -3,6 +3,7 @@
 #include <sys/kmem.h>
 #include "mcc_generated_files/mcc.h"
 #include "memory.h"
+#include "mem_locations.h"
 
 
 unsigned int NVMUnlock (unsigned int nvmop) {
@@ -148,4 +149,31 @@ int write_dword(void *ptr, const int* src){
     // Return Result
     if (res) return -2;
     return 0;
+}
+
+int write_data(void *dest,  void *src, int length){
+    assert length % 8  = 0
+}
+
+const struct CONFIG* read_config(void){
+    struct CONFIG *config = null;
+    uint8_t *ptr = (uint8_t *) APP_CONFIG_LOCATION;
+    while ((*ptr != 0xff) && ptr <(APP_CONFIG_LOCATION+APP_CONFIG_SIZE)) {
+        config = (struct CONFIG*)ptr;
+        ptr += sizeof(struct CONFIG);
+    }
+    return config
+}
+
+int write_config(struct CONFIG *config{
+    struct CONFIG *config = null;
+    while ((*ptr != 0xff) && ptr+sizeof(struct CONFIG) <(APP_CONFIG_LOCATION+APP_CONFIG_SIZE)) {
+        ptr += sizeof(struct CONFIG);
+    }
+    if (ptr > (APP_CONFIG_LOCATION + APP_CONFIG_SIZE)) {
+        erase_page(APP_CONFIG_LOCATION);
+        ptr  = APP_CONFIG_LOCATION;
+    }
+               
+    
 }

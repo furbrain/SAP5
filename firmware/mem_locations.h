@@ -10,7 +10,8 @@
 #define SPECIAL 0x3000 /* includes boot mem, exception mem, debug exec mem */
 #define BL_LENGTH 0x4000 /* Length of bootloader's main flash component */
 
-/* Variables to pass into the bootloader. All addresses are virtual.
+/* Variables to pass into the bootloader. All ad
+ * dresses are virtual.
    These represent the base and length of the user or application
    flash memory. */
 #define APP_BASE  (0x9D000000 + BL_LENGTH)
@@ -18,6 +19,12 @@
 #define FLASH_BLOCK_SIZE 0x0800 /* From the datasheet */
 #define CONFIG_WORDS_BASE 0x1fc01740
 #define CONFIG_WORDS_TOP  0x1fc017F0
+
+#define APP_CONFIG_LOCATION 0x9D08000
+#define APP_CONFIG_SIZE     0x0000800
+#define APP_LEG_LOCATION    0x9D08800
+#define APP_LEG_SIZE 0x2800
+
 
 #endif	/* MEM_LOCATIONS_H */
 

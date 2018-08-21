@@ -69,3 +69,8 @@ int write_row(void *ptr, const void* src);
 
 */
 int write_dword(void *ptr, const int* src);
+
+
+const struct CONFIG* read_config(void);
+
+int write_config(struct CONFIG *config); 
