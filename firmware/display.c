@@ -136,16 +136,14 @@ void display_write_text(int page, int column, const char* text, const struct FON
 }
 
 void display_write_multiline(int page,const char* text, const struct FONT *font) {
-	char buf[17];
+	char buf[18];
 	int i = 0;
-	while (text) {
+	while (*text) {
 		if (*text=='\n') {
-			if (i<17) {
-				buf[i] = 0;
-				display_write_text(page,0,buf,font,false);
-				i = 0;
-				page+=2;
-			}
+            buf[i] = 0;
+            display_write_text(page,0,buf,font,false);
+            i = 0;
+            page+=2;
 		} else {
 			if (i<17) {
 				buf[i] = *text;
@@ -154,6 +152,7 @@ void display_write_multiline(int page,const char* text, const struct FONT *font)
 		}
 		text++;
 	}
+    buf[i]=0;
 	display_write_text(page,0,buf,font,false);
 }
 

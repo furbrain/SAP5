@@ -151,7 +151,7 @@ void TMR2_CallBack(void) {
         }
         button_counter=0;
     }
-    if (button_counter>10000) {
+    if (button_counter>30000) {
         sys_reset();
     }
 }
