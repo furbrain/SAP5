@@ -16,68 +16,6 @@
  * z-axis is up
  * 
  * for the gyro the axis indicates the axis of rotation */
-//#define TESTBED
-#ifdef TESTBED
-#define GX_AXIS 1
-#define GX_POLARITY -1
-
-#define GY_AXIS 0
-#define GY_POLARITY +1
-
-#define GZ_AXIS 2
-#define GZ_POLARITY -1
-
-
-#define MX_AXIS 0
-#define MX_POLARITY +1
-
-#define MY_AXIS 1
-#define MY_POLARITY +1
-
-#define MZ_AXIS 2
-#define MZ_POLARITY +1
-
-
-#define AX_AXIS 1
-#define AX_POLARITY -1
-
-#define AY_AXIS 0
-#define AY_POLARITY +1
-
-#define AZ_AXIS 2
-#define AZ_POLARITY -1
-
-#else
-
-#define GX_AXIS 0
-#define GX_POLARITY +1
-
-#define GY_AXIS 1
-#define GY_POLARITY +1
-
-#define GZ_AXIS 2
-#define GZ_POLARITY +1
-
-
-#define MX_AXIS 1
-#define MX_POLARITY -1
-
-#define MY_AXIS 0
-#define MY_POLARITY +1
-
-#define MZ_AXIS 2
-#define MZ_POLARITY -1
-
-
-#define AX_AXIS 0
-#define AX_POLARITY -1
-
-#define AY_AXIS 1
-#define AY_POLARITY -1
-
-#define AZ_AXIS 2
-#define AZ_POLARITY +1
-#endif
 
 #define SWITCH_ACTIVE_HIGH false
 
@@ -94,6 +32,11 @@ enum LENGTH_UNITS {
 };
 
 struct CONFIG {
+    struct {
+        uint8_t accel[3];
+        uint8_t mag[3];
+        
+    } axes;
     struct {
         float accel[3][3];
         float mag[3][3];

@@ -4,6 +4,7 @@
 
 #ifndef BOOTLOADER
 struct CONFIG config = {
+            {{1,0,5},{4,3,2}},                   //axis orientation
             { //calib section
                 {{1.0,0,0},{0,1.0,0},{0,0,1.0}}, //accel matrix
                 {{1.0,0,0},{0,1.0,0},{0,0,1.0}}, //mag matrix

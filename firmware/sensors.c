@@ -1,4 +1,5 @@
 #define USE_AND_OR
+#include <string.h>
 #include "config.h"
 #include "sensors.h"
 #include "i2c_util.h"
@@ -148,23 +149,38 @@ void sensors_read_cooked(struct COOKED_SENSORS *sensors, bool lidar) {
 	sensors_raw_to_cooked(sensors,&raw_sensors);
 }
 
+void sensors_raw_adjust_axes(struct RAW_SENSORS *sensors){
+    struct RAW_SENSORS temp_sensors;
+    int i;
+    int sign;
+    int axis;
+    memcpy(&temp_sensors, sensors, sizeof(temp_sensors));
+    for (i=0;i<3; i++) {
+        sign = config.axes.accel[i]>=3 ? -1 : 1;
+        axis = config.axes.accel[i] % 3;
+        sensors.accel[i] = temp_sensors->accel[axis] * sign;
+        sensors.gyro[i] = temp_sensors->gyro[axis] * sign;
+        sign = config.axes.mag[i]>=3 ? -1 : 1;
+        axis = config.axes.mag[i] % 3;
+        sensors.mag[i] = temp_sensors->mag[axis] * sign;
+        sensors.mag[i] = temp_sensors->mag[axis] * sign;
+    }
+}
+
 void sensors_raw_to_cooked(struct COOKED_SENSORS *cooked, struct RAW_SENSORS *raw){
+    int i;
+    //first correct axes and polarity
+    sensors_raw_adjust_axes(raw);
     // first convert to doubles with sensible units
 	// also account for vagaries of sensor alignment
-	cooked->accel[0] = raw->accel[AX_AXIS]*AX_POLARITY*(ACCEL_FULL_SCALE/32768.0);
-	cooked->gyro[0] = raw->gyro[GX_AXIS]*GX_POLARITY*(GYRO_FULL_SCALE/32768.0);
-	cooked->mag[0] = raw->mag[MX_AXIS]*MX_POLARITY*(MAG_FULL_SCALE/32768.0);
-
-	cooked->accel[1] = raw->accel[AY_AXIS]*AY_POLARITY*(ACCEL_FULL_SCALE/32768.0);
-	cooked->gyro[1] = raw->gyro[GY_AXIS]*GY_POLARITY*(GYRO_FULL_SCALE/32768.0);
-	cooked->mag[1] = raw->mag[MY_AXIS]*MY_POLARITY*(MAG_FULL_SCALE/32768.0);
-
-	cooked->accel[2] = raw->accel[AZ_AXIS]*AZ_POLARITY*(ACCEL_FULL_SCALE/32768.0);
-	cooked->gyro[2] = raw->gyro[GZ_AXIS]*GZ_POLARITY*(GYRO_FULL_SCALE/32768.0);
-	cooked->mag[2] = raw->mag[MZ_AXIS]*MZ_POLARITY*(MAG_FULL_SCALE/32768.0);
+    for (i=0; i<3; i++) {
+        cooked->accel[i] = raw->accel[i]*(ACCEL_FULL_SCALE/32768.0);
+        cooked->gyro[i] = raw->gyro[i]*(GYRO_FULL_SCALE/32768.0);
+        cooked->mag[i] = raw->mag[i]*(MAG_FULL_SCALE/32768.0);
+    }
 
     cooked->temp = (raw->temp/333.87)+21.0;
-    cooked->distance = (double)raw->distance/1000.0;
+    cooked->distance = (double)raw->distance/1000.0 + config.calib.laser_offset;
     //FIXME need to apply calibration here....
 }
 
