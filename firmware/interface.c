@@ -212,7 +212,7 @@ enum ACTION get_action() {
     struct COOKED_SENSORS sensors;
     enum ACTION temp;
 
-    sensors_read_cooked(&sensors, false);
+    sensors_read_cooked(&sensors);
     /* look for "flip" movements */
     //debug("f%.2g",sensors.gyro[1]);
     if (sensors.gyro[1] > 80.0) {

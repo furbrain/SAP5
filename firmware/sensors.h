@@ -22,19 +22,13 @@ struct COOKED_SENSORS {
 
 void sensors_init();
 
-void sensors_init_compass();
+void sensors_read_raw(struct RAW_SENSORS *sensors);
 
-void sensors_read_raw(struct RAW_SENSORS *sensors, bool lidar);
+void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors);
 
-void sensors_read_cooked(struct COOKED_SENSORS *sensors, bool lidar);
+void sensors_read_cooked(struct COOKED_SENSORS *sensors);
 
-void sensors_raw_to_cooked(struct COOKED_SENSORS *cooked, struct RAW_SENSORS *raw);
+void sensors_uncalibrated_to_cooked(struct COOKED_SENSORS *sensors);
 
 void sensors_get_orientation(struct COOKED_SENSORS *sensors, accum *d);
-
-extern volatile int lidar_average_count;
-
-int32_t sensors_read_lidar();
-
-void sensors_enable_lidar(bool on);
 #endif

@@ -2,6 +2,7 @@
 #include <string.h>
 #include "config.h"
 #include "sensors.h"
+#include "display.h"
 #include "i2c_util.h"
 #include "maths.h"
 #include "mcc_generated_files/rtcc.h"
@@ -43,7 +44,7 @@
 //I2C stuff
 #define I2C_MST_CTRL    0x40
 #define SLV0_ADDR    0x8C
-#define SLV0_REG    0x00
+#define SLV0_REG    0x02
 #define SLV0_CTRL    0xD7
 #define SLV1_ADDR    0x0C
 #define SLV1_REG    0x0A
@@ -55,14 +56,9 @@
 
 
 void sensors_init() {
-        
-        //reset FIFO, I2C, signal conditioning...
- 
-	sensors_init_compass();
-}
-
-void sensors_init_compass() {
-   uint8_t temp;
+    //reset FIFO, I2C, signal conditioning...
+    uint8_t temp;
+    wdt_clear();
     MPU_COMMAND(0x6A,0);
     MPU_COMMAND(0x6A,7);
 
@@ -122,11 +118,8 @@ void sensors_init_compass() {
 	MPU_COMMAND(0x37, INT_CFG);
 	MPU_COMMAND(0x38, INT_EN);
     wdt_clear();
-        
-        //enable fifo
-
+    //enable fifo
     MPU_COMMAND(0x6A, USER_CTRL);
-        
     MPU_COMMAND(0x6B, PWR_MGMT_1);
     wdt_clear();
 }
@@ -137,19 +130,12 @@ void byte_swap(uint16_t *word){
     *word = (*word << 8 | *word >> 8);    
 }
 
-void sensors_read_raw(struct RAW_SENSORS *sensors, bool lidar){
+void sensors_read_raw(struct RAW_SENSORS *sensors){
     int i;
     read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, sizeof(*sensors));
     for(i=0; i< 10; ++i) {
         byte_swap(&((uint16_t*)sensors)[i]);
     }
-}
-
-void sensors_read_cooked(struct COOKED_SENSORS *sensors, bool lidar) {
-    struct RAW_SENSORS raw_sensors;
-    int i;
-    sensors_read_raw (&raw_sensors,lidar);
-	sensors_raw_to_cooked(sensors,&raw_sensors);
 }
 
 void sensors_raw_adjust_axes(struct RAW_SENSORS *sensors){
@@ -170,7 +156,7 @@ void sensors_raw_adjust_axes(struct RAW_SENSORS *sensors){
     }
 }
 
-void sensors_raw_to_cooked(struct COOKED_SENSORS *cooked, struct RAW_SENSORS *raw){
+void sensors_raw_to_uncalibrated(struct COOKED_SENSORS *cooked, struct RAW_SENSORS *raw){
     int i;
     //first correct axes and polarity
     sensors_raw_adjust_axes(raw);
@@ -181,10 +167,31 @@ void sensors_raw_to_cooked(struct COOKED_SENSORS *cooked, struct RAW_SENSORS *ra
         cooked->gyro[i] = raw->gyro[i]*(GYRO_FULL_SCALE/32768.0);
         cooked->mag[i] = raw->mag[i]*(MAG_FULL_SCALE/32768.0);
     }
-
     cooked->temp = (raw->temp/333.87)+21.0;
-    //FIXME need to apply calibration here....
 }
+
+
+void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors) {
+    struct RAW_SENSORS raw_sensors;
+    int i;
+    sensors_read_raw (&raw_sensors);
+	sensors_raw_to_uncalibrated(sensors, &raw_sensors);    
+}
+
+void sensors_uncalibrated_to_cooked(struct COOKED_SENSORS *cooked){
+    //FIXME
+}
+
+
+
+
+void sensors_read_cooked(struct COOKED_SENSORS *sensors) {
+    sensors_read_uncalibrated(sensors);
+    sensors_uncalibrated_to_cooked(sensors);
+}
+
+
+
 
 
 void sensors_get_orientation(struct COOKED_SENSORS *sensors, accum *d) {

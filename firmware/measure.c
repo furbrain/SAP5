@@ -25,19 +25,17 @@ const char *polar_format[] = {" %03.1f "," %+02.1f "," %.2f "," %.2f "};
 
 void get_readings(accum *orientation, accum *distance){
 	int i,j;
-	struct RAW_SENSORS sensors;
-	struct COOKED_SENSORS cooked;
-	int32_t mags[3] = {0,0,0};
-	int32_t accels[3] = {0,0,0};
+	struct COOKED_SENSORS sensors;
+	accum mags[3] = {0,0,0};
+	accum accels[3] = {0,0,0};
 
 	display_on(false);
 	laser_off();
 	delay_ms(20);
-	sensors_init_compass();
 	for(i=0;i<8;++i) {
         wdt_clear();
 		delay_ms(10);
-		sensors_read_raw(&sensors,false);
+		sensors_read_uncalibrated(&sensors);
 		for (j=0;j<3;++j) {
 			mags[j] += sensors.mag[j];
 			accels[j] += sensors.accel[j];
@@ -47,8 +45,8 @@ void get_readings(accum *orientation, accum *distance){
 		sensors.mag[j] = mags[j]/80;
 		sensors.accel[j] = accels[j]/40;
 	}
-	sensors_raw_to_cooked(&cooked,&sensors);
-	sensors_get_orientation(&cooked,orientation);
+	sensors_uncalibrated_to_cooked(&sensors);
+	sensors_get_orientation(&sensors,orientation);
 	normalise(orientation);
     *distance = laser_read(LASER_MEDIUM,1000);
 	laser_on();
@@ -98,10 +96,10 @@ void test() {
 	struct RAW_SENSORS sensors;
 	display_on(false);
 	laser_off();
-    sensors_read_raw(&sensors,false);
+    sensors_read_raw(&sensors);
 	for(i=0;i<3;++i) {
 		count = 0;
-		sensors_read_raw(&sensors,false);
+		sensors_read_raw(&sensors);
 		readings[i] = sensors.mag[i];
 		readings[3+i] = sensors.accel[i];
         readings[6+i] = sensors.gyro[i];
@@ -131,8 +129,6 @@ void measure() {
 	char format[17];
 	char degree_sign;
 	char length_sign;
-    test();
-    return;
 	distance = 10.0;
 	length_sign = (config.length_units==IMPERIAL)?'\'':'m';
 	degree_sign = (config.display_style==GRAD)?'g':'`';
