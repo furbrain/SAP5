@@ -43,7 +43,7 @@ void set_axes() {
         delay_ms(500);
     }
     wdt_clear();
-    sensors_read_raw(&raw,false);
+    sensors_read_raw(&raw);
     accel_axes[2] = get_greatest_axis(&raw);
     compass_axes[2] = get_compass_axis(accel_axes[2]);
     wdt_clear();
@@ -54,7 +54,7 @@ void set_axes() {
         delay_ms(500);
     }
     wdt_clear();
-    sensors_read_raw(&raw,false);
+    sensors_read_raw(&raw);
     accel_axes[1] = get_greatest_axis(&raw);
     compass_axes[1] = get_compass_axis(accel_axes[1]);
     wdt_clear();
@@ -65,7 +65,7 @@ void set_axes() {
         delay_ms(500);
     }
     wdt_clear();
-    sensors_read_raw(&raw,false);
+    sensors_read_raw(&raw);
     accel_axes[0] = get_greatest_axis(&raw);
     compass_axes[0] = get_compass_axis(accel_axes[0]);
     display_clear_screen();
@@ -82,12 +82,49 @@ void set_axes() {
 }
 
 void quick_cal() {
+    struct COOKED_SENSORS sensors;
+    int i;
+    double x, y;
+    accum gyro_offset = 0k;
+    accum gyro = 0;
+    accum last_gyro =0;
+    accum cal_matrix[400][2];
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
+    display_write_multiline(0, "Place device on a\nlevel surface\nand leave alone", &small_font);
+    for (i=0; i<4; i++) {
+        delay_ms(500);
+        wdt_clear();
+    }
+    for (i=0; i<10; i++) {
+        sensors_read_uncalibrated(&sensors);
+        gyro_offset += sensors.gyro[2];
+        wdt_clear();
+    }
+    gyro_offset /= 10.0k;
+    display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", &small_font);
 /* Now rotate around z-axis
  * do first magnetic calibration */
 /* read in 400 or so readings while rotating */
+    for (i=0; i<400; i++) {
+        sensors_read_uncalibrated(&sensors);
+        cal_matrix[i][0] = sensors.mag[0];
+        cal_matrix[i][1] = sensors.mag[1];
+        while (abs(gyro)<i) {
+            gyro += (sensors.gyro[2]-gyro_offset)/50;
+            delay_ms(20);
+            wdt_clear();
+            sensors_read_uncalibrated(&sensors);
+        }
+        if (i==1) display_clear_screen();
+        x = (int)(cos(gyro*M_PI/180k)*30.0)+64;
+        y = (int)(sin(gyro*M_PI/180k)*30.0)+32;
+        display_setbuffer_xy(x,y);
+        display_show_buffer();
+        wdt_clear();
+    }
+    
 /* find min/max for each of x and y  - this is the zero offset
  * offx = (minx+maxx)/2
  * offy = (miny+maxy)/2
@@ -153,38 +190,6 @@ void laser_cal() {
 //
 }
 
-void align_cal() {
-//	int on = 0;
-//	int32_t length;
-//	bool beeping = false;
-//	display_clear_screen();  //0123456789ABCDEF  0123456789  0123456789   0123456789ABCDEF
-//	display_write_multiline(0,"FACTORY USE ONLY\n"
-//				  "Align LIDAR with\n"
-//				  "the laser.\n"
-//				  "Press the Button",&small_font);
-//	sensors_enable_lidar(true);
-//	while(get_action()!=SINGLE_CLICK) {
-//		__delay_ms(125);
-//		length = sensors_read_lidar();
-//	}
-//	display_clear_screen();  //0123456789ABCDEF  0123456789  0123456789   0123456789ABCDEF
-//	display_write_multiline(0,"Beeper will now\n"
-//				  "sound when an\n"
-//				  "object obstructs\n"
-//				  "the laser beam",&small_font);
-//	__delay_ms(125);
-//	while(get_action()!=SINGLE_CLICK) {
-//		if ((length-1000)>sensors_read_lidar()) {
-//			if(!beeping)	beep_on(4000);
-//			beeping = true;
-//		} else {
-//			beep_off();
-//			beeping = false;
-//		}
-//		__delay_ms(50);
-//	}
-//	sensors_enable_lidar(false);
-}
 
 void full_cal() {
 //	struct RAW_SENSORS sensors;

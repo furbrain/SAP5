@@ -8,12 +8,13 @@
 #include "interface.h"
 #include "sensors.h"
 #include "display.h"
+#include "utils.h"
+#include "measure.h"
+#include "calibrate.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
-#include "utils.h"
-#include "measure.h"
 
 struct menu_entry {
     int16_t index;
@@ -76,7 +77,7 @@ void set_time() {
 const struct menu_entry menu_items[] = {
     /* main menu */
     {-2, NULL, 0, NULL},
-    {0, "Measure", FUNCTION, measure},
+    {0, "Measure", FUNCTION, quick_cal},
     {1, "Calibrate  >", 10, NULL},
     {2, "Settings  >", 20, NULL},
     {3, "Off", FUNCTION, sys_reset},

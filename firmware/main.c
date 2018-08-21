@@ -7,35 +7,29 @@
 #include "sensors.h"
 #include "interface.h"
 #include "laser.h"
+#include "i2c_util.h"
 #define TXT_LENGTH 50
 
 void main(void)
 {
     
-    struct RAW_SENSORS sensors;
-    char text[TXT_LENGTH];
-    int i;
-    double f;
-    enum ACTION action;
     wdt_clear();
     SYSTEM_Initialize();
-    config_init();
     PERIPH_EN_SetHigh();
     TMR2_Start();
-    
     wdt_clear();
+    config_init();
     delay_ms(100);
     wdt_clear();
     display_init();
     wdt_clear();
     display_clear_screen();
     wdt_clear();
-    snprintf(text,TXT_LENGTH,"%d",sizeof(struct CONFIG));
-    display_write_text(3,1,text,&large_font,false);
+    sensors_init();    
     wdt_clear();
     while (1)
     {
-        wdt_clear();
         show_menu(FIRST_MENU_ITEM, true);
+        wdt_clear();
     }
 }
