@@ -158,12 +158,12 @@ void sensors_raw_adjust_axes(struct RAW_SENSORS *sensors){
     for (i=0;i<3; i++) {
         sign = config.axes.accel[i]>=3 ? -1 : 1;
         axis = config.axes.accel[i] % 3;
-        sensors.accel[i] = temp_sensors->accel[axis] * sign;
-        sensors.gyro[i] = temp_sensors->gyro[axis] * sign;
+        sensors->accel[i] = temp_sensors.accel[axis] * sign;
+        sensors->gyro[i] = temp_sensors.gyro[axis] * sign;
         sign = config.axes.mag[i]>=3 ? -1 : 1;
         axis = config.axes.mag[i] % 3;
-        sensors.mag[i] = temp_sensors->mag[axis] * sign;
-        sensors.mag[i] = temp_sensors->mag[axis] * sign;
+        sensors->mag[i] = temp_sensors.mag[axis] * sign;
+        sensors->mag[i] = temp_sensors.mag[axis] * sign;
     }
 }
 

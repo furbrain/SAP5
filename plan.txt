@@ -33,11 +33,17 @@ Hardware Tasks:
 
 Firmware Tasks:
 . Get button working - probably as an interrupt
-. get flick working  - repeatedly poll and use hysteresis DONE
-. get rangefinder working
+. get flick working  - repeatedly poll and use hysteresis
+. get rangefinder working DONE
 . Get menu working DONE
 . Get sleep and wakeup working DONE
+. Get configuration working
 
 
 PC software
 . note needs freetype-py and sparse_list
+
+Axes:
+X = towards top of display with laser pointing left
+Y = along laser
+Z = coming out of surface of display upwards...

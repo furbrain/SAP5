@@ -20,39 +20,40 @@
 #define SWITCH_ACTIVE_HIGH false
 
 enum DISPLAY_STYLE {
-    UNINITIALISED = 0,
-    POLAR,
+    POLAR = 0,
     GRAD,
     CARTESIAN
 };
 
 enum LENGTH_UNITS {
-    METRIC,
+    METRIC = 0,
     IMPERIAL
 };
 
-struct CONFIG {
+struct __attribute__((aligned(8))) CONFIG {
     struct {
         uint8_t accel[3];
         uint8_t mag[3];
         
     } axes;
     struct {
-        float accel[3][3];
-        float mag[3][3];
-        float laser_offset;
+        accum accel[3][3];
+        accum mag[3][3];
+        accum laser_offset;
     } calib;
     uint8_t display_style;
     uint8_t length_units;
 };
+// this is currently 88 bytes long - perfect!
+// note this needs to be padded to modulo 8 bytes to allow saving to work...
 
-struct LEG {
-    time_t dt;
-    /* leg count */
-    uint16_t number; //2 bytes
+struct __attribute__((aligned(8))) LEG {
+    time_t dt; // time of reading
+    uint16_t survey; //survey number
+    uint8_t from; //origin station
+    uint8_t to; //destination station
     /* differential readings, stored as multiples of 0.25cm */
-    int16_t delta[3]; //6 bytes
-    uint16_t pad; //2 bytes - pads out record to total of 16 bytes
+    accum delta[3]; 
 };
 
 #ifndef BOOTLOADER

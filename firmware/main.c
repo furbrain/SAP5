@@ -19,9 +19,10 @@ void main(void)
     enum ACTION action;
     wdt_clear();
     SYSTEM_Initialize();
-    wdt_clear();
+    config_init();
     PERIPH_EN_SetHigh();
     TMR2_Start();
+    
     wdt_clear();
     delay_ms(100);
     wdt_clear();
@@ -29,16 +30,12 @@ void main(void)
     wdt_clear();
     display_clear_screen();
     wdt_clear();
-    display_write_text(3,1,"On",&large_font,false);
+    snprintf(text,TXT_LENGTH,"%d",sizeof(struct CONFIG));
+    display_write_text(3,1,text,&large_font,false);
     wdt_clear();
     while (1)
     {
         wdt_clear();
-        f = laser_read(LASER_MEDIUM, 500);
-        wdt_clear();
-        snprintf(text, TXT_LENGTH, "%06.3f", f);
-        display_write_text(3,1,text,&large_font, false);
-        wdt_clear();
-        delay_ms(200);
+        show_menu(FIRST_MENU_ITEM, true);
     }
 }

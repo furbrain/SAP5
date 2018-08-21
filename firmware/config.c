@@ -1,14 +1,16 @@
+#include <stdio.h>
 #include "config.h"
 #include "i2c_util.h"
 #include "display.h"
+#include "storage.h"
 
 #ifndef BOOTLOADER
 struct CONFIG config = {
-            {{1,0,5},{4,3,2}},                   //axis orientation
+            {{1,0,2},{0,1,5}},                   //axis orientation
             { //calib section
-                {{1.0,0,0},{0,1.0,0},{0,0,1.0}}, //accel matrix
-                {{1.0,0,0},{0,1.0,0},{0,0,1.0}}, //mag matrix
-                1.0                              //laser offset
+                {{1.0k,0k,0k},{0k,1.0k,0k},{0k,0k,1.0k}}, //accel matrix
+                {{1.0k,0k,0k},{0k,1.0k,0k},{0k,0k,1.0k}}, //mag matrix
+                0.090k                              //laser offset
             },
             POLAR,                               //Polar display style
             METRIC                               //metric units
@@ -17,24 +19,15 @@ struct CONFIG config = {
 bool day;
 
 void config_init(){
-//    /* check firmware version  and update if appropriate */
-//    uint16_t firmware;
-//    __read_external(0x0,eeprom,&firmware,2);
-//    if (firmware!=FIRMWARE_VERSION) {
-//        firmware = FIRMWARE_VERSION;
-//        __write_external(0x0,eeprom,&firmware,2);
-//    }
-//    if (config_store.display_style==0xff) {
-//        //initialise config
-//        config_save();                   //save defaults to eeprom
-//    } else {
-//	config = config_store; 		// load saved data from eeprom
-//    }
-//
+    const struct CONFIG* temp_config;
+    temp_config = read_config();
+    if (temp_config != NULL) {
+        config  = *temp_config;
+    }
 }
 
 void config_save(){
-//    config_store = config;
+    write_config(&config);
 }
 
 /* config management */

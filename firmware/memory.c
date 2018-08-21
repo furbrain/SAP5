@@ -145,35 +145,10 @@ int write_dword(void *ptr, const int* src){
     // Load address to program into NVMADDR register
     NVMADDR = dword;
     // Unlock and Write Word
-    res = NVMUnlock (0x4010);
+    res = NVMUnlock (0x4002);
     // Return Result
-    if (res) return -2;
+    if (res) return res;
     return 0;
 }
 
-int write_data(void *dest,  void *src, int length){
-    assert length % 8  = 0
-}
 
-const struct CONFIG* read_config(void){
-    struct CONFIG *config = null;
-    uint8_t *ptr = (uint8_t *) APP_CONFIG_LOCATION;
-    while ((*ptr != 0xff) && ptr <(APP_CONFIG_LOCATION+APP_CONFIG_SIZE)) {
-        config = (struct CONFIG*)ptr;
-        ptr += sizeof(struct CONFIG);
-    }
-    return config
-}
-
-int write_config(struct CONFIG *config{
-    struct CONFIG *config = null;
-    while ((*ptr != 0xff) && ptr+sizeof(struct CONFIG) <(APP_CONFIG_LOCATION+APP_CONFIG_SIZE)) {
-        ptr += sizeof(struct CONFIG);
-    }
-    if (ptr > (APP_CONFIG_LOCATION + APP_CONFIG_SIZE)) {
-        erase_page(APP_CONFIG_LOCATION);
-        ptr  = APP_CONFIG_LOCATION;
-    }
-               
-    
-}

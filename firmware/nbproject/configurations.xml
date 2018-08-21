@@ -29,6 +29,9 @@
       <itemPath>interface.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/app_type.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/laser.h</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/calibrate.h</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/memory.h</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/storage.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -63,6 +66,9 @@
       <itemPath>interface.c</itemPath>
       <itemPath>config.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/laser.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/calibrate.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/memory.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/storage.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
