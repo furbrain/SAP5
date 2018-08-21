@@ -13,6 +13,7 @@
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
 #include "utils.h"
+#include "measure.h"
 
 struct menu_entry {
     int16_t index;
@@ -75,7 +76,7 @@ void set_time() {
 const struct menu_entry menu_items[] = {
     /* main menu */
     {-2, NULL, 0, NULL},
-    {0, "Measure", FUNCTION, set_time},
+    {0, "Measure", FUNCTION, measure},
     {1, "Calibrate  >", 10, NULL},
     {2, "Settings  >", 20, NULL},
     {3, "Off", FUNCTION, sys_reset},

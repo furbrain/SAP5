@@ -33,17 +33,17 @@
                                  
 #define INT_CFG    0x30                        //active high(0), push-pull(0), latched(1),cleared on any read(1),
                                                //FSYNC interrupt disables(00),i2c bypass disabled(0), clock output disabled(0)
-#define INT_EN     0x01                        //Interrupt high on data ready (0x10 for interrupt on fifo overflow)
+#define INT_EN     0x00                        //Interrupt high on data ready (0x10 for interrupt on fifo overflow)
                                             
                                                
-#define USER_CTRL    0x64                      //enable FIFO and I2C and also reset it
+#define USER_CTRL    0x67                      //enable FIFO and I2C and also reset it
         
 #define PWR_MGMT_1    0x0                      //PLL with X-axis gyro as clock. 0x08 disables temp sensor
         
 //I2C stuff
 #define I2C_MST_CTRL    0x40
 #define SLV0_ADDR    0x8C
-#define SLV0_REG    0x03
+#define SLV0_REG    0x00
 #define SLV0_CTRL    0xD7
 #define SLV1_ADDR    0x0C
 #define SLV1_REG    0x0A
@@ -84,6 +84,7 @@ void sensors_init_compass() {
             
             break;
         }
+    wdt_clear();
     MPU_COMMAND(0x1B,temp<<3);
     //set accel full scale and high_pass_filter
     switch (ACCEL_FULL_SCALE){
@@ -111,6 +112,7 @@ void sensors_init_compass() {
     MPU_COMMAND(0x25, SLV0_ADDR);
     MPU_COMMAND(0x26, SLV0_REG);
     MPU_COMMAND(0x27, SLV0_CTRL);
+    wdt_clear();
     MPU_COMMAND(0x28, SLV1_ADDR);
     MPU_COMMAND(0x29, SLV1_REG);
     MPU_COMMAND(0x2A, SLV1_CTRL);
@@ -119,12 +121,14 @@ void sensors_init_compass() {
     MPU_COMMAND(0x67, I2C_MST_DELAY_CTRL);
 	MPU_COMMAND(0x37, INT_CFG);
 	MPU_COMMAND(0x38, INT_EN);
+    wdt_clear();
         
         //enable fifo
 
     MPU_COMMAND(0x6A, USER_CTRL);
         
     MPU_COMMAND(0x6B, PWR_MGMT_1);
+    wdt_clear();
 }
 
 
@@ -136,7 +140,6 @@ void byte_swap(uint16_t *word){
 void sensors_read_raw(struct RAW_SENSORS *sensors, bool lidar){
     int i;
     read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, sizeof(*sensors));
-    sensors->distance = lidar ? 0 : 10; 
     for(i=0; i< 10; ++i) {
         byte_swap(&((uint16_t*)sensors)[i]);
     }
@@ -171,7 +174,7 @@ void sensors_raw_to_cooked(struct COOKED_SENSORS *cooked, struct RAW_SENSORS *ra
     int i;
     //first correct axes and polarity
     sensors_raw_adjust_axes(raw);
-    // first convert to doubles with sensible units
+    // first convert to accums with sensible units
 	// also account for vagaries of sensor alignment
     for (i=0; i<3; i++) {
         cooked->accel[i] = raw->accel[i]*(ACCEL_FULL_SCALE/32768.0);
@@ -180,14 +183,13 @@ void sensors_raw_to_cooked(struct COOKED_SENSORS *cooked, struct RAW_SENSORS *ra
     }
 
     cooked->temp = (raw->temp/333.87)+21.0;
-    cooked->distance = (double)raw->distance/1000.0 + config.calib.laser_offset;
     //FIXME need to apply calibration here....
 }
 
 
-void sensors_get_orientation(struct COOKED_SENSORS *sensors, double *d) {
-	double east[3];
-	double north[3];
+void sensors_get_orientation(struct COOKED_SENSORS *sensors, accum *d) {
+	accum east[3];
+	accum north[3];
 	normalise(sensors->accel);
 	cross_product(sensors->accel,sensors->mag,east); // east = down x mag
 	normalise(east);
@@ -197,26 +199,6 @@ void sensors_get_orientation(struct COOKED_SENSORS *sensors, double *d) {
 	d[1] = north[1];
 	d[2] = sensors->accel[1];
 	normalise(d);
-}
-
-void sensors_read_leg(struct LEG *leg, double *distance) {
-	struct COOKED_SENSORS sensors;
-	double east[3];
-	double north[3];
-    struct tm datetime;
-	//read curren)t date and time
-    RTCC_TimeGet(&datetime);
-    leg->dt = mktime(&datetime);
-	sensors_read_cooked(&sensors,true);
-	normalise(sensors.accel);
-	cross_product(sensors.accel,sensors.mag,east); // east = down x mag
-	normalise(east);
-	cross_product(east,sensors.accel,north);       // north= east x down
-	normalise(north);
-	leg->delta[0] = east[1]*sensors.distance;
-	leg->delta[1] = north[1]*sensors.distance;
-	leg->delta[2] = sensors.accel[1]*sensors.distance;
-	*distance = sensors.distance;
 }
 
 

@@ -1,19 +1,19 @@
 #include <math.h>
 #include "maths.h"
-/* return AxB in C, where A B and C are all pointers to double[3] */
-void cross_product(double *a, double *b, double *c) {
+/* return AxB in C, where A B and C are all pointers to accum[3] */
+void cross_product(accum *a, accum *b, accum *c) {
 	c[0] = (a[1]*b[2]) - (a[2]*b[1]);
 	c[1] = (a[2]*b[0]) - (a[0]*b[2]);
 	c[2] = (a[0]*b[1]) - (a[1]*b[0]);
 }
 
-/* returns vector A multiplied by Matrix B in vector C, where A and B are pointers to double[3]
- * and B is a pointer to double[16] */
-void apply_matrix(double *a, double *b, double *c) {
+/* returns vector A multiplied by Matrix B in vector C, where A and B are pointers to accum[3]
+ * and B is a pointer to accum[16] */
+void apply_matrix(accum *a, accum *b, accum *c) {
 }
 
-void normalise(double *a) {
-	double magnitude;
+void normalise(accum *a) {
+	accum magnitude;
 	magnitude = sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
 	a[0] /= magnitude;
 	a[1] /= magnitude;
@@ -36,9 +36,9 @@ int16_t find_median(int16_t array[],int16_t len) {
 	return array[len/2];
 }
 
-void pca(double data[][2], int16_t len, struct EIGEN *eig){
-	double varX,varY,covar;
-	double T,D,L1,L2,magnitude;
+void pca(accum data[][2], int16_t len, struct EIGEN *eig){
+	accum varX,varY,covar;
+	accum T,D,L1,L2,magnitude;
 	int count;
 	varX = varY = covar = 0;
 	for (count=0; count< len; count++) {
