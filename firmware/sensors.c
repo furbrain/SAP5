@@ -163,9 +163,9 @@ void sensors_raw_to_uncalibrated(struct COOKED_SENSORS *cooked, struct RAW_SENSO
     // first convert to accums with sensible units
 	// also account for vagaries of sensor alignment
     for (i=0; i<3; i++) {
-        cooked->accel[i] = raw->accel[i]*(ACCEL_FULL_SCALE/32768.0);
-        cooked->gyro[i] = raw->gyro[i]*(GYRO_FULL_SCALE/32768.0);
-        cooked->mag[i] = raw->mag[i]*(MAG_FULL_SCALE/32768.0);
+        cooked->accel[i] = ((accum)raw->accel[i]/32768.0k) * ACCEL_FULL_SCALE;
+        cooked->gyro[i] = ((accum)raw->gyro[i]/32768.0k) * GYRO_FULL_SCALE;
+        cooked->mag[i] = ((accum)raw->mag[i]/32768.0k) * MAG_FULL_SCALE;
     }
     cooked->temp = (raw->temp/333.87)+21.0;
 }

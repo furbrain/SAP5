@@ -89,6 +89,7 @@ void quick_cal() {
     accum gyro = 0;
     accum last_gyro =0;
     accum cal_matrix[400][2];
+    accum time;
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
@@ -107,23 +108,25 @@ void quick_cal() {
 /* Now rotate around z-axis
  * do first magnetic calibration */
 /* read in 400 or so readings while rotating */
-    for (i=0; i<400; i++) {
-        sensors_read_uncalibrated(&sensors);
-        cal_matrix[i][0] = sensors.mag[0];
-        cal_matrix[i][1] = sensors.mag[1];
-        while (abs(gyro)<i) {
-            gyro += (sensors.gyro[2]-gyro_offset)/50;
+    i = 0;
+    do {
+        do {
+            sensors_read_uncalibrated(&sensors);
+            time = TMR3_Period16BitGet()*0.010k;
+            gyro += ((sensors.gyro[2]-gyro_offset)*210)/1000k;
             delay_ms(20);
             wdt_clear();
-            sensors_read_uncalibrated(&sensors);
-        }
+        } while (abs(gyro)<i);
+        cal_matrix[i][0] = sensors.mag[0];
+        cal_matrix[i][1] = sensors.mag[1];
+        ++i;
         if (i==1) display_clear_screen();
         x = (int)(cos(gyro*M_PI/180k)*30.0)+64;
         y = (int)(sin(gyro*M_PI/180k)*30.0)+32;
         display_setbuffer_xy(x,y);
         display_show_buffer();
         wdt_clear();
-    }
+    } while (abs(gyro)<400);
     
 /* find min/max for each of x and y  - this is the zero offset
  * offx = (minx+maxx)/2
