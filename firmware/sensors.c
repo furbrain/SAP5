@@ -44,7 +44,7 @@
 //I2C stuff
 #define I2C_MST_CTRL    0x40
 #define SLV0_ADDR    0x8C
-#define SLV0_REG    0x02
+#define SLV0_REG    0x03
 #define SLV0_CTRL    0xD7
 #define SLV1_ADDR    0x0C
 #define SLV1_REG    0x0A
@@ -134,7 +134,7 @@ void sensors_read_raw(struct RAW_SENSORS *sensors){
     int i;
     read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, sizeof(*sensors));
     for(i=0; i< 10; ++i) {
-        byte_swap(&((uint16_t*)sensors)[i]);
+        byte_swap(&((int16_t*)sensors)[i]);
     }
 }
 
@@ -152,7 +152,6 @@ void sensors_raw_adjust_axes(struct RAW_SENSORS *sensors){
         sign = config.axes.mag[i]>=3 ? -1 : 1;
         axis = config.axes.mag[i] % 3;
         sensors->mag[i] = temp_sensors.mag[axis] * sign;
-        sensors->mag[i] = temp_sensors.mag[axis] * sign;
     }
 }
 
@@ -165,7 +164,7 @@ void sensors_raw_to_uncalibrated(struct COOKED_SENSORS *cooked, struct RAW_SENSO
     for (i=0; i<3; i++) {
         cooked->accel[i] = ((accum)raw->accel[i]/32768.0k) * ACCEL_FULL_SCALE;
         cooked->gyro[i] = ((accum)raw->gyro[i]/32768.0k) * GYRO_FULL_SCALE;
-        cooked->mag[i] = ((accum)raw->mag[i]/32768.0k) * MAG_FULL_SCALE;
+        cooked->mag[i] = ((accum)raw->mag[i]/32768.0k) * MAG_FULL_SCALE/2;
     }
     cooked->temp = (raw->temp/333.87)+21.0;
 }
