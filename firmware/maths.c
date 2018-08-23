@@ -1,16 +1,71 @@
 #include <math.h>
+#include <string.h>
 #include "maths.h"
 /* return AxB in C, where A B and C are all pointers to accum[3] */
-void cross_product(accum *a, accum *b, accum *c) {
+
+matrixx identity = {
+    {1.0k, 0, 0, 0},
+    {0, 1.0k, 0, 0},
+    {0, 0, 1.0k, 0}
+};
+
+void cross_product(vectorr a, vectorr b, vectorr c) {
 	c[0] = (a[1]*b[2]) - (a[2]*b[1]);
 	c[1] = (a[2]*b[0]) - (a[0]*b[2]);
 	c[2] = (a[0]*b[1]) - (a[1]*b[0]);
 }
 
-/* returns vector A multiplied by Matrix B in vector C, where A and B are pointers to accum[3]
+/* returns vector A multiplied by Matrix B in vector C, where A and C are pointers to accum[3]
  * and B is a pointer to accum[16] */
-void apply_matrix(accum *a, accum *b, accum *c) {
+void apply_matrix(vectorr a, matrixx b, vectorr c) {
+    int i;
+    int j;
+    for (i=0; i<3; i++){
+        c[i] = 0;
+        for(j=0; j<3; j++) {
+            c[i] += a[j]* b[i][j];
+        }
+        c[i] += b[i][3];
+    }
 }
+
+void matrix_multiply(matrixx delta, matrixx calibration) {
+    int i,j,k;
+    matrixx cal_copy;
+    memcpy(cal_copy, calibration, sizeof(matrixx));
+    for (i=0; i<3; i++) {
+        for (j=0; j<4; j++) {
+            calibration[i][j] = 0;
+            for (k=0; k<3; k++) {
+                calibration[i][j] += delta[i][k]* cal_copy[k][j];
+            }
+            calibration[i][j] += delta[i][3] * (j==3 ? 1 : 0);
+        }
+    }
+}
+
+void apply_offset(accum x, accum y, accum z, matrixx matrix) {
+    matrixx new_mat = {
+        {1.0k, 0k, 0k, x},
+        {0k, 1.0k, 0k, y},
+        {0k, 0k, 1.0k, z}
+    };
+    matrix_multiply(new_mat, matrix);
+}
+
+void apply_2d_rotation(int axes[2], accum vector[2], matrixx matrix) {
+    matrixx new_mat;
+    int x = axes[0];
+    int y = axes[1];
+    memcpy(new_mat, identity, sizeof(matrixx));
+    new_mat[x][x] = vector[0];
+    new_mat[x][y] = vector[1];
+    new_mat[y][x] = -vector[1];
+    new_mat[y][y] = vector[0];
+    matrix_multiply(new_mat, matrix);
+}
+
+
 
 void normalise(accum *a) {
 	accum magnitude;

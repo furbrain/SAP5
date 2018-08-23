@@ -6,6 +6,7 @@
 #include "display.h"
 #include "font.h"
 #include "sensors.h"
+#include "maths.h"
 
 #define MIN(a,b) ((a)<(b))?(a):(b)
 #define MAX(a,b) ((a)>(b))?(a):(b)
@@ -83,12 +84,24 @@ void set_axes() {
     
 }
 
-void get_data_stats(accum matrix[][2], int matrix_length, accum offset[2], accum max_data[2], accum min_data[2]) {
+void apply_matrix_to_readings(vectorr src[], vectorr dest[], int reading_count, matrixx matrix) {
     int i;
-    for (i=0; i<matrix_length; i++) {
+    for (i=0; i< reading_count; i++) {
+        apply_matrix(src[i], matrix, dest[i]);
+        wdt_clear();
+    }
+}
+
+void get_data_stats(vectorr readings[], int axes[2], int reading_count, accum offset[2], accum max_data[2], accum min_data[2]) {
+    int i, k;
+    for (k=0; k<2; k++) {
+        min_data[k] = 0;
+        max_data[k] = 0;
+    }
+    for (i=0; i<reading_count; i++) {
         for (k=0; k<2; k++) {
-            min_data[k] = MIN(min_data[k],cal_matrix[i][k]);
-            max_data[k] = MAX(max_data[k],cal_matrix[i][k]);
+            min_data[k] = MIN(min_data[k],readings[i][axes[k]]);
+            max_data[k] = MAX(max_data[k],readings[i][axes[k]]);
         }
         wdt_clear();
     }
@@ -97,17 +110,18 @@ void get_data_stats(accum matrix[][2], int matrix_length, accum offset[2], accum
 }
 
 
-void show_data(accum matrix[][2], int matrix_length) {
+void show_data(vectorr readings[], int axes[2], int reading_count) {
     accum offset[2], max_data[2], min_data[2];
     accum scale;
     int i, x, y;
+    char text[20];
     display_clear_screen();
-    get_data_stats(matrix, matrix_length, offset, max_data, min_data);
+    get_data_stats(readings, axes, reading_count, offset, max_data, min_data);
     scale = MIN(32.0k / (max_data[0]-offset[0]),
                 32.0k / (max_data[1]-offset[1]));
-    for (i=0; i<matrix_legnth; i++) {
-        x = 64+(int)((cal_matrix[i][0]-offset[0])*scale);
-        y = 32+(int)((cal_matrix[i][1]-offset[1])*scale);
+    for (i=0; i<reading_count; i++) {
+        x = 64+(int)((readings[i][axes[0]]-offset[0])*scale);
+        y = 32+(int)((readings[i][axes[1]]-offset[1])*scale);
         display_setbuffer_xy(x,y);
         wdt_clear();
     }
@@ -125,16 +139,19 @@ void quick_cal() {
     accum gyro_offset = 0k;
     accum gyro = 0;
     accum last_gyro =0;
-    accum cal_matrix[400][2];
+    vectorr readings[400];
+    vectorr modified_readings[400];
     accum time;
     accum max_data[2] = {0k,0k};
     accum min_data[2] = {0k,0k};
     accum offset[2];
     accum scale;
+    matrixx mag_matrix;
     char text[20];
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
+    memcpy(mag_matrix, identity, sizeof(matrixx));
     display_write_multiline(0, "Place device on a\nlevel surface\nand leave alone", &small_font);
     for (i=0; i<1; i++) {
         delay_ms(500);
@@ -158,20 +175,33 @@ void quick_cal() {
             delay_ms(20);
             wdt_clear();
         } while (abs(gyro)<i);
-        cal_matrix[i][0] = sensors.mag[0];
-        cal_matrix[i][1] = sensors.mag[1];
+        readings[i][0] = sensors.mag[0];
+        readings[i][1] = sensors.mag[1];
+        readings[i][2] = sensors.mag[2];
         ++i;
         if (i==1) display_clear_screen();
-        x = (int)(cos(gyro*M_PI/180k)*30.0)+64;
-        y = (int)(sin(gyro*M_PI/180k)*30.0)+32;
+        x = (int)(cos(-gyro*M_PI/180k)*30.0)+64;
+        y = (int)(sin(-gyro*M_PI/180k)*30.0)+32;
         display_setbuffer_xy(x,y);
         display_show_buffer();
         wdt_clear();
     } while (abs(gyro)<400);
-    show_data(cal_matrix, i);
+    apply_matrix_to_readings(readings, modified_readings, i, mag_matrix);
+    show_data(modified_readings,(int[2]){0,1}, i);
     wdt_clear();
     delay_ms(800);
     wdt_clear();
+    get_data_stats(readings,(int[2]){0,1},i, offset, min_data, max_data);
+    apply_offset(-offset[0], -offset[1], 0, mag_matrix);
+    wdt_clear();
+    apply_matrix_to_readings(readings, modified_readings, i, mag_matrix);
+    show_data(modified_readings,(int[2]){0,1}, i);
+    wdt_clear();
+    delay_ms(800);
+    wdt_clear();
+    
+    
+    
 /* find min/max for each of x and y  - this is the zero offset
  * offx = (minx+maxx)/2
  * offy = (miny+maxy)/2

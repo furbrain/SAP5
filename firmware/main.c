@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <string.h>
 #include "mcc_generated_files/mcc.h"
 #include "utils.h"
 #include "display.h"
@@ -8,11 +8,11 @@
 #include "interface.h"
 #include "laser.h"
 #include "i2c_util.h"
+#include "maths.h"
 #define TXT_LENGTH 50
 
 void main(void)
 {
-    
     wdt_clear();
     SYSTEM_Initialize();
     PERIPH_EN_SetHigh();
@@ -29,7 +29,7 @@ void main(void)
     wdt_clear();
     while (1)
     {
-        show_menu(FIRST_MENU_ITEM, true);
+        show_menu(FIRST_MENU_ITEM,true);
         wdt_clear();
     }
 }
