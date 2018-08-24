@@ -135,7 +135,9 @@ void show_data(vectorr readings[], int axes[2], int reading_count) {
 void quick_cal() {
     struct COOKED_SENSORS sensors;
     int i, j, k;
+    int readings_count;
     double x, y;
+    accum min_separation = 30000k;
     accum gyro_offset = 0k;
     accum gyro = 0;
     accum last_gyro =0;
@@ -148,6 +150,7 @@ void quick_cal() {
     accum scale;
     matrixx mag_matrix;
     char text[20];
+    struct EIGEN eigen;
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
@@ -186,22 +189,40 @@ void quick_cal() {
         display_show_buffer();
         wdt_clear();
     } while (abs(gyro)<400);
-    apply_matrix_to_readings(readings, modified_readings, i, mag_matrix);
-    show_data(modified_readings,(int[2]){0,1}, i);
+    readings_count = i;
+    for (j = i/2; j< i; ++j) {
+        if (min_separation>distance2(readings[0], readings[j])) {
+            min_separation = distance2(readings[0], readings[j]);
+            readings_count = j;
+                    
+    }
+    }
+    apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
+    show_data(modified_readings,(int[2]){0,1}, readings_count);
     wdt_clear();
     delay_ms(800);
     wdt_clear();
-    get_data_stats(readings,(int[2]){0,1},i, offset, min_data, max_data);
+    get_data_stats(readings,(int[2]){0,1},readings_count, offset, min_data, max_data);
     apply_offset(-offset[0], -offset[1], 0, mag_matrix);
     wdt_clear();
-    apply_matrix_to_readings(readings, modified_readings, i, mag_matrix);
-    show_data(modified_readings,(int[2]){0,1}, i);
+    apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
+    show_data(modified_readings,(int[2]){0,1}, readings_count);
     wdt_clear();
     delay_ms(800);
     wdt_clear();
-    
-    
-    
+    pca(modified_readings,(int[2]){0,1}, readings_count, &eigen);
+    apply_2d_rotation((int[2]){0,1}, eigen.vector, mag_matrix);
+    apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
+    show_data(modified_readings,(int[2]){0,1}, readings_count);
+    wdt_clear();
+    delay_ms(800);
+    wdt_clear();
+    apply_scale(0,(accum)eigen.scalar, mag_matrix);
+    apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
+    show_data(modified_readings,(int[2]){0,1}, readings_count);
+    wdt_clear();
+    delay_ms(800);
+    wdt_clear();
 /* find min/max for each of x and y  - this is the zero offset
  * offx = (minx+maxx)/2
  * offy = (miny+maxy)/2

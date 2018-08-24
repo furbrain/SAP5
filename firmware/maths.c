@@ -29,6 +29,14 @@ void apply_matrix(vectorr a, matrixx b, vectorr c) {
     }
 }
 
+accum distance2(vectorr a, vectorr b) {
+    int x, y, z;
+    x = a[0]-b[0];
+    y = a[1]-b[1];
+    z = a[2]-b[2];
+    return (x*x)+(y*y)+(z*z);
+}
+
 void matrix_multiply(matrixx delta, matrixx calibration) {
     int i,j,k;
     matrixx cal_copy;
@@ -53,18 +61,24 @@ void apply_offset(accum x, accum y, accum z, matrixx matrix) {
     matrix_multiply(new_mat, matrix);
 }
 
-void apply_2d_rotation(int axes[2], accum vector[2], matrixx matrix) {
+void apply_2d_rotation(int axes[2], double vector[2], matrixx matrix) {
     matrixx new_mat;
     int x = axes[0];
     int y = axes[1];
     memcpy(new_mat, identity, sizeof(matrixx));
-    new_mat[x][x] = vector[0];
-    new_mat[x][y] = vector[1];
-    new_mat[y][x] = -vector[1];
-    new_mat[y][y] = vector[0];
+    new_mat[x][x] = (accum) vector[0];
+    new_mat[x][y] = (accum) vector[1];
+    new_mat[y][x] = (accum) -vector[1];
+    new_mat[y][y] = (accum) vector[0];
     matrix_multiply(new_mat, matrix);
 }
 
+void apply_scale(int axis, accum scale, matrixx matrix) {
+    matrixx new_mat;
+    memcpy(new_mat, identity, sizeof(matrixx));
+    new_mat[axis][axis] = scale;
+    matrix_multiply(new_mat, matrix);    
+}
 
 
 void normalise(accum *a) {
@@ -91,24 +105,23 @@ int16_t find_median(int16_t array[],int16_t len) {
 	return array[len/2];
 }
 
-void pca(accum data[][2], int16_t len, struct EIGEN *eig){
-	accum varX,varY,covar;
-	accum T,D,L1,L2,magnitude;
+void pca(vectorr data[], int axes[2], int16_t len, struct EIGEN *eig){
+	double varX,varY,covar;
+	double T,D,L1,L2,magnitude;
 	int count;
 	varX = varY = covar = 0;
 	for (count=0; count< len; count++) {
-		varX  += data[count][0]*data[count][0];
-		varY  += data[count][1]*data[count][1];
-		covar += data[count][0]*data[count][1];
+		varX  += data[count][axes[0]]*data[count][axes[0]];
+		varY  += data[count][axes[1]]*data[count][axes[1]];
+		covar += data[count][axes[0]]*data[count][axes[1]];
 	}
 	T = varX+varY;
 	D = varX*varY-covar*covar;
-	L1 = (T/2) + sqrt(T*T/4-D);
-	L2 = (T/2) - sqrt(T*T/4-D);
-	eig->scalar = sqrt(L1)/sqrt(L2);
-	magnitude = sqrt((L1-varY)*(L1-varY)+covar*covar);
+	L1 = (T/2) + (accum)sqrt((double)(T*T/4-D));
+	L2 = (T/2) - (accum)sqrt((double)(T*T/4-D));
+	eig->scalar = (accum)sqrt((double)L1)/sqrt((double)L2);
+	magnitude = (accum)sqrt((double)((L1-varY)*(L1-varY)+covar*covar));
 	eig->vector[0] = (L1-varY)/magnitude;
 	eig->vector[1] = covar/magnitude;
 }
-
 
