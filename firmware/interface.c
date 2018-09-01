@@ -88,14 +88,15 @@ const struct menu_entry main_menu[] = {
     {20, "Units  >", 30, NULL, 0},
     {21, "Function  >", 40, NULL, 0},
     {22, "Display  >", 50, NULL, 0},
-    {23, "Set  Date", FUNCTION, set_time, 0},
-    {24, "Set  Time", FUNCTION, set_time, 0},
-    {25, "Back", BACK, NULL, 0},
-    {26, NULL, 20, 0},
+    {23, "Timeout  >", 60, NULL, 0},
+    {24, "Set  Date", FUNCTION, set_time, 0},
+    {25, "Set  Time", FUNCTION, set_time, 0},
+    {26, "Back", BACK, NULL, 0},
+    {27, NULL, 20, 0},
 
     /* Units menu */
-    {30, "Metric", FUNCTION, config_set_units, true},
-    {31, "Imperial", FUNCTION, config_set_units, false},
+    {30, "Metric", FUNCTION, config_set_units, METRIC},
+    {31, "Imperial", FUNCTION, config_set_units, IMPERIAL},
     {32, "Back", BACK, NULL, 0},
     {33, NULL, 30, NULL, 0},
 
@@ -111,7 +112,15 @@ const struct menu_entry main_menu[] = {
     {51, "Night", FUNCTION, config_set_day, false},
     {52, "Back", BACK, NULL, 0},
     {53, NULL, 50, NULL, 0},
-
+    
+    /* Timeout menu*/
+    {60, "30s", FUNCTION, config_set_timeout, 30},
+    {61, "60s", FUNCTION, config_set_timeout, 60},
+    {62, "2 min", FUNCTION, config_set_timeout, 120},
+    {63, "5 min", FUNCTION, config_set_timeout, 300},
+    {64, "10 mins", FUNCTION, config_set_timeout, 600},
+    {65, "Back", BACK, NULL, 0},
+    {66, NULL, 60, NULL, 0},
     /*end */
     {-1, NULL, -1, NULL, 0}
 };
@@ -123,31 +132,31 @@ const struct menu_entry main_menu[] = {
 /* timer 2 delay: 2ms  = */
 #define CLICKS_PER_MS (FCY_PER_MS/256)
 #define T2_DELAY (2*CLICKS_PER_MS)
+uint32_t last_activity_counter = 0;
 
-/* change notification interrupt */
+/* change notification interrupt, called every 2ms*/
 void TMR2_CallBack(void) {
     static uint16_t state = 0x0001;
-    static uint32_t button_counter = 0;
-    button_counter++;
+    last_activity_counter++;
     state = ((state << 1) | SWITCH_GetValue()) & 0x0fff;
     if (state == (SWITCH_ACTIVE_HIGH ? 0x07ff : 0x0800)) {
         /* we have just transitioned to a '1' and held it for 11 T2 cycles*/
-        if (button_counter > 200) {
+        if (last_activity_counter > 200) {
             /* it's been more than a quarter second since the last press started */
             last_click = SINGLE_CLICK;
         } else {
             last_click = DOUBLE_CLICK;
         }
-        button_counter=0;
+        last_activity_counter=0;
     }
     if (state == (SWITCH_ACTIVE_HIGH ? 0x0800 : 0x07ff)) {
         /* we have justtransitiioned to a '0' and held it for 11 T2 cycles */
-        if (button_counter > 1000) {
+        if (last_activity_counter > 1000) {
             last_click = LONG_CLICK;
         }
-        button_counter=0;
+        last_activity_counter=0;
     }
-    if (button_counter>60000) {
+    if (last_activity_counter>(config.timeout*500)) {
         sys_reset(0);
     }
 }
@@ -211,15 +220,19 @@ enum ACTION get_action() {
     /* look for "flip" movements */
     //debug("f%.2g",sensors.gyro[1]);
     if (sensors.gyro[1] > 30.0) {
+        last_activity_counter = 0;
         return display_inverted ? FLIP_DOWN : FLIP_UP;
     }
     if (sensors.gyro[1]<-30.0) {
+        last_activity_counter = 0;
         return display_inverted ? FLIP_UP : FLIP_DOWN;
     }
     if (sensors.gyro[0] > 30.0) {
+        last_activity_counter = 0;
         return display_inverted ? FLIP_LEFT : FLIP_RIGHT;
     }
     if (sensors.gyro[0]<-30.0) {
+        last_activity_counter = 0;
         return display_inverted ? FLIP_RIGHT : FLIP_LEFT;
     }
     /* check to see if display needs flipping */
@@ -233,6 +246,7 @@ enum ACTION get_action() {
         temp = last_click;
         last_click = NONE;
         INTERRUPT_GlobalEnable();
+        last_activity_counter = 0;
         return temp;
     }
     //nothing else found - so return NONE

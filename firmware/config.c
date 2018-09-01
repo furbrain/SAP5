@@ -13,7 +13,8 @@ struct CONFIG config = {
                 0.090k                              //laser offset
             },
             POLAR,                               //Polar display style
-            METRIC                               //metric units
+            METRIC,                              //metric units
+            30                                   //30s timeout
         };
 
 bool day;
@@ -53,5 +54,10 @@ void config_set_day(int32_t on) {
         display_set_day(day);
     //    laser_set_day(day);
     }
+}
+
+void config_set_timeout(int32_t timeout) {
+    config.timeout = timeout;
+    config_save();
 }
 #endif    

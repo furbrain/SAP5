@@ -44,6 +44,7 @@ struct __attribute__((aligned(8))) CONFIG {
     } calib;
     uint8_t display_style;
     uint8_t length_units;
+    uint16_t timeout;
 };
 // this is currently 88 bytes long - perfect!
 // note this needs to be padded to modulo 8 bytes to allow saving to work...
@@ -70,6 +71,7 @@ void config_save();
 void config_set_units(int32_t units);
 void config_set_style(int32_t style);
 void config_set_day(int32_t on);
+void config_set_timeout(int32_t timeout);
 
 #endif
 #endif
