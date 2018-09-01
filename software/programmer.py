@@ -4,6 +4,7 @@ import time
 import SH1106
 import bootloader
 import sys
+import datetime
 
 def write_text(disp,text,page,column):
     paged_text = SH1106.get_paged_text(text,spacing=4,offset=2)
@@ -34,10 +35,10 @@ try:
     print "Verifying %d bytes" % len(hexfile)
     prog.verify_program(hexfile,set_progress=None)
     disp.clear_screen()
+    print "Setting Time"
+    prog.write_datetime(datetime.datetime.now())
     print "Programming complete"
     write_text(disp,"Done   ",2,2)
-    time.sleep(1)
-    disp.clear_screen()
 except bootloader.ProgrammerError as e:
     print e
     sys.exit(1)
