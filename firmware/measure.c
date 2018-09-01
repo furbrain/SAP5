@@ -32,19 +32,20 @@ void get_readings(accum *orientation, accum *distance){
 	display_on(false);
 	laser_off();
 	delay_ms(20);
-	for(i=0;i<8;++i) {
-        wdt_clear();
-		delay_ms(10);
-		sensors_read_uncalibrated(&sensors);
-		for (j=0;j<3;++j) {
-			mags[j] += sensors.mag[j];
-			accels[j] += sensors.accel[j];
-		}
-	}
-	for(j=0;j<3;++j) {
-		sensors.mag[j] = mags[j]/80;
-		sensors.accel[j] = accels[j]/40;
-	}
+    sensors_read_cooked(&sensors);
+//	for(i=0;i<8;++i) {
+//        wdt_clear();
+//		delay_ms(10);
+//		sensors_read_uncalibrated(&sensors);
+//		for (j=0;j<3;++j) {
+//			mags[j] += sensors.mag[j];
+//			accels[j] += sensors.accel[j];
+//		}
+//	}
+//	for(j=0;j<3;++j) {
+//		sensors.mag[j] = mags[j]/80;
+//		sensors.accel[j] = accels[j]/40;
+//	}
 	sensors_uncalibrated_to_cooked(&sensors);
 	sensors_get_orientation(&sensors,orientation);
 	normalise(orientation);
@@ -90,32 +91,20 @@ void calculate_deltas(accum *orientation, accum *items, accum distance){
 }
 
 void test() {
-	int32_t readings[15];
-	char text[17];
-	int i, count;
-	struct RAW_SENSORS sensors;
-	display_on(false);
-	laser_off();
-    sensors_read_raw(&sensors);
-	for(i=0;i<3;++i) {
-		count = 0;
-		sensors_read_raw(&sensors);
-		readings[i] = sensors.mag[i];
-		readings[3+i] = sensors.accel[i];
-        readings[6+i] = sensors.gyro[i];
-		delay_ms(100);
+    struct COOKED_SENSORS sensors;
+    char text[20];
+    int i;
+    do {
         wdt_clear();
-	}
-	display_on(true);
-	for(i=0;i<3;++i) {
-		sprintf(text,"%5d%5d%5d",readings[i*3],readings[(i*3)+1],readings[(i*3)+2]);
-		display_write_text(i*2,0,text,&small_font,false);
-	}
-	laser_on();
-    wdt_clear();
-	delay_ms(800);
-    wdt_clear();
-	return;
+        sensors_read_cooked(&sensors);
+        for (i=0; i<3; i++) {
+            sprintf(text,"%6.2f",(double)sensors.mag[i]);
+            display_write_text(i*2, 0, text, &small_font, false);
+        }
+        wdt_clear();
+        delay_ms(200);
+        wdt_clear();
+    } while (get_action()==NONE);
 }
 
 void measure(int32_t a) {
@@ -129,6 +118,7 @@ void measure(int32_t a) {
 	char format[17];
 	char degree_sign;
 	char length_sign;
+//    test();    return;
 	distance = 10.0;
 	length_sign = (config.length_units==IMPERIAL)?'\'':'m';
 	degree_sign = (config.display_style==GRAD)?'g':'`';

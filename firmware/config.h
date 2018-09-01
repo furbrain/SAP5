@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdfix.h>
+#include "maths.h"
 
 #define FIRMWARE_VERSION 1
 
@@ -37,8 +38,8 @@ struct __attribute__((aligned(8))) CONFIG {
         
     } axes;
     struct {
-        accum accel[3][3];
-        accum mag[3][3];
+        matrixx accel;
+        matrixx mag;
         accum laser_offset;
     } calib;
     uint8_t display_style;

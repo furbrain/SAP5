@@ -5,6 +5,6 @@ void delay_ms(int count);
 
 void wdt_clear(void);
 
-void sys_reset(void);
+void sys_reset(int32_t a);
 
 #endif

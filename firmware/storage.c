@@ -4,8 +4,6 @@
 #include "mem_locations.h"
 #include "config.h"
 #include <stdio.h>
-#include "display.h"
-#include "font.h"
 
 const uint8_t config_space[APP_CONFIG_SIZE] __attribute__((address(APP_CONFIG_LOCATION), space(prog))) = {[0 ... APP_CONFIG_SIZE-1]=0xff};
 const uint8_t leg_space[APP_LEG_SIZE] __attribute__((address(APP_LEG_LOCATION), space(prog))) = {[0 ... APP_LEG_SIZE-1]=0xff};
@@ -15,10 +13,6 @@ int write_data(uint8_t *dest,  uint8_t *src, int length){
     char text[22];
     for (i=0; i< length; i+=8) {
         res = write_dword(dest, (int *) src);
-        sprintf(text,"%hhX->%hhX",*src, *dest);
-        display_write_text(2,0,text,&small_font, false);
-        wdt_clear();
-        delay_ms(200);
         dest+=8;
         src+=8; 
     }

@@ -19,7 +19,7 @@ void wdt_clear(void){
 }
 
 
-void sys_reset(void){
+void sys_reset(int32_t a){
     /* The following reset procedure is from the Family Reference Manual,
 	 * Chapter 7, "Resets," under "Software Resets." */
     int x;

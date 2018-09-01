@@ -8,8 +8,8 @@
 struct CONFIG config = {
             {{1,0,2},{0,1,5}},                   //axis orientation
             { //calib section
-                {{1.0k,0k,0k},{0k,1.0k,0k},{0k,0k,1.0k}}, //accel matrix
-                {{1.0k,0k,0k},{0k,1.0k,0k},{0k,0k,1.0k}}, //mag matrix
+                {{1.0k,0,0,0},{0,1.0k,0,0},{0,0,1.0k,0}}, //accel matrix
+                {{1.0k,0,0,0},{0,1.0k,0,0},{0,0,1.0k,0}}, //mag matrix
                 0.090k                              //laser offset
             },
             POLAR,                               //Polar display style

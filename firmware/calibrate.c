@@ -132,6 +132,15 @@ void show_data(vectorr readings[], int axes[2], int reading_count) {
     display_show_buffer();
 }
 
+void show_modified_readings(vectorr readings[], int axes[2], int reading_count, matrixx matrix) {
+    vectorr modified_readings[400];
+    apply_matrix_to_readings(readings, modified_readings, reading_count, matrix);
+    show_data(modified_readings,axes, reading_count);
+    wdt_clear();
+    delay_ms(800);
+    wdt_clear();
+}
+
 void quick_cal(int32_t a) {
     struct COOKED_SENSORS sensors;
     int i, j, k;
@@ -143,7 +152,6 @@ void quick_cal(int32_t a) {
     accum last_gyro =0;
     vectorr readings[400];
     vectorr modified_readings[400];
-    accum time;
     accum max_data[2] = {0k,0k};
     accum min_data[2] = {0k,0k};
     accum offset[2];
@@ -182,7 +190,7 @@ void quick_cal(int32_t a) {
         readings[i][1] = sensors.mag[1];
         readings[i][2] = sensors.mag[2];
         ++i;
-        if (i==1) display_clear_screen();
+        if (i==2) display_clear_screen();
         x = (int)(cos(-gyro*M_PI/180k)*30.0)+64;
         y = (int)(sin(-gyro*M_PI/180k)*30.0)+32;
         display_setbuffer_xy(x,y);
@@ -195,48 +203,30 @@ void quick_cal(int32_t a) {
             min_separation = distance2(readings[0], readings[j]);
             readings_count = j;
                     
+        }   
     }
-    }
-    apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
-    show_data(modified_readings,(int[2]){0,1}, readings_count);
-    wdt_clear();
-    delay_ms(800);
-    wdt_clear();
+    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
     get_data_stats(readings,(int[2]){0,1},readings_count, offset, min_data, max_data);
     apply_offset(-offset[0], -offset[1], 0, mag_matrix);
-    wdt_clear();
+    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
     apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
-    show_data(modified_readings,(int[2]){0,1}, readings_count);
-    wdt_clear();
-    delay_ms(800);
-    wdt_clear();
     pca(modified_readings,(int[2]){0,1}, readings_count, &eigen);
     apply_2d_rotation((int[2]){0,1}, eigen.vector, mag_matrix);
-    apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
-    show_data(modified_readings,(int[2]){0,1}, readings_count);
+
+    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
+
+    apply_scale(1,(accum)eigen.scalar, mag_matrix);
+    
+    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
+
+    eigen.vector[1] *= -1;
+    apply_2d_rotation((int[2]){0,1}, eigen.vector, mag_matrix);
+
+    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
+    memcpy(config.calib.mag, mag_matrix, sizeof(matrixx));
     wdt_clear();
-    delay_ms(800);
+    config_save();
     wdt_clear();
-    apply_scale(0,(accum)eigen.scalar, mag_matrix);
-    apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
-    show_data(modified_readings,(int[2]){0,1}, readings_count);
-    wdt_clear();
-    delay_ms(800);
-    wdt_clear();
-/* find min/max for each of x and y  - this is the zero offset
- * offx = (minx+maxx)/2
- * offy = (miny+maxy)/2
- * axisx = 0
- * axisy = 0
- * minaxis = 0
- * for i in readings
-	* x = readings[i].x-offx
-	* y = readings[i].y-offy
-	* hyp = x*x+y*y
-	* if hyp>minaxis
-		* axisx = x
-		* axisy = y
-		* minaxis = hyp
 /* Now rotate around y-axis, keeping laser fixed on one point
  * this allows us to first calibrate magnetics and then calculate
  * direction of laser beam.

@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "display.h"
 #include "font.h"
+#include "config.h"
 
 void laser_on(void) {
     UART1_ReceiveBufferClear();
@@ -24,7 +25,7 @@ double laser_read(enum LASER_SPEED speed, int timeout) {
     }
     if (timeout<=0) return -1.0;
     if (laser_result_ready()) {
-        return laser_get_result();
+        return laser_get_result()+config.calib.laser_offset;
     } else {
         return -2.0;
     }

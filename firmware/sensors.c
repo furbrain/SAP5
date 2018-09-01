@@ -178,7 +178,10 @@ void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors) {
 }
 
 void sensors_uncalibrated_to_cooked(struct COOKED_SENSORS *cooked){
-    //FIXME
+    struct COOKED_SENSORS temp_cooked;
+    memcpy(&temp_cooked, cooked, sizeof(temp_cooked));
+    apply_matrix(temp_cooked.accel, config.calib.accel, cooked->accel);
+    apply_matrix(temp_cooked.mag, config.calib.mag, cooked->mag);
 }
 
 

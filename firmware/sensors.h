@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdfix.h>
 #include "config.h"
+#include "maths.h"
 //#define LIDAR_TESTING
 
 struct RAW_SENSORS {
@@ -14,10 +15,10 @@ struct RAW_SENSORS {
 };
 
 struct COOKED_SENSORS {
-    accum accel[3];    //measured in g
+    vectorr accel;    //measured in g
     accum temp;        //measured in degs C
-    accum gyro[3];     //measured in degress per second
-    accum mag[3];      //measured in uT
+    vectorr gyro;     //measured in degress per second
+    vectorr mag;      //measured in uT
 };
 
 void sensors_init();
