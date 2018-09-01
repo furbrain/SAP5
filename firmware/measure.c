@@ -118,7 +118,7 @@ void test() {
 	return;
 }
 
-void measure() {
+void measure(int32_t a) {
 	int item = 0;
 	bool readings_available = false;
 	accum items[4];

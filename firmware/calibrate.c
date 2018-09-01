@@ -132,7 +132,7 @@ void show_data(vectorr readings[], int axes[2], int reading_count) {
     display_show_buffer();
 }
 
-void quick_cal() {
+void quick_cal(int32_t a) {
     struct COOKED_SENSORS sensors;
     int i, j, k;
     int readings_count;

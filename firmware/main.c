@@ -14,6 +14,7 @@
 void main(void)
 {
     wdt_clear();
+    RTCC_TimeReset(true);
     SYSTEM_Initialize();
     PERIPH_EN_SetHigh();
     TMR2_Start();
@@ -29,7 +30,7 @@ void main(void)
     wdt_clear();
     while (1)
     {
-        show_menu(FIRST_MENU_ITEM,true);
+        show_menu(main_menu, FIRST_MENU_ITEM, true);
         wdt_clear();
     }
 }

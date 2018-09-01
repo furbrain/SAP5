@@ -1,6 +1,6 @@
 #ifndef CALIBRATE_H
 #define CALIBRATE_H
-void quick_cal();
+void quick_cal(int32_t a);
 
 /* this function turns the laser on and off which
  * allows the factory to physically align the 

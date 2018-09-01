@@ -31,40 +31,27 @@ void config_save(){
 }
 
 /* config management */
-void config_set_metric() {
-    config.length_units = METRIC;
+void config_set_units(int32_t units) {
+    config.length_units = (enum LENGTH_UNITS)units;
     config_save();
 }
 
-void config_set_imperial() {
-    config.length_units = IMPERIAL;
+
+void config_set_style(int32_t style) {
+    config.display_style = (enum DISPLAY_STYLE)style;
     config_save();
 }
 
-void config_set_cartesian() {
-    config.display_style = CARTESIAN;
-    config_save();
-}
 
-void config_set_polar() {
-    config.display_style = POLAR;
-    config_save();
-}
-
-void config_set_grad() {
-    config.display_style = GRAD;
-    config_save();
-}
-
-void set_day() {
-    day = true;
-    display_set_day(day);
-//    laser_set_day(day);
-}
-
-void set_night() {
-    day = false;
-    display_set_day(day);
-//    laser_set_day(day);
+void config_set_day(int32_t on) {
+    if (on) {
+        day = true;
+        display_set_day(day);
+    //    laser_set_day(day);
+    } else {
+        day = false;
+        display_set_day(day);
+    //    laser_set_day(day);
+    }
 }
 #endif    

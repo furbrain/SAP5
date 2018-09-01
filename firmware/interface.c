@@ -16,19 +16,12 @@
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
 
-struct menu_entry {
-    int16_t index;
-    const char* text;
-    int16_t next_menu; /* start of next menu (or this menu if text NULL */
-    void (*action) (void); /*action to perform when selected */
-};
-
 volatile enum ACTION last_click = NONE;
 
 void beep(int a, int b) {
 }
 
-void set_date() {
+void set_date(int32_t a) {
     /* first display date */
     char text[18];
     int pos = 0;
@@ -66,7 +59,7 @@ void set_date() {
     }
 }
 
-void set_time() {
+void set_time(int32_t a) {
 }
 
 /* a null-terminated list of menu_entries */
@@ -74,54 +67,55 @@ void set_time() {
 #define BACK -2
 
 
-const struct menu_entry menu_items[] = {
+const struct menu_entry main_menu[] = {
     /* main menu */
-    {-2, NULL, 0, NULL},
-    {0, "Measure", FUNCTION, quick_cal},
-    {1, "Calibrate  >", 10, NULL},
-    {2, "Settings  >", 20, NULL},
-    {3, "Off", FUNCTION, sys_reset},
-    {4, NULL, 0, NULL},
+    {-2, NULL, 0, NULL, 0},
+    {0, "Measure", FUNCTION, measure, 0},
+    {1, "Calibrate  >", 10, NULL, 0},
+    {2, "Settings  >", 20, NULL, 0},
+    {3, "Off", FUNCTION, sys_reset, 0},
+    {4, NULL, 0, 0},
 
     /* calibrate menu */
-    {10, "Quick", FUNCTION, set_time},
-    //{11,"Laser",FUNCTION,laser_cal},
-    //{12,"Align",FUNCTION,align_cal},
-    //{13,"Full",FUNCTION,full_cal},
-    {14, "Back", BACK, NULL},
-    {15, NULL, 10, NULL},
+    {10, "Quick", FUNCTION, quick_cal, 0},
+    //{11,"Laser",FUNCTION,laser_cal, 0},
+    //{12,"Align",FUNCTION,align_cal, 0},
+    //{13,"Full",FUNCTION,full_cal, 0},
+    {14, "Back", BACK, 0},
+    {15, NULL, 10, 0},
 
     /* settings menu */
-    {20, "Units  >", 30, NULL},
-    {21, "Function  >", 40, NULL},
-    {22, "Display  >", 50, NULL},
-    {23, "Set  Date", FUNCTION, set_time},
-    {24, "Set  Time", FUNCTION, set_time},
-    {25, "Back", BACK, NULL},
-    {26, NULL, 20, NULL},
+    {20, "Units  >", 30, NULL, 0},
+    {21, "Function  >", 40, NULL, 0},
+    {22, "Display  >", 50, NULL, 0},
+    {23, "Set  Date", FUNCTION, set_time, 0},
+    {24, "Set  Time", FUNCTION, set_time, 0},
+    {25, "Back", BACK, NULL, 0},
+    {26, NULL, 20, 0},
 
     /* Units menu */
-    {30, "Metric", FUNCTION, config_set_metric},
-    {31, "Imperial", FUNCTION, config_set_imperial},
-    {32, "Back", BACK, NULL},
-    {33, NULL, 30, NULL},
+    {30, "Metric", FUNCTION, config_set_units, true},
+    {31, "Imperial", FUNCTION, config_set_units, false},
+    {32, "Back", BACK, NULL, 0},
+    {33, NULL, 30, NULL, 0},
 
     /* Function menu */
-    {40, "Cartesian", FUNCTION, config_set_cartesian},
-    {41, "Polar", FUNCTION, config_set_polar},
-    {42, "Grad", FUNCTION, config_set_grad},
-    {43, "Back", BACK, NULL},
-    {44, NULL, 40, NULL},
+    {40, "Cartesian", FUNCTION, config_set_style, CARTESIAN},
+    {41, "Polar", FUNCTION, config_set_style, POLAR},
+    {42, "Grad", FUNCTION, config_set_style, GRAD},
+    {43, "Back", BACK, 0},
+    {44, NULL, 40, NULL, 0},
 
     /* Display menu */
-    {50, "Day", FUNCTION, set_day},
-    {51, "Night", FUNCTION, set_night},
-    {52, "Back", BACK, NULL},
-    {53, NULL, 50, NULL},
+    {50, "Day", FUNCTION, config_set_day, true},
+    {51, "Night", FUNCTION, config_set_day, false},
+    {52, "Back", BACK, NULL, 0},
+    {53, NULL, 50, NULL, 0},
 
     /*end */
-    {-1, NULL, -1, NULL}
+    {-1, NULL, -1, NULL, 0}
 };
+
 
 /* set up timer interrupts etc */
 /* Timer 2 is our input poller counter */
@@ -153,23 +147,23 @@ void TMR2_CallBack(void) {
         }
         button_counter=0;
     }
-    if (button_counter>30000) {
-        sys_reset();
+    if (button_counter>60000) {
+        sys_reset(0);
     }
 }
 
-void swipe_text(uint8_t index, bool left) {
+void swipe_text(const char *text, bool left) {
     uint8_t my_buffer[4 * 128];
     int page;
     memset(my_buffer, 0, 128 * 4);
     for (page = 0; page < 4; page++) {
         //memset(&my_buffer[page*128],0xaa,128);
-        render_text_to_page(&(my_buffer[page * 128]), page, 0, menu_items[index].text, &large_font);
+        render_text_to_page(&(my_buffer[page * 128]), page, 0, text, &large_font);
     }
     display_swipe_pages(day ? 0 : 2, my_buffer, 4, left);
 }
 
-void scroll_text(uint8_t index, bool up) {
+void scroll_text(const char *text, bool up) {
     if (!day) {
         if (up) {
             display_clear_page(6);
@@ -179,33 +173,33 @@ void scroll_text(uint8_t index, bool up) {
             display_clear_page(1);
         }
     }
-    display_scroll_text(day ? 0 : 2, 0, menu_items[index].text, &large_font, up);
+    display_scroll_text(day ? 0 : 2, 0, text, &large_font, up);
 }
 
 /* get the offset of the menu_item with the specified index */
 
 /* return -1 if index not found */
-int16_t get_menu_item_offset(int16_t index) {
+int16_t get_menu_item_offset(const struct menu_entry *menu, int16_t index) {
     int16_t i;
-    for (i = 0; menu_items[i].index != -1; ++i) {
-        if (menu_items[i].index == index) return i;
+    for (i = 0; menu[i].index != -1; ++i) {
+        if (menu[i].index == index) return i;
     }
     return -1;
 }
 
 /* return index of previous menu item, rotate onto last menu item if currently on first item */
-int16_t get_previous_menu_item(int16_t index) {
-    if (menu_items[index - 1].text) return index - 1;
-    while (menu_items[index + 1].text) index++;
+int16_t get_previous_menu_item(const struct menu_entry *menu, int16_t index) {
+    if (menu[index - 1].text) return index - 1;
+    while (menu[index + 1].text) index++;
     return index;
 }
 
 /* return index of next menu item, rotating onto first menu item if currently on last item */
-int16_t get_next_menu_item(int16_t index) {
-    if (menu_items[index + 1].text) {
+int16_t get_next_menu_item(const struct menu_entry *menu, int16_t index) {
+    if (menu[index + 1].text) {
         return index + 1;
     } else {
-        return get_menu_item_offset(menu_items[index + 1].next_menu);
+        return get_menu_item_offset(menu, menu[index + 1].next_menu);
     }
 }
 
@@ -216,16 +210,16 @@ enum ACTION get_action() {
     sensors_read_cooked(&sensors);
     /* look for "flip" movements */
     //debug("f%.2g",sensors.gyro[1]);
-    if (sensors.gyro[1] > 80.0) {
+    if (sensors.gyro[1] > 30.0) {
         return display_inverted ? FLIP_DOWN : FLIP_UP;
     }
-    if (sensors.gyro[1]<-80.0) {
+    if (sensors.gyro[1]<-30.0) {
         return display_inverted ? FLIP_UP : FLIP_DOWN;
     }
-    if (sensors.gyro[0] > 80.0) {
+    if (sensors.gyro[0] > 30.0) {
         return display_inverted ? FLIP_LEFT : FLIP_RIGHT;
     }
-    if (sensors.gyro[0]<-80.0) {
+    if (sensors.gyro[0]<-30.0) {
         return display_inverted ? FLIP_RIGHT : FLIP_LEFT;
     }
     /* check to see if display needs flipping */
@@ -310,13 +304,13 @@ void show_status() {
     }
 }
 
-bool show_menu(int16_t index, bool first_time) {
+bool show_menu(const struct menu_entry *menu, int16_t index, bool first_time) {
     enum ACTION action;
     bool result;
     if (first_time) {
-        scroll_text(index, true);
+        scroll_text(menu[index].text, true);
     } else {
-        swipe_text(index, true);
+        swipe_text(menu[index].text, true);
     }
     while (true) {
         wdt_clear();
@@ -325,26 +319,26 @@ bool show_menu(int16_t index, bool first_time) {
         action = get_action();
         switch (action) {
             case FLIP_DOWN:
-                index = get_previous_menu_item(index);
-                scroll_text(index, false);
+                //index = get_previous_menu_item(menu, index);
+                //scroll_text(menu[index].text, false);
                 break;
             case FLIP_UP:
-                index = get_next_menu_item(index);
-                scroll_text(index, true);
+                index = get_next_menu_item(menu, index);
+                scroll_text(menu[index].text, true);
                 break;
                 //case FLIP_RIGHT:
             case SINGLE_CLICK:
                 beep(3600, 20);
-                switch (menu_items[index].next_menu) {
+                switch (menu[index].next_menu) {
                     case FUNCTION:
-                        menu_items[index].action();
+                        menu[index].action(menu[index].argument);
                         result = true;
                         break;
                     case BACK:
                         if (!first_time) return false;
                         break;
                     default:
-                        result = show_menu(get_menu_item_offset(menu_items[index].next_menu), false);
+                        result = show_menu(menu, get_menu_item_offset(menu, menu[index].next_menu), false);
                         break;
                 }
                 if (result) {
@@ -352,13 +346,13 @@ bool show_menu(int16_t index, bool first_time) {
                         /* we have got back to the root screen */
                         index = FIRST_MENU_ITEM;
                         display_clear_screen();
-                        scroll_text(index, true);
+                        scroll_text(menu[index].text, true);
                     } else {
                         return true;
                     }
                 } else {
                     /* sub-menu: back selected */
-                    swipe_text(index, false);
+                    swipe_text(menu[index].text, false);
                 }
                 break;
                 //             case FLIP_LEFT:
@@ -370,8 +364,6 @@ bool show_menu(int16_t index, bool first_time) {
         }
         if (action != NONE) {
             show_status();
-            beep(3600, 20);
-            delay_ms(300);
         }
     }
 }

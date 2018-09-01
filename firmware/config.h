@@ -66,14 +66,9 @@ extern bool day;
 void config_init();
 void config_save();
 
-void config_set_metric();
-void config_set_imperial();
-void config_set_cartesian();
-void config_set_polar();
-void config_set_grad();
-void set_day();
-void set_night();
-
+void config_set_units(int32_t units);
+void config_set_style(int32_t style);
+void config_set_day(int32_t on);
 
 #endif
 #endif
