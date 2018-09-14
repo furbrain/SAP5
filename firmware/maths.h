@@ -8,32 +8,35 @@ struct EIGEN {
 };
 
 typedef accum vectorr[3];
-typedef accum matrixx[3][4];
+typedef accum matrixx [3][4];
 
 extern matrixx identity;
 
 /* return AxB in C, where A B and C are all pointers to double[3] */
-void cross_product(vectorr a, vectorr b, vectorr c);
+void cross_product(const vectorr a, const vectorr b, vectorr c);
 
 
 /* returns square of theh distance between two points*/
-accum distance2(vectorr a, vectorr b);
+accum distance2(const vectorr a, const vectorr b);
 
 /* returns vector A multiplied by Matrix B in vector C, where A and C are pointers to accum[3]
  * and B is a pointer to accum[3][4] */
-void apply_matrix(vectorr a, matrixx b, vectorr c);
+void apply_matrix(const vectorr a, matrixx b, vectorr c);
 
+
+/* applies matrix delta to calibration */
 void matrix_multiply(matrixx delta, matrixx calibration);
 
-void apply_offset(accum x, accum y, accum z, matrixx matrix );
+void apply_offset(const accum x, const accum y, const accum z, matrixx matrix );
 
-void apply_2d_rotation(int axes[2], double vector[2], matrixx matrix);
+void apply_2d_rotation(const int axes[2], const double vector[2], matrixx matrix);
 
-void apply_scale(int axis, accum scale, matrixx matrix);
+void apply_scale(const int axis, const accum scale, matrixx matrix);
 
 void normalise(vectorr a);
 
-int16_t find_median(int16_t array[],int16_t len);
+/* finds the median value of array. array is modified and sorted by this function */
+int16_t find_median(int16_t array[],const int16_t len);
 
-void pca(vectorr data[], int axes[2], int16_t len, struct EIGEN *eig);
+void pca(const vectorr data[], const int axes[2], const int16_t len, struct EIGEN *eig);
 #endif

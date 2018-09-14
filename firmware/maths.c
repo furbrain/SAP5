@@ -9,15 +9,15 @@ matrixx identity = {
     {0, 0, 1.0k, 0}
 };
 
-void cross_product(vectorr a, vectorr b, vectorr c) {
+void cross_product(const vectorr a, const vectorr b, vectorr c) {
 	c[0] = (a[1]*b[2]) - (a[2]*b[1]);
 	c[1] = (a[2]*b[0]) - (a[0]*b[2]);
 	c[2] = (a[0]*b[1]) - (a[1]*b[0]);
 }
 
-/* returns vector A multiplied by Matrix B in vector C, where A and C are pointers to accum[3]
+/* returns b . a where a is a vector and b is a matrix. Result in vector C, where A and C are pointers to accum[3]
  * and B is a pointer to accum[16] */
-void apply_matrix(vectorr a, matrixx b, vectorr c) {
+void apply_matrix(const vectorr a, matrixx b, vectorr c) {
     int i;
     int j;
     for (i=0; i<3; i++){
@@ -29,15 +29,15 @@ void apply_matrix(vectorr a, matrixx b, vectorr c) {
     }
 }
 
-accum distance2(vectorr a, vectorr b) {
-    int x, y, z;
+accum distance2(const vectorr a, const vectorr b) {
+    accum x, y, z;
     x = a[0]-b[0];
     y = a[1]-b[1];
     z = a[2]-b[2];
     return (x*x)+(y*y)+(z*z);
 }
 
-void matrix_multiply(matrixx delta, matrixx calibration) {
+void matrix_multiply(matrixx calibration, matrixx delta) {
     int i,j,k;
     matrixx cal_copy;
     memcpy(cal_copy, calibration, sizeof(matrixx));
@@ -45,23 +45,23 @@ void matrix_multiply(matrixx delta, matrixx calibration) {
         for (j=0; j<4; j++) {
             calibration[i][j] = 0;
             for (k=0; k<3; k++) {
-                calibration[i][j] += delta[i][k]* cal_copy[k][j];
+                calibration[i][j] += cal_copy[i][k]* delta[k][j];
             }
-            calibration[i][j] += delta[i][3] * (j==3 ? 1 : 0);
+            calibration[i][j] += cal_copy[i][3] * (j==3 ? 1 : 0);
         }
     }
 }
 
-void apply_offset(accum x, accum y, accum z, matrixx matrix) {
+void apply_offset(const accum x, const accum y, const accum z, matrixx matrix) {
     matrixx new_mat = {
         {1.0k, 0k, 0k, x},
         {0k, 1.0k, 0k, y},
         {0k, 0k, 1.0k, z}
     };
-    matrix_multiply(new_mat, matrix);
+    matrix_multiply(matrix, new_mat);
 }
 
-void apply_2d_rotation(int axes[2], double vector[2], matrixx matrix) {
+void apply_2d_rotation(const int axes[2], const double vector[2], matrixx matrix) {
     matrixx new_mat;
     int x = axes[0];
     int y = axes[1];
@@ -70,14 +70,14 @@ void apply_2d_rotation(int axes[2], double vector[2], matrixx matrix) {
     new_mat[x][y] = (accum) vector[1];
     new_mat[y][x] = (accum) -vector[1];
     new_mat[y][y] = (accum) vector[0];
-    matrix_multiply(new_mat, matrix);
+    matrix_multiply(matrix, new_mat);
 }
 
-void apply_scale(int axis, accum scale, matrixx matrix) {
+void apply_scale(const int axis, const accum scale, matrixx matrix) {
     matrixx new_mat;
     memcpy(new_mat, identity, sizeof(matrixx));
     new_mat[axis][axis] = scale;
-    matrix_multiply(new_mat, matrix);    
+    matrix_multiply(matrix, new_mat);    
 }
 
 
@@ -90,7 +90,7 @@ void normalise(accum *a) {
 	
 }
 
-int16_t find_median(int16_t array[],int16_t len) {
+int16_t find_median(int16_t array[], const int16_t len) {
 	int16_t swap;
 	int c,d;
 	for (c = 0 ; c < ( len - 1 ); c++) {
@@ -105,7 +105,7 @@ int16_t find_median(int16_t array[],int16_t len) {
 	return array[len/2];
 }
 
-void pca(vectorr data[], int axes[2], int16_t len, struct EIGEN *eig){
+void pca(const vectorr data[], const  int axes[2], const int16_t len, struct EIGEN *eig){
 	double varX,varY,covar;
 	double T,D,L1,L2,magnitude;
 	int count;
