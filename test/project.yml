@@ -70,8 +70,8 @@
     
 :unity:
     :defines:
-        - UNITY_FLOAT_PRECISION=0.01f
-
+        - UNITY_INCLUDE_CONFIG_H
+        
 #:tools:
 # Ceedling defaults to using gcc for compiling, linking, etc.
 # As [:tools] is blank, gcc will be used (so long as it's in your system path)

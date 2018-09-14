@@ -77,6 +77,12 @@ int suiteTearDown(int num_failures);
  *     - define UNITY_DOUBLE_TYPE to specify something other than double
  *     - define UNITY_EXCLUDE_FLOAT_PRINT to trim binary size, won't print floating point values in errors
 
+ * Fixed
+ *     - define UNITY_INCLUDE_FIXED to disallow floating point comparisons
+ *     - define UNITY_FIXED_PRECISION to specify the precision to use when doing TEST_ASSERT_EQUAL_FIXED
+ *     - define UNITY_FIXED_TYPE to specify your custom fixed point type
+
+
  * Output
  *     - by default, Unity prints to standard out with putchar.  define UNITY_OUTPUT_CHAR(a) with a different function if desired
  *     - define UNITY_DIFFERENTIATE_FINAL_FAIL to print FAILED (vs. FAIL) at test end summary - for automated search for failure
@@ -304,6 +310,13 @@ int suiteTearDown(int num_failures);
 #define TEST_ASSERT_DOUBLE_IS_NOT_NAN(actual)                                                      UNITY_TEST_ASSERT_DOUBLE_IS_NOT_NAN((actual), __LINE__, NULL)
 #define TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE(actual)                                              UNITY_TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE((actual), __LINE__, NULL)
 
+/* Fixed (If Enabled) */
+#define TEST_ASSERT_FIXED_WITHIN(delta, expected, actual)                                         UNITY_TEST_ASSERT_FIXED_WITHIN((delta), (expected), (actual), __LINE__, NULL)
+#define TEST_ASSERT_EQUAL_FIXED(expected, actual)                                                 UNITY_TEST_ASSERT_EQUAL_FIXED((expected), (actual), __LINE__, NULL)
+#define TEST_ASSERT_EQUAL_FIXED_ARRAY(expected, actual, num_elements)                             UNITY_TEST_ASSERT_EQUAL_FIXED_ARRAY((expected), (actual), (num_elements), __LINE__, NULL)
+#define TEST_ASSERT_EACH_EQUAL_FIXED(expected, actual, num_elements)                              UNITY_TEST_ASSERT_EACH_EQUAL_FIXED((expected), (actual), (num_elements), __LINE__, NULL)
+
+
 /*-------------------------------------------------------
  * Test Asserts (with additional messages)
  *-------------------------------------------------------*/
@@ -495,6 +508,12 @@ int suiteTearDown(int num_failures);
 #define TEST_ASSERT_DOUBLE_IS_NOT_NEG_INF_MESSAGE(actual, message)                                 UNITY_TEST_ASSERT_DOUBLE_IS_NOT_NEG_INF((actual), __LINE__, (message))
 #define TEST_ASSERT_DOUBLE_IS_NOT_NAN_MESSAGE(actual, message)                                     UNITY_TEST_ASSERT_DOUBLE_IS_NOT_NAN((actual), __LINE__, (message))
 #define TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE_MESSAGE(actual, message)                             UNITY_TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE((actual), __LINE__, (message))
+
+/* Fixed (If Enabled) */
+#define TEST_ASSERT_FIXED_WITHIN_MESSAGE(delta, expected, actual, message)                        UNITY_TEST_ASSERT_FIXED_WITHIN((delta), (expected), (actual), __LINE__, (message))
+#define TEST_ASSERT_EQUAL_FIXED_MESSAGE(expected, actual, message)                                UNITY_TEST_ASSERT_EQUAL_FIXED((expected), (actual), __LINE__, (message))
+#define TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(expected, actual, num_elements, message)            UNITY_TEST_ASSERT_EQUAL_FIXED_ARRAY((expected), (actual), (num_elements), __LINE__, (message))
+#define TEST_ASSERT_EACH_EQUAL_FIXED_MESSAGE(expected, actual, num_elements, message)             UNITY_TEST_ASSERT_EACH_EQUAL_FIXED((expected), (actual), (num_elements), __LINE__, (message))
 
 /* end of UNITY_FRAMEWORK_H */
 #ifdef __cplusplus

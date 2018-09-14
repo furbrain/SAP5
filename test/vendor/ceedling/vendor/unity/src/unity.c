@@ -704,6 +704,7 @@ void UnityAssertEqualIntArray(UNITY_INTERNAL_PTR expected,
     UnityPrint(UnityStrDelta)
 #endif /* UNITY_EXCLUDE_FLOAT_PRINT */
 
+
 static int UnityFloatsWithin(UNITY_FLOAT delta, UNITY_FLOAT expected, UNITY_FLOAT actual)
 {
     UNITY_FLOAT diff;
@@ -961,6 +962,97 @@ void UnityAssertDoubleSpecial(const UNITY_DOUBLE actual,
 }
 
 #endif /* not UNITY_EXCLUDE_DOUBLE */
+
+#ifdef UNITY_INCLUDE_FIXED
+
+#define UNITY_FIXED_WITHIN(delta, expected, actual, diff)                           \
+    (diff) = (actual) - (expected);                                                           \
+    if ((diff) < 0) (diff) = -(diff);                                                         \
+    if ((delta) < 0) (delta) = -(delta);                                                      \
+    return ((diff) > (delta))
+
+#define UNITY_PRINT_EXPECTED_AND_ACTUAL_FIXED(expected, actual) \
+{                                                               \
+UnityPrint(UnityStrExpected);                                 \
+UnityPrintFloat((UNITY_FLOAT)expected);                                    \
+UnityPrint(UnityStrWas);                                      \
+UnityPrintFloat((UNITY_FLOAT)actual); }
+
+
+static int UnityFixedWithin(UNITY_FIXED delta, UNITY_FIXED expected, UNITY_FIXED actual)
+{
+    UNITY_FIXED diff;
+    diff = actual - expected;                                                           
+    if (diff < 0.0k) {
+        diff = 0k - diff;                                                         
+    }
+    return (diff <= delta);
+}
+
+void UnityAssertEqualFixedArray(UNITY_PTR_ATTRIBUTE const UNITY_FIXED* expected,
+                                UNITY_PTR_ATTRIBUTE const UNITY_FIXED* actual,
+                                const UNITY_UINT32 num_elements,
+                                const char* msg,
+                                const UNITY_LINE_TYPE lineNumber,
+                                const UNITY_FLAGS_T flags)
+{
+    UNITY_UINT32 elements = num_elements;
+    UNITY_PTR_ATTRIBUTE const UNITY_FIXED* ptr_expected = expected;
+    UNITY_PTR_ATTRIBUTE const UNITY_FIXED* ptr_actual = actual;
+
+    RETURN_IF_FAIL_OR_IGNORE;
+
+    if (elements == 0)
+    {
+        UnityPrintPointlessAndBail();
+    }
+
+    if (expected == actual) return; /* Both are NULL or same pointer */
+    if (UnityIsOneArrayNull((UNITY_INTERNAL_PTR)expected, (UNITY_INTERNAL_PTR)actual, lineNumber, msg))
+        UNITY_FAIL_AND_BAIL;
+
+    while (elements--)
+    {
+        if (!UnityFixedWithin(UNITY_FIXED_PRECISION, *ptr_expected, *ptr_actual))
+        {
+            UnityTestResultsFailBegin(lineNumber);
+            UnityPrint(UnityStrElement);
+            UnityPrintNumberUnsigned(num_elements - elements - 1);
+            UNITY_PRINT_EXPECTED_AND_ACTUAL_FIXED(*ptr_expected, *ptr_actual);
+            UnityAddMsgIfSpecified(msg);
+            UNITY_FAIL_AND_BAIL;
+        }
+        if (flags == UNITY_ARRAY_TO_ARRAY)
+        {
+            ptr_expected++;
+        }
+        ptr_actual++;
+    }
+}
+
+/*-----------------------------------------------*/
+void UnityAssertFixedWithin(const UNITY_FIXED delta,
+                            const UNITY_FIXED expected,
+                            const UNITY_FIXED actual,
+                            const char* msg,
+                            const UNITY_LINE_TYPE lineNumber)
+{
+    RETURN_IF_FAIL_OR_IGNORE;
+
+    if (!UnityFixedWithin(delta, expected, actual))
+    {
+        UnityTestResultsFailBegin(lineNumber);
+        UNITY_PRINT_EXPECTED_AND_ACTUAL_FIXED(expected, actual);
+        UnityAddMsgIfSpecified(msg);
+        UNITY_FAIL_AND_BAIL;
+    }
+}
+
+
+#endif /*UNITY_INCLUDE_FIXED */
+
+
+
 
 /*-----------------------------------------------*/
 void UnityAssertNumbersWithin(const UNITY_UINT delta,
@@ -1233,6 +1325,9 @@ static union
 #ifndef UNITY_EXCLUDE_DOUBLE
     double d;
 #endif
+#ifdef UNITY_INCLUDE_FIXED
+    UNITY_FIXED fx;
+#endif
 } UnityQuickCompare;
 
 UNITY_INTERNAL_PTR UnityNumToPtr(const UNITY_INT num, const UNITY_UINT8 size)
@@ -1273,6 +1368,15 @@ UNITY_INTERNAL_PTR UnityDoubleToPtr(const double num)
     return (UNITY_INTERNAL_PTR)(&UnityQuickCompare.d);
 }
 #endif
+
+#ifdef UNITY_INCLUDE_FIXED
+UNITY_INTERNAL_PTR UnityFixedToPtr(const UNITY_FIXED num)
+{
+    UnityQuickCompare.fx = num;
+    return (UNITY_INTERNAL_PTR)(&UnityQuickCompare.fx);
+}
+#endif
+
 
 /*-----------------------------------------------
  * Control Functions

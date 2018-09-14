@@ -191,6 +191,7 @@
 #endif
 typedef UNITY_FLOAT_TYPE UNITY_FLOAT;
 
+
 /* isinf & isnan macros should be provided by math.h */
 #ifndef isinf
 /* The value of Inf - Inf is NaN */
@@ -239,6 +240,13 @@ typedef UNITY_FLOAT_TYPE UNITY_FLOAT;
   #endif
   typedef UNITY_DOUBLE_TYPE UNITY_DOUBLE;
 
+#endif
+
+#ifdef UNITY_INCLUDE_FIXED
+#ifndef UNITY_FIXED_TYPE
+#define UNITY_FIXED_TYPE accum
+#endif
+typedef UNITY_FIXED_TYPE UNITY_FIXED;
 #endif
 
 /*-------------------------------------------------------
@@ -919,6 +927,19 @@ int UnityTestMatches(void);
 #define UNITY_TEST_ASSERT_DOUBLE_IS_NOT_NAN(actual, line, message)                               UnityAssertDoubleSpecial((UNITY_DOUBLE)(actual), (message), (UNITY_LINE_TYPE)(line), UNITY_FLOAT_IS_NOT_NAN)
 #define UNITY_TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE(actual, line, message)                       UnityAssertDoubleSpecial((UNITY_DOUBLE)(actual), (message), (UNITY_LINE_TYPE)(line), UNITY_FLOAT_IS_NOT_DET)
 #endif
+
+#ifndef UNITY_INCLUDE_FIXED
+#define UNITY_TEST_ASSERT_FIXED_WITHIN(delta, expected, actual, line, message)                  UNITY_TEST_FAIL((UNITY_LINE_TYPE)(line), UnityStrErrFixed)
+#define UNITY_TEST_ASSERT_EQUAL_FIXED(expected, actual, line, message)                          UNITY_TEST_FAIL((UNITY_LINE_TYPE)(line), UnityStrErrFixed)
+#define UNITY_TEST_ASSERT_EQUAL_FIXED_ARRAY(expected, actual, num_elements, line, message)      UNITY_TEST_FAIL((UNITY_LINE_TYPE)(line), UnityStrErrFixed)
+#define UNITY_TEST_ASSERT_EACH_EQUAL_FIXED(expected, actual, num_elements, line, message)       UNITY_TEST_FAIL((UNITY_LINE_TYPE)(line), UnityStrErrFixed)
+#else
+#define UNITY_TEST_ASSERT_FIXED_WITHIN(delta, expected, actual, line, message)                  UnityAssertFixedsWithin((UNITY_FIXED)(delta), (UNITY_FIXED)(expected), (UNITY_FIXED)(actual), (message), (UNITY_LINE_TYPE)line)
+#define UNITY_TEST_ASSERT_EQUAL_FIXED(expected, actual, line, message)                          UNITY_TEST_ASSERT_FIXED_WITHIN((UNITY_FIXED)UNITY_FIXED_PRECISION, (UNITY_FIXED)expected, (UNITY_FIXED)actual, (UNITY_LINE_TYPE)(line), message)
+#define UNITY_TEST_ASSERT_EQUAL_FIXED_ARRAY(expected, actual, num_elements, line, message)      UnityAssertEqualFixedArray((UNITY_FIXED*)(expected), (UNITY_FIXED*)(actual), (UNITY_UINT32)(num_elements), (message), (UNITY_LINE_TYPE)line, UNITY_ARRAY_TO_ARRAY)
+#define UNITY_TEST_ASSERT_EACH_EQUAL_FIXED(expected, actual, num_elements, line, message)       UnityAssertEqualFixedArray(UnityFixedToPtr(expected), (UNITY_FIXED*)(actual), (UNITY_UINT32)(num_elements), (message), (UNITY_LINE_TYPE)line, UNITY_ARRAY_TO_VAL)
+#endif
+
 
 /* End of UNITY_INTERNALS_H */
 #endif
