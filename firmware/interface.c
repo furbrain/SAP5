@@ -63,8 +63,6 @@ void set_time(int32_t a) {
 }
 
 /* a null-terminated list of menu_entries */
-#define FUNCTION -1
-#define BACK -2
 
 
 const struct menu_entry main_menu[] = {
@@ -196,20 +194,35 @@ int16_t get_menu_item_offset(const struct menu_entry *menu, int16_t index) {
     return -1;
 }
 
+bool valid_text(const struct menu_entry *menu, int16_t index) {
+    if (menu[index].text) {
+        if (strlen(menu[index].text)) return true;
+    }
+    return false;
+}
+
 /* return index of previous menu item, rotate onto last menu item if currently on first item */
 int16_t get_previous_menu_item(const struct menu_entry *menu, int16_t index) {
-    if (menu[index - 1].text) return index - 1;
-    while (menu[index + 1].text) index++;
+    if (valid_text(menu,index-1)) return index - 1;
+    while (valid_text(menu,index)) index++;
     return index;
 }
 
 /* return index of next menu item, rotating onto first menu item if currently on last item */
 int16_t get_next_menu_item(const struct menu_entry *menu, int16_t index) {
-    if (menu[index + 1].text) {
+    if (valid_text(menu,index + 1)) {
         return index + 1;
     } else {
         return get_menu_item_offset(menu, menu[index + 1].next_menu);
     }
+}
+
+void menu_set_entry(struct menu_entry *menu, int16_t index, char *text, int16_t next_menu, void (*action) (int), int32_t argument) {
+    menu->index = index;
+    strncpy(menu->text, text, 20);
+    menu->next_menu = next_menu;
+    menu->action = action;
+    menu->argument = argument;
 }
 
 enum ACTION get_action() {
@@ -320,7 +333,7 @@ void show_status() {
 
 bool show_menu(const struct menu_entry *menu, int16_t index, bool first_time) {
     enum ACTION action;
-    bool result;
+    bool function_called = false;
     if (first_time) {
         scroll_text(menu[index].text, true);
     } else {
@@ -345,17 +358,21 @@ bool show_menu(const struct menu_entry *menu, int16_t index, bool first_time) {
                 beep(3600, 20);
                 switch (menu[index].next_menu) {
                     case FUNCTION:
-                        menu[index].action(menu[index].argument);
-                        result = true;
+                        if (menu[index].action){
+                            menu[index].action(menu[index].argument);
+                            }
+                        function_called = true;
                         break;
                     case BACK:
                         if (!first_time) return false;
                         break;
+                    case INFO: //do nothing on click if INFO item.
+                        break;
                     default:
-                        result = show_menu(menu, get_menu_item_offset(menu, menu[index].next_menu), false);
+                        function_called = show_menu(menu, get_menu_item_offset(menu, menu[index].next_menu), false);
                         break;
                 }
-                if (result) {
+                if (function_called) {
                     if (first_time) {
                         /* we have got back to the root screen */
                         index = FIRST_MENU_ITEM;

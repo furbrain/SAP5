@@ -16,12 +16,41 @@
 
 
 
-const char *cartesian_items[] = {"East:","North:","Vert:","Lg:    Ext:"};
-const char *polar_items[] = {"Comp:","Clino:","Dist:","Lg:    Ext:"};
+const char *cartesian_items[] = {"East:","North:","Vert:","Ext:"};
+const char *polar_items[] = {"Comp:","Clino:","Dist:","Ext:"};
 
-const char cartesian_format[] = " %+.2f ";
+const char cartesian_small_format[] = " %+.2f ";
+const char *cartesian_big_format[] = {"E: %+.2f", "N: %+.2f","V: %+.2f","Ext%+.2f"};
 const char *polar_format[] = {" %03.1f "," %+02.1f "," %.2f "," %.2f "};
 
+accum deltas[4];
+
+
+struct menu_entry leg_menu[] = {
+    {-2, NULL, 0, NULL, 0},
+    {1, "AAAAAAAAAAAAAAAAAAAA", 0, NULL, 0}, //blank entries for us to fettle....
+    {2, "BBBBBBBBBBBBBBBBBBBB", 0, NULL, 0},
+    {3, "CCCCCCCCCCCCCCCCCCCC", 0, NULL, 0},
+    {4, "DDDDDDDDDDDDDDDDDDDD", 0, NULL, 0},
+    {5, "EEEEEEEEEEEEEEEEEEEE", 0, NULL, 0},
+    {6, "FFFFFFFFFFFFFFFFFFFF", 0, NULL, 0},
+    {7, "GGGGGGGGGGGGGGGGGGGG", 0, NULL, 0},
+    {8, "HHHHHHHHHHHHHHHHHHHH", 0, NULL, 0},
+    {9, "IIIIIIIIIIIIIIIIIIII", 0, NULL, 0},
+    {10, "JJJJJJJJJJJJJJJJJJJJ", 0, NULL, 0},
+    {11, "KKKKKKKKKKKKKKKKKKKK", 0, NULL, 0},
+    {12, "LLLLLLLLLLLLLLLLLLLL", 0, NULL, 0},
+    {13, "MMMMMMMMMMMMMMMMMMMM", 0, NULL, 0},
+    {14, "NNNNNNNNNNNNNNNNNNNN", 0, NULL, 0},
+    {15, "OOOOOOOOOOOOOOOOOOOO", 0, NULL, 0},
+    {16, "PPPPPPPPPPPPPPPPPPPP", 0, NULL, 0},
+    {17, "QQQQQQQQQQQQQQQQQQQQ", 0, NULL, 0},
+    {18, "RRRRRRRRRRRRRRRRRRRR", 0, NULL, 0},
+    {19, "SSSSSSSSSSSSSSSSSSSS", 0, NULL, 0},
+    {20, "TTTTTTTTTTTTTTTTTTTT", 0, NULL, 0},
+    /*end */
+    {-1, NULL, -1, NULL, 0}   
+};
 
 void get_readings(accum *orientation, accum *distance){
 	int i,j;
@@ -107,13 +136,62 @@ void test() {
     } while (get_action()==NONE);
 }
 
+void store_leg(int32_t info) {
+    ///FIXME
+}
+
+bool measurement_menu(accum *items) {
+    int index = 1;
+    int i;
+    char text[20];
+    for (i=0; i<4; i++) {
+        if (config.display_style==CARTESIAN) {
+            
+            snprintf(text,20,cartesian_big_format[i],items[i]);
+            menu_set_entry(leg_menu+index, i, text, INFO, NULL, 0);
+            index++;
+        }
+    }
+
+    //add store option
+    menu_set_entry(leg_menu+index, index-1, "Store", 10, NULL, 0);
+    index++;
+
+    //add discard option
+    menu_set_entry(leg_menu+index,index-1,"Discard",FUNCTION, NULL, 0);
+    index++;
+    
+    //add main menu option
+    menu_set_entry(leg_menu+index, index-1, "Main Menu", BACK, NULL, 0);
+    index++;
+    
+    //end of top level menu
+    menu_set_entry(leg_menu+index, index-1, "", 0, NULL, 0);
+    
+    index =10;
+    menu_set_entry(leg_menu+index, index, "1->2", FUNCTION, store_leg, 12);
+    index++;
+    menu_set_entry(leg_menu+index, index, "1-> - ", FUNCTION, store_leg, 10);
+    index++;
+    menu_set_entry(leg_menu+index, index, "2->1", FUNCTION, store_leg, 21);
+    index++;
+    menu_set_entry(leg_menu+index, index, "2-> - ", FUNCTION, store_leg, 20);
+    index++;
+    menu_set_entry(leg_menu+index, index, "CUSTOM", FUNCTION, store_leg, 00);
+    index++;
+    menu_set_entry(leg_menu+index, index, "CUSTOM", BACK, NULL, 00);
+    index++;
+    menu_set_entry(leg_menu+index, -1, "", BACK, NULL, 00);
+    return show_menu(leg_menu,1,false);
+}
+
 void measure(int32_t a) {
 	int item = 0;
 	bool readings_available = false;
 	accum items[4];
 	accum orientation[4];
 	accum extension,distance;
-	int i, cycle;
+	int i;
 	char text[17];
 	char format[17];
 	char degree_sign;
@@ -122,7 +200,6 @@ void measure(int32_t a) {
 	distance = 10.0;
 	length_sign = (config.length_units==IMPERIAL)?'\'':'m';
 	degree_sign = (config.display_style==GRAD)?'g':'`';
-	cycle = 0;
 	//test stuff here...
 // 	test();
 // 	return;
@@ -131,11 +208,10 @@ void measure(int32_t a) {
 	display_clear_screen();
 	display_write_text(4,0,"*----",&large_font,false);
 	while (true) {
-		cycle++;
 		if (readings_available) {
 			for (i=0; i<4; i++) {
 				if (config.display_style==CARTESIAN) {
-					sprintf(format,cartesian_format,(double)items[i]);
+					sprintf(format,cartesian_small_format,(double)items[i]);
 					display_write_text(i*2,0,cartesian_items[i],&small_font,false);
 				} else {
 					sprintf(format,polar_format[i],(double)items[i]);
@@ -146,21 +222,21 @@ void measure(int32_t a) {
 				} else {
 					format[strlen(format)-1] = length_sign;
 				}
-				if (i==3) {
-					display_write_text(6,26,"123",&small_font,false);
-				}
 				display_write_text(i*2,127,format,&small_font,true);
 			}
 		}
 		switch(get_action()) {
 			case FLIP_UP:
 			case FLIP_DOWN:
+                if (readings_available) {
+                    if (measurement_menu(items)) {
+                        
+                    }
+                }
 				break;
-			case NONE:
-				if (cycle<30) break;
-				cycle=0;
 			case SINGLE_CLICK:
 			case LONG_CLICK:
+				/* take measurement */
 				get_readings(orientation,&distance);
 				switch (config.display_style) {
 					case GRAD:
@@ -174,8 +250,9 @@ void measure(int32_t a) {
 										 items,
 										 distance);
 						break;
+                        
 				}
-				/* take measurement */
+                calculate_deltas(orientation, deltas, distance);
 				readings_available = true;
 				break;
 			case DOUBLE_CLICK:

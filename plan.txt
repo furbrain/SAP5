@@ -47,3 +47,16 @@ Axes:
 X = towards top of display with laser pointing left
 Y = along laser
 Z = coming out of surface of display upwards...
+
+post-measure menu
+
+Readings  - no action, just visible
+Discard
+Store -> (assuming "last visited station==1")
+    1->2
+    1->Splay
+    2->1
+    2->Splay
+    Custom - needs separate code to run...
+    Back
+    

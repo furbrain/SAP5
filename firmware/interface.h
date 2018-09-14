@@ -16,13 +16,20 @@ enum ACTION {
 
 struct menu_entry {
     int16_t index;
-    const char* text;
-    int16_t next_menu; /* start of next menu (or this menu if text NULL */
+    char* text;
+    int16_t next_menu; /* start of next menu, or one of FUNCTION, BACK, INFO*/
     void (*action) (int); /*action to perform when selected */
     int32_t argument; /* argument to pass to action (if needed) */
 };
 
+
+#define FUNCTION -1
+#define BACK -2
+#define INFO -3
+
 extern const struct menu_entry main_menu[];
+
+void menu_set_entry(struct menu_entry *menu, int16_t index, char *text, int16_t next_menu, void (*action) (int), int32_t argument);
 
 #define FIRST_MENU_ITEM 1
 enum ACTION get_action();
