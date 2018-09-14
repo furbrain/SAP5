@@ -106,7 +106,7 @@
         - ${1}
         - -o ${2}
   :test_fixture:
-    :executable: ./run_test.sh
+    :executable: ./run_test.py
     :arguments:
         - ${1}
   
