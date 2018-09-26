@@ -122,6 +122,12 @@ int16_t find_median(int16_t array[], const int16_t len) {
 	return array[len/2];
 }
 
+void get_rotation_matrix(const int axes[2], accum theta, matrixx matrix) {
+    accum v[2];
+    memcpy(matrix, identity, sizeof(matrixx));
+    v[0] = cos(theta);
+    v[1] = sin(theta);
+    apply_2d_rotation(axes, v, matrix);
 void pca(const vectorr data[], const  int axes[2], const int16_t len, struct EIGEN *eig){
 	double varX,varY,covar;
 	double T,D,L1,L2,magnitude;

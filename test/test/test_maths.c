@@ -337,3 +337,29 @@ void test_aabs() {
         TEST_ASSERT_EQUAL_FIXED_MESSAGE(test_cases[i].result, aabs(test_cases[i].a), text);
     }
 }
+
+void test_get_rotation_matrix() {
+    char text[80];
+    struct test_field {
+        int axes[2];
+        accum theta;
+        matrixx result;
+    };
+    struct test_field test_cases[] = {
+        {{0,1}, 0, {{1,0,0,0},{0,1,0,0},{0,0,1,0}}},
+        {{0,1}, M_PI/2, {{0,1,0,0},{-1,0,0,0},{0,0,1,0}}},
+        {{1,0}, M_PI/2, {{0,-1,0,0},{1,0,0,0},{0,0,1,0}}},
+        {{0,2}, M_PI/2, {{0,0,1,0},{0,1,0,0},{-1,0,0,0}}},
+        {{0,1}, M_PI/4, {{0.707,0.707,0,0},{-0.707,0.7070,0,0},{0,0,1,0}}},
+    };
+    matrixx result;
+    int i, k;
+    for (i=0; i<5; i++) {
+        get_rotation_matrix(test_cases[i].axes, test_cases[i].theta, result);
+        for (k=0; k<3; k++) {   
+            snprintf(text,24,"Iteration: %d:%d", i, k);
+            TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
+        }
+    }
+}
+
