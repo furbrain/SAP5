@@ -2,9 +2,10 @@
 #define MATHS_H
 #include <stdint.h>
 #include <stdfix.h>
-struct EIGEN {
-	double scalar;
-	double vector[2];
+
+struct __attribute__((aligned(4))) ELLIPSE_PARAM {
+	accum scale;
+	accum theta;
 };
 
 typedef accum vectorr[3];
@@ -33,16 +34,31 @@ void apply_matrix(const vectorr a, matrixx b, vectorr c);
 /* applies matrix delta to calibration */
 void matrix_multiply(matrixx delta, matrixx calibration);
 
+/* apply an offset of x,y,z to matrix */
 void apply_offset(const accum x, const accum y, const accum z, matrixx matrix );
 
-void apply_2d_rotation(const int axes[2], const double vector[2], matrixx matrix);
+/* apply a rotation to matrix such that axis[0] rotates to vector (in specified axes) */
+void apply_2d_rotation(const int axes[2], const accum vector[2], matrixx matrix);
 
+/* create a rotation of theta radians in axes, store the result in matrix */
+void get_rotation_matrix(const int axes[2], accum theta, matrixx matrix);
+
+/* apply a scale to a specific axis of matrixx */
 void apply_scale(const int axis, const accum scale, matrixx matrix);
 
-void normalise(vectorr a);
+/* normalise a vector of length n*/
+void normalise(accum vector[], int len);
+
+
+/* find the long axis and ratio of long:short axis for an ellipse *
+ * data is a set of vectorrs, axes hold the two axes of interest *
+ * len is number of data points */
+struct ELLIPSE_PARAM 
+find_rotation_and_scale_of_ellipse(const vectorr *data, 
+                                   const int axes[2], 
+                                   const int16_t len);
 
 /* finds the median value of array. array is modified and sorted by this function */
 int16_t find_median(int16_t array[],const int16_t len);
 
-void pca(const vectorr data[], const int axes[2], const int16_t len, struct EIGEN *eig);
 #endif

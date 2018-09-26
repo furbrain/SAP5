@@ -128,23 +128,41 @@ void get_rotation_matrix(const int axes[2], accum theta, matrixx matrix) {
     v[0] = cos(theta);
     v[1] = sin(theta);
     apply_2d_rotation(axes, v, matrix);
-void pca(const vectorr data[], const  int axes[2], const int16_t len, struct EIGEN *eig){
-	double varX,varY,covar;
-	double T,D,L1,L2,magnitude;
-	int count;
-	varX = varY = covar = 0;
-	for (count=0; count< len; count++) {
-		varX  += data[count][axes[0]]*data[count][axes[0]];
-		varY  += data[count][axes[1]]*data[count][axes[1]];
-		covar += data[count][axes[0]]*data[count][axes[1]];
-	}
-	T = varX+varY;
-	D = varX*varY-covar*covar;
-	L1 = (T/2) + (accum)sqrt((double)(T*T/4-D));
-	L2 = (T/2) - (accum)sqrt((double)(T*T/4-D));
-	eig->scalar = (accum)sqrt((double)L1)/sqrt((double)L2);
-	magnitude = (accum)sqrt((double)((L1-varY)*(L1-varY)+covar*covar));
-	eig->vector[0] = (L1-varY)/magnitude;
-	eig->vector[1] = covar/magnitude;
 }
 
+
+/* find the long axis and ratio of long:short axis for an ellipse *
+ * data is a set of vectorrs, axes hold the two axes of interest *
+ * len is number of data points */
+struct ELLIPSE_PARAM 
+find_rotation_and_scale_of_ellipse(const vectorr *data, 
+                                   const int axes[2], 
+                                   const int16_t len) {
+    accum maxx;
+    accum maxy;
+    accum theta;
+    vectorr v;
+    matrixx rotation;
+    int i,j;
+    int a0,a1;
+    struct ELLIPSE_PARAM final = {0k, 0k};
+    a0 = axes[0];
+    a1 = axes[1];
+    for (i=0; i < 200; i++) {
+        theta = i * M_PI/200.0k;
+        get_rotation_matrix(axes, theta, rotation);
+        maxx = 0k;
+        maxy = 0k;
+        for (j=0; j< len; j++) {
+            apply_matrix(data[j], rotation, v);
+            maxx = amax(aabs(v[a0]),maxx);
+            maxy = amax(aabs(v[a1]),maxy);
+        }
+        //if (1) {
+        if ((maxx / maxy) > final.scale) {
+            final.scale = maxx /maxy;
+            final.theta = theta;
+        }
+    }
+    return final;          
+}

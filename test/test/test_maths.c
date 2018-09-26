@@ -363,3 +363,26 @@ void test_get_rotation_matrix() {
     }
 }
 
+void test_find_rotation_and_scale_of_ellipse() {
+    char text[80];
+    struct test_field {
+        const vectorr *data;
+        int axes[2];
+        int len;
+        accum scale;
+        accum theta; // in degrees
+    };
+    struct test_field test_cases[2] = {
+        {simple1, {0,1}, 4, 2.0, 0},
+        {simple1, {1,0}, 4, 2.0, M_PI/3},
+    };
+    int i;
+    struct ELLIPSE_PARAM result;
+    for (i=0; i<2; i++) {
+        snprintf(text, 80, "Iteration : %d\0", i);
+        result = find_rotation_and_scale_of_ellipse(test_cases[i].data, test_cases[i].axes, test_cases[i].len);
+        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.01k, test_cases[i].scale, result.scale, text);
+        //TEST_ASSERT_EQUAL_FIXED(-1, result.vector[1]);
+        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.1k, test_cases[i].theta, result.theta, text);
+    }
+}
