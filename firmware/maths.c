@@ -75,15 +75,15 @@ void apply_offset(const accum x, const accum y, const accum z, matrixx matrix) {
     matrix_multiply(matrix, new_mat);
 }
 
-void apply_2d_rotation(const int axes[2], const double vector[2], matrixx matrix) {
+void apply_2d_rotation(const int axes[2], const accum vector[2], matrixx matrix) {
     matrixx new_mat;
     int x = axes[0];
     int y = axes[1];
-    memcpy(new_mat, identity, sizeof(matrixx));
-    new_mat[x][x] = (accum) vector[0];
-    new_mat[x][y] = (accum) vector[1];
-    new_mat[y][x] = (accum) -vector[1];
-    new_mat[y][y] = (accum) vector[0];
+    memcpy(new_mat, identity, sizeof(new_mat));
+    new_mat[x][x] = vector[0];
+    new_mat[x][y] = vector[1];
+    new_mat[y][x] = -vector[1];
+    new_mat[y][y] = vector[0];
     matrix_multiply(matrix, new_mat);
 }
 
@@ -95,13 +95,16 @@ void apply_scale(const int axis, const accum scale, matrixx matrix) {
 }
 
 
-void normalise(accum *a) {
-	accum magnitude;
-	magnitude = sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
-	a[0] /= magnitude;
-	a[1] /= magnitude;
-	a[2] /= magnitude;
-	
+void normalise(accum vector[], int len) {
+	accum magnitude = 0;
+	int i;
+	for (i=0; i< len; i++) {
+    	magnitude += vector[i] * vector[i];
+    }
+    magnitude = sqrt(magnitude);
+	for (i=0; i< len; i++) {
+    	vector[i] /=magnitude;
+    }
 }
 
 int16_t find_median(int16_t array[], const int16_t len) {
