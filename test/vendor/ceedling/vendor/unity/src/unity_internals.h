@@ -934,7 +934,7 @@ int UnityTestMatches(void);
 #define UNITY_TEST_ASSERT_EQUAL_FIXED_ARRAY(expected, actual, num_elements, line, message)      UNITY_TEST_FAIL((UNITY_LINE_TYPE)(line), UnityStrErrFixed)
 #define UNITY_TEST_ASSERT_EACH_EQUAL_FIXED(expected, actual, num_elements, line, message)       UNITY_TEST_FAIL((UNITY_LINE_TYPE)(line), UnityStrErrFixed)
 #else
-#define UNITY_TEST_ASSERT_FIXED_WITHIN(delta, expected, actual, line, message)                  UnityAssertFixedsWithin((UNITY_FIXED)(delta), (UNITY_FIXED)(expected), (UNITY_FIXED)(actual), (message), (UNITY_LINE_TYPE)line)
+#define UNITY_TEST_ASSERT_FIXED_WITHIN(delta, expected, actual, line, message)                  UnityAssertFixedWithin((UNITY_FIXED)(delta), (UNITY_FIXED)(expected), (UNITY_FIXED)(actual), (message), (UNITY_LINE_TYPE)line)
 #define UNITY_TEST_ASSERT_EQUAL_FIXED(expected, actual, line, message)                          UNITY_TEST_ASSERT_FIXED_WITHIN((UNITY_FIXED)UNITY_FIXED_PRECISION, (UNITY_FIXED)expected, (UNITY_FIXED)actual, (UNITY_LINE_TYPE)(line), message)
 #define UNITY_TEST_ASSERT_EQUAL_FIXED_ARRAY(expected, actual, num_elements, line, message)      UnityAssertEqualFixedArray((UNITY_FIXED*)(expected), (UNITY_FIXED*)(actual), (UNITY_UINT32)(num_elements), (message), (UNITY_LINE_TYPE)line, UNITY_ARRAY_TO_ARRAY)
 #define UNITY_TEST_ASSERT_EACH_EQUAL_FIXED(expected, actual, num_elements, line, message)       UnityAssertEqualFixedArray(UnityFixedToPtr(expected), (UNITY_FIXED*)(actual), (UNITY_UINT32)(num_elements), (message), (UNITY_LINE_TYPE)line, UNITY_ARRAY_TO_VAL)
