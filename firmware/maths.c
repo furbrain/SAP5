@@ -59,9 +59,9 @@ void matrix_multiply(matrixx calibration, matrixx delta) {
         for (j=0; j<4; j++) {
             calibration[i][j] = 0;
             for (k=0; k<3; k++) {
-                calibration[i][j] += cal_copy[i][k]* delta[k][j];
+                calibration[i][j] += delta[i][k]* cal_copy[k][j];
             }
-            calibration[i][j] += cal_copy[i][3] * (j==3 ? 1 : 0);
+            calibration[i][j] += delta[i][3] * (j==3 ? 1 : 0);
         }
     }
 }
