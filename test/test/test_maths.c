@@ -129,3 +129,68 @@ void test_matrix_multiply(void) {
         }
     }
 }
+void test_amax() {
+    char text[80];
+    struct test_field {
+        accum a;
+        accum b;
+        accum result;
+    };
+    struct test_field test_cases[7] = {
+        {0, 0, 0},
+        {1, 2, 2},
+        {2, 1, 2},
+        {1, -1, 1},
+        {-1, 1, 1},
+        {1, -100, 1},
+        {100, -1, 100}
+    };
+    int i;
+    for (i=0; i<7; i++) {
+        TEST_ASSERT_EQUAL_FIXED(test_cases[i].result,amax(test_cases[i].a, test_cases[i].b));
+    }
+}
+
+void test_amin() {
+    char text[80];
+    struct test_field {
+        accum a;
+        accum b;
+        accum result;
+    };
+    struct test_field test_cases[7] = {
+        {0, 0, 0},
+        {1, 2, 1},
+        {2, 1, 1},
+        {1, -1, -1},
+        {-1, 1, -1},
+        {1, -100, -100},
+        {100, -1, -1}
+    };
+    int i;
+    for (i=0; i<7; i++) {
+        TEST_ASSERT_EQUAL_FIXED(test_cases[i].result,amin(test_cases[i].a, test_cases[i].b));
+    }
+}
+
+void test_aabs() {
+    char text[80];
+    struct test_field {
+        accum a;
+        accum result;
+    };
+    struct test_field test_cases[7] = {
+        {0, 0},
+        {1, 1},
+        {2, 2},
+        {-1, 1},
+        {-2, 2},
+        {1.3, 1.3},
+        {-1.3, 1.3}
+    };
+    int i;
+    for (i=0; i<7; i++) {
+        snprintf(text, 80, "Iteration: %d", i);
+        TEST_ASSERT_EQUAL_FIXED_MESSAGE(test_cases[i].result, aabs(test_cases[i].a), text);
+    }
+}

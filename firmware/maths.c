@@ -3,11 +3,25 @@
 #include "maths.h"
 /* return AxB in C, where A B and C are all pointers to accum[3] */
 
-matrixx identity = {
+const matrixx identity = {
     {1.0k, 0, 0, 0},
     {0, 1.0k, 0, 0},
     {0, 0, 1.0k, 0}
 };
+
+accum amax(const accum a, const accum b) {
+    return a > b ? a : b;
+}
+
+accum amin(const accum a, const accum b) {
+    return a < b ? a : b;
+}
+
+accum aabs(const accum a) {
+    return a < 0k ? (0k-a) : (a);
+}
+
+
 
 void cross_product(const vectorr a, const vectorr b, vectorr c) {
 	c[0] = (a[1]*b[2]) - (a[2]*b[1]);

@@ -10,7 +10,13 @@ struct EIGEN {
 typedef accum vectorr[3];
 typedef accum matrixx [3][4];
 
-extern matrixx identity;
+extern const matrixx identity;
+
+accum amax(accum a, accum b);
+
+accum amin(accum a, accum b);
+
+accum aabs(accum a);
 
 /* return AxB in C, where A B and C are all pointers to double[3] */
 void cross_product(const vectorr a, const vectorr b, vectorr c);
