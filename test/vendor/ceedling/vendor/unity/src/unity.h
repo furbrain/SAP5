@@ -52,6 +52,8 @@ int suiteTearDown(int num_failures);
   #endif
 #endif
 
+void UnityPrint(const char* string);
+
 /*-------------------------------------------------------
  * Configuration Options
  *-------------------------------------------------------
