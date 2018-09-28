@@ -137,7 +137,8 @@ void get_rotation_matrix(const int axes[2], accum theta, matrixx matrix) {
 struct ELLIPSE_PARAM 
 find_rotation_and_scale_of_ellipse(const vectorr *data, 
                                    const int axes[2], 
-                                   const int16_t len) {
+                                   const int16_t len,
+                                   int precision) {
     accum maxx;
     accum maxy;
     accum theta;
@@ -148,8 +149,8 @@ find_rotation_and_scale_of_ellipse(const vectorr *data,
     struct ELLIPSE_PARAM final = {0k, 0k};
     a0 = axes[0];
     a1 = axes[1];
-    for (i=0; i < 200; i++) {
-        theta = i * M_PI/200.0k;
+    for (i=0; i < precision; i++) {
+        theta = i * M_PI/precision;
         get_rotation_matrix(axes, theta, rotation);
         maxx = 0k;
         maxy = 0k;

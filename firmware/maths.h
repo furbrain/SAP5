@@ -56,7 +56,8 @@ void normalise(accum vector[], int len);
 struct ELLIPSE_PARAM 
 find_rotation_and_scale_of_ellipse(const vectorr *data, 
                                    const int axes[2], 
-                                   const int16_t len);
+                                   const int16_t len,
+                                   int precision);
 
 /* finds the median value of array. array is modified and sorted by this function */
 int16_t find_median(int16_t array[],const int16_t len);

@@ -369,20 +369,24 @@ void test_find_rotation_and_scale_of_ellipse() {
         const vectorr *data;
         int axes[2];
         int len;
+        int precision;
         accum scale;
         accum theta; // in degrees
     };
-    struct test_field test_cases[2] = {
-        {simple1, {0,1}, 4, 2.0, 0},
-        {simple1, {1,0}, 4, 2.0, M_PI/3},
+    struct test_field test_cases[5] = {
+        {simple1, {0, 1}, 4, 100, 2.0, 0},
+        {simple1, {1, 0}, 4, 100, 2.0, M_PI/3},
+        {simple2, {2, 0}, 20, 20, 1.2, 2.423},
+        {simple3, {1, 2}, 20, 20, 1.2, 1.679},
+        {simple4, {0, 1}, 20, 20, 1.2, 1.475},
     };
     int i;
     struct ELLIPSE_PARAM result;
-    for (i=0; i<2; i++) {
+    for (i=0; i<5; i++) {
         snprintf(text, 80, "Iteration : %d\0", i);
-        result = find_rotation_and_scale_of_ellipse(test_cases[i].data, test_cases[i].axes, test_cases[i].len);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.01k, test_cases[i].scale, result.scale, text);
+        result = find_rotation_and_scale_of_ellipse(test_cases[i].data, test_cases[i].axes, test_cases[i].len, test_cases[i].precision);
+        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.1k, test_cases[i].scale, result.scale, text);
         //TEST_ASSERT_EQUAL_FIXED(-1, result.vector[1]);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.1k, test_cases[i].theta, result.theta, text);
+        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.25k, test_cases[i].theta, result.theta, text);
     }
 }

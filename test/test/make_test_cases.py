@@ -30,6 +30,28 @@ def get_random_vector():
     v = (np.random.random(4)*4)-2
     v[3] = 1
     return v
+    
+def to_points(x):
+    return [math.sin(x)*SCALE, math.cos(x)*SCALE]
+    
+def get_2d_rotation_matrix(theta):
+    c, s = np.cos(theta), np.sin(theta)
+    return np.matrix([[c, s], [-s, c]])
+
+def create_2d_raw_data(sample_count, theta, offset, noise=0, scale=10, skew=1.2):
+    angles = np.random.random(sample_count)*np.pi*2
+    points = np.array([np.sin(angles)*scale, np.cos(angles)*scale]).T
+    points += np.random.random((sample_count,2))*noise-(noise/2)
+    mat = create_2d_rotation_and_scale_matrix(theta, skew)
+    points = np.matmul(points, mat)
+    points += offset
+    return points
+
+def create_2d_rotation_and_scale_matrix(theta, skew):
+    rot_mat = get_2d_rotation_matrix(theta)
+    scale_mat = np.matrix([[skew,0], [0,1]])
+    return np.matmul(np.matmul(np.linalg.inv(rot_mat), scale_mat), rot_mat)
+
 
 def make_rotation_matrix(theta, axes):
     m = np.identity(4)
@@ -94,6 +116,24 @@ def make_normalise_fixture():
         vector /= np.linalg.norm(vector)
         print "{%s, %s}," % (bracketiser(original), bracketiser(vector))
             
+def make_find_rotation_and_scale_fixture(samples, skew=1.2, noise=0):
+    theta = np.random.random()*np.pi
+    points = create_2d_raw_data(samples, theta, [0,0])
+    vectors = np.zeros((samples,3))
+    axes = np.arange(3)
+    np.random.shuffle(axes)
+    a = int(axes[0])
+    b = int(axes[1])
+    vectors[:, a:a+1] = points[:, 0]
+    vectors[:, b:b+1] = points[:, 1]
+    print theta
+    print skew
+    print axes
+    print bracketiser(vectors)
+
 np.set_printoptions(suppress=True, precision=4)
 np.random.seed(10)
-make_normalise_fixture()            
+make_find_rotation_and_scale_fixture(20)
+make_find_rotation_and_scale_fixture(20)
+make_find_rotation_and_scale_fixture(20)
+
