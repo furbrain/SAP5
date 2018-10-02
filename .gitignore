@@ -18,6 +18,8 @@
 *.drill
 *.bom
 *.xy
+*.pyc
+*.log
 /firmware/dist/default/
 /firmware/build/default/
 MPLABXLog*
@@ -26,3 +28,4 @@ MPLABXLog*
 /bootloader/build/default/
 /bootloader/nbproject/private/
 /firmware/nbproject/private/
+/test/experiments/
