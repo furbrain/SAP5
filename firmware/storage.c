@@ -46,7 +46,7 @@ int write_config(struct CONFIG *config) {
     while ((*ptr != 0xff) && ptr+sizeof(struct CONFIG) < (config_space+APP_CONFIG_SIZE)) {
         ptr += sizeof(struct CONFIG);
     }
-    if (ptr > (config_space + APP_CONFIG_SIZE)) {
+    if (ptr > (config_space + APP_CONFIG_SIZE - sizeof(struct CONFIG))) {
         erase_page((void *)config_space);
         ptr  = config_space;
     }
