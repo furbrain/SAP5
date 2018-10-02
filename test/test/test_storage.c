@@ -182,6 +182,11 @@ void test_write_leg_overflow(void) {
     TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)));
 }
 
+void test_write_leg_page_overflow(void) {
+    /* check works correctly when leg boundary aligns with page boundary -- and when it doesn't */
+    TEST_FAIL_MESSAGE("I need to implement this test properly -- when sober");
+}
+
 /*void test_find_median(void) {*/
 /*    TEST_ASSERT_EQUAL_INT16(5, find_median((int16_t[]){3,5,6},3));*/
 /*    TEST_ASSERT_EQUAL_INT16(5, find_median((int16_t[]){5},1));*/
