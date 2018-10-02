@@ -28,7 +28,13 @@ struct CONFIG test_config = {
 };
 
 struct LEG test_leg = {
-}
+    12, //datetime
+    0, //survey
+    1, //from
+    2, //to
+    {1.0k, 1.0k, 2.0k} //delta
+};
+    
 
 int write_dword_replacement(void* ptr, const int* src, int num_calls) {
     if ((size_t)ptr % 8) return -1;
@@ -147,8 +153,8 @@ void test_write_leg_single(void) {
     write_dword_StubWithCallback(write_dword_replacement);
     result = write_leg(&test_leg);
     TEST_ASSERT_EQUAL(0, result);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_leg, leg_space, sizeof(leg_leg));
-    TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(leg_leg)));
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_leg, leg_space, sizeof(test_leg));
+    TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)));
 }
 
 void test_write_leg_double(void) {
@@ -163,11 +169,11 @@ void test_write_leg_double(void) {
 
 void test_write_leg_overflow(void) {
     int counter;
-    struct leg new_leg;
+    struct LEG new_leg;
     write_dword_StubWithCallback(write_dword_replacement);
     counter = APP_LEG_SIZE/sizeof(test_leg);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
-    new_leg.axes.accel[0]=5;
+    new_leg.survey=1;
     while(counter--) {
         write_leg(&test_leg);
     }
