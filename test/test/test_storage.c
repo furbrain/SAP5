@@ -1,7 +1,6 @@
 #include "unity.h"
 #include "CException.h"
 #include "storage.h"
-//#include "memory.h"
 #include "mock_memory.h"
 #include "utils.h"
 #include "mem_locations.h"
@@ -17,17 +16,19 @@ extern uint8_t config_space[];
 extern uint8_t leg_space[];
 
 struct CONFIG test_config = {
-            {{1,0,2},{0,1,5}},                   //axis orientation
-            { //calib section
-                {{1.0k,0,0,0},{0,1.0k,0,0},{0,0,1.0k,0}}, //accel matrix
-                {{1.0k,0,0,0},{0,1.0k,0,0},{0,0,1.0k,0}}, //mag matrix
-                0.090k                              //laser offset
-            },
-            POLAR,                               //Polar display style
-            METRIC,                              //metric units
-            30                                   //30s timeout
-        };
+    {{1,0,2},{0,1,5}},                   //axis orientation
+    { //calib section
+        {{1.0k,0,0,0},{0,1.0k,0,0},{0,0,1.0k,0}}, //accel matrix
+        {{1.0k,0,0,0},{0,1.0k,0,0},{0,0,1.0k,0}}, //mag matrix
+        0.090k                              //laser offset
+    },
+    POLAR,                               //Polar display style
+    METRIC,                              //metric units
+    30                                   //30s timeout
+};
 
+struct LEG test_leg = {
+}
 
 int write_dword_replacement(void* ptr, const int* src, int num_calls) {
     if ((size_t)ptr % 8) return -1;
@@ -101,6 +102,40 @@ void test_write_config_overflow(void) {
     TEST_ASSERT_EQUAL_UINT8(0xff, *(config_space + sizeof(test_config)));
 }
 
+
+void test_write_leg_single(void) {
+    int result;
+    write_dword_StubWithCallback(write_dword_replacement);
+    result = write_leg(&test_leg);
+    TEST_ASSERT_EQUAL(0, result);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_leg, leg_space, sizeof(leg_leg));
+    TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(leg_leg)));
+}
+
+void test_write_leg_double(void) {
+    int result;
+    write_dword_StubWithCallback(write_dword_replacement);
+    result = write_leg(&test_leg);
+    result = write_leg(&test_leg);
+    TEST_ASSERT_EQUAL(0, result);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_leg, leg_space+sizeof(test_leg), sizeof(test_leg));
+    TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)*2));
+}
+
+void test_write_leg_overflow(void) {
+    int counter;
+    struct leg new_leg;
+    write_dword_StubWithCallback(write_dword_replacement);
+    counter = APP_LEG_SIZE/sizeof(test_leg);
+    memcpy(&new_leg,&test_leg,sizeof(new_leg));
+    new_leg.axes.accel[0]=5;
+    while(counter--) {
+        write_leg(&test_leg);
+    }
+    write_leg(&new_leg);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_leg, leg_space, sizeof(new_leg));
+    TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)));
+}
 
 /*void test_find_median(void) {*/
 /*    TEST_ASSERT_EQUAL_INT16(5, find_median((int16_t[]){3,5,6},3));*/
