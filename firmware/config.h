@@ -54,7 +54,7 @@ struct __attribute__((aligned(8))) LEG {
     uint16_t survey; //survey number
     uint8_t from; //origin station
     uint8_t to; //destination station
-    /* differential readings, stored as multiples of 0.25cm */
+    /* differential readings in m */
     accum delta[3]; 
 };
 
