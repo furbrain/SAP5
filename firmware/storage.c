@@ -5,8 +5,17 @@
 #include "config.h"
 #include <stdio.h>
 
+#ifndef __DEBUG
 const uint8_t config_space[APP_CONFIG_SIZE] __attribute__((address(APP_CONFIG_LOCATION), space(prog))) = {[0 ... APP_CONFIG_SIZE-1]=0xff};
+#else
+uint8_t config_space[APP_CONFIG_SIZE] __attribute__((address(APP_CONFIG_LOCATION), space(data)))  = {[0 ... APP_CONFIG_SIZE-1]=0xff};
+#endif
+
+#ifndef __DEBUG
 const uint8_t leg_space[APP_LEG_SIZE] __attribute__((address(APP_LEG_LOCATION), space(prog))) = {[0 ... APP_LEG_SIZE-1]=0xff};
+#else
+uint8_t  leg_space[APP_LEG_SIZE] __attribute__((address(APP_LEG_LOCATION), space(data)))  = {[0 ... APP_LEG_SIZE-1]=0xff};
+#endif
 
 int write_data(uint8_t *dest,  uint8_t *src, int length){
     int i, res;
