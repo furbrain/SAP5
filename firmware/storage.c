@@ -54,3 +54,20 @@ int write_config(struct CONFIG *config) {
     res =  write_data((uint8_t *)ptr, (uint8_t *)config, sizeof(struct CONFIG));
     return res;
 }
+
+
+int write_leg(struct LEG *leg) {
+    const uint8_t *ptr = leg_space;
+    char text[24];
+    int res;
+    while ((*ptr != 0xff) && ptr+sizeof(struct LEG) < (leg_space+APP_LEG_SIZE)) {
+        ptr += sizeof(struct LEG);
+    }
+    if (ptr > (leg_space + APP_LEG_SIZE - sizeof(struct LEG))) {
+        erase_page((void *)leg_space);
+        ptr  = leg_space;
+    }
+    wdt_clear();
+    res =  write_data((uint8_t *)ptr, (uint8_t *)leg, sizeof(struct LEG));
+    return res;
+    }
