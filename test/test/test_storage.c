@@ -102,6 +102,45 @@ void test_write_config_overflow(void) {
     TEST_ASSERT_EQUAL_UINT8(0xff, *(config_space + sizeof(test_config)));
 }
 
+void test_write_and_read_first_config(void) {
+    int counter;
+    const struct CONFIG *current_config;
+    write_dword_StubWithCallback(write_dword_replacement);
+    write_config(&test_config);
+    current_config = read_config();
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_config, current_config, sizeof(current_config));
+}
+
+
+void test_write_and_read_second_config(void) {
+    int counter;
+    struct CONFIG new_config;
+    const struct CONFIG *current_config;
+    write_dword_StubWithCallback(write_dword_replacement);
+    memcpy(&new_config,&test_config,sizeof(new_config));
+    new_config.axes.accel[0]=5;
+    write_config(&test_config);
+    write_config(&new_config);
+    current_config = read_config();
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_config, current_config, sizeof(current_config));
+}
+
+void test_read_last_config(void) {
+    int counter;
+    struct CONFIG new_config;
+    const struct CONFIG *current_config;
+    write_dword_StubWithCallback(write_dword_replacement);
+    counter = APP_CONFIG_SIZE/sizeof(test_config)-1;
+    memcpy(&new_config,&test_config,sizeof(new_config));
+    new_config.axes.accel[0]=5;
+    while(counter--) {
+        write_config(&test_config);
+    }
+    write_config(&new_config);
+    current_config = read_config();
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_config, current_config, sizeof(current_config));
+}
+
 
 void test_write_leg_single(void) {
     int result;
