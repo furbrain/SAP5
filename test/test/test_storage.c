@@ -79,7 +79,7 @@ void test_write_config_single(void) {
     write_dword_StubWithCallback(write_dword_replacement);
     result = write_config(&test_config);
     TEST_ASSERT_EQUAL(0, result);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_config, config_space, sizeof(test_config));
+    TEST_ASSERT_EQUAL_MEMORY(&test_config, config_space, sizeof(test_config));
     TEST_ASSERT_EQUAL_UINT8(0xff, *(config_space + sizeof(test_config)));
 }
 
@@ -89,7 +89,7 @@ void test_write_config_double(void) {
     result = write_config(&test_config);
     result = write_config(&test_config);
     TEST_ASSERT_EQUAL(0, result);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_config, config_space+sizeof(test_config), sizeof(test_config));
+    TEST_ASSERT_EQUAL_MEMORY(&test_config, config_space+sizeof(test_config), sizeof(test_config));
     TEST_ASSERT_EQUAL_UINT8(0xff, *(config_space + sizeof(test_config)*2));
 }
 
@@ -104,7 +104,7 @@ void test_write_config_overflow(void) {
         write_config(&test_config);
     }
     write_config(&new_config);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_config, config_space, sizeof(new_config));
+    TEST_ASSERT_EQUAL_MEMORY(&new_config, config_space, sizeof(new_config));
     TEST_ASSERT_EQUAL_UINT8(0xff, *(config_space + sizeof(test_config)));
 }
 
@@ -114,7 +114,7 @@ void test_write_and_read_first_config(void) {
     write_dword_StubWithCallback(write_dword_replacement);
     write_config(&test_config);
     current_config = read_config();
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_config, current_config, sizeof(current_config));
+    TEST_ASSERT_EQUAL_MEMORY(&test_config, current_config, sizeof(current_config));
 }
 
 
@@ -128,7 +128,7 @@ void test_write_and_read_second_config(void) {
     write_config(&test_config);
     write_config(&new_config);
     current_config = read_config();
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_config, current_config, sizeof(current_config));
+    TEST_ASSERT_EQUAL_MEMORY(&new_config, current_config, sizeof(current_config));
 }
 
 void test_read_last_config(void) {
@@ -144,7 +144,8 @@ void test_read_last_config(void) {
     }
     write_config(&new_config);
     current_config = read_config();
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_config, current_config, sizeof(current_config));
+    TEST_ASSERT_EQUAL_MEMORY(&new_config, current_config, sizeof(current_config));
+}
 
 void test_leg_spans_boundary(void) {
     struct test_field {
@@ -171,7 +172,7 @@ void test_write_leg_single(void) {
     write_dword_StubWithCallback(write_dword_replacement);
     result = write_leg(&test_leg);
     TEST_ASSERT_EQUAL(0, result);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_leg, leg_space, sizeof(test_leg));
+    TEST_ASSERT_EQUAL_MEMORY(&test_leg, leg_space, sizeof(test_leg));
     TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)));
 }
 
@@ -181,7 +182,7 @@ void test_write_leg_double(void) {
     result = write_leg(&test_leg);
     result = write_leg(&test_leg);
     TEST_ASSERT_EQUAL(0, result);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&test_leg, leg_space+sizeof(test_leg), sizeof(test_leg));
+    TEST_ASSERT_EQUAL_MEMORY(&test_leg, leg_space+sizeof(test_leg), sizeof(test_leg));
     TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)*2));
 }
 
@@ -196,7 +197,7 @@ void test_write_leg_overflow(void) {
         new_leg.dt++;
     }
     write_leg(&new_leg);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_leg, leg_space, sizeof(new_leg));
+    TEST_ASSERT_EQUAL_MEMORY(&new_leg, leg_space, sizeof(new_leg));
     TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)));
 }
 
@@ -234,7 +235,7 @@ void test_write_leg_page_overflow(void) {
         new_leg.dt++;
     }
     write_leg(&new_leg);
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_leg, leg_space+sizeof(new_leg)*index, sizeof(new_leg));
+    TEST_ASSERT_EQUAL_MEMORY(&new_leg, leg_space+sizeof(new_leg)*index, sizeof(new_leg));
     TEST_ASSERT_EQUAL_UINT8(0xff,leg_space[sizeof(new_leg) * (1+index)]);
 }
 
