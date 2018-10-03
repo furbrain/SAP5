@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <limits.h>
 #include "storage.h"
 #include "memory.h"
 #include "mem_locations.h"
@@ -57,15 +58,15 @@ int write_config(struct CONFIG *config) {
 
 
 int write_leg(struct LEG *leg) {
-    const uint8_t *ptr = leg_space;
+    struct LEG *ptr = (struct LEG*)leg_space;
     char text[24];
     int res;
-    while ((*ptr != 0xff) && ptr+sizeof(struct LEG) < (leg_space+APP_LEG_SIZE)) {
-        ptr += sizeof(struct LEG);
+    while ((ptr->dt != ULONG_MAX) && (ptr+1 < (struct LEG*)(leg_space+APP_LEG_SIZE))) {
+        ptr ++;
     }
-    if (ptr > (leg_space + APP_LEG_SIZE - sizeof(struct LEG))) {
+    if (ptr+1 > (struct LEG*)(leg_space + APP_LEG_SIZE)) {
         erase_page((void *)leg_space);
-        ptr  = leg_space;
+        ptr  = (struct LEG*)leg_space;
     }
     wdt_clear();
     res =  write_data((uint8_t *)ptr, (uint8_t *)leg, sizeof(struct LEG));
