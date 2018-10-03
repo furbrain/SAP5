@@ -182,6 +182,20 @@ void test_write_leg_overflow(void) {
     TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)));
 }
 
+void test_write_leg_with_dt_lsb_is_0xff(void) {
+    struct LEG new_leg;
+    struct LEG *leg_ptr;
+    write_dword_StubWithCallback(write_dword_replacement);
+    leg_ptr = (struct LEG*)leg_space;
+    memcpy(&new_leg,&test_leg,sizeof(new_leg));
+    new_leg.dt = 0xff;
+    write_leg(&new_leg);
+    new_leg.dt = 0x100;
+    write_leg(&new_leg);
+    TEST_ASSERT_EQUAL(0xff,leg_ptr[0].dt);
+    TEST_ASSERT_EQUAL(0x100,leg_ptr[1].dt);
+}
+
 void test_write_leg_page_overflow(void) {
     /* check works correctly when leg boundary aligns with page boundary -- and when it doesn't */
     TEST_FAIL_MESSAGE("I need to implement this test properly -- when sober");
