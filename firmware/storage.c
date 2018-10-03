@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <limits.h>
 #include "storage.h"
 #include "memory.h"
@@ -54,6 +55,13 @@ int write_config(struct CONFIG *config) {
     wdt_clear();
     res =  write_data((uint8_t *)ptr, (uint8_t *)config, sizeof(struct CONFIG));
     return res;
+}
+
+
+/* if leg spans a page boundary, then return the pointer to the start of the page *
+ * oterwise return null */
+uint8_t* leg_spans_boundary(struct LEG *leg) {
+    return NULL;
 }
 
 

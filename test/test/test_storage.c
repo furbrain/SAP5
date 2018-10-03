@@ -145,6 +145,24 @@ void test_read_last_config(void) {
     write_config(&new_config);
     current_config = read_config();
     TEST_ASSERT_EQUAL_UINT8_ARRAY(&new_config, current_config, sizeof(current_config));
+
+void test_leg_spans_boundary(void) {
+    struct test_field {
+        uint8_t  *result;
+        struct LEG *leg;
+    };
+    struct test_field test_cases[6] = {
+        {NULL, NULL},
+        {NULL, (struct LEG*)0xA0002000},
+        {NULL, (struct LEG*)0xA0002004},
+        {NULL, (struct LEG*)(0xA0002000 - sizeof(struct LEG))},
+        {(uint8_t*)0xA0002000, (struct LEG*)(0xA0002000-2)},
+        {(uint8_t*)0xA0002800, (struct LEG*)(0xA00027FF)}
+    };
+    int i;
+    for (i=0; i<6; i++) {
+        TEST_ASSERT_EQUAL_PTR(test_cases[i].result, leg_spans_boundary(test_cases[i].leg));
+    }
 }
 
 
