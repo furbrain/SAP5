@@ -7,7 +7,7 @@ int write_config(struct CONFIG *config);
 
 /* if leg spans a page boundary, then return the pointer to the start of the page *
  * otherwise return null */
-uint8_t* leg_spans_boundary(struct LEG *leg);
+void* leg_spans_boundary(struct LEG *leg);
 
 int write_leg(struct LEG *leg);
 #endif

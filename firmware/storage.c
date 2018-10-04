@@ -60,13 +60,19 @@ int write_config(struct CONFIG *config) {
 
 /* if leg spans a page boundary, then return the pointer to the start of the page *
  * oterwise return null */
-uint8_t* leg_spans_boundary(struct LEG *leg) {
-    return NULL;
+void* leg_spans_boundary(struct LEG *leg) {
+    size_t addr = (size_t)(leg+1);
+    if (((addr % 0x800) < sizeof(struct LEG)) && ((addr % 0x800)!=0)){
+        return (uint8_t*)(addr - (addr % 0x800));
+    } else {    
+        return NULL;
+    }
 }
 
 
 int write_leg(struct LEG *leg) {
     struct LEG *ptr = (struct LEG*)leg_space;
+    void *boundary;
     char text[24];
     int res;
     while ((ptr->dt != ULONG_MAX) && (ptr+1 < (struct LEG*)(leg_space+APP_LEG_SIZE))) {
@@ -75,6 +81,11 @@ int write_leg(struct LEG *leg) {
     if (ptr+1 > (struct LEG*)(leg_space + APP_LEG_SIZE)) {
         erase_page((void *)leg_space);
         ptr  = (struct LEG*)leg_space;
+    } else {
+        boundary = leg_spans_boundary(ptr);
+        if (boundary) {
+            erase_page(boundary);
+        }
     }
     wdt_clear();
     res =  write_data((uint8_t *)ptr, (uint8_t *)leg, sizeof(struct LEG));
