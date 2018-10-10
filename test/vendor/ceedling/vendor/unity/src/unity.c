@@ -60,8 +60,10 @@ static const char UnityStrBreaker[]                = "-----------------------";
 static const char UnityStrResultsTests[]           = " Tests ";
 static const char UnityStrResultsFailures[]        = " Failures ";
 static const char UnityStrResultsIgnored[]         = " Ignored ";
+#ifndef UNITY_EXCLUDE_DETAILS
 static const char UnityStrDetail1Name[]            = UNITY_DETAIL1_NAME " ";
 static const char UnityStrDetail2Name[]            = " " UNITY_DETAIL2_NAME " ";
+#endif
 
 /*-----------------------------------------------
  * Pretty Printers & Test Result Output Handlers
