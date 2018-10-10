@@ -10,7 +10,7 @@
 #include <string.h>
 #include <xc.h>
 
-int target_array[4] = {1,2,3,4};
+int target_array[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff};
 
 extern uint8_t config_space[];
 extern uint8_t leg_space[];
@@ -37,11 +37,15 @@ struct LEG test_leg = {
     
 
 int write_dword_replacement(void* ptr, const int* src, int num_calls) {
+    int i;
     if ((size_t)ptr % 8) return -1;
     if (((int*)ptr < target_array) || ((int*)ptr > target_array+4)) 
         if (((uint8_t*)ptr < config_space) || ((uint8_t*)ptr > config_space+APP_CONFIG_SIZE)) 
             if (((uint8_t*)ptr < leg_space) || ((uint8_t*)ptr > leg_space+APP_LEG_SIZE)) 
                 Throw(0xBADADDA);
+    for (i=0; i<8; i++) {
+        if (*((uint8_t*)ptr+i) != 0xff) Throw(0xBADDA7A);
+    }
     memcpy(ptr, src, 8);
     return 0;
 }
