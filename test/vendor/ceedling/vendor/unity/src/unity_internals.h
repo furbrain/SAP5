@@ -434,6 +434,7 @@ typedef enum
 
 struct UNITY_STORAGE_T
 {
+    int padding_to_avoid_simulator_bug[16];
     const char* TestFile;
     const char* CurrentTestName;
 #ifndef UNITY_EXCLUDE_DETAILS
