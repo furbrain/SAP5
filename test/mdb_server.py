@@ -35,6 +35,8 @@ def run(pipe, name):
             results += f.read()
             if '\nOK\n' in results[-15:]:
                 return results
+            if '\nFAIL\n' in results[-15:]:
+                return results
             time.sleep(0.1)
             if time.time()>abort_time:
                 break
