@@ -25,7 +25,7 @@
     #define APP_CONFIG_LOCATION 0xA0001000
     #define APP_LEG_LOCATION    0xA0002000
     #define APP_CONFIG_SIZE     0x00000800
-    #define APP_LEG_SIZE        0x00001000
+    #define APP_LEG_SIZE        0x00002800
 #else
     #define APP_CONFIG_LOCATION 0x9D009000
     #define APP_LEG_LOCATION    0x9D009800

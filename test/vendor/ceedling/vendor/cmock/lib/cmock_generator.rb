@@ -169,6 +169,7 @@ class CMockGenerator
       file << "\n} CMOCK_#{function[:name]}_CALL_INSTANCE;\n\n"
     end
     file << "static struct #{@clean_mock_name}Instance\n{\n"
+    file << "  int _padding[16];\n"
     if (functions.size == 0)
       file << "  unsigned char placeHolder;\n"
     end
