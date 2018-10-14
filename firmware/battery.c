@@ -4,14 +4,14 @@
 #include "mcc_generated_files/mcc.h"
 
 
-enum BAT_STATUS get_bat_status(){
+enum BAT_STATUS battery_get_status(){
     
 	if (PORTBbits.RB6) return CHARGING;
     return DISCHARGING;
 }
 
 #ifndef BOOTLOADER
-accum get_bat_charge(){
+accum battery_get_voltage(){
 	accum bat_voltage, bg_voltage;
     int i;
     ADC1_Initialize();
@@ -46,7 +46,7 @@ accum get_bat_charge(){
 int battery_get_units() {
     accum voltage;
     int result;
-    voltage = get_bat_charge();
+    voltage = battery_get_voltage();
     /* scale voltage to range of 0->1, where 0 is minimum acceptable and 1 is maximum acceptable */
     voltage -= BATTERY_MIN_VOLTAGE;
     voltage /= (BATTERY_MAX_VOLTAGE-BATTERY_MIN_VOLTAGE);

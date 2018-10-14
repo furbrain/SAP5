@@ -6,16 +6,12 @@
 #include <string.h>
 #include <xc.h>
 
-void test_battery_charging(void) {
+void test_battery_get_status(void) {
     TRISBbits.TRISB6 = 0;
     LATBbits.LATB6 = 1;
-    TEST_ASSERT_EQUAL_INT(get_bat_status(), CHARGING);
-}
-
-void test_battery_discharging(void) {
-    TRISBbits.TRISB6 = 0;
+    TEST_ASSERT_EQUAL_INT(battery_get_status(), CHARGING);
     LATBbits.LATB6 = 0;
-    TEST_ASSERT_EQUAL_INT(get_bat_status(), DISCHARGING);
+    TEST_ASSERT_EQUAL_INT(battery_get_status(), DISCHARGING);
 }
 
 int get_adc_result(double voltage) {
@@ -37,12 +33,12 @@ void setup_adc(double voltage) {
 }
 
 
-void test_battery_get_charge(void) {
+void test_battery_get_voltage(void) {
     accum voltages[] = {2.4k, 3.2k, 3.7k, 4.2k, 4.5k}; 
     int i;
     for (i=0; i<5; i++) {
         setup_adc(voltages[i]);
-        TEST_ASSERT_DOUBLE_WITHIN(0.01, voltages[i], get_bat_charge());
+        TEST_ASSERT_DOUBLE_WITHIN(0.01, voltages[i], battery_get_voltage());
     }
 }
 
