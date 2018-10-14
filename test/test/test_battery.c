@@ -37,27 +37,13 @@ void setup_adc(double voltage) {
 }
 
 
-void test_battery_fully_charged(void) {
-    setup_adc(4.2);
-    TEST_ASSERT_DOUBLE_WITHIN(0.01,4.2,get_bat_charge());
+void test_battery_get_charge(void) {
+    accum voltages[] = {2.4k, 3.2k, 3.7k, 4.2k, 4.5k}; 
+    int i;
+    for (i=0; i<5; i++) {
+        setup_adc(voltages[i]);
+        TEST_ASSERT_DOUBLE_WITHIN(0.01, voltages[i], get_bat_charge());
+    }
 }
 
-void test_battery_half_charged(void) {
-    setup_adc(3.7);
-    TEST_ASSERT_DOUBLE_WITHIN(0.01,3.7,get_bat_charge());
-}
-
-void test_battery_empty(void) {
-    setup_adc(3.0);
-    TEST_ASSERT_DOUBLE_WITHIN(0.01,3.0,get_bat_charge());
-}
-
-void test_battery_undercharged(void) {
-    setup_adc(2.4);
-    TEST_ASSERT_DOUBLE_WITHIN(0.01,2.4,get_bat_charge());
-}
-
-void test_battery_overcharged(void) {
-    setup_adc(4.5);
-    TEST_ASSERT_DOUBLE_WITHIN(0.01,4.5,get_bat_charge());
 }
