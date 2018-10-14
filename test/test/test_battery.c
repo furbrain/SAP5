@@ -46,4 +46,20 @@ void test_battery_get_charge(void) {
     }
 }
 
+void test_battery_units(void) {
+    struct test_field {
+        accum voltage;
+        int units;
+    };
+    struct test_field test_cases[5] = {
+        {2.4, 0},
+        {3.2, 0},
+        {3.7, 9},
+        {4.2, 19},
+        {4.5, 19}};
+    int i;
+    for (i=0; i<5; i++) {
+        setup_adc(test_cases[i].voltage);
+        TEST_ASSERT_EQUAL_INT(test_cases[i].units, battery_get_units());
+    }    
 }
