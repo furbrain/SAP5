@@ -366,7 +366,7 @@ void test_get_rotation_matrix() {
 void test_find_rotation_and_scale_of_ellipse() {
     char text[80];
     struct test_field {
-        const vectorr *data;
+        vectorr *data;
         int axes[2];
         int len;
         int precision;

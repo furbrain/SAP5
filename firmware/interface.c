@@ -283,15 +283,8 @@ void show_status() {
     /* batt icon 50% charge: 0x1f,0x20,0x2f*9,0x20*9,0x20,0x1f,0x04,0x03 */
     /* reverse bit order for second line */
     char bat_status[24];
-    uint8_t charge;
-    double bat_charge;
-    bat_charge = 4.0;
-    bat_charge -= 3.6; //our minimum acceptable voltage
-    bat_charge /= 0.6; //3.6+0.6 = 4.2V - ideal max voltage
-    bat_charge *= 19; //there are 19 possible status levels
-    bat_charge = bat_charge < 0 ? 0 : bat_charge; //clip max and min values
-    bat_charge = bat_charge > 19 ? 19 : bat_charge;
-    charge = bat_charge;
+    int charge;
+    charge = battery_get_units();
     if (!day) {
         bat_status[0] = 0xf8;
         bat_status[1] = 0x04;

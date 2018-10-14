@@ -145,6 +145,7 @@ void quick_cal(int32_t a) {
     struct COOKED_SENSORS sensors;
     int i, j, k;
     int readings_count;
+    int xy_axis[2] = {0,1};
     double x, y;
     accum min_separation = 30000k;
     accum gyro_offset = 0k;
@@ -157,8 +158,9 @@ void quick_cal(int32_t a) {
     accum offset[2];
     accum scale;
     matrixx mag_matrix;
+    matrixx rotation_matrix;
     char text[20];
-    struct EIGEN eigen;
+    struct ELLIPSE_PARAM params;
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
@@ -205,24 +207,28 @@ void quick_cal(int32_t a) {
                     
         }   
     }
-    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
-    get_data_stats(readings,(int[2]){0,1},readings_count, offset, min_data, max_data);
+    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
+
+    /* find and apply offset */
+    get_data_stats(readings,xy_axis,readings_count, offset, min_data, max_data);
     apply_offset(-offset[0], -offset[1], 0, mag_matrix);
-    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
+    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
     apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
-    pca(modified_readings,(int[2]){0,1}, readings_count, &eigen);
-    apply_2d_rotation((int[2]){0,1}, eigen.vector, mag_matrix);
 
-    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
+    /* find ellipse, rotate, scale, and unrotate*/
+    params = find_rotation_and_scale_of_ellipse(modified_readings, xy_axis, readings_count, 180);
+    get_rotation_matrix(xy_axis, params.theta, rotation_matrix);
+    matrix_multiply(rotation_matrix, mag_matrix);
+    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
 
-    apply_scale(1,(accum)eigen.scalar, mag_matrix);
-    
-    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
+    apply_scale(1, params.scale, mag_matrix);
+    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
 
-    eigen.vector[1] *= -1;
-    apply_2d_rotation((int[2]){0,1}, eigen.vector, mag_matrix);
+    get_rotation_matrix(xy_axis, params.theta, rotation_matrix);
+    matrix_multiply(rotation_matrix, mag_matrix);
+    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
 
-    show_modified_readings(readings,(int[2]){0,1}, readings_count, mag_matrix);
+    /* store to configuration*/
     memcpy(config.calib.mag, mag_matrix, sizeof(matrixx));
     wdt_clear();
     config_save();

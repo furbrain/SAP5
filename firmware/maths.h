@@ -54,7 +54,7 @@ void normalise(accum vector[], int len);
  * data is a set of vectorrs, axes hold the two axes of interest *
  * len is number of data points */
 struct ELLIPSE_PARAM 
-find_rotation_and_scale_of_ellipse(const vectorr *data, 
+find_rotation_and_scale_of_ellipse(vectorr *data, 
                                    const int axes[2], 
                                    const int16_t len,
                                    int precision);

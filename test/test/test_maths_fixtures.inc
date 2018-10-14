@@ -2,14 +2,14 @@
 
 
 /* simple - in axes(0,1), major axis is (1,0), scale is 2 */
-const vectorr simple1[] = {
+vectorr simple1[] = {
     {2,0,0},
     {-2,0,0},
     {0,1.00,0},
     {0,-1.00,0}
 };
 
-const vectorr simple2[] = {
+vectorr simple2[] = {
     {10.6453,0.,0.4649},
     {-6.5173,0.,-7.6269},
     {0.9093,0.,-11.1258},
@@ -32,7 +32,7 @@ const vectorr simple2[] = {
     {-10.2187,0.,-1.985}
 };
 
-const vectorr simple3[] = {
+vectorr simple3[] = {
     {0.,-5.1998,-9.9883},
     {0.,2.24,11.5609},
     {0.,7.9695,-7.6379},
@@ -55,7 +55,7 @@ const vectorr simple3[] = {
     {0.,-5.6049,-9.6598}
 };
 
-const vectorr simple4[] = {
+vectorr simple4[] = {
     {-5.9531,-9.8795,0.},
     {8.1289,7.338,0.},
     {9.2457,4.998,0.},

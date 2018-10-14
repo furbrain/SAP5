@@ -77,7 +77,7 @@ void get_readings(accum *orientation, accum *distance){
 //	}
 	sensors_uncalibrated_to_cooked(&sensors);
 	sensors_get_orientation(&sensors,orientation);
-	normalise(orientation);
+	normalise(orientation,3);
     *distance = laser_read(LASER_MEDIUM,1000);
 	laser_on();
 	display_on(true);

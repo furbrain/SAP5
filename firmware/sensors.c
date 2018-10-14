@@ -199,15 +199,15 @@ void sensors_read_cooked(struct COOKED_SENSORS *sensors) {
 void sensors_get_orientation(struct COOKED_SENSORS *sensors, accum *d) {
 	accum east[3];
 	accum north[3];
-	normalise(sensors->accel);
+	normalise(sensors->accel,3);
 	cross_product(sensors->accel,sensors->mag,east); // east = down x mag
-	normalise(east);
+	normalise(east,3);
 	cross_product(east,sensors->accel,north);       // north= east x down
-	normalise(north);
+	normalise(north,3);
 	d[0] = east[1];
 	d[1] = north[1];
 	d[2] = sensors->accel[1];
-	normalise(d);
+	normalise(d,3);
 }
 
 
