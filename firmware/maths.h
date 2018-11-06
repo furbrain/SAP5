@@ -59,6 +59,16 @@ find_rotation_and_scale_of_ellipse(vectorr *data,
                                    const int16_t len,
                                    int precision);
 
+
+/* find the vector describing a plane from a set of points *
+ * data is a set of vectorrs, axes hold the two axes that should be varying most *
+ * len is the number of data points */
+void find_plane(vectorr *data,
+                const int axes[2],
+                const int16_t len,
+                vectorr result);
+        
+
 /* finds the median value of array. array is modified and sorted by this function */
 int16_t find_median(int16_t array[],const int16_t len);
 

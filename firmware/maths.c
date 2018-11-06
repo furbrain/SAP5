@@ -167,3 +167,56 @@ find_rotation_and_scale_of_ellipse(vectorr *data,
     }
     return final;          
 }
+
+void find_plane(vectorr *data,
+                const int axes[2],
+                const int16_t len,
+                vectorr result) {
+    double xx = 0, xy =0, xz = 0, yy = 0, yz = 0, zz = 0;
+    double x,y,z;
+    double det_x, det_y, det_z;
+    double centroid[3] = {0k, 0k, 0k};
+    double temp_result[3];
+    int i;
+    for (i=0; i< len; i++) {
+        centroid[0] +=data[i][0];
+        centroid[1] +=data[i][1];
+        centroid[2] +=data[i][2];
+    }   
+    centroid[0] /= len;                    
+    centroid[1] /= len;                    
+    centroid[2] /= len;                    
+    for (i=0; i< len; i++) {
+        x = data[i][0] - centroid[0];
+        y = data[i][1] - centroid[1];
+        z = data[i][2] - centroid[2];
+        xx += x * x;
+        xy += x * y;        
+        xz += x * z;
+        yy += y * y;
+        yz += y * z;
+        zz += z * z;
+    }
+    det_x = yy*zz - yz*yz;
+    det_y = xx*zz - xz*xz;
+    det_z = xx*yy - xy*xy;
+    if ((det_x > det_y) && (det_x > det_z)) {
+        temp_result[0] = yy*zz - yz*yz;
+        temp_result[1] = xz*yz - xy*zz;
+        temp_result[2] = xy*yz - xz*yy;
+    } else if (det_y > det_z) {
+        temp_result[0] = xz*yz - xy*zz;
+        temp_result[1] = xx*zz - xz*xz;
+        temp_result[2] = xy*xz - yz*xx;
+    } else {
+        temp_result[0] = xy*yz - xz*yy;
+        temp_result[1] = xy*xz - yz*xx;
+        temp_result[2] = xx*yy - xy*xy;
+    }
+    temp_result[1] /= temp_result[0];
+    temp_result[2] /= temp_result[0];
+    result[0] = 1.0k;
+    result[1] = temp_result[1];
+    result[2] = temp_result[2];
+    normalise(result,3);
+}

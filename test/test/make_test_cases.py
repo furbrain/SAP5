@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
 import numpy as np
+import quaternion
 import re
-
+import random
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 def bracketiser(arr):
     arr = str(arr).replace('  ',' ')
@@ -130,10 +133,32 @@ def make_find_rotation_and_scale_fixture(samples, skew=1.2, noise=0):
     print skew
     print axes
     print bracketiser(vectors)
+    
+def make_find_plane_fixtures(samples):
+    noise = 0.1
+    orientation  = np.quaternion(1,0,0,0)
+    orientation *= np.exp(quaternion.x * random.random()* 0.1 / 2) 
+    orientation *= np.exp(quaternion.y* random.random()* 0.1 / 2)
+    points = create_2d_raw_data(samples, offset = [0,0], theta=0, skew=1.0)
+    vectors = np.full((samples,3),-10.0)
+    vectors[:, 0:2] = points
+    vectors += np.random.random((samples, 3))*noise-(noise/2)
+    vectors = np.append(vectors,[[0, 0, -1]], axis=0)
+    vectors = quaternion.rotate_vectors(orientation, vectors)
+    axes = np.arange(3)
+    np.random.shuffle(axes)
+    i = np.argsort(axes)
+    vectors = vectors[:,i]
+    print bracketiser(vectors[:-1,:])
+    print bracketiser(axes[:2])
+    print bracketiser(vectors[-1:,:])    
+    
 
 np.set_printoptions(suppress=True, precision=4)
 np.random.seed(10)
-make_find_rotation_and_scale_fixture(20)
-make_find_rotation_and_scale_fixture(20)
-make_find_rotation_and_scale_fixture(20)
+make_find_plane_fixtures(40)
+make_find_plane_fixtures(40)
+make_find_plane_fixtures(40)
+make_find_plane_fixtures(40)
+make_find_plane_fixtures(40)
 
