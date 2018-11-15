@@ -985,8 +985,8 @@ static int UnityFixedWithin(UNITY_FIXED delta, UNITY_FIXED expected, UNITY_FIXED
 {
     UNITY_FIXED diff;
     diff = actual - expected;                                                           
-    if (diff < 0.0k) {
-        diff = 0k - diff;                                                         
+    if (diff < 0.0) {
+        diff = 0.0 - diff;                                                         
     }
     return (diff <= delta);
 }

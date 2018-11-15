@@ -617,6 +617,23 @@ void UnityAssertDoubleSpecial(const UNITY_DOUBLE actual,
                               const UNITY_FLOAT_TRAIT_T style);
 #endif
 
+
+#ifdef UNITY_INCLUDE_FIXED
+void UnityAssertFixedWithin(const UNITY_FIXED delta,
+                             const UNITY_FIXED expected,
+                             const UNITY_FIXED actual,
+                             const char* msg,
+                             const UNITY_LINE_TYPE lineNumber);
+
+void UnityAssertEqualFixedArray(UNITY_PTR_ATTRIBUTE const UNITY_FIXED* expected,
+                                UNITY_PTR_ATTRIBUTE const UNITY_FIXED* actual,
+                                const UNITY_UINT32 num_elements,
+                                const char* msg,
+                                const UNITY_LINE_TYPE lineNumber,
+                                const UNITY_FLAGS_T flags);
+#endif
+
+
 /*-------------------------------------------------------
  * Helpers
  *-------------------------------------------------------*/
