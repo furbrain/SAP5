@@ -159,6 +159,7 @@ void quick_cal(int32_t a) {
     accum scale;
     matrixx mag_matrix;
     matrixx rotation_matrix;
+    vectorr result;
     char text[20];
     struct ELLIPSE_PARAM params;
 /* Brief summary of plan:
@@ -217,6 +218,7 @@ void quick_cal(int32_t a) {
 
     /* find ellipse, rotate, scale, and unrotate*/
     params = find_rotation_and_scale_of_ellipse(modified_readings, xy_axis, readings_count, 180);
+    find_plane(modified_readings, xy_axis, readings_count, result);
     get_rotation_matrix(xy_axis, params.theta, rotation_matrix);
     matrix_multiply(rotation_matrix, mag_matrix);
     show_modified_readings(readings,xy_axis, readings_count, mag_matrix);

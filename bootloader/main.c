@@ -98,16 +98,6 @@ void display_show_bat(int charge) {
 	render_data_to_page(1,104,bat_status,24);
 }
 
-void JumpToApp(void)
-{       
-        void (*fptr)(void);
-        PERIPH_EN_SetDigitalOutput();
-        PERIPH_EN_SetHigh();
-        INTERRUPT_GlobalDisable();
-        DMACONbits.ON = 0;
-        fptr = (void (*)(void))APP_BASE+1;
-        fptr();
-}       
 
 void sleep(void) {
     //TRISA = 0;
@@ -165,6 +155,18 @@ void sleep(void) {
     SYSKEY = 0x12345678;
 }
 
+void JumpToApp(void)
+{       
+        void (*fptr)(void);
+        PERIPH_EN_SetDigitalOutput();
+        PERIPH_EN_SetHigh();
+        INTERRUPT_GlobalDisable();
+        DMACONbits.ON = 0;
+        fptr = (void (*)(void))APP_BASE+1;
+        fptr();
+}       
+
+
 void run_usb(void) {
     int counter = 0;
     //Re-enable peripherals...
@@ -178,23 +180,26 @@ void run_usb(void) {
     PERIPH_EN_SetHigh();
     TMR2_Start();
     delay_ms(100);
-	display_init();
-	display_clear_screen();
+	//display_init();
+	//display_clear_screen();
 	delay_ms(3);
-	while (1) {
-		bat_status = get_bat_status();
+	while (!usb_finished) {
+		bat_status = battery_get_status();
 		if (bat_status==DISCHARGING) {
             U1PWRCbits.USBPWR = 0;
-            sys_reset();
+            sys_reset(0);
         }
 		counter++;
 		if ((counter & 0xffff)==0) {
 			// only update display every 32 cycles
-			if (bat_status==CHARGING) display_show_bat(-1);
-			if (bat_status==CHARGED) display_show_bat(18);
+			//if (bat_status==CHARGING) display_show_bat(-1);
+			//if (bat_status==CHARGED) display_show_bat(18);
 		}
         wdt_clear();
-	}    
+	}
+    USBDeviceDetach();
+    delay_ms(80);
+    JumpToApp();
 }
 
 int main(void)

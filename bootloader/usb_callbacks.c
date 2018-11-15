@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdint.h>
 #include <time.h>
-#include "config.h"
 #include "mcc_generated_files/mcc.h"
 #include "memory.h"
 #include "mem_locations.h"
@@ -67,6 +66,7 @@ static uint32_t write_address; /* program space word address */
 static size_t write_length;    /* number of words, not bytes */
 static uint8_t prog_buf[BUFFER_LENGTH];
 static uint8_t i2c_on;
+int usb_finished = 0;
 
 
 static void clear_flash()
@@ -103,13 +103,7 @@ static void write_i2c(uint8_t device_address, uint8_t* buffer, uint16_t len) {
 
 void reset_cb(void)
 {
-	uint32_t x;
-	uint16_t i = 65535;
-
-	/* Delay before resetting*/
-	while(i--)
-		;
-    sys_reset();
+    usb_finished=1;
 }
 
 static void empty_cb(void)

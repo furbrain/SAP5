@@ -16,6 +16,7 @@ extern "C" {
 int8_t app_unknown_setup_request_callback();
 void reset_cb(void);
 
+extern int usb_finished;
 #ifdef	__cplusplus
 }
 #endif
