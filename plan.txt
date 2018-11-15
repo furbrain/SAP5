@@ -23,6 +23,8 @@ Hammond enclosure as before
 possibly 3d printed adapter for rangefinder within enclosure
 waterproof micro usb connector + dust plug
 
+Use low power timing crystal for RTCC
+
 Hardware Tasks:
 . Solder up rangefinder and attach header for crimping
 . Adjust footprint for display so fits properly

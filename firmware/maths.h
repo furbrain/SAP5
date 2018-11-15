@@ -2,6 +2,7 @@
 #define MATHS_H
 #include <stdint.h>
 #include <stdfix.h>
+#include <gsl/gsl_matrix.h>
 
 struct __attribute__((aligned(4))) ELLIPSE_PARAM {
 	accum scale;
@@ -71,5 +72,7 @@ void find_plane(vectorr *data,
 
 /* finds the median value of array. array is modified and sorted by this function */
 int16_t find_median(int16_t array[],const int16_t len);
+
+void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
 #endif

@@ -1,12 +1,18 @@
 #include <math.h>
 #include <string.h>
+#include <gsl_math.h>
+#include <gsl/gsl_multifit.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_eigen.h>
+#include <gsl/gsl_blas.h>
+#include "gsl_static.h"
 #include "maths.h"
 /* return AxB in C, where A B and C are all pointers to accum[3] */
 
 const matrixx identity = {
-    {1.0k, 0, 0, 0},
-    {0, 1.0k, 0, 0},
-    {0, 0, 1.0k, 0}
+    {1.0, 0, 0, 0},
+    {0, 1.0, 0, 0},
+    {0, 0, 1.0, 0}
 };
 
 accum amax(const accum a, const accum b) {
@@ -18,7 +24,7 @@ accum amin(const accum a, const accum b) {
 }
 
 accum aabs(const accum a) {
-    return a < 0k ? (0k-a) : (a);
+    return (a < 0.0) ? (accum)(0.0 - a) : (a);
 }
 
 
@@ -68,9 +74,9 @@ void matrix_multiply(matrixx calibration, matrixx delta) {
 
 void apply_offset(const accum x, const accum y, const accum z, matrixx matrix) {
     matrixx new_mat = {
-        {1.0k, 0k, 0k, x},
-        {0k, 1.0k, 0k, y},
-        {0k, 0k, 1.0k, z}
+        {1.0, 0, 0, x},
+        {0, 1.0, 0, y},
+        {0, 0, 1.0, z}
     };
     matrix_multiply(matrix, new_mat);
 }
@@ -146,14 +152,14 @@ find_rotation_and_scale_of_ellipse(vectorr *data,
     matrixx rotation;
     int i,j;
     int a0,a1;
-    struct ELLIPSE_PARAM final = {0k, 0k};
+    struct ELLIPSE_PARAM final = {0, 0};
     a0 = axes[0];
     a1 = axes[1];
     for (i=0; i < precision; i++) {
         theta = i * M_PI/precision;
         get_rotation_matrix(axes, theta, rotation);
-        maxx = 0k;
-        maxy = 0k;
+        maxx = 0;
+        maxy = 0;
         for (j=0; j< len; j++) {
             apply_matrix(data[j], rotation, v);
             maxx = amax(aabs(v[a0]),maxx);
@@ -172,51 +178,66 @@ void find_plane(vectorr *data,
                 const int axes[2],
                 const int16_t len,
                 vectorr result) {
-    double xx = 0, xy =0, xz = 0, yy = 0, yz = 0, zz = 0;
-    double x,y,z;
-    double det_x, det_y, det_z;
-    double centroid[3] = {0k, 0k, 0k};
-    double temp_result[3];
+    GSL_MATRIX_DECLARE(input, 400, 3);
+    GSL_VECTOR_DECLARE(output, 400);
+    GSL_VECTOR_DECLARE(res, 3);
+    GSL_MATRIX_DECLARE(cov, 3, 3);
+    GSL_MULTIFIT_LINEAR_DECLARE(workspace, 400, 3);
     int i;
+    double fit;
+    
+    //allocate variables
+    GSL_MATRIX_RESIZE(input, len, 3);
+    GSL_VECTOR_RESIZE(output, len);
+    
+
+    //initialise variables
+    gsl_vector_set_all(&output, 1.0);
     for (i=0; i< len; i++) {
-        centroid[0] +=data[i][0];
-        centroid[1] +=data[i][1];
-        centroid[2] +=data[i][2];
-    }   
-    centroid[0] /= len;                    
-    centroid[1] /= len;                    
-    centroid[2] /= len;                    
-    for (i=0; i< len; i++) {
-        x = data[i][0] - centroid[0];
-        y = data[i][1] - centroid[1];
-        z = data[i][2] - centroid[2];
-        xx += x * x;
-        xy += x * y;        
-        xz += x * z;
-        yy += y * y;
-        yz += y * z;
-        zz += z * z;
+        gsl_matrix_set(&input,i, 0,(double) data[i][0]);
+        gsl_matrix_set(&input,i, 1,(double) data[i][1]);
+        gsl_matrix_set(&input,i, 2,(double) data[i][2]);
     }
-    det_x = yy*zz - yz*yz;
-    det_y = xx*zz - xz*xz;
-    det_z = xx*yy - xy*xy;
-    if ((det_x > det_y) && (det_x > det_z)) {
-        temp_result[0] = yy*zz - yz*yz;
-        temp_result[1] = xz*yz - xy*zz;
-        temp_result[2] = xy*yz - xz*yy;
-    } else if (det_y > det_z) {
-        temp_result[0] = xz*yz - xy*zz;
-        temp_result[1] = xx*zz - xz*xz;
-        temp_result[2] = xy*xz - yz*xx;
-    } else {
-        temp_result[0] = xy*yz - xz*yy;
-        temp_result[1] = xy*xz - yz*xx;
-        temp_result[2] = xx*yy - xy*xy;
-    }
-    temp_result[1] /= temp_result[0];
-    temp_result[2] /= temp_result[0];
-    result[0] = 1.0k;
-    result[1] = temp_result[1];
-    result[2] = temp_result[2];
+    
+    //calculate plane
+    gsl_multifit_linear(&input, &output, &res, &cov, &fit, &workspace);
+    
+    //process results
+    result[0] = gsl_vector_get(&res,0);
+    result[1] = gsl_vector_get(&res,1);
+    result[2] = gsl_vector_get(&res,2);
     normalise(result,3);
+    
+}
+
+void sqrtm(gsl_matrix *a, gsl_matrix *result) {
+    gsl_eigen_symmv_workspace *workspace;
+    gsl_vector_view eigenvalues;
+    gsl_matrix *eigenvectors, *t1, *t2;
+    int size, i;
+    double temp;
+    
+    size = a->size1;
+    workspace = gsl_eigen_symmv_alloc(size);
+    eigenvectors = gsl_matrix_alloc(size, size);
+    t1 = gsl_matrix_alloc(size, size);
+    t2 = gsl_matrix_alloc(size, size);
+    gsl_matrix_set_zero(t1);
+    eigenvalues = gsl_matrix_diagonal(t1);
+    gsl_eigen_symmv(a, &eigenvalues.vector, eigenvectors, workspace);
+    
+    //square root eigenvalues
+    for (i=0; i<size; i++) {
+        temp = gsl_vector_get(&eigenvalues.vector, i);
+        temp = sqrt(temp);
+        gsl_vector_set(&eigenvalues.vector, i, temp);
+    };
+    
+    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, eigenvectors, t1, 0.0, t2);
+    gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, t2, eigenvectors, 0.0, result);
+    
+    gsl_eigen_symmv_free(workspace);
+    gsl_matrix_free(eigenvectors);
+    gsl_matrix_free(t1);
+    gsl_matrix_free(t2);
 }

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import numpy as np
+import scipy.linalg
 import quaternion
 import re
 import random
@@ -152,13 +153,13 @@ def make_find_plane_fixtures(samples):
     print bracketiser(vectors[:-1,:])
     print bracketiser(axes[:2])
     print bracketiser(vectors[-1:,:])    
-    
+
+def make_sqrtm_fixtures():
+    for i in range(5):
+        b = np.random.random((3,3))
+        b_symm = (b + b.T)/2 +3*np.eye(3)
+        print bracketiser(b_symm),',', bracketiser(scipy.linalg.sqrtm(b_symm))    
 
 np.set_printoptions(suppress=True, precision=4)
 np.random.seed(10)
-make_find_plane_fixtures(40)
-make_find_plane_fixtures(40)
-make_find_plane_fixtures(40)
-make_find_plane_fixtures(40)
-make_find_plane_fixtures(40)
-
+make_sqrtm_fixtures()

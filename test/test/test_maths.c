@@ -1,9 +1,8 @@
 #include "unity.h"
 #include "maths.h"
-#include "mcc_generated_files/uart1.h"
 #include <stdio.h>
 #include <string.h>
-#include <xc.h>
+#include <gsl/gsl_matrix.h>
 #include "test_maths_fixtures.inc"
 
 void test_find_median(void) {
@@ -55,16 +54,16 @@ void test_distance2(void) {
     struct test_field test_cases[12] = {
         {{0,0,0}, {0,0,0}, 0},
         {{0,0,0}, {1,1,0.5}, 1.5},
-        {{1.845249,-1.601869,-0.196011}, {-0.583596,-1.369197,-0.639945}, 2.480020k},
-        {{0.888094,-1.085290,-1.288514}, {1.723163,1.216220,0.854184}, 3.253528k},
-        {{0.782409,-0.009716,-0.660612}, {-1.606374,-0.808486,1.946461}, 3.625072k},
-        {{1.771424,0.083158,1.763770}, {-1.727456,1.653323,-1.723321}, 5.183375k},
-        {{-1.868018,1.375409,1.905125}, {0.219487,1.185364,-1.818671}, 4.273224k},
-        {{1.956783,0.556068,1.465883}, {-0.322669,0.348396,1.699103}, 2.300744k},
-        {{1.480682,1.706582,-0.764786}, {-0.054106,-1.162548,-0.167927}, 3.308129k},
-        {{0.617992,1.701167,-0.953138}, {-0.836447,-1.843415,1.828230}, 4.734497k},
-        {{0.524529,1.527086,0.252254}, {1.606613,-1.199171,-1.679043}, 3.511879k},
-        {{-1.680228,0.429262,-1.084019}, {-1.194537,-1.268790,1.358341}, 3.014033k}
+        {{1.845249,-1.601869,-0.196011}, {-0.583596,-1.369197,-0.639945}, 2.480020},
+        {{0.888094,-1.085290,-1.288514}, {1.723163,1.216220,0.854184}, 3.253528},
+        {{0.782409,-0.009716,-0.660612}, {-1.606374,-0.808486,1.946461}, 3.625072},
+        {{1.771424,0.083158,1.763770}, {-1.727456,1.653323,-1.723321}, 5.183375},
+        {{-1.868018,1.375409,1.905125}, {0.219487,1.185364,-1.818671}, 4.273224},
+        {{1.956783,0.556068,1.465883}, {-0.322669,0.348396,1.699103}, 2.300744},
+        {{1.480682,1.706582,-0.764786}, {-0.054106,-1.162548,-0.167927}, 3.308129},
+        {{0.617992,1.701167,-0.953138}, {-0.836447,-1.843415,1.828230}, 4.734497},
+        {{0.524529,1.527086,0.252254}, {1.606613,-1.199171,-1.679043}, 3.511879},
+        {{-1.680228,0.429262,-1.084019}, {-1.194537,-1.268790,1.358341}, 3.014033}
     };
     int i;
     float result;
@@ -268,7 +267,7 @@ void test_normalise(void) {
         for (j=0; j < test_cases[i].len; j++) {
             temp += result[j]*result[j];
         }
-        TEST_ASSERT_EQUAL_FIXED(1.0k, temp);
+        TEST_ASSERT_EQUAL_FIXED(1.0, temp);
     }
 }
 
@@ -383,11 +382,11 @@ void test_find_rotation_and_scale_of_ellipse() {
     int i;
     struct ELLIPSE_PARAM result;
     for (i=0; i<5; i++) {
-        snprintf(text, 80, "Iteration : %d\0", i);
+        snprintf(text, 80, "Iteration : %d", i);
         result = find_rotation_and_scale_of_ellipse(test_cases[i].data, test_cases[i].axes, test_cases[i].len, test_cases[i].precision);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.1k, test_cases[i].scale, result.scale, text);
+        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.1, test_cases[i].scale, result.scale, text);
         //TEST_ASSERT_EQUAL_FIXED(-1, result.vector[1]);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.25k, test_cases[i].theta, result.theta, text);
+        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.25, test_cases[i].theta, result.theta, text);
     }
 }
     
@@ -419,7 +418,33 @@ void test_find_plane() {
     vectorr result;
     for (i=0; i<5; i++) {
         find_plane(test_cases[i].data, test_cases[i].axes, 40, result);
-        snprintf(text, 80, "Iteration: %d\0", i);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.01k, 0k, distance2(result, test_cases[i].result), text);
+        snprintf(text, 80, "Iteration: %d", i);
+        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.01, 0, distance2(result, test_cases[i].result), text);
+    }
+}
+
+void test_sqrtm() {
+    char text[80];
+    struct test_field {
+        double data[9];
+        double result[9];
+    };
+    struct test_field test_cases[5] = {
+        {{3.7713,0.3848,0.4159, 0.3848,3.4985,0.4927, 0.4159,0.4927,3.1691} , {1.9365,0.0975,0.1087, 0.0975,1.8632,0.1326, 0.1087,0.1326,1.7719}},
+        {{3.0883,0.3447,0.783, 0.3447,3.5122,0.7672, 0.783,0.7672,3.2919} , {1.7419,0.0833,0.2169, 0.0833,1.861,0.2052, 0.2169,0.2052,1.7896}},
+        {{3.9178,0.4284,0.4922, 0.4284,3.3733,0.5541, 0.4922,0.5541,3.6178} , {1.9725,0.108,0.1233, 0.108,1.8277,0.1454, 0.1233,0.1454,1.8925}},
+        {{3.5131,0.7278,0.4601, 0.7278,3.5216,0.4996, 0.4601,0.4996,3.3007} , {1.8608,0.1913,0.1186, 0.1913,1.8623,0.1299, 0.1186,0.1299,1.8082}},
+        {{3.114,0.7275,0.1229, 0.7275,3.5476,0.8381, 0.1229,0.8381,3.3517} , {1.7531,0.2,0.0217, 0.2,1.8591,0.2268, 0.0217,0.2268,1.8165}}
+    };
+    int i;
+    double result_array[9];
+    gsl_matrix_view result;
+    gsl_matrix_view data;
+    result = gsl_matrix_view_array(result_array, 3, 3);
+    for (i = 0; i<5; i++) {
+        data = gsl_matrix_view_array(test_cases[i].data, 3, 3);
+        sqrtm(&data.matrix, &result.matrix);
+        snprintf(text, 80, "Iteration: %d", i);
+        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result, result_array, 9, text);
     }
 }
