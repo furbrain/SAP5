@@ -1,0 +1,112 @@
+Calibration routine:
+    For each step record ~200 lots of data points
+    
+1) Rotate on Z axis, device on flat surface (does not need to be 100% horizontal)
+    - gets you range/offset for Mx and My
+    - allows for hard/soft iron correction for Mx and My (and scale correction)
+    - however offset can be affected by any errors in chip orientation
+
+2) Rotate on Y axis, laser pointing at fixed point, roughly facing east (or west)
+    - gets you offset for Mx and Mz
+    - gets you offset for Gx and Gz
+    - again do hard/soft iron correction for Mx and Mz
+    - gets you sensor adjustment for both M and G (in only scope that matters)
+
+3) Rotate on Z axis,device against flat wall
+    - gets you range and offset for Gy and Gx
+
+
+
+- accelerometer offset should only need calibrating very infrequently
+
+So magnetic calibration:
+    Do 1) and 2), record M for 1 and M&G for 2
+        a) Do offset calculations for Mx, My, Mz
+        aa) correct for chip orientation and re-calculate chip orientations...
+        b) Confirm Mx1 and Mx2 offsets are similar - take average as true result
+        c) Perform magnetic adjustment for readings from 1, with calibration from a) already applied
+        d) Perform 2ary magnetic adjustment for readings from 2) with calibration from c) already applied
+        e) Perform adjustment for malalignment of sensors in device for G and M on readings from 2)
+        
+        
+Accel calibration:
+    Do 2) and 3), record accel readings only
+        do offset calculations for Gx Gy Gz only
+        Take average of two Gx offsets as true result
+        
+Magnetometer readings:
+
+Display on:
+x, y, z in uT
+display on vs off:
+[ -3.48148193  12.17581787   8.92743408]
+[ 0.28091695  0.30837193  0.31316587]
+[ -3.45749756  12.02141846   9.00088623]
+[ 0.31096247  0.3239235   0.29510114]
+pvalue=array([ 0.56968442,  0.0007218 ,  0.0909947 ]))
+
+
+[ -3.31059326  11.91498779   8.91843994]
+[ 0.307949    0.27281712  0.3325831 ]
+[ -3.21990234  11.93372559   8.97765137]
+[ 0.31137138  0.28845589  0.29765714]
+pvalue=array([ 0.04065736,  0.63917278,  0.18836694]))
+
+[ -3.47698486  11.92697998   8.85398193]
+[ 0.28321131  0.27836163  0.32750403]
+[ -3.44400635  11.98694092   8.97540283]
+[ 0.29132297  0.31785925  0.27971452]
+pvalue=array([ 0.42028131,  0.15951175,  0.00553257]))
+
+
+laser on vs off:
+[ -3.37954834  11.94496826   8.86297607]
+[ 0.32117167  0.32698904  0.29496405]
+[ -3.29710205  11.84603271   8.97540283]
+[ 0.29989743  0.26315761  0.2807169 ]
+pvalue=array([ 0.06340093,  0.02000121,  0.00656564]))
+
+[ -3.32108643  11.93597412   8.85997803]
+[ 0.30550212  0.2807169   0.32103171]
+[ -3.21015869  11.80555908   8.90195068]
+[ 0.3027981   0.30064577  0.31387543]
+pvalue=array([ 0.01102817,  0.00185707,  0.35341694]))
+
+
+
+
+display+laser on vs off
+
+[ -3.3900415   11.97045166   8.94092529] mean 
+[ 0.29199326  0.27401702  0.36492755] stdev
+[ -3.35181641  11.79131836   9.08258301] mean
+[ 0.28045763  0.27413692  0.28997096] stdev
+Ttest_indResult(statistic=array([-0.93940919,  4.59839608, -3.02393647]), 
+pvalue=array([  3.48665279e-01,   7.58246008e-06,   2.82549432e-03]))
+
+test 2
+[ -3.28960693  11.92098389   8.8839624 ]
+[ 0.32375002  0.29151574  0.30637615]
+[ -3.15544434  11.8512793    9.018125  ]
+[ 0.3154189   0.30004444  0.29429766]
+Ttest_indResult(statistic=array([-2.95332687,  1.65786786, -3.1422271 ]), 
+pvalue=array([ 0.00352417,  0.0989276 ,  0.00193405]))
+
+test 3
+[ -3.39528809  12.01017578   8.88621094]
+[ 0.32368148  0.33788268  0.29817381]
+[ -3.34731934  11.8257959    9.05560059]
+[ 0.30761407  0.28630563  0.32435417]
+Ttest_indResult(statistic=array([-1.06885219,  4.14240827, -3.82540016]), 
+pvalue=array([  2.86437622e-01,   5.08778230e-05,   1.74938818e-04]))
+
+
+Conclusion:
+The display does affect the reading, as does the laser although not 
+to a great extent - and it does not affect the noise levels; difference is approx 0.5 degs max
+Plan: need to do calibration sequence with laser on` (and measure with laser on)
+but have laser off when doing this
+
+
+
+    

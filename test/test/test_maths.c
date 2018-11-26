@@ -448,3 +448,21 @@ void test_sqrtm() {
         TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result, result_array, 9, text);
     }
 }
+
+void test_calibrate() {
+    char text[80];
+    matrixx result;
+    vectorr vector, v_result;
+    int i, k;
+    accum magnitude;
+    calibrate(cal1, 240, result);
+    for (k=0; k<240; k++) {
+        vector[0] = cal1[k*3];
+        vector[1] = cal1[k*3+1];
+        vector[2] = cal1[k*3+2];
+        apply_matrix(vector, result, v_result);
+        magnitude = v_result[0]*v_result[0] + v_result[1]*v_result[1] + v_result[2]*v_result[2];
+        snprintf(text, 24, "Data: %d", k);
+        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.05, 1.0, magnitude, text);
+    }
+}

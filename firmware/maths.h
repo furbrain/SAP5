@@ -75,4 +75,5 @@ int16_t find_median(int16_t array[],const int16_t len);
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
+void calibrate(const double *data, const int len, matrixx result);
 #endif
