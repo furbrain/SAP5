@@ -15,10 +15,17 @@ enum action {
                         sizeof(name##_entries) / sizeof(name##_entries[0]), \
                         NULL, \
                         name##_entries}
+
+#define DECLARE_EMPTY_MENU(name, count) \
+    struct menu_entry name##_entries[count] = {0};\
+    struct menu name = {0, \
+                        0, \
+                        NULL, \
+                        name##_entries}
 struct menu;
     
 struct menu_entry{
-    char* text;
+    char text[15];
     enum action type; 
     union {
         void (*action) (int); /*action to perform when selected */

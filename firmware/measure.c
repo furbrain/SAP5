@@ -9,6 +9,7 @@
 #include "sensors.h"
 #include "maths.h"
 #include "laser.h"
+#include "menu.h"
 
 #define FEET_PER_METRE 3.281
 #define DEGREES_PER_RADIAN 57.296
@@ -25,32 +26,7 @@ const char *polar_format[] = {" %03.1f "," %+02.1f "," %.2f "," %.2f "};
 
 accum deltas[4];
 
-
-struct menu_entry leg_menu[] = {
-    {-2, NULL, 0, NULL, 0},
-    {1, "AAAAAAAAAAAAAAAAAAAA", 0, NULL, 0}, //blank entries for us to fettle....
-    {2, "BBBBBBBBBBBBBBBBBBBB", 0, NULL, 0},
-    {3, "CCCCCCCCCCCCCCCCCCCC", 0, NULL, 0},
-    {4, "DDDDDDDDDDDDDDDDDDDD", 0, NULL, 0},
-    {5, "EEEEEEEEEEEEEEEEEEEE", 0, NULL, 0},
-    {6, "FFFFFFFFFFFFFFFFFFFF", 0, NULL, 0},
-    {7, "GGGGGGGGGGGGGGGGGGGG", 0, NULL, 0},
-    {8, "HHHHHHHHHHHHHHHHHHHH", 0, NULL, 0},
-    {9, "IIIIIIIIIIIIIIIIIIII", 0, NULL, 0},
-    {10, "JJJJJJJJJJJJJJJJJJJJ", 0, NULL, 0},
-    {11, "KKKKKKKKKKKKKKKKKKKK", 0, NULL, 0},
-    {12, "LLLLLLLLLLLLLLLLLLLL", 0, NULL, 0},
-    {13, "MMMMMMMMMMMMMMMMMMMM", 0, NULL, 0},
-    {14, "NNNNNNNNNNNNNNNNNNNN", 0, NULL, 0},
-    {15, "OOOOOOOOOOOOOOOOOOOO", 0, NULL, 0},
-    {16, "PPPPPPPPPPPPPPPPPPPP", 0, NULL, 0},
-    {17, "QQQQQQQQQQQQQQQQQQQQ", 0, NULL, 0},
-    {18, "RRRRRRRRRRRRRRRRRRRR", 0, NULL, 0},
-    {19, "SSSSSSSSSSSSSSSSSSSS", 0, NULL, 0},
-    {20, "TTTTTTTTTTTTTTTTTTTT", 0, NULL, 0},
-    /*end */
-    {-1, NULL, -1, NULL, 0}   
-};
+DECLARE_EMPTY_MENU(leg_menu, 20);
 
 void get_readings(accum *orientation, accum *distance){
 	int i,j;
@@ -144,7 +120,7 @@ bool measurement_menu(accum *items) {
     int index = 1;
     int i;
     char text[20];
-    for (i=0; i<4; i++) {
+/*    for (i=0; i<4; i++) {
         if (config.display_style==CARTESIAN) {
             
             snprintf(text,20,cartesian_big_format[i],items[i]);
@@ -183,6 +159,7 @@ bool measurement_menu(accum *items) {
     index++;
     menu_set_entry(leg_menu+index, -1, "", BACK, NULL, 00);
     return show_menu(leg_menu,1,false);
+ */
 }
 
 void measure(int32_t a) {

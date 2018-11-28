@@ -11,15 +11,76 @@
 #include "utils.h"
 #include "measure.h"
 #include "calibrate.h"
+#include "menu.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
 
-volatile enum ACTION last_click = NONE;
+volatile enum INPUT last_click = NONE;
 
 void beep(int a, int b) {
 }
+
+void set_date(int32_t a);
+void set_time(int32_t a);
+
+DECLARE_MENU(timeout_menu, {
+    {"30s", Action, config_set_timeout, 30},
+    {"60s", Action, config_set_timeout, 60},
+    {"2 min", Action, config_set_timeout, 120},
+    {"5 min", Action, config_set_timeout, 300},
+    {"10 mins", Action, config_set_timeout, 600},
+    {"Back", Back, NULL, 0}
+});
+
+DECLARE_MENU(display_menu, {
+    /* Display menu */
+    {"Day", Action, config_set_day, true},
+    {"Night", Action, config_set_day, false},
+    {"Back", Back, NULL, 0}
+});
+
+DECLARE_MENU(style_menu, {
+    {"Cartesian", Action, config_set_style, CARTESIAN},
+    {"Polar", Action, config_set_style, POLAR},
+    {"Grad", Action, config_set_style, GRAD},
+    {"Back", Back, 0},
+});
+
+DECLARE_MENU(units_menu, {
+    {"Metric", Action, config_set_units, METRIC},
+    {"Imperial", Action, config_set_units, IMPERIAL},
+    {"Back", Back, NULL, 0}
+});
+
+DECLARE_MENU(settings_menu, {    /* settings menu */
+    {"Units >", SubMenu, .submenu = &units_menu, 0},
+    {"Style >", SubMenu, .submenu = &style_menu, 0},
+    {"Display >", SubMenu, .submenu = &display_menu, 0},
+    {"Timeout >", SubMenu, .submenu = &timeout_menu, 0},
+    {"Set Date", Action, set_time, 0},
+    {"Set Time", Action, set_time, 0},
+    {"Back", Back, NULL, 0},
+});
+
+DECLARE_MENU(calibration_menu, {
+    /* calibrate menu */
+    {"Quick", Action, quick_cal, 0},
+    //{"Laser",Action,laser_cal, 0},
+    //{"Align",Action,align_cal, 0},
+    //{"Full",Action,full_cal, 0},
+    {"Back", Back, NULL, 0},
+});
+
+DECLARE_MENU(main_menu, {
+    {"Measure", Action, measure, 0},
+    {"Calibrate >", SubMenu, .submenu = &calibration_menu, 0},
+    {"Settings >", SubMenu, .submenu = &settings_menu, 0},
+    {"Off", Action, sys_reset, 0}
+});
+
+
 
 void set_date(int32_t a) {
     /* first display date */
@@ -65,63 +126,6 @@ void set_time(int32_t a) {
 /* a null-terminated list of menu_entries */
 
 
-const struct menu_entry main_menu[] = {
-    /* main menu */
-    {-2, NULL, 0, NULL, 0},
-    {0, "Measure", FUNCTION, measure, 0},
-    {1, "Calibrate  >", 10, NULL, 0},
-    {2, "Settings  >", 20, NULL, 0},
-    {3, "Off", FUNCTION, sys_reset, 0},
-    {4, NULL, 0, 0},
-
-    /* calibrate menu */
-    {10, "Quick", FUNCTION, quick_cal, 0},
-    //{11,"Laser",FUNCTION,laser_cal, 0},
-    //{12,"Align",FUNCTION,align_cal, 0},
-    //{13,"Full",FUNCTION,full_cal, 0},
-    {14, "Back", BACK, 0},
-    {15, NULL, 10, 0},
-
-    /* settings menu */
-    {20, "Units  >", 30, NULL, 0},
-    {21, "Function  >", 40, NULL, 0},
-    {22, "Display  >", 50, NULL, 0},
-    {23, "Timeout  >", 60, NULL, 0},
-    {24, "Set  Date", FUNCTION, set_time, 0},
-    {25, "Set  Time", FUNCTION, set_time, 0},
-    {26, "Back", BACK, NULL, 0},
-    {27, NULL, 20, 0},
-
-    /* Units menu */
-    {30, "Metric", FUNCTION, config_set_units, METRIC},
-    {31, "Imperial", FUNCTION, config_set_units, IMPERIAL},
-    {32, "Back", BACK, NULL, 0},
-    {33, NULL, 30, NULL, 0},
-
-    /* Function menu */
-    {40, "Cartesian", FUNCTION, config_set_style, CARTESIAN},
-    {41, "Polar", FUNCTION, config_set_style, POLAR},
-    {42, "Grad", FUNCTION, config_set_style, GRAD},
-    {43, "Back", BACK, 0},
-    {44, NULL, 40, NULL, 0},
-
-    /* Display menu */
-    {50, "Day", FUNCTION, config_set_day, true},
-    {51, "Night", FUNCTION, config_set_day, false},
-    {52, "Back", BACK, NULL, 0},
-    {53, NULL, 50, NULL, 0},
-    
-    /* Timeout menu*/
-    {60, "30s", FUNCTION, config_set_timeout, 30},
-    {61, "60s", FUNCTION, config_set_timeout, 60},
-    {62, "2 min", FUNCTION, config_set_timeout, 120},
-    {63, "5 min", FUNCTION, config_set_timeout, 300},
-    {64, "10 mins", FUNCTION, config_set_timeout, 600},
-    {65, "Back", BACK, NULL, 0},
-    {66, NULL, 60, NULL, 0},
-    /*end */
-    {-1, NULL, -1, NULL, 0}
-};
 
 
 /* set up timer interrupts etc */
@@ -185,49 +189,9 @@ void scroll_text(const char *text, bool up) {
 
 /* get the offset of the menu_item with the specified index */
 
-/* return -1 if index not found */
-int16_t get_menu_item_offset(const struct menu_entry *menu, int16_t index) {
-    int16_t i;
-    for (i = 0; menu[i].index != -1; ++i) {
-        if (menu[i].index == index) return i;
-    }
-    return -1;
-}
-
-bool valid_text(const struct menu_entry *menu, int16_t index) {
-    if (menu[index].text) {
-        if (strlen(menu[index].text)) return true;
-    }
-    return false;
-}
-
-/* return index of previous menu item, rotate onto last menu item if currently on first item */
-int16_t get_previous_menu_item(const struct menu_entry *menu, int16_t index) {
-    if (valid_text(menu,index-1)) return index - 1;
-    while (valid_text(menu,index)) index++;
-    return index;
-}
-
-/* return index of next menu item, rotating onto first menu item if currently on last item */
-int16_t get_next_menu_item(const struct menu_entry *menu, int16_t index) {
-    if (valid_text(menu,index + 1)) {
-        return index + 1;
-    } else {
-        return get_menu_item_offset(menu, menu[index + 1].next_menu);
-    }
-}
-
-void menu_set_entry(struct menu_entry *menu, int16_t index, char *text, int16_t next_menu, void (*action) (int), int32_t argument) {
-    menu->index = index;
-    strncpy(menu->text, text, 20);
-    menu->next_menu = next_menu;
-    menu->action = action;
-    menu->argument = argument;
-}
-
-enum ACTION get_action() {
+enum INPUT get_action() {
     struct COOKED_SENSORS sensors;
-    enum ACTION temp;
+    enum INPUT temp;
 
     sensors_read_cooked(&sensors);
     /* look for "flip" movements */
@@ -284,7 +248,8 @@ void show_status() {
     /* reverse bit order for second line */
     char bat_status[24];
     int charge;
-    charge = battery_get_units();
+    //charge = battery_get_units();
+    charge = 15;
     if (!day) {
         bat_status[0] = 0xf8;
         bat_status[1] = 0x04;
@@ -324,14 +289,10 @@ void show_status() {
     }
 }
 
-bool show_menu(const struct menu_entry *menu, int16_t index, bool first_time) {
-    enum ACTION action;
-    bool function_called = false;
-    if (first_time) {
-        scroll_text(menu[index].text, true);
-    } else {
-        swipe_text(menu[index].text, true);
-    }
+void show_menu(struct menu *menu) {
+    enum action action;
+    menu_initialise(menu);
+    scroll_text(menu_get_text(menu), true);
     while (true) {
         wdt_clear();
         delay_ms(50);
@@ -340,54 +301,31 @@ bool show_menu(const struct menu_entry *menu, int16_t index, bool first_time) {
         switch (action) {
             case FLIP_DOWN:
                 //index = get_previous_menu_item(menu, index);
-                //scroll_text(menu[index].text, false);
+                //scroll_text(menu_get_text(menu), false);
                 break;
             case FLIP_UP:
-                index = get_next_menu_item(menu, index);
-                scroll_text(menu[index].text, true);
+                menu_next(menu);
+                scroll_text(menu_get_text(menu), true);
                 break;
                 //case FLIP_RIGHT:
             case SINGLE_CLICK:
                 beep(3600, 20);
-                switch (menu[index].next_menu) {
-                    case FUNCTION:
-                        if (menu[index].action){
-                            menu[index].action(menu[index].argument);
-                            }
-                        function_called = true;
+                switch (menu_action(menu)) {
+                    case Action:
+                        return;
                         break;
-                    case BACK:
-                        if (!first_time) return false;
+                    case Back:
+                        swipe_text(menu_get_text(menu), false);
                         break;
-                    case INFO: //do nothing on click if INFO item.
+                    case SubMenu: 
+                        swipe_text(menu_get_text(menu), true);
                         break;
-                    default:
-                        function_called = show_menu(menu, get_menu_item_offset(menu, menu[index].next_menu), false);
+                    case Info: //do nothing on click if INFO item.
                         break;
                 }
-                if (function_called) {
-                    if (first_time) {
-                        /* we have got back to the root screen */
-                        index = FIRST_MENU_ITEM;
-                        display_clear_screen();
-                        scroll_text(menu[index].text, true);
-                    } else {
-                        return true;
-                    }
-                } else {
-                    /* sub-menu: back selected */
-                    swipe_text(menu[index].text, false);
-                }
-                break;
-                //             case FLIP_LEFT:
-                //                 if (!first_time) return false;
-                //                 break;
             case DOUBLE_CLICK:
                 //hibernate();
                 break;
-        }
-        if (action != NONE) {
-            show_status();
         }
     }
 }
