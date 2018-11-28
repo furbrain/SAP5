@@ -73,6 +73,12 @@
 :unity:
     :defines:
         - UNITY_INCLUDE_CONFIG_H
+
+:flags:
+    :test:
+        :*:
+          - -Wall
+        
         
 #:tools:
 # Ceedling defaults to using gcc for compiling, linking, etc.
