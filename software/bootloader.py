@@ -7,6 +7,7 @@ import usb
 import struct
 import datetime
 import time
+import array
 
 import sparse_list
 # plans...
@@ -152,6 +153,16 @@ class Programmer:
             if set_progress:
                 set_progress(i)
         sys.stdout.write("\n")
+        
+    def read_program(self, address, count):
+        results = array.array('B')
+        while count > 0:
+            quantity = min(self.bytes_per_row, count)
+            results.extend(self.read_data(REQUEST_DATA, address, quantity))
+            count -= quantity
+            address += quantity
+        return results
+            
 		
     def verify_program(self,hexfile,set_range=None,set_progress=None):
         if set_range:
