@@ -33,6 +33,8 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/memory.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/storage.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/measure.h</itemPath>
+      <itemPath>battery.h</itemPath>
+      <itemPath>mem_locations.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -71,6 +73,7 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/memory.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/storage.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/measure.c</itemPath>
+      <itemPath>battery.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -95,7 +98,7 @@
         <targetDevice>PIC32MM0256GPM028</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>Simulator</platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC32</languageToolchain>
         <languageToolchainVersion>2.05</languageToolchainVersion>
         <platform>2</platform>
@@ -103,6 +106,23 @@
       <compileType>
         <linkerTool>
           <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="/home/phil/MPLABXProjects/gsl.X"
+                            CT="3"
+                            CN="default"
+                            AC="true"
+                            BL="true"
+                            WD="/home/phil/MPLABXProjects/gsl.X"
+                            BC="${MAKE}  -f Makefile CONF=default"
+                            DBC="${MAKE}  -f Makefile CONF=default TYPE_IMAGE=DEBUG_RUN"
+                            CC="rm -rf &quot;build/default&quot; &quot;dist/default&quot;"
+                            OP="dist/default/production/gsl.X.a"
+                            DOP="dist/default/debug/gsl.X.a"
+                            FL="dist/default/production/gsl.X.a"
+                            PD="dist/default/production/gsl.X."
+                            DD="dist/default/debug/gsl.X.">
+              </makeArtifact>
+            </linkerLibProjectItem>
           </linkerLibItems>
         </linkerTool>
         <archiverTool>
@@ -132,13 +152,13 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
-        <property key="extra-include-directories" value=""/>
+        <property key="extra-include-directories" value="../../gsl-2.5"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
-        <property key="isolate-each-function" value="false"/>
+        <property key="isolate-each-function" value="true"/>
         <property key="make-warnings-into-errors" value="false"/>
         <property key="optimization-level" value=""/>
-        <property key="place-data-into-section" value="false"/>
+        <property key="place-data-into-section" value="true"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value=""/>
@@ -202,7 +222,7 @@
         <property key="oXC32ld-extra-opts" value=""/>
         <property key="optimization-level" value=""/>
         <property key="preprocessor-macros" value=""/>
-        <property key="remove-unused-sections" value="false"/>
+        <property key="remove-unused-sections" value="true"/>
         <property key="report-memory-usage" value="false"/>
         <property key="serial-length" value=""/>
         <property key="serial-origin" value=""/>

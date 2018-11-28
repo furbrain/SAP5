@@ -27,7 +27,6 @@
         <itemPath>mcc_generated_files/uart1.h</itemPath>
         <itemPath>mcc_generated_files/usb/usb_device_generic.h</itemPath>
       </logicalFolder>
-      <itemPath>config.h</itemPath>
       <itemPath>display.h</itemPath>
       <itemPath>i2c_util.h</itemPath>
       <itemPath>memory.h</itemPath>
@@ -63,7 +62,6 @@
         <itemPath>mcc_generated_files/uart1.c</itemPath>
         <itemPath>mcc_generated_files/usb/usb_device_generic.c</itemPath>
       </logicalFolder>
-      <itemPath>config.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>display.c</itemPath>
       <itemPath>i2c_util.c</itemPath>
@@ -106,21 +104,6 @@
         <archiverTool>
         </archiverTool>
         <loading>
-          <makeArtifact PL="/home/phil/Projects/SAP5/firmware"
-                        CT="1"
-                        CN="default"
-                        AC="true"
-                        BL="true"
-                        WD="/home/phil/Projects/SAP5/firmware"
-                        BC="${MAKE}  -f Makefile CONF=default"
-                        DBC="${MAKE}  -f Makefile CONF=default TYPE_IMAGE=DEBUG_RUN"
-                        CC="rm -rf &quot;build/default&quot; &quot;dist/default&quot;"
-                        OP="dist/default/production/firmware.production.hex"
-                        DOP="dist/default/debug/firmware.debug.elf"
-                        FL="dist/default/production/firmware.production.hex"
-                        PD="dist/default/production/firmware.production.elf"
-                        DD="dist/default/debug/firmware.debug.elf">
-          </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
@@ -142,7 +125,7 @@
         <property key="addresss-attribute-use" value="false"/>
         <property key="enable-app-io" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
-        <property key="enable-symbols" value="true"/>
+        <property key="enable-symbols" value="false"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories" value=""/>
@@ -168,7 +151,7 @@
       </C32-AR>
       <C32-AS>
         <property key="assembler-symbols" value=""/>
-        <property key="enable-symbols" value="true"/>
+        <property key="enable-symbols" value="false"/>
         <property key="exclude-floating-point-library" value="false"/>
         <property key="expand-macros" value="false"/>
         <property key="extra-include-directories-for-assembler" value=""/>
@@ -191,7 +174,7 @@
         <property key="allocate-dinit" value="false"/>
         <property key="code-dinit" value="false"/>
         <property key="ebase-addr" value=""/>
-        <property key="enable-check-sections" value="false"/>
+        <property key="enable-check-sections" value="true"/>
         <property key="exclude-floating-point-library" value="false"/>
         <property key="exclude-standard-libraries" value="false"/>
         <property key="extra-lib-directories" value=""/>
@@ -301,7 +284,6 @@
         <property key="UART1" value="true"/>
         <property key="UART2" value="true"/>
         <property key="UART3" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
