@@ -150,20 +150,24 @@ void test_menu_initialise(void) {
 }    
 
 void test_menu_action_submenu(void) {
+    enum action result;
     reset_menus();
     test.current_entry = 2;
     subtest.current_entry = 1;
     TEST_ASSERT_NULL(test.submenu);
-    menu_action(&test);
+    result = menu_action(&test);
+    TEST_ASSERT_EQUAL(SubMenu, result);
     TEST_ASSERT_EQUAL_PTR(&subtest, test.submenu);
     TEST_ASSERT_EQUAL(0, subtest.current_entry);
     subtest.current_entry = 2;
-    menu_action(&test);
+    result = menu_action(&test);
+    TEST_ASSERT_EQUAL(SubMenu, result);
     TEST_ASSERT_EQUAL_PTR(&subtest, test.submenu);
     TEST_ASSERT_EQUAL_PTR(&subsubtest, subtest.submenu);   
 }
 
 void test_menu_action_back(void) {
+    enum action result;
     reset_menus();
     test.current_entry = 2;
     test.submenu = &subtest;
@@ -171,29 +175,41 @@ void test_menu_action_back(void) {
     subtest.submenu = &subsubtest;
     subsubtest.current_entry = 1;
     
-    menu_action(&test);
-    TEST_ASSERT_NULL(subtest.submenu);
+    result = menu_action(&test);
+    TEST_ASSERT_EQUAL(Back, result);
     TEST_ASSERT_EQUAL_PTR(&subtest, test.submenu);
     subtest.current_entry = 3;
-    menu_action(&test);
+    result = menu_action(&test);
+    TEST_ASSERT_EQUAL(Back, result);
     TEST_ASSERT_NULL(subtest.submenu);
     TEST_ASSERT_NULL(test.submenu);
 }
 
 void test_menu_action_action(void) {
+    enum action result;
     reset_menus();
     test.current_entry = 1;
     TEST_ASSERT_EQUAL(0, test_data);
-    menu_action(&test);
+    result = menu_action(&test);
+    TEST_ASSERT_EQUAL(Action, result);
     TEST_ASSERT_EQUAL(2, test_data);
 }
 
 void test_menu_action_action_with_submenu(void) {
+    enum action result;
     reset_menus();
     test.submenu = &subtest;
     subtest.current_entry = 1;
     TEST_ASSERT_EQUAL(0, test_data);
-    menu_action(&test);
+    result = menu_action(&test);
+    TEST_ASSERT_EQUAL(Action, result);
     TEST_ASSERT_EQUAL(11, test_data);
 }
 
+void test_menu_action_info(void) {
+    enum action result;
+    reset_menus();
+    test.current_entry = 0;
+    result = menu_action(&test);
+    TEST_ASSERT_EQUAL(Info, result);
+}

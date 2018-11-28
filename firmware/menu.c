@@ -34,7 +34,7 @@ void menu_initialise(struct menu *menu) {
 
 
 /* undertake the action defined by the menu (go to sub-menu, go back up a level or execute function */
-void menu_action(struct menu *menu) {
+enum action menu_action(struct menu *menu) {
     struct menu_entry *entry;
     struct menu *parent = NULL;
     while (menu->submenu) { 
@@ -45,17 +45,21 @@ void menu_action(struct menu *menu) {
     switch (entry->type) {
     case Action:
         entry->action(entry->argument);
+        return Action;
         break;
     case SubMenu:
         menu_initialise(entry->submenu);
         menu->submenu = entry->submenu;
+        return SubMenu;
         break;
     case Back:
         if (parent) {
             parent->submenu = NULL;
         }
+        return Back;
         break;
     case Info:
+        return Info;
         break;
     }
 }

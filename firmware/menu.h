@@ -2,12 +2,6 @@
 #define _MENU_H
 #include <stdint.h>
 
-#define FUNCTION -1
-#define BACK -2
-#define INFO -3
-#define SUBMENU -4
-
-// CONSIDER - create macro to define menu - does menu + menu entries at same time...
 enum action {
     Action,
     Back,
@@ -53,7 +47,7 @@ char* menu_get_text(struct menu *menu);
 void menu_initialise(struct menu *menu);
 
 /* undertake the action defined by the menu (go to sub-menu, go back up a level or execute function */
-void menu_action(struct menu *menu);
+enum action menu_action(struct menu *menu);
 
 
 #endif // _MENU_H

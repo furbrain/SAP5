@@ -35,6 +35,7 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/measure.h</itemPath>
       <itemPath>battery.h</itemPath>
       <itemPath>mem_locations.h</itemPath>
+      <itemPath>menu.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -74,6 +75,7 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/storage.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/measure.c</itemPath>
       <itemPath>battery.c</itemPath>
+      <itemPath>menu.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
