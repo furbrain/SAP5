@@ -2,6 +2,8 @@
 #define _MENU_H
 #include <stdint.h>
 
+#define MENU_TEXT_LENGTH 15
+
 enum action {
     Action,
     Back,
@@ -9,9 +11,12 @@ enum action {
     SubMenu
 };
 
+typedef void (*menu_callback)(int);
+
 #define DECLARE_MENU(name, entries...) \
     struct menu_entry name##_entries[] = entries;\
     struct menu name = {0, \
+                        sizeof(name##_entries) / sizeof(name##_entries[0]), \
                         sizeof(name##_entries) / sizeof(name##_entries[0]), \
                         NULL, \
                         name##_entries}
@@ -20,15 +25,16 @@ enum action {
     struct menu_entry name##_entries[count] = {0};\
     struct menu name = {0, \
                         0, \
+                        count, \
                         NULL, \
                         name##_entries}
 struct menu;
     
 struct menu_entry{
-    char text[15];
+    char text[MENU_TEXT_LENGTH];
     enum action type; 
     union {
-        void (*action) (int); /*action to perform when selected */
+        menu_callback action; /*action to perform when selected */
         struct menu *submenu; /*submenu to jump to */
     };
     int32_t argument; /* argument to pass to action (if needed) */
@@ -37,9 +43,25 @@ struct menu_entry{
 struct menu{
     int16_t current_entry;
     int16_t length;
+    int16_t max_length;
     struct menu *submenu;
     struct menu_entry *entries;
 };
+
+/* empty a menu */
+void menu_clear(struct menu *menu);
+
+/* add an info entry to a menu */
+void menu_append_info(struct menu *menu, const char *text);
+
+/* add a submenu entry to a menu */
+void menu_append_submenu(struct menu *menu, const char *text, struct menu *submenu);
+
+/* add an action entry to a menu */
+void menu_append_action(struct menu *menu, const char *text, void (*action) (int), int argument);
+
+/* add a back entry to a menu */
+void menu_append_back(struct menu *menu, const char *text);
 
 /* move the menu to the next item, wrapping if necessary */
 void menu_next(struct menu *menu);

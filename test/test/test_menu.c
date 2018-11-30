@@ -1,11 +1,13 @@
 #include "unity.h"
 #include "menu.h"
+#include "exception.h"
 
 void action_func(int x);
+char long_str[] = "Really ridiculously long string that should break things";
 
 DECLARE_MENU(subsubtest, {
-    {"Lots", Info, NULL, 0},
-    {"Back", Back, NULL, 0}
+    {"Lots", Info, {NULL}, 0},
+    {"Back", Back, {NULL}, 0}
     });
 
 DECLARE_MENU(subtest, {
@@ -20,6 +22,8 @@ DECLARE_MENU(test, {
     {"Two", Action, action_func, 2},
     {"Three", SubMenu, .submenu=&subtest, 3}
     });
+    
+DECLARE_EMPTY_MENU(dynamic, 2);
 
 int test_data;
 void setUp(void)
@@ -38,6 +42,9 @@ void reset_menus(void) {
     test.submenu = NULL;
     subtest.submenu = NULL;
     subsubtest.submenu = NULL;
+    dynamic.length = 0;
+    dynamic.submenu = NULL;
+    dynamic.current_entry = 0;
 }
 
 void action_func(int x) {
@@ -57,6 +64,67 @@ void test_declare_menu(void) {
     TEST_ASSERT_EQUAL(0, test.current_entry);
     TEST_ASSERT_EQUAL(3, test.length);
     TEST_ASSERT_NULL(test.submenu);
+}
+
+/* empty a menu */
+void test_menu_clear(void) {
+    reset_menus();
+    dynamic.length = 1;
+    dynamic.submenu = &subtest;
+    menu_clear(&dynamic);
+    TEST_ASSERT_NULL(dynamic.submenu);
+    TEST_ASSERT_EQUAL(0, dynamic.length);
+}
+
+/* add an info entry to a menu */
+void test_menu_append_info(void) {
+    reset_menus();
+    menu_append_info(&dynamic,"Info");
+    TEST_ASSERT_EQUAL(1, dynamic.length);
+    TEST_ASSERT_EQUAL_STRING("Info",menu_get_text(&dynamic));
+    TEST_ASSERT_EQUAL(Info, dynamic_entries[0].type);
+    TEST_ASSERT_THROWS(menu_append_info(&dynamic, long_str), ERROR_STRING_TOO_BIG);
+    menu_append_info(&dynamic,"Info2");
+    TEST_ASSERT_THROWS(menu_append_info(&dynamic,"Info3"), ERROR_MENU_FULL);
+}
+
+/* add a submenu entry to a menu */
+void test_menu_append_submenu(void) {
+    reset_menus();
+    menu_append_submenu(&dynamic,"sub1",&subtest);
+    TEST_ASSERT_EQUAL(1, dynamic.length);
+    TEST_ASSERT_EQUAL_STRING("sub1",menu_get_text(&dynamic));
+    TEST_ASSERT_EQUAL(SubMenu, dynamic_entries[0].type);
+    TEST_ASSERT_EQUAL_PTR(&subtest, dynamic_entries[0].submenu);
+    TEST_ASSERT_THROWS(menu_append_submenu(&dynamic, long_str, &subtest), ERROR_STRING_TOO_BIG);
+    menu_append_submenu(&dynamic,"sub1",&subtest);
+    TEST_ASSERT_THROWS(menu_append_submenu(&dynamic,"sub1",&subtest), ERROR_MENU_FULL);
+}
+
+/* add an action entry to a menu */
+void test_menu_append_action(void) {
+    reset_menus();
+    menu_append_action(&dynamic, "action1", action_func, 1);
+    TEST_ASSERT_EQUAL(1, dynamic.length);
+    TEST_ASSERT_EQUAL_STRING("action1", menu_get_text(&dynamic));
+    TEST_ASSERT_EQUAL(Action, dynamic_entries[0].type);
+    TEST_ASSERT_EQUAL(1, dynamic_entries[0].argument);
+    TEST_ASSERT_EQUAL_PTR(action_func, dynamic_entries[0].action);
+    TEST_ASSERT_THROWS(menu_append_action(&dynamic, long_str, action_func, 2), ERROR_STRING_TOO_BIG);
+    menu_append_action(&dynamic, "action2", action_func, 2);
+    TEST_ASSERT_THROWS(menu_append_action(&dynamic, "action3", action_func, 3), ERROR_MENU_FULL);
+}
+
+/* add a back entry to a menu */
+void test_menu_append_back(void) {
+    reset_menus();
+    menu_append_back(&dynamic,"Back");
+    TEST_ASSERT_EQUAL(1, dynamic.length);
+    TEST_ASSERT_EQUAL_STRING("Back",menu_get_text(&dynamic));
+    TEST_ASSERT_EQUAL(Back, dynamic_entries[0].type);
+    TEST_ASSERT_THROWS(menu_append_back(&dynamic, long_str), ERROR_STRING_TOO_BIG);
+    menu_append_back(&dynamic,"Back2");
+    TEST_ASSERT_THROWS(menu_append_back(&dynamic,"Back3"), ERROR_MENU_FULL);
 }
 
 void test_menu_prev(void) {
