@@ -15,7 +15,7 @@
   @Description:
     This source file provides implementations for MPLAB(c) Code Configurator interrupts.
     Generation Information :
-        Product Revision  :  MPLAB(c) Code Configurator - 4.26.2
+        Product Revision  :  MPLAB(c) Code Configurator - 4.26.8
         Device            :  PIC32MM0256GPM028
     The generated drivers are tested against the following:
         Compiler          :  XC32 1.42

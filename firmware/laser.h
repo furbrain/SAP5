@@ -8,8 +8,7 @@ enum LASER_SPEED {
     LASER_FAST
     };
 
-void laser_on(void);
-void laser_off(void);
+void laser_on(bool enable);
 double laser_read(enum LASER_SPEED, int timeout);
 void laser_start(enum LASER_SPEED);
 bool laser_result_ready(void);

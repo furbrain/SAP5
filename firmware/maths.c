@@ -7,6 +7,7 @@
 #include <gsl/gsl_blas.h>
 #include "gsl_static.h"
 #include "maths.h"
+#include "display.h"
 /* return AxB in C, where A B and C are all pointers to accum[3] */
 
 GSL_MATRIX_DECLARE(lsq_input, 240, 9);
@@ -56,8 +57,8 @@ void apply_matrix(const vectorr a, matrixx b, vectorr c) {
     }
 }
 
-accum distance2(const vectorr a, const vectorr b) {
-    accum x, y, z;
+double distance2(const double *a, const double *b) {
+    double x, y, z;
     x = a[0]-b[0];
     y = a[1]-b[1];
     z = a[2]-b[2];
@@ -279,23 +280,29 @@ void calibrate(const double *data_array, const int len, matrixx result) {
     z2  = gsl_matrix_column(&lsq_input, 8);
     
     //load data into input array
+    display_write_multiline(4, ".", &small_font);
+
     gsl_vector_memcpy(&xsq.vector, &x.vector); gsl_vector_mul(&xsq.vector, &x.vector);  // xsq = x*x
     gsl_vector_memcpy(&ysq.vector, &y.vector); gsl_vector_mul(&ysq.vector, &y.vector);  // ysq = y*y
     gsl_vector_memcpy(&zsq.vector, &z.vector); gsl_vector_mul(&zsq.vector, &z.vector);  // zsq = z*z
+    display_write_multiline(4, "..", &small_font);
     
     gsl_vector_memcpy(&xy2.vector, &x.vector); gsl_vector_mul(&xy2.vector, &y.vector); gsl_vector_scale(&xy2.vector, 2.0); // xy2 = x*y*2  
     gsl_vector_memcpy(&xz2.vector, &x.vector); gsl_vector_mul(&xz2.vector, &z.vector); gsl_vector_scale(&xz2.vector, 2.0); // xz2 = x*z*2  
     gsl_vector_memcpy(&yz2.vector, &y.vector); gsl_vector_mul(&yz2.vector, &z.vector); gsl_vector_scale(&yz2.vector, 2.0); // yz2 = y*z*2
+    display_write_multiline(4, "...", &small_font);
     
     gsl_vector_memcpy(&x2.vector, &x.vector); gsl_vector_scale(&x2.vector, 2.0); //x2 = x*2  
     gsl_vector_memcpy(&y2.vector, &y.vector); gsl_vector_scale(&y2.vector, 2.0); //y2 = y*2  
     gsl_vector_memcpy(&z2.vector, &z.vector); gsl_vector_scale(&z2.vector, 2.0); //z2 = z*2
+    display_write_multiline(4, "....", &small_font);
     
     //load data into output array
     gsl_vector_set_all(&lsq_output,1.0);
     
     //perform least_squares analysis
     gsl_multifit_linear(&lsq_input, &lsq_output, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
+    display_write_multiline(4, ".....", &small_font);
     
     //fill a4
     gsl_matrix_set(&a4, 0, 0, gsl_vector_get(&lsq_res, 0));
@@ -323,6 +330,7 @@ void calibrate(const double *data_array, const int len, matrixx result) {
     //get centre coords by least squares (again)
     GSL_VECTOR_RESIZE(lsq_res, 3);
     gsl_multifit_linear(&a3.matrix, &vghi, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
+    display_write_multiline(4, "......", &small_font);
     memcpy(result, identity, sizeof(matrixx));
     result[0][3] = -1.0*gsl_vector_get(&lsq_res, 0);
     result[1][3] = -1.0*gsl_vector_get(&lsq_res, 1);
@@ -332,17 +340,20 @@ void calibrate(const double *data_array, const int len, matrixx result) {
     gsl_matrix_set(&T, 3, 0, gsl_vector_get(&lsq_res, 0));
     gsl_matrix_set(&T, 3, 1, gsl_vector_get(&lsq_res, 1));
     gsl_matrix_set(&T, 3, 2, gsl_vector_get(&lsq_res, 2));
-    
+     display_write_multiline(4, ".......", &small_font);
+   
     
     //b4 = T.A4.T^T
     gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, &T, &a4, 0.0, &b4);
     gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, &b4, &T, 0.0, &a4);
     gsl_matrix_memcpy(&b4, &a4);
     gsl_matrix_scale(&b3.matrix,-1.0*gsl_matrix_get(&b4,3,3));
+    display_write_multiline(4, "........", &small_font);
     
     //A3 = sqrt(B3)
     sqrtm(&b3.matrix, &a3.matrix);
     //result[0:3,0:3] = a3
+    display_write_multiline(4, ".........", &small_font);
     for (i=0; i<3; i++) {
         for (j=0; j<3; j++) {
             ellipsoid[i][j] = gsl_matrix_get(&a3.matrix, j, i);
@@ -350,6 +361,7 @@ void calibrate(const double *data_array, const int len, matrixx result) {
         ellipsoid[i][3] = 0.0;
     }
     matrix_multiply(result, ellipsoid);
+    display_write_multiline(4, "..........", &small_font);
         
 }
 

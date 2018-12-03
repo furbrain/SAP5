@@ -90,8 +90,8 @@ void TMR1_Initialize (void)
     T1CON = 0x8010;   
     tcon_value = 0x8010;  // Temporary storage of value
     T1CONCLR = _T1CON_ON_MASK;  // disable Timer, before loading the period/counter value
-    // Period = 0.004 s; Frequency = 24000000 Hz; PR1 12000; 
-    PR1 = 0x2EE0 ;
+    // Period = 0.001 s; Frequency = 24000000 Hz; PR1 3000; 
+    PR1 = 0xBB8 ;
 
     T1CON = tcon_value;//restore the TCON value
     tmr1_obj.timerElapsed = false;

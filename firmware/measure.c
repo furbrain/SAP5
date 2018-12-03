@@ -35,7 +35,7 @@ void get_readings(accum *orientation, accum *distance){
 	accum accels[3] = {0,0,0};
 
 	display_on(false);
-	laser_off();
+	laser_on(false);
 	delay_ms(20);
     sensors_read_cooked(&sensors);
 //	for(i=0;i<8;++i) {
@@ -55,7 +55,7 @@ void get_readings(accum *orientation, accum *distance){
 	sensors_get_orientation(&sensors,orientation);
 	normalise(orientation,3);
     *distance = laser_read(LASER_MEDIUM,1000);
-	laser_on();
+	laser_on(true);
 	display_on(true);
 }
 
@@ -181,7 +181,7 @@ void measure(int32_t a) {
 // 	test();
 // 	return;
 	//end test
-    laser_on();
+    laser_on(true);
 	display_clear_screen();
 	display_write_text(4,0,"*----",&large_font,false);
 	while (true) {
@@ -233,7 +233,7 @@ void measure(int32_t a) {
 				readings_available = true;
 				break;
 			case DOUBLE_CLICK:
-                laser_off();
+                laser_on(false);
 				return;
 				break;
 		}

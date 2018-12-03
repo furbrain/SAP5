@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=mcc_generated_files/adc1.c mcc_generated_files/i2c1.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/interrupt_manager.c mcc_generated_files/exceptions.c mcc_generated_files/rtcc.c mcc_generated_files/uart1.c mcc_generated_files/tmr1.c mcc_generated_files/tmr2.c main.c display.c font.c images.c i2c_util.c utils.c sensors.c maths.c interface.c config.c /home/phil/Projects/SAP5/firmware/laser.c /home/phil/Projects/SAP5/firmware/calibrate.c /home/phil/Projects/SAP5/firmware/memory.c /home/phil/Projects/SAP5/firmware/storage.c /home/phil/Projects/SAP5/firmware/measure.c battery.c menu.c
+SOURCEFILES_QUOTED_IF_SPACED=mcc_generated_files/adc1.c mcc_generated_files/i2c1.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/interrupt_manager.c mcc_generated_files/exceptions.c mcc_generated_files/rtcc.c mcc_generated_files/uart1.c mcc_generated_files/tmr1.c mcc_generated_files/tmr2.c main.c display.c font.c images.c i2c_util.c utils.c sensors.c maths.c interface.c config.c /home/phil/Projects/SAP5/firmware/laser.c /home/phil/Projects/SAP5/firmware/calibrate.c /home/phil/Projects/SAP5/firmware/memory.c /home/phil/Projects/SAP5/firmware/storage.c /home/phil/Projects/SAP5/firmware/measure.c battery.c menu.c CException.c exception.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/exceptions.o ${OBJECTDIR}/mcc_generated_files/rtcc.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/tmr1.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/main.o ${OBJECTDIR}/display.o ${OBJECTDIR}/font.o ${OBJECTDIR}/images.o ${OBJECTDIR}/i2c_util.o ${OBJECTDIR}/utils.o ${OBJECTDIR}/sensors.o ${OBJECTDIR}/maths.o ${OBJECTDIR}/interface.o ${OBJECTDIR}/config.o ${OBJECTDIR}/_ext/908305067/laser.o ${OBJECTDIR}/_ext/908305067/calibrate.o ${OBJECTDIR}/_ext/908305067/memory.o ${OBJECTDIR}/_ext/908305067/storage.o ${OBJECTDIR}/_ext/908305067/measure.o ${OBJECTDIR}/battery.o ${OBJECTDIR}/menu.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/mcc_generated_files/adc1.o.d ${OBJECTDIR}/mcc_generated_files/i2c1.o.d ${OBJECTDIR}/mcc_generated_files/pin_manager.o.d ${OBJECTDIR}/mcc_generated_files/mcc.o.d ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o.d ${OBJECTDIR}/mcc_generated_files/exceptions.o.d ${OBJECTDIR}/mcc_generated_files/rtcc.o.d ${OBJECTDIR}/mcc_generated_files/uart1.o.d ${OBJECTDIR}/mcc_generated_files/tmr1.o.d ${OBJECTDIR}/mcc_generated_files/tmr2.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/display.o.d ${OBJECTDIR}/font.o.d ${OBJECTDIR}/images.o.d ${OBJECTDIR}/i2c_util.o.d ${OBJECTDIR}/utils.o.d ${OBJECTDIR}/sensors.o.d ${OBJECTDIR}/maths.o.d ${OBJECTDIR}/interface.o.d ${OBJECTDIR}/config.o.d ${OBJECTDIR}/_ext/908305067/laser.o.d ${OBJECTDIR}/_ext/908305067/calibrate.o.d ${OBJECTDIR}/_ext/908305067/memory.o.d ${OBJECTDIR}/_ext/908305067/storage.o.d ${OBJECTDIR}/_ext/908305067/measure.o.d ${OBJECTDIR}/battery.o.d ${OBJECTDIR}/menu.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/exceptions.o ${OBJECTDIR}/mcc_generated_files/rtcc.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/tmr1.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/main.o ${OBJECTDIR}/display.o ${OBJECTDIR}/font.o ${OBJECTDIR}/images.o ${OBJECTDIR}/i2c_util.o ${OBJECTDIR}/utils.o ${OBJECTDIR}/sensors.o ${OBJECTDIR}/maths.o ${OBJECTDIR}/interface.o ${OBJECTDIR}/config.o ${OBJECTDIR}/_ext/908305067/laser.o ${OBJECTDIR}/_ext/908305067/calibrate.o ${OBJECTDIR}/_ext/908305067/memory.o ${OBJECTDIR}/_ext/908305067/storage.o ${OBJECTDIR}/_ext/908305067/measure.o ${OBJECTDIR}/battery.o ${OBJECTDIR}/menu.o ${OBJECTDIR}/CException.o ${OBJECTDIR}/exception.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/mcc_generated_files/adc1.o.d ${OBJECTDIR}/mcc_generated_files/i2c1.o.d ${OBJECTDIR}/mcc_generated_files/pin_manager.o.d ${OBJECTDIR}/mcc_generated_files/mcc.o.d ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o.d ${OBJECTDIR}/mcc_generated_files/exceptions.o.d ${OBJECTDIR}/mcc_generated_files/rtcc.o.d ${OBJECTDIR}/mcc_generated_files/uart1.o.d ${OBJECTDIR}/mcc_generated_files/tmr1.o.d ${OBJECTDIR}/mcc_generated_files/tmr2.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/display.o.d ${OBJECTDIR}/font.o.d ${OBJECTDIR}/images.o.d ${OBJECTDIR}/i2c_util.o.d ${OBJECTDIR}/utils.o.d ${OBJECTDIR}/sensors.o.d ${OBJECTDIR}/maths.o.d ${OBJECTDIR}/interface.o.d ${OBJECTDIR}/config.o.d ${OBJECTDIR}/_ext/908305067/laser.o.d ${OBJECTDIR}/_ext/908305067/calibrate.o.d ${OBJECTDIR}/_ext/908305067/memory.o.d ${OBJECTDIR}/_ext/908305067/storage.o.d ${OBJECTDIR}/_ext/908305067/measure.o.d ${OBJECTDIR}/battery.o.d ${OBJECTDIR}/menu.o.d ${OBJECTDIR}/CException.o.d ${OBJECTDIR}/exception.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/exceptions.o ${OBJECTDIR}/mcc_generated_files/rtcc.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/tmr1.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/main.o ${OBJECTDIR}/display.o ${OBJECTDIR}/font.o ${OBJECTDIR}/images.o ${OBJECTDIR}/i2c_util.o ${OBJECTDIR}/utils.o ${OBJECTDIR}/sensors.o ${OBJECTDIR}/maths.o ${OBJECTDIR}/interface.o ${OBJECTDIR}/config.o ${OBJECTDIR}/_ext/908305067/laser.o ${OBJECTDIR}/_ext/908305067/calibrate.o ${OBJECTDIR}/_ext/908305067/memory.o ${OBJECTDIR}/_ext/908305067/storage.o ${OBJECTDIR}/_ext/908305067/measure.o ${OBJECTDIR}/battery.o ${OBJECTDIR}/menu.o
+OBJECTFILES=${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c1.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/exceptions.o ${OBJECTDIR}/mcc_generated_files/rtcc.o ${OBJECTDIR}/mcc_generated_files/uart1.o ${OBJECTDIR}/mcc_generated_files/tmr1.o ${OBJECTDIR}/mcc_generated_files/tmr2.o ${OBJECTDIR}/main.o ${OBJECTDIR}/display.o ${OBJECTDIR}/font.o ${OBJECTDIR}/images.o ${OBJECTDIR}/i2c_util.o ${OBJECTDIR}/utils.o ${OBJECTDIR}/sensors.o ${OBJECTDIR}/maths.o ${OBJECTDIR}/interface.o ${OBJECTDIR}/config.o ${OBJECTDIR}/_ext/908305067/laser.o ${OBJECTDIR}/_ext/908305067/calibrate.o ${OBJECTDIR}/_ext/908305067/memory.o ${OBJECTDIR}/_ext/908305067/storage.o ${OBJECTDIR}/_ext/908305067/measure.o ${OBJECTDIR}/battery.o ${OBJECTDIR}/menu.o ${OBJECTDIR}/CException.o ${OBJECTDIR}/exception.o
 
 # Source Files
-SOURCEFILES=mcc_generated_files/adc1.c mcc_generated_files/i2c1.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/interrupt_manager.c mcc_generated_files/exceptions.c mcc_generated_files/rtcc.c mcc_generated_files/uart1.c mcc_generated_files/tmr1.c mcc_generated_files/tmr2.c main.c display.c font.c images.c i2c_util.c utils.c sensors.c maths.c interface.c config.c /home/phil/Projects/SAP5/firmware/laser.c /home/phil/Projects/SAP5/firmware/calibrate.c /home/phil/Projects/SAP5/firmware/memory.c /home/phil/Projects/SAP5/firmware/storage.c /home/phil/Projects/SAP5/firmware/measure.c battery.c menu.c
+SOURCEFILES=mcc_generated_files/adc1.c mcc_generated_files/i2c1.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/interrupt_manager.c mcc_generated_files/exceptions.c mcc_generated_files/rtcc.c mcc_generated_files/uart1.c mcc_generated_files/tmr1.c mcc_generated_files/tmr2.c main.c display.c font.c images.c i2c_util.c utils.c sensors.c maths.c interface.c config.c /home/phil/Projects/SAP5/firmware/laser.c /home/phil/Projects/SAP5/firmware/calibrate.c /home/phil/Projects/SAP5/firmware/memory.c /home/phil/Projects/SAP5/firmware/storage.c /home/phil/Projects/SAP5/firmware/measure.c battery.c menu.c CException.c exception.c
 
 
 CFLAGS=
@@ -268,6 +268,18 @@ ${OBJECTDIR}/menu.o: menu.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/menu.o 
 	@${FIXDEPS} "${OBJECTDIR}/menu.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -fdata-sections -I"../../gsl-2.5" -MMD -MF "${OBJECTDIR}/menu.o.d" -o ${OBJECTDIR}/menu.o menu.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
 	
+${OBJECTDIR}/CException.o: CException.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/CException.o.d 
+	@${RM} ${OBJECTDIR}/CException.o 
+	@${FIXDEPS} "${OBJECTDIR}/CException.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -fdata-sections -I"../../gsl-2.5" -MMD -MF "${OBJECTDIR}/CException.o.d" -o ${OBJECTDIR}/CException.o CException.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
+	
+${OBJECTDIR}/exception.o: exception.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/exception.o.d 
+	@${RM} ${OBJECTDIR}/exception.o 
+	@${FIXDEPS} "${OBJECTDIR}/exception.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -fframe-base-loclist  -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -fdata-sections -I"../../gsl-2.5" -MMD -MF "${OBJECTDIR}/exception.o.d" -o ${OBJECTDIR}/exception.o exception.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
+	
 else
 ${OBJECTDIR}/mcc_generated_files/adc1.o: mcc_generated_files/adc1.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/mcc_generated_files" 
@@ -430,6 +442,18 @@ ${OBJECTDIR}/menu.o: menu.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/menu.o.d 
 	@${RM} ${OBJECTDIR}/menu.o 
 	@${FIXDEPS} "${OBJECTDIR}/menu.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -fdata-sections -I"../../gsl-2.5" -MMD -MF "${OBJECTDIR}/menu.o.d" -o ${OBJECTDIR}/menu.o menu.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
+	
+${OBJECTDIR}/CException.o: CException.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/CException.o.d 
+	@${RM} ${OBJECTDIR}/CException.o 
+	@${FIXDEPS} "${OBJECTDIR}/CException.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -fdata-sections -I"../../gsl-2.5" -MMD -MF "${OBJECTDIR}/CException.o.d" -o ${OBJECTDIR}/CException.o CException.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
+	
+${OBJECTDIR}/exception.o: exception.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/exception.o.d 
+	@${RM} ${OBJECTDIR}/exception.o 
+	@${FIXDEPS} "${OBJECTDIR}/exception.o.d" $(SILENT) -rsi ${MP_CC_DIR}../  -c ${MP_CC}  $(MP_EXTRA_CC_PRE)  -g -x c -c -mprocessor=$(MP_PROCESSOR_OPTION)  -ffunction-sections -fdata-sections -I"../../gsl-2.5" -MMD -MF "${OBJECTDIR}/exception.o.d" -o ${OBJECTDIR}/exception.o exception.c    -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -specs=specs.txt
 	
 endif
 

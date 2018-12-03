@@ -16,6 +16,7 @@ class Leg():
         
     def __str__(self):
         return str(self.delta)
+
 raw = p.read_program(0x9d009800, 5600)
 data1 = np.array([Leg(raw[i*24:(i+1)*24]).delta for i in range(100)])
 print "-----------------"

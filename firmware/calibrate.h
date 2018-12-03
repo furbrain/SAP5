@@ -1,12 +1,6 @@
 #ifndef CALIBRATE_H
 #define CALIBRATE_H
-void quick_cal(int32_t a);
-
-/* this function turns the laser on and off which
- * allows the factory to physically align the 
- * laser pointer with the infra-red range-finder */
-void align_cal();
-
-void laser_cal();
-void full_cal();
+void calibrate_axes(int32_t dummy);
+void calibrate_laser(int32_t dummy);
+void calibrate_sensors(int32_t dummy);
 #endif

@@ -66,10 +66,10 @@ DECLARE_MENU(settings_menu, {    /* settings menu */
 
 DECLARE_MENU(calibration_menu, {
     /* calibrate menu */
-    {"Quick", Action, quick_cal, 0},
+    {"Sensors", Action, calibrate_sensors, 0},
     //{"Laser",Action,laser_cal, 0},
     //{"Align",Action,align_cal, 0},
-    //{"Full",Action,full_cal, 0},
+    {"Axes", Action, calibrate_axes, 0},
     {"Back", Back, NULL, 0},
 });
 

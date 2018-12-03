@@ -12,6 +12,17 @@ void delay_ms(int count) {
     }
 }
 
+void delay_ms_safe(int count) {
+    while (count > 500) {
+        wdt_clear();
+        delay_ms(500);
+        count -=500;
+    }
+    wdt_clear();
+    delay_ms(count);
+    wdt_clear();
+}
+
 void wdt_clear(void){
     volatile unsigned short *wdtKey;
     wdtKey = (unsigned short*) (&WDTCON)+1;

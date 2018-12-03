@@ -36,6 +36,8 @@
       <itemPath>battery.h</itemPath>
       <itemPath>mem_locations.h</itemPath>
       <itemPath>menu.h</itemPath>
+      <itemPath>CException.h</itemPath>
+      <itemPath>exception.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -76,6 +78,8 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/measure.c</itemPath>
       <itemPath>battery.c</itemPath>
       <itemPath>menu.c</itemPath>
+      <itemPath>CException.c</itemPath>
+      <itemPath>exception.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

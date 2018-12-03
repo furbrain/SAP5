@@ -28,7 +28,7 @@ void store_readings(void) {
         delay_ms(10);
         wdt_clear();
     }
-    laser_on();
+    laser_on(true);
     delay_ms(100);
     wdt_clear();
     for(i=0; i<100; i++) {

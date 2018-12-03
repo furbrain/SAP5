@@ -7,14 +7,13 @@
 #include "font.h"
 #include "config.h"
 
-void laser_on(void) {
+void laser_on(bool enable) {
     UART1_ReceiveBufferClear();
-    UART1_Write('O');
-}
+    if (enable)
+        UART1_Write('O');
+    else
+        UART1_Write('C');
 
-void laser_off(void) {
-    UART1_ReceiveBufferClear();
-    UART1_Write('C');
 }
 
 double laser_read(enum LASER_SPEED speed, int timeout) {

@@ -7,6 +7,7 @@
 #include "font.h"
 #include "sensors.h"
 #include "maths.h"
+#include "storage.h"
 
 #define MIN(a,b) ((a)<(b))?(a):(b)
 #define MAX(a,b) ((a)>(b))?(a):(b)
@@ -29,61 +30,63 @@ int get_greatest_axis(struct RAW_SENSORS *raw) {
 
 const int compass_axis_map[] = {1,0,5,4,3,2};
 
+static
 int get_compass_axis(int axis) {
     return compass_axis_map[axis];
 }
 
-void set_axes() {
-    int i;
+static
+void set_axis(int i) {
     struct RAW_SENSORS raw;
-    int accel_axes[3];
-    int compass_axes[3];
+    sensors_read_raw(&raw);
+    config.axes.accel[i] = get_greatest_axis(&raw);
+    config.axes.mag[i] = get_compass_axis(config.axes.accel[i]);
+}
+
+static
+bool check_sane_axes(void) {
+    int i,j;
+    bool accel_error, mag_error;
+    for (i=0; i<3; i++) {
+        accel_error = mag_error = true;
+        for (j=0; j<3; j++) {
+            if ((config.axes.accel[j] %3) == i) accel_error = false;
+            if ((config.axes.mag[j] %3) == i) mag_error = false;
+        }
+        if (accel_error || mag_error) return false;
+    }
+    return true;
+}
+
+void calibrate_axes(int dummy) {
+    int i;
     char text[18];
-    display_clear_screen();
-    display_write_multiline(0, "Please place the\ndisplay flat on\na level surface", &small_font);
-    for (i=0; i< 6; ++i) {
-        wdt_clear();
-        delay_ms(500);
+    const char *instructions[] = {
+        "Please place on\nedge with the\nlaser pointing\nleft",
+        "Please point the\nlaser upwards",
+        "Please place the\ndisplay flat on\na level surface"
+    };
+    for (i=2; i>=0; i--) {
+        display_clear_screen();
+        display_write_multiline(0, instructions[i], &small_font);
+        delay_ms_safe(3000);
+        set_axis(i);
     }
-    wdt_clear();
-    sensors_read_raw(&raw);
-    accel_axes[2] = get_greatest_axis(&raw);
-    compass_axes[2] = get_compass_axis(accel_axes[2]);
-    wdt_clear();
-    display_clear_screen();
-    display_write_multiline(1, "Please point the\nlaser upwards", &small_font);
-    for (i=0; i< 6; ++i) {
-        wdt_clear();
-        delay_ms(500);
+    if (!check_sane_axes()) {
+        display_clear_screen();
+        display_write_multiline(0, "Invalid axes\nfound.\nAborting", &small_font);
+        return;
     }
-    wdt_clear();
-    sensors_read_raw(&raw);
-    accel_axes[1] = get_greatest_axis(&raw);
-    compass_axes[1] = get_compass_axis(accel_axes[1]);
-    wdt_clear();
-    display_clear_screen();
-    display_write_multiline(1, "Please place on\nedge with the\nlaser pointing\nleft", &small_font);
-    for (i=0; i< 6; ++i) {
-        wdt_clear();
-        delay_ms(500);
-    }
-    wdt_clear();
-    sensors_read_raw(&raw);
-    accel_axes[0] = get_greatest_axis(&raw);
-    compass_axes[0] = get_compass_axis(accel_axes[0]);
-    display_clear_screen();
-    wdt_clear();
-    snprintf(text,18, "%d %d %d", accel_axes[0], accel_axes[1], accel_axes[2]);
+    snprintf(text,18, "%d %d %d", config.axes.accel[0], config.axes.accel[1], config.axes.accel[2]);
     display_write_text(1,0,text, &small_font, false);
-    wdt_clear();
-    delay_ms(500);
-    wdt_clear();
-    snprintf(text,18, "%d %d %d", compass_axes[0], compass_axes[1], compass_axes[2]);
+    snprintf(text,18, "%d %d %d", config.axes.mag[0], config.axes.mag[1], config.axes.mag[2]);
     display_write_text(4,0,text, &small_font, false);
-    wdt_clear();
+    delay_ms_safe(500);
+    config_save();
     
 }
 
+static
 void apply_matrix_to_readings(vectorr src[], vectorr dest[], int reading_count, matrixx matrix) {
     int i;
     for (i=0; i< reading_count; i++) {
@@ -141,105 +144,93 @@ void show_modified_readings(vectorr readings[], int axes[2], int reading_count, 
     wdt_clear();
 }
 
-void quick_cal(int32_t a) {
+accum get_gyro_offset(int axis) {
+    int i;
+    accum gyro_offset = 0.0k;
     struct COOKED_SENSORS sensors;
-    int i, j, k;
-    int readings_count;
-    int xy_axis[2] = {0,1};
-    double x, y;
-    accum min_separation = 30000k;
-    accum gyro_offset = 0k;
-    accum gyro = 0;
-    accum last_gyro =0;
-    vectorr readings[400];
-    vectorr modified_readings[400];
-    accum max_data[2] = {0k,0k};
-    accum min_data[2] = {0k,0k};
-    accum offset[2];
-    accum scale;
-    matrixx mag_matrix;
-    matrixx rotation_matrix;
-    vectorr result;
-    char text[20];
-    struct ELLIPSE_PARAM params;
-/* Brief summary of plan:
- * First place the device flat on the ground and leave alone
- * This allows us to calibrate zero-offsets for gyros*/
-    memcpy(mag_matrix, identity, sizeof(matrixx));
-    display_write_multiline(0, "Place device on a\nlevel surface\nand leave alone", &small_font);
-    for (i=0; i<1; i++) {
-        delay_ms(500);
-        wdt_clear();
-    }
     for (i=0; i<10; i++) {
         sensors_read_uncalibrated(&sensors);
         gyro_offset += sensors.gyro[2];
         wdt_clear();
     }
     gyro_offset /= 10.0k;
-    display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", &small_font);
-/* Now rotate around z-axis
- * do first magnetic calibration */
-/* read in 400 or so readings while rotating */
+    return gyro_offset;
+}
+
+int collect_data_around_axis(int axis, accum gyro_offset, double *mag_data, double *grav_data) {
+    struct COOKED_SENSORS sensors;
+    accum gyro=0;
+    int i, j, readings_count;
+    double min_separation = 10000000.0;
     i = 0;
     do {
         do {
             sensors_read_uncalibrated(&sensors);
-            gyro += ((sensors.gyro[2]-gyro_offset)*210)/1000k;
-            delay_ms(20);
-            wdt_clear();
-        } while (abs(gyro)<i);
-        readings[i][0] = sensors.mag[0];
-        readings[i][1] = sensors.mag[1];
-        readings[i][2] = sensors.mag[2];
-        ++i;
-        if (i==2) display_clear_screen();
-        x = (int)(cos(-gyro*M_PI/180k)*30.0)+64;
-        y = (int)(sin(-gyro*M_PI/180k)*30.0)+32;
-        display_setbuffer_xy(x,y);
-        display_show_buffer();
-        wdt_clear();
-    } while (abs(gyro)<400);
-    readings_count = i;
-    for (j = i/2; j< i; ++j) {
-        if (min_separation>distance2(readings[0], readings[j])) {
-            min_separation = distance2(readings[0], readings[j]);
-            readings_count = j;
-                    
-        }   
-    }
-    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
+            gyro += ((sensors.gyro[axis]-gyro_offset)*20k)/1000k;
+            delay_ms_safe(20);
+        } while (aabs(gyro)<(i*3));
+        for (j=0; j<3; j++) {
+           mag_data[i*3+j] = sensors.mag[j];
+           grav_data[i*3+j] = sensors.accel[j];
+        }
+        i++;
+    } while ((aabs(gyro)<400) && i < 120);
+    return i;
+}
 
-    /* find and apply offset */
-    get_data_stats(readings,xy_axis,readings_count, offset, min_data, max_data);
-    apply_offset(-offset[0], -offset[1], 0, mag_matrix);
-    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
-    apply_matrix_to_readings(readings, modified_readings, readings_count, mag_matrix);
-
-    /* find ellipse, rotate, scale, and unrotate*/
-    params = find_rotation_and_scale_of_ellipse(modified_readings, xy_axis, readings_count, 180);
-    find_plane(modified_readings, xy_axis, readings_count, result);
-    get_rotation_matrix(xy_axis, params.theta, rotation_matrix);
-    matrix_multiply(rotation_matrix, mag_matrix);
-    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
-
-    apply_scale(1, params.scale, mag_matrix);
-    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
-
-    get_rotation_matrix(xy_axis, params.theta, rotation_matrix);
-    matrix_multiply(rotation_matrix, mag_matrix);
-    show_modified_readings(readings,xy_axis, readings_count, mag_matrix);
-
-    /* store to configuration*/
-    memcpy(config.calib.mag, mag_matrix, sizeof(matrixx));
+void calibrate_sensors(int32_t a) {
+    double mag_readings[720]; //3 x240 sets of readings...
+    double grav_readings[720];
+    matrixx accel_mat, mag_mat;
+    accum gyro_offset = 0k;
+    int z_axis_count, y_axis_count, offset, data_length;
+/* Brief summary of plan:
+ * First place the device flat on the ground and leave alone
+ * This allows us to calibrate zero-offsets for gyros*/
+    display_clear_screen();
+    display_write_multiline(0, "Place device on a\nlevel surface\nand leave alone", &small_font);
+    delay_ms_safe(2000);
+    gyro_offset = get_gyro_offset(2);
+    display_clear_screen();
+    display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", &small_font);
+    delay_ms_safe(1500);
+    /* Now rotate around z-axis and read in ~120 readings */
+    laser_on(true);
+    display_on(false);
+    z_axis_count = collect_data_around_axis(2, gyro_offset, mag_readings, grav_readings);
     wdt_clear();
-    config_save();
+    
+    /* now read data on y-axis */
+    display_on(true);
+    display_clear_screen();
+    display_write_multiline(0, "Point laser at\nfixed target", &small_font);
+    delay_ms_safe(2000);
+    gyro_offset = get_gyro_offset(1);
+    display_clear_screen();
+    display_write_multiline(0, "Rotate device\n360' while\nleaving laser\non target", &small_font);
+    delay_ms_safe(1500);
+    offset = z_axis_count*3;
+    display_on(false);
+    laser_on(true);
+    y_axis_count = collect_data_around_axis(1, gyro_offset, mag_readings+offset, grav_readings+offset);
+    data_length = z_axis_count + y_axis_count;
     wdt_clear();
-/* Now rotate around y-axis, keeping laser fixed on one point
- * this allows us to first calibrate magnetics and then calculate
- * direction of laser beam.
- */
- /* nor rotate around z-axis - allows calibration of y axis accelerometer */
+    laser_on(false);
+    display_on(true);
+    display_clear_screen();
+    display_write_multiline(0, "Storing", &small_font);
+    delay_ms_safe(1000);
+    write_data((uint8_t*)leg_space, mag_readings, sizeof(mag_readings));
+    write_data((uint8_t*)(leg_space+sizeof(mag_readings)), grav_readings, sizeof(grav_readings));
+    display_write_multiline(2, "Processing", &small_font);
+    delay_ms_safe(1000);
+    // calibrate magnetometer
+    calibrate(mag_readings, data_length, mag_mat);
+    wdt_clear();
+    // calibrate accelerometer
+    calibrate(grav_readings, data_length, accel_mat);
+    display_write_multiline(4, "Done", &small_font);
+    delay_ms_safe(1000);
 }
 void laser_cal() {
 //	int count,x,y;

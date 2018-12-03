@@ -25,7 +25,7 @@ void cross_product(const vectorr a, const vectorr b, vectorr c);
 
 
 /* returns square of theh distance between two points*/
-accum distance2(const vectorr a, const vectorr b);
+double distance2(const double *a, const double *b);
 
 /* returns vector A multiplied by Matrix B in vector C, where A and C are pointers to accum[3]
  * and B is a pointer to accum[3][4] */

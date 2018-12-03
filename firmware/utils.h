@@ -8,6 +8,9 @@
 
 void delay_ms(int count);
 
+/* delay for count ms, performing wdt_clear every 500ms */
+void delay_ms_safe(int count);
+
 void wdt_clear(void);
 
 void sys_reset(int32_t a);

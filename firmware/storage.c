@@ -5,6 +5,7 @@
 #include "memory.h"
 #include "mem_locations.h"
 #include "config.h"
+#include "utils.h"
 #include <stdio.h>
 
 #ifndef __DEBUG
@@ -19,18 +20,6 @@ const uint8_t leg_space[APP_LEG_SIZE] __attribute__((address(APP_LEG_LOCATION), 
 uint8_t  leg_space[APP_LEG_SIZE] __attribute__((address(APP_LEG_LOCATION), space(data)))  = {[0 ... APP_LEG_SIZE-1]=0xff};
 #endif
 
-int write_data(uint8_t *dest,  uint8_t *src, int length){
-    int i, res;
-    char text[22];
-    for (i=0; i< length; i+=8) {
-        res = write_dword(dest, (int *) src);
-        dest+=8;
-        src+=8; 
-    }
-    return res;
-}
-
-
 const struct CONFIG* read_config(void){
     struct CONFIG *config = NULL;
     const uint8_t *ptr = config_space;
@@ -43,16 +32,15 @@ const struct CONFIG* read_config(void){
 
 int write_config(struct CONFIG *config) {
     const uint8_t *ptr = config_space;
-    char text[24];
     int res;
     while ((*ptr != 0xff) && ptr+sizeof(struct CONFIG) < (config_space+APP_CONFIG_SIZE)) {
         ptr += sizeof(struct CONFIG);
     }
     if (ptr > (config_space + APP_CONFIG_SIZE - sizeof(struct CONFIG))) {
         erase_page((void *)config_space);
+        wdt_clear();
         ptr  = config_space;
     }
-    wdt_clear();
     res =  write_data((uint8_t *)ptr, (uint8_t *)config, sizeof(struct CONFIG));
     return res;
 }
@@ -73,7 +61,6 @@ void* leg_spans_boundary(struct LEG *leg) {
 int write_leg(struct LEG *leg) {
     struct LEG *ptr = (struct LEG*)leg_space;
     void *boundary;
-    char text[24];
     int res;
     while ((ptr->dt != ULONG_MAX) && (ptr+1 < (struct LEG*)(leg_space+APP_LEG_SIZE))) {
         ptr ++;
@@ -91,3 +78,15 @@ int write_leg(struct LEG *leg) {
     res =  write_data((uint8_t *)ptr, (uint8_t *)leg, sizeof(struct LEG));
     return res;
     }
+
+int write_data(void *destination,  const void *source, int length){
+    int i, res;
+    char *dest = destination;
+    const int *src = source;
+    for (i=0; i< length; i+=8) {
+        res = write_dword(dest, src);
+        dest+=8;
+        src+=2; 
+    }
+    return res;
+}
