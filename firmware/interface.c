@@ -12,6 +12,7 @@
 #include "measure.h"
 #include "calibrate.h"
 #include "menu.h"
+#include "exception.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
@@ -24,6 +25,9 @@ void beep(int a, int b) {
 
 void set_date(int32_t a);
 void set_time(int32_t a);
+void throw_error(int32_t a) {
+    THROW_WITH_REASON("Just a random reason to get cross", ERROR_UNSPECIFIED);
+}
 
 DECLARE_MENU(timeout_menu, {
     {"30s", Action, config_set_timeout, 30},
@@ -77,6 +81,7 @@ DECLARE_MENU(main_menu, {
     {"Measure", Action, measure, 0},
     {"Calibrate >", SubMenu, .submenu = &calibration_menu, 0},
     {"Settings >", SubMenu, .submenu = &settings_menu, 0},
+    {"Throw", Action, throw_error, 0},
     {"Off", Action, sys_reset, 0}
 });
 
