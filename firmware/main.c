@@ -52,7 +52,7 @@ void display_error(CEXCEPTION_T e) {
     const char *reason;
     const char *file;
     int line;
-    display_clear();
+    display_clear_screen();
     error = exception_get_string(e);
     exception_get_details(&reason, &file, &line);
     snprintf(text,18,"Err: %s", error);

@@ -1,5 +1,6 @@
 #include "unity.h"
 #include "gsl_static.h"
+#include "gsl_machine.h"
 
 void test_gsl_vector() {
     GSL_VECTOR_DECLARE(vector, 10);
@@ -37,3 +38,11 @@ void test_gsl_multifit_linear() {
     TEST_ASSERT_NOT_NULL(w.xt);
     TEST_ASSERT_NOT_NULL(w.D);
     }
+    
+void test_gsl_precision() {
+    double a;
+    a = 1.0 + GSL_DBL_EPSILON;
+    TEST_ASSERT(a != 1.0);
+    a = 1.0 + (GSL_DBL_EPSILON/2);
+    TEST_ASSERT(a == 1.0);
+}

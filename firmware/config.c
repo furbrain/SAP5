@@ -14,7 +14,7 @@ struct CONFIG config = {
             },
             POLAR,                               //Polar display style
             METRIC,                              //metric units
-            30                                   //30s timeout
+            120                                  //2 min timeout
         };
 
 bool day;

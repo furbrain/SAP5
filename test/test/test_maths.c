@@ -3,7 +3,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <gsl/gsl_matrix.h>
+#include <sys/resource.h>
 #include "test_maths_fixtures.inc"
+#include "exception.h"
+
+void suiteSetUp(void) {
+    exception_init();
+    setrlimit(RLIMIT_DATA,32760);
+}
+
 
 void test_find_median(void) {
     TEST_ASSERT_EQUAL_INT16(5, find_median((int16_t[]){3,5,6},3));

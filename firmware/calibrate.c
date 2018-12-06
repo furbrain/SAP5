@@ -8,9 +8,14 @@
 #include "sensors.h"
 #include "maths.h"
 #include "storage.h"
+#include "calibrate.h"
 
 #define MIN(a,b) ((a)<(b))?(a):(b)
 #define MAX(a,b) ((a)>(b))?(a):(b)
+static double mag_readings[CALIBRATION_SAMPLES*3]; //3 sets of readings...
+static double grav_readings[CALIBRATION_SAMPLES*3];
+
+
 int get_greatest_axis(struct RAW_SENSORS *raw) {
     int max_abs = 0;
     int axis = 0;
@@ -174,16 +179,16 @@ int collect_data_around_axis(int axis, accum gyro_offset, double *mag_data, doub
            grav_data[i*3+j] = sensors.accel[j];
         }
         i++;
-    } while ((aabs(gyro)<400) && i < 120);
+    } while ((aabs(gyro)<400) && i < (CALIBRATION_SAMPLES/2));
     return i;
 }
 
 void calibrate_sensors(int32_t a) {
-    double mag_readings[720]; //3 x240 sets of readings...
-    double grav_readings[720];
+    char text[30];
     matrixx accel_mat, mag_mat;
     accum gyro_offset = 0k;
     int z_axis_count, y_axis_count, offset, data_length;
+    double error;
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
@@ -194,7 +199,7 @@ void calibrate_sensors(int32_t a) {
     display_clear_screen();
     display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", &small_font);
     delay_ms_safe(1500);
-    /* Now rotate around z-axis and read in ~120 readings */
+    /* Now rotate around z-axis and read in ~CALIBRATION_SAMPLES/2 readings */
     laser_on(true);
     display_on(false);
     z_axis_count = collect_data_around_axis(2, gyro_offset, mag_readings, grav_readings);
@@ -218,19 +223,25 @@ void calibrate_sensors(int32_t a) {
     laser_on(false);
     display_on(true);
     display_clear_screen();
-    display_write_multiline(0, "Storing", &small_font);
-    delay_ms_safe(1000);
-    write_data((uint8_t*)leg_space, mag_readings, sizeof(mag_readings));
-    write_data((uint8_t*)(leg_space+sizeof(mag_readings)), grav_readings, sizeof(grav_readings));
-    display_write_multiline(2, "Processing", &small_font);
-    delay_ms_safe(1000);
+    display_write_multiline(0, "Processing", &small_font);
+    //delay_ms_safe(500);
     // calibrate magnetometer
+    //wdt_disable(10);
     calibrate(mag_readings, data_length, mag_mat);
+    error = check_calibration(mag_readings, data_length, mag_mat);
+    snprintf(text, 28, "Mag Err:  %.2f%%", error);
+    display_write_multiline(2,text, &small_font);
     wdt_clear();
     // calibrate accelerometer
     calibrate(grav_readings, data_length, accel_mat);
-    display_write_multiline(4, "Done", &small_font);
-    delay_ms_safe(1000);
+    error = check_calibration(grav_readings, data_length, accel_mat);
+    snprintf(text, 28, "Grav Err: %.2f%%", error);
+    display_write_multiline(4,text, &small_font);
+    wdt_clear();
+    display_write_multiline(6, "Done", &small_font);
+    
+    delay_ms_safe(4000);
+    
 }
 void laser_cal() {
 //	int count,x,y;

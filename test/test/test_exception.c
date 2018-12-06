@@ -20,6 +20,7 @@ void test_exception_get_string(void)
     TEST_ASSERT_EQUAL_STRING("Unspecified Error", exception_get_string(ERROR_UNSPECIFIED));
     TEST_ASSERT_EQUAL_STRING("Menu Full", exception_get_string(ERROR_MENU_FULL));
     TEST_ASSERT_EQUAL_STRING("output range error", exception_get_string(GSL_ERANGE+1000));
+    TEST_ASSERT_EQUAL_STRING("Divide by Zero", exception_get_string(2013));
 }
 
 void test_gsl_error(void) 
@@ -29,7 +30,8 @@ void test_gsl_error(void)
     int line;
     TEST_ASSERT_THROWS_GSL(gsl_fft_complex_radix2_forward(NULL,1,3), GSL_EINVAL);
     exception_get_details(&reason, &file, &line);
-    printf("%s\n%s:%d",reason, file, line);
+    TEST_ASSERT_EQUAL_STRING("n is not a power of 2", reason);
+    TEST_ASSERT_EQUAL_STRING("fft/c_radix2.c", file);
 }
 
 void test_get_details(void) {
@@ -65,3 +67,15 @@ void test_throw_with_reason(void) {
     }
     TEST_FAIL_MESSAGE("Error not thrown");
  }
+ 
+ void test_throw_global_exception(void) {
+    int error1 = 1;
+    int error0 = 0;
+    const char *reason;
+    const char *file;
+    int line;
+    
+    TEST_ASSERT_THROWS(error1 /= error0,2013);
+    exception_get_details(&reason, &file, &line);
+    TEST_ASSERT_EQUAL_STRING("exception", file);
+}
