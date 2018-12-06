@@ -29,12 +29,36 @@ void throw_error(int32_t a) {
     THROW_WITH_REASON("Just a random reason to get cross", ERROR_UNSPECIFIED);
 }
 
+void freeze_error(int32_t a) {
+    volatile int32_t x;
+    while(1) {x = a;};
+}
+
+void freeze_wdt(int32_t a) {
+    wdt_disable(10);
+    freeze_error(0);
+}
+
+void div_by_zero(int32_t a) {
+    int i1=1;
+    int i0=0;
+    i0 = i1/i0;
+}
+
+DECLARE_MENU(debug_menu, {
+    {"Throw", Action, throw_error, 0},
+    {"Freeze", Action, freeze_error, 0},
+    {"FreezeW", Action, freeze_wdt, 0},
+    {"DivByZero", Action, div_by_zero, 0},
+            
+});
+
 DECLARE_MENU(timeout_menu, {
     {"30s", Action, config_set_timeout, 30},
     {"60s", Action, config_set_timeout, 60},
-    {"2 min", Action, config_set_timeout, 120},
-    {"5 min", Action, config_set_timeout, 300},
-    {"10 mins", Action, config_set_timeout, 600},
+    {"2  min", Action, config_set_timeout, 120},
+    {"5  min", Action, config_set_timeout, 300},
+    {"10  mins", Action, config_set_timeout, 600},
     {"Back", Back, NULL, 0}
 });
 
@@ -59,12 +83,12 @@ DECLARE_MENU(units_menu, {
 });
 
 DECLARE_MENU(settings_menu, {    /* settings menu */
-    {"Units >", SubMenu, .submenu = &units_menu, 0},
-    {"Style >", SubMenu, .submenu = &style_menu, 0},
-    {"Display >", SubMenu, .submenu = &display_menu, 0},
-    {"Timeout >", SubMenu, .submenu = &timeout_menu, 0},
-    {"Set Date", Action, set_time, 0},
-    {"Set Time", Action, set_time, 0},
+    {"Units  >", SubMenu, .submenu = &units_menu, 0},
+    {"Style  >", SubMenu, .submenu = &style_menu, 0},
+    {"Display  >", SubMenu, .submenu = &display_menu, 0},
+    {"Timeout  >", SubMenu, .submenu = &timeout_menu, 0},
+    {"Set  Date", Action, set_time, 0},
+    {"Set  Time", Action, set_time, 0},
     {"Back", Back, NULL, 0},
 });
 
@@ -79,9 +103,9 @@ DECLARE_MENU(calibration_menu, {
 
 DECLARE_MENU(main_menu, {
     {"Measure", Action, measure, 0},
-    {"Calibrate >", SubMenu, .submenu = &calibration_menu, 0},
-    {"Settings >", SubMenu, .submenu = &settings_menu, 0},
-    {"Throw", Action, throw_error, 0},
+    {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},
+    {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
+    {"Debug  >", SubMenu, .submenu = &debug_menu, 0},
     {"Off", Action, sys_reset, 0}
 });
 
