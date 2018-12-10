@@ -53,12 +53,15 @@ static unsigned int _excep_code;
 static unsigned int _excep_addr;
 static char _excep_reason[12];
 
+//omit this function if not using XC32...
+#ifdef __XC32__
 void _general_exception_handler(void) {
     _excep_code=(_CP0_GET_CAUSE() & 0x0000007C) >> 2;
     _excep_addr=_CP0_GET_EPC();
     snprintf(_excep_reason,12,"0x%X",_excep_addr);
     exception_error_handler(_excep_reason, "exception", 0, _excep_code+2000);
 }
+
 
 void _simple_tlb_refill_exception_handler(void) {
     _general_exception_handler();
@@ -71,6 +74,7 @@ void _cache_err_exception_handler(void) {
 void _nmi_handler(void) {
     _general_exception_handler();
 }
+#endif
 
 
 
@@ -78,7 +82,7 @@ const char* exception_get_string(CEXCEPTION_T e) {
     if (e<500) 
         return exception_strings[e];
     else if (e<1500)
-        return gsl_strerror(e-1000);
+        return gsl_strerror((signed int)e-1000);
     else
         return global_exception_strings[e-2000];
 }    

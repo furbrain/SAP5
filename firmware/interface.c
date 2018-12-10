@@ -34,11 +34,6 @@ void freeze_error(int32_t a) {
     while(1) {x = a;};
 }
 
-void freeze_wdt(int32_t a) {
-    wdt_disable(10);
-    freeze_error(0);
-}
-
 void div_by_zero(int32_t a) {
     int i1=1;
     int i0=0;
@@ -48,7 +43,6 @@ void div_by_zero(int32_t a) {
 DECLARE_MENU(debug_menu, {
     {"Throw", Action, throw_error, 0},
     {"Freeze", Action, freeze_error, 0},
-    {"FreezeW", Action, freeze_wdt, 0},
     {"DivByZero", Action, div_by_zero, 0},
             
 });

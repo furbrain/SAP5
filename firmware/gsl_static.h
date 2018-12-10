@@ -5,6 +5,12 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_multifit.h>
 
+#ifdef __XC32__
+#define PADDING {0},
+#else
+#define PADDING
+#endif
+
 #define GSL_VECTOR_DECLARE(name, max_size) \
     double name##_data[max_size]; \
     gsl_block name##_block = {max_size, name##_data}; \
@@ -31,7 +37,7 @@
     GSL_VECTOR_DECLARE(name##_xt, pmax); \
     GSL_VECTOR_DECLARE(name##_D, pmax); \
     gsl_multifit_linear_workspace name = { \
-        nmax, pmax, 0, 0, \
+        PADDING nmax, pmax, 0, 0, \
         &name##_A, &name##_Q, &name##_QSI, \
         &name##_S, &name##_t, &name##_xt, &name##_D, 0.0}
 
