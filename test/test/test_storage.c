@@ -2,13 +2,10 @@
 #include "CException.h"
 #include "storage.h"
 #include "mock_memory.h"
-#include "utils.h"
+#include "mock_utils.h"
 #include "mem_locations.h"
-#include "mcc_generated_files/uart1.h"
-#include "mcc_generated_files/tmr1.h"
 #include <stdio.h>
 #include <string.h>
-#include <xc.h>
 
 int target_array[4] = {0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff};
 
@@ -27,13 +24,6 @@ struct CONFIG test_config = {
     30                                   //30s timeout
 };
 
-struct LEG test_leg = {
-    12, //datetime
-    0, //survey
-    1, //from
-    2, //to
-    {1.0k, 1.0k, 2.0k} //delta
-};
     
 
 int write_dword_replacement(void* ptr, const int* src, int num_calls) {
@@ -41,8 +31,7 @@ int write_dword_replacement(void* ptr, const int* src, int num_calls) {
     if ((size_t)ptr % 8) return -1;
     if (((int*)ptr < target_array) || ((int*)ptr > target_array+4)) 
         if (((uint8_t*)ptr < config_space) || ((uint8_t*)ptr > config_space+APP_CONFIG_SIZE)) 
-            if (((uint8_t*)ptr < leg_space) || ((uint8_t*)ptr > leg_space+APP_LEG_SIZE)) 
-                Throw(0xBADADDA);
+            Throw(0xBADADDA);
     for (i=0; i<8; i++) {
         if (*((uint8_t*)ptr+i) != 0xff) Throw(0xBADDA7A);
     }
@@ -59,7 +48,6 @@ int erase_page_replacement(void *ptr, int num_calls) {
 void setUp(void) {
     erase_page_StubWithCallback(erase_page_replacement);
     memset(config_space, 0xff, APP_CONFIG_SIZE);
-    memset(leg_space, 0xff, APP_LEG_SIZE);
 }
 
 void test_write_data(void) {
@@ -151,95 +139,4 @@ void test_read_last_config(void) {
     TEST_ASSERT_EQUAL_MEMORY(&new_config, current_config, sizeof(current_config));
 }
 
-void test_leg_spans_boundary(void) {
-    struct test_field {
-        void  *result;
-        struct LEG *leg;
-    };
-    struct test_field test_cases[6] = {
-        {NULL, NULL},
-        {NULL, (struct LEG*)0xA0002000},
-        {NULL, (struct LEG*)0xA0002004},
-        {NULL, (struct LEG*)(0xA0002000 - sizeof(struct LEG))},
-        {(void*)0xA0002000, (struct LEG*)(0xA0002000-2)},
-        {(void*)0xA0002800, (struct LEG*)(0xA00027FF)}
-    };
-    int i;
-    for (i=0; i<6; i++) {
-        TEST_ASSERT_EQUAL_PTR(test_cases[i].result, leg_spans_boundary(test_cases[i].leg));
-    }
-}
-
-
-void test_write_leg_single(void) {
-    int result;
-    write_dword_StubWithCallback(write_dword_replacement);
-    result = write_leg(&test_leg);
-    TEST_ASSERT_EQUAL(0, result);
-    TEST_ASSERT_EQUAL_MEMORY(&test_leg, leg_space, sizeof(test_leg));
-    TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)));
-}
-
-void test_write_leg_double(void) {
-    int result;
-    write_dword_StubWithCallback(write_dword_replacement);
-    result = write_leg(&test_leg);
-    result = write_leg(&test_leg);
-    TEST_ASSERT_EQUAL(0, result);
-    TEST_ASSERT_EQUAL_MEMORY(&test_leg, leg_space+sizeof(test_leg), sizeof(test_leg));
-    TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)*2));
-}
-
-void test_write_leg_overflow(void) {
-    int counter;
-    struct LEG new_leg;
-    write_dword_StubWithCallback(write_dword_replacement);
-    memcpy(&new_leg,&test_leg,sizeof(new_leg));
-    counter = APP_LEG_SIZE/sizeof(new_leg);
-    while(counter--) {
-        write_leg(&new_leg);
-        new_leg.dt++;
-    }
-    write_leg(&new_leg);
-    TEST_ASSERT_EQUAL_MEMORY(&new_leg, leg_space, sizeof(new_leg));
-    TEST_ASSERT_EQUAL_UINT8(0xff, *(leg_space + sizeof(test_leg)));
-}
-
-void test_write_leg_with_dt_lsb_is_0xff(void) {
-    struct LEG new_leg;
-    struct LEG *leg_ptr;
-    write_dword_StubWithCallback(write_dword_replacement);
-    leg_ptr = (struct LEG*)leg_space;
-    memcpy(&new_leg,&test_leg,sizeof(new_leg));
-    new_leg.dt = 0xff;
-    write_leg(&new_leg);
-    new_leg.dt = 0x100;
-    write_leg(&new_leg);
-    TEST_ASSERT_EQUAL(0xff,leg_ptr[0].dt);
-    TEST_ASSERT_EQUAL(0x100,leg_ptr[1].dt);
-}
-
-void test_write_leg_page_overflow(void) {
-    /* check works correctly when leg boundary aligns with page boundary -- and when it doesn't */
-    int counter;
-    struct LEG new_leg;
-    int index = 0x800/sizeof(new_leg);
-    write_dword_StubWithCallback(write_dword_replacement);
-    memcpy(&new_leg,&test_leg,sizeof(new_leg));
-    // fill whole leg space
-    counter = APP_LEG_SIZE/sizeof(new_leg);
-    while(counter--) {
-        write_leg(&new_leg);
-        new_leg.dt++;
-    }
-    //fill first page
-    counter  = index;
-    while(counter--) {
-        write_leg(&new_leg);
-        new_leg.dt++;
-    }
-    write_leg(&new_leg);
-    TEST_ASSERT_EQUAL_MEMORY(&new_leg, leg_space+sizeof(new_leg)*index, sizeof(new_leg));
-    TEST_ASSERT_EQUAL_UINT8(0xff,leg_space[sizeof(new_leg) * (1+index)]);
-}
 

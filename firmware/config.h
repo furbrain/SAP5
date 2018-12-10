@@ -49,15 +49,6 @@ struct __attribute__((aligned(8))) CONFIG {
 // this is currently 88 bytes long - perfect!
 // note this needs to be padded to modulo 8 bytes to allow saving to work...
 
-struct __attribute__((aligned(8))) LEG {
-    time_t dt; // time of reading
-    uint16_t survey; //survey number
-    uint8_t from; //origin station
-    uint8_t to; //destination station
-    /* differential readings in m */
-    accum delta[3]; 
-};
-
 #ifndef BOOTLOADER
 extern struct CONFIG config;
 

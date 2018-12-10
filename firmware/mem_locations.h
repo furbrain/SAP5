@@ -33,6 +33,20 @@
     #define APP_LEG_SIZE        0x00002800
 #endif
 
+#ifndef __DEBUG
+#define CONST_STORE const
+#else
+#define CONST_STORE
+#endif
+
+
+//put data at specified place if on pic, otherwise align with 0x800 boundary
+#ifdef __XC32
+#define PLACE_DATA_AT(addr) __attribute__((address(addr), space(prog)))
+#else
+#define PLACE_DATA_AT(addr) __attribute__((aligned(0x800)))
+#endif
+
 
 #endif	/* MEM_LOCATIONS_H */
 

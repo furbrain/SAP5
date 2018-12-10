@@ -96,7 +96,7 @@
     :arguments:
         - -D$: COLLECTION_DEFINES_TEST_AND_VENDOR  #expands to all -D defined symbols
         - -mprocessor=32MM0256GPM028
-        - -legacy-libc -Wl,--defsym=__MPLAB_BUILD=1,--defsym=_min_heap_size=400,--defsym=_min_stack_size=5000,--no-code-in-dinit,--no-dinit-in-serial-mem,--gc-sections
+        - -legacy-libc -Wl,--defsym=__MPLAB_BUILD=1,--defsym=_min_heap_size=2000,--defsym=_min_stack_size=4000,--no-code-in-dinit,--no-dinit-in-serial-mem,--gc-sections
         - -mdebugger
         - ${1}               #list of object files to link (Ruby method call param list sub)
         - -o ${2}          #executable file output (Ruby method call param list sub)
