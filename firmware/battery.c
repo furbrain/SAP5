@@ -11,8 +11,8 @@ enum BAT_STATUS battery_get_status(){
 }
 
 #ifndef BOOTLOADER
-accum battery_get_voltage(){
-	accum bat_voltage, bg_voltage;
+double battery_get_voltage(){
+	double bat_voltage, bg_voltage;
     int i;
     ADC1_Initialize();
     ADC1_ChannelSelect(ADC1_BAT_SENSE);
@@ -44,15 +44,15 @@ accum battery_get_voltage(){
 }
 
 int battery_get_units() {
-    accum voltage;
+    double voltage;
     int result;
     voltage = battery_get_voltage();
     /* scale voltage to range of 0->1, where 0 is minimum acceptable and 1 is maximum acceptable */
     voltage -= BATTERY_MIN_VOLTAGE;
     voltage /= (BATTERY_MAX_VOLTAGE-BATTERY_MIN_VOLTAGE);
     /* clip voltage to "acceptable range" */
-    voltage  = voltage < 0.0k ? 0.0k : voltage;
-    voltage  = voltage > 0.99k? 0.99k : voltage;
+    voltage  = voltage < 0.0 ? 0.0 : voltage;
+    voltage  = voltage > 0.99? 0.99 : voltage;
     /* convert to scale of 0->20 */
     voltage *= 20;
     return (int)voltage;

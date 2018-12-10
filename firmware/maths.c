@@ -2,6 +2,9 @@
 #include <string.h>
 #include <gsl_math.h>
 #include <gsl/gsl_multifit.h>
+#include <gsl/gsl_multilarge.h>
+#include <gsl/gsl_linalg.h>
+#include <gsl/gsl_permutation.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_blas.h>
@@ -9,7 +12,7 @@
 #include "maths.h"
 #include "display.h"
 #include "calibrate.h"
-/* return AxB in C, where A B and C are all pointers to accum[3] */
+/* return AxB in C, where A B and C are all pointers to double[3] */
 
 GSL_MATRIX_DECLARE(lsq_input, CALIBRATION_SAMPLES, 9);
 GSL_VECTOR_DECLARE(lsq_output, CALIBRATION_SAMPLES);
@@ -24,16 +27,16 @@ const matrixx identity = {
     {0, 0, 1.0, 0}
 };
 
-accum amax(const accum a, const accum b) {
+double amax(const double a, const double b) {
     return a > b ? a : b;
 }
 
-accum amin(const accum a, const accum b) {
+double amin(const double a, const double b) {
     return a < b ? a : b;
 }
 
-accum aabs(const accum a) {
-    return (a < 0.0) ? (accum)(0.0 - a) : (a);
+double aabs(const double a) {
+    return (a < 0.0) ? (double)(0.0 - a) : (a);
 }
 
 
@@ -44,8 +47,8 @@ void cross_product(const vectorr a, const vectorr b, vectorr c) {
 	c[2] = (a[0]*b[1]) - (a[1]*b[0]);
 }
 
-/* returns b . a where a is a vector and b is a matrix. Result in vector C, where A and C are pointers to accum[3]
- * and B is a pointer to accum[16] */
+/* returns b . a where a is a vector and b is a matrix. Result in vector C, where A and C are pointers to double[3]
+ * and B is a pointer to double[16] */
 void apply_matrix(const vectorr a, matrixx b, vectorr c) {
     int i;
     int j;
@@ -81,7 +84,7 @@ void matrix_multiply(matrixx calibration, matrixx delta) {
     }
 }
 
-void apply_offset(const accum x, const accum y, const accum z, matrixx matrix) {
+void apply_offset(const double x, const double y, const double z, matrixx matrix) {
     matrixx new_mat = {
         {1.0, 0, 0, x},
         {0, 1.0, 0, y},
@@ -90,7 +93,7 @@ void apply_offset(const accum x, const accum y, const accum z, matrixx matrix) {
     matrix_multiply(matrix, new_mat);
 }
 
-void apply_2d_rotation(const int axes[2], const accum vector[2], matrixx matrix) {
+void apply_2d_rotation(const int axes[2], const double vector[2], matrixx matrix) {
     matrixx new_mat;
     int x = axes[0];
     int y = axes[1];
@@ -102,7 +105,7 @@ void apply_2d_rotation(const int axes[2], const accum vector[2], matrixx matrix)
     matrix_multiply(matrix, new_mat);
 }
 
-void apply_scale(const int axis, const accum scale, matrixx matrix) {
+void apply_scale(const int axis, const double scale, matrixx matrix) {
     matrixx new_mat;
     memcpy(new_mat, identity, sizeof(matrixx));
     new_mat[axis][axis] = scale;
@@ -110,8 +113,8 @@ void apply_scale(const int axis, const accum scale, matrixx matrix) {
 }
 
 
-void normalise(accum vector[], int len) {
-	accum magnitude = 0;
+void normalise(double vector[], int len) {
+	double magnitude = 0;
 	int i;
 	for (i=0; i< len; i++) {
     	magnitude += vector[i] * vector[i];
@@ -137,8 +140,8 @@ int16_t find_median(int16_t array[], const int16_t len) {
 	return array[len/2];
 }
 
-void get_rotation_matrix(const int axes[2], accum theta, matrixx matrix) {
-    accum v[2];
+void get_rotation_matrix(const int axes[2], double theta, matrixx matrix) {
+    double v[2];
     memcpy(matrix, identity, sizeof(matrixx));
     v[0] = cos(theta);
     v[1] = sin(theta);
@@ -154,9 +157,9 @@ find_rotation_and_scale_of_ellipse(vectorr *data,
                                    const int axes[2], 
                                    const int16_t len,
                                    int precision) {
-    accum maxx;
-    accum maxy;
-    accum theta;
+    double maxx;
+    double maxy;
+    double theta;
     vectorr v;
     matrixx rotation;
     int i,j;
@@ -188,7 +191,9 @@ void find_plane(vectorr *data,
                 const int16_t len,
                 vectorr result) {
     int i;
-    double fit;
+    double fit, sfit;
+    gsl_multilarge_linear_workspace *workspace = gsl_multilarge_linear_alloc(
+            gsl_multilarge_linear_normal, 3);
     
     //allocate variables
     GSL_MATRIX_RESIZE(lsq_input, len, 3);
@@ -205,31 +210,34 @@ void find_plane(vectorr *data,
     }
     
     //calculate plane
-    gsl_multifit_linear(&lsq_input, &lsq_output, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
+    gsl_multilarge_linear_accumulate(&lsq_input, &lsq_output, workspace);
+    gsl_multilarge_linear_solve(0.0, &lsq_res, &fit, &sfit, workspace);
+    
+    //gsl_multifit_linear(&lsq_input, &lsq_output, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
     
     //process results
     result[0] = gsl_vector_get(&lsq_res,0);
     result[1] = gsl_vector_get(&lsq_res,1);
     result[2] = gsl_vector_get(&lsq_res,2);
     normalise(result,3);
-    
+    gsl_multilarge_linear_free(workspace);
 }
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result) {
-    gsl_eigen_symmv_workspace *workspace;
+    gsl_eigen_nonsymmv_workspace *workspace;
     gsl_vector_view eigenvalues;
     gsl_matrix *eigenvectors, *t1, *t2;
     int size, i;
     double temp;
     
     size = a->size1;
-    workspace = gsl_eigen_symmv_alloc(size);
+    workspace = gsl_eigen_nonsymmv_alloc(size);
     eigenvectors = gsl_matrix_alloc(size, size);
     t1 = gsl_matrix_alloc(size, size);
     t2 = gsl_matrix_alloc(size, size);
     gsl_matrix_set_zero(t1);
     eigenvalues = gsl_matrix_diagonal(t1);
-    gsl_eigen_symmv(a, &eigenvalues.vector, eigenvectors, workspace);
+    gsl_eigen_nonsymmv(a, &eigenvalues.vector, eigenvectors, workspace);
     
     //square root eigenvalues
     for (i=0; i<size; i++) {
@@ -241,14 +249,14 @@ void sqrtm(gsl_matrix *a, gsl_matrix *result) {
     gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, eigenvectors, t1, 0.0, t2);
     gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, t2, eigenvectors, 0.0, result);
     
-    gsl_eigen_symmv_free(workspace);
+    gsl_eigen_nonsymmv_free(workspace);
     gsl_matrix_free(eigenvectors);
     gsl_matrix_free(t1);
     gsl_matrix_free(t2);
 }
 
 void calibrate(const double *data_array, const int len, matrixx result) {
-    double fit;
+    double fit, sfit;
     int i,j;
     matrixx ellipsoid;
     GSL_MATRIX_DECLARE(a4, 4, 4);
@@ -264,6 +272,8 @@ void calibrate(const double *data_array, const int len, matrixx result) {
     gsl_vector_const_view x = gsl_matrix_const_column(&data.matrix, 0);
     gsl_vector_const_view y = gsl_matrix_const_column(&data.matrix, 1);
     gsl_vector_const_view z = gsl_matrix_const_column(&data.matrix, 2);
+    gsl_multilarge_linear_workspace *workspace;
+    gsl_permutation *perm;
 
     GSL_MATRIX_RESIZE(lsq_input, len, 9);
     GSL_VECTOR_RESIZE(lsq_output, len);
@@ -296,8 +306,11 @@ void calibrate(const double *data_array, const int len, matrixx result) {
     gsl_vector_set_all(&lsq_output,1.0);
     
     //perform least_squares analysis
-    gsl_multifit_linear(&lsq_input, &lsq_output, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
-    
+//    gsl_multifit_linear(&lsq_input, &lsq_output, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
+    workspace = gsl_multilarge_linear_alloc(gsl_multilarge_linear_normal, 9);
+    gsl_multilarge_linear_accumulate(&lsq_input, &lsq_output, workspace);
+    gsl_multilarge_linear_solve(0.0, &lsq_res, &fit, &sfit, workspace);
+    gsl_multilarge_linear_free(workspace);
     //fill a4
     gsl_matrix_set(&a4, 0, 0, gsl_vector_get(&lsq_res, 0));
     gsl_matrix_set(&a4, 1, 1, gsl_vector_get(&lsq_res, 1));
@@ -323,8 +336,13 @@ void calibrate(const double *data_array, const int len, matrixx result) {
     
     //get centre coords by least squares (again)
     GSL_VECTOR_RESIZE(lsq_res, 3);
-    gsl_multifit_linear(&a3.matrix, &vghi, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
-    memcpy(result, identity, sizeof(matrixx));
+    //gsl_multifit_linear(&a3.matrix, &vghi, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
+    perm = gsl_permutation_alloc(3);
+    gsl_matrix_memcpy(&b4, &a4);
+    gsl_linalg_LU_decomp(&b3.matrix, perm, &i);
+    gsl_linalg_LU_solve(&b3.matrix, perm, &vghi, &lsq_res);
+    gsl_permutation_free(perm);
+    memcpy(result, identity, sizeof(identity));
     result[0][3] = -1.0*gsl_vector_get(&lsq_res, 0);
     result[1][3] = -1.0*gsl_vector_get(&lsq_res, 1);
     result[2][3] = -1.0*gsl_vector_get(&lsq_res, 2);
@@ -345,7 +363,7 @@ void calibrate(const double *data_array, const int len, matrixx result) {
     //result[0:3,0:3] = a3
     for (i=0; i<3; i++) {
         for (j=0; j<3; j++) {
-            ellipsoid[i][j] = gsl_matrix_get(&a3.matrix, j, i);
+            ellipsoid[i][j] = gsl_matrix_get(&a3.matrix, i, j);
         }
         ellipsoid[i][3] = 0.0;
     }

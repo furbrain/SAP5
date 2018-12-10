@@ -24,15 +24,15 @@ const char cartesian_small_format[] = " %+.2f ";
 const char *cartesian_big_format[] = {"E: %+.2f", "N: %+.2f","V: %+.2f","Ext%+.2f"};
 const char *polar_format[] = {" %03.1f "," %+02.1f "," %.2f "," %.2f "};
 
-accum deltas[4];
+double deltas[4];
 
 DECLARE_EMPTY_MENU(leg_menu, 20);
 
-void get_readings(accum *orientation, accum *distance){
+void get_readings(double *orientation, double *distance){
 	int i,j;
 	struct COOKED_SENSORS sensors;
-	accum mags[3] = {0,0,0};
-	accum accels[3] = {0,0,0};
+	double mags[3] = {0,0,0};
+	double accels[3] = {0,0,0};
 
 	display_on(false);
 	laser_on(false);
@@ -60,12 +60,12 @@ void get_readings(accum *orientation, accum *distance){
 }
 
 
-accum get_extension(accum *o, accum distance) {
+double get_extension(double *o, double distance) {
 	//remember orientations are normalised...
 	return sqrt(o[0]*o[0]+o[1]*o[1])*distance;
 }
 /* set items to compass,clino,distance and extension, respectively */
-void calculate_bearings(accum *orientation, accum *items, accum distance){
+void calculate_bearings(double *orientation, double *items, double distance){
 	items[0] = atan2(orientation[0],orientation[1])*DEGREES_PER_RADIAN;
 	if (items[0]<0) items[0]+=360;
 	items[1] = atan2(orientation[2],get_extension(orientation,1))*DEGREES_PER_RADIAN;
@@ -82,7 +82,7 @@ void calculate_bearings(accum *orientation, accum *items, accum distance){
 }
 
 /* set items to easting, northing, vertical offset and extension, respectively */
-void calculate_deltas(accum *orientation, accum *items, accum distance){
+void calculate_deltas(double *orientation, double *items, double distance){
 	int i;
 	for(i=0;i<3;++i) {
 		items[i] = orientation[i]*distance;
@@ -116,7 +116,7 @@ void store_leg(int32_t info) {
     ///FIXME
 }
 
-bool measurement_menu(accum *items) {
+bool measurement_menu(double *items) {
     int index = 1;
     int i;
     char text[20];
@@ -165,9 +165,9 @@ bool measurement_menu(accum *items) {
 void measure(int32_t a) {
 	int item = 0;
 	bool readings_available = false;
-	accum items[4];
-	accum orientation[4];
-	accum extension,distance;
+	double items[4];
+	double orientation[4];
+	double extension,distance;
 	int i;
 	char text[17];
 	char format[17];

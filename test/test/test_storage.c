@@ -18,9 +18,9 @@ extern uint8_t leg_space[];
 struct CONFIG test_config = {
     {{1,0,2},{0,1,5}},                   //axis orientation
     { //calib section
-        {{1.0k,0,0,0},{0,1.0k,0,0},{0,0,1.0k,0}}, //accel matrix
-        {{1.0k,0,0,0},{0,1.0k,0,0},{0,0,1.0k,0}}, //mag matrix
-        0.090k                              //laser offset
+        {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //accel matrix
+        {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //mag matrix
+        0.090                              //laser offset
     },
     POLAR,                               //Polar display style
     METRIC,                              //metric units

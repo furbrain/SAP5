@@ -159,12 +159,12 @@ void sensors_raw_to_uncalibrated(struct COOKED_SENSORS *cooked, struct RAW_SENSO
     int i;
     //first correct axes and polarity
     sensors_raw_adjust_axes(raw);
-    // first convert to accums with sensible units
+    // first convert to doubles with sensible units
 	// also account for vagaries of sensor alignment
     for (i=0; i<3; i++) {
-        cooked->accel[i] = ((accum)raw->accel[i]/32768.0k) * ACCEL_FULL_SCALE;
-        cooked->gyro[i] = ((accum)raw->gyro[i]/32768.0k) * GYRO_FULL_SCALE;
-        cooked->mag[i] = ((accum)raw->mag[i]/32768.0k) * MAG_FULL_SCALE/2;
+        cooked->accel[i] = (raw->accel[i]/32768.0) * ACCEL_FULL_SCALE;
+        cooked->gyro[i] = (raw->gyro[i]/32768.0) * GYRO_FULL_SCALE;
+        cooked->mag[i] = (raw->mag[i]/32768.0) * MAG_FULL_SCALE/2;
     }
     cooked->temp = (raw->temp/333.87)+21.0;
 }
@@ -196,9 +196,9 @@ void sensors_read_cooked(struct COOKED_SENSORS *sensors) {
 
 
 
-void sensors_get_orientation(struct COOKED_SENSORS *sensors, accum *d) {
-	accum east[3];
-	accum north[3];
+void sensors_get_orientation(struct COOKED_SENSORS *sensors, double *d) {
+	double east[3];
+	double north[3];
 	normalise(sensors->accel,3);
 	cross_product(sensors->accel,sensors->mag,east); // east = down x mag
 	normalise(east,3);

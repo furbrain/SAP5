@@ -11,7 +11,7 @@ enum BAT_STATUS {
 
 enum BAT_STATUS battery_get_status();
 #ifndef BOOTLOADER
-accum battery_get_voltage();
+double battery_get_voltage();
 
 /* return a number between 0 and 19 reflecting the current charge state of the battery *
  * this assumes a linear relationship between voltage and charge, which is not correct,

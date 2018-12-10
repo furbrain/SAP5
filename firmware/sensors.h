@@ -16,7 +16,7 @@ struct RAW_SENSORS {
 
 struct COOKED_SENSORS {
     vectorr accel;    //measured in g
-    accum temp;        //measured in degs C
+    double temp;        //measured in degs C
     vectorr gyro;     //measured in degress per second
     vectorr mag;      //measured in uT
 };
@@ -31,5 +31,5 @@ void sensors_read_cooked(struct COOKED_SENSORS *sensors);
 
 void sensors_uncalibrated_to_cooked(struct COOKED_SENSORS *sensors);
 
-void sensors_get_orientation(struct COOKED_SENSORS *sensors, accum *d);
+void sensors_get_orientation(struct COOKED_SENSORS *sensors, double *d);
 #endif

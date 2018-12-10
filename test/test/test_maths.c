@@ -3,14 +3,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <gsl/gsl_matrix.h>
-#include <sys/resource.h>
+#include <xc.h>
 #include "test_maths_fixtures.inc"
 #include "exception.h"
 
+
 void suiteSetUp(void) {
     exception_init();
-    setrlimit(RLIMIT_DATA,32760);
 }
+
 
 
 void test_find_median(void) {
@@ -24,7 +25,7 @@ void test_find_median(void) {
 
 void test_cross_product(void) {
     char text[24];
-    vectorr dictionary[12][3] = {
+    double dictionary[12][3][3] = {
         {{0,0,0}, {0,0,0}, {0,0,0}},
         {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}},
         {{1.966021,0.996371,1.456462},{0.950379,0.894036,1.886508},{0.577531,-2.324722,0.810763}},
@@ -38,17 +39,12 @@ void test_cross_product(void) {
         {{0.893915,1.630456,0.372925},{0.158390,0.384927,1.943209},{3.024769,-1.677997,0.085844}},
         {{0.123774,0.762176,0.541222},{0.779024,0.305382,0.958143},{0.564994,0.303032,-0.555955}},
     };
-    vectorr result;
-    float a[3], b[3];
-    int i, j;
+    double result[3];
+    int i;
     for (i=0; i<12; i++) {
         cross_product(dictionary[i][0], dictionary[i][1], result);
-        for (j=0; j<3; j++) {
-            a[j] = dictionary[i][2][j];
-            b[j] = result[j];
-        }
         snprintf(text,24,"Iteration: %d",i);
-        TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(dictionary[i][2], result, 3, text);
+        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(dictionary[i][2], result, 3, text);
     }
 }
 
@@ -78,7 +74,7 @@ void test_distance2(void) {
     for (i=0; i<12; i++) {
         result = distance2(test_cases[i].a, test_cases[i].b);
         snprintf(text,24,"Iteration: %d",i);
-        TEST_ASSERT_EQUAL_FIXED_MESSAGE(test_cases[i].d*test_cases[i].d, result, text);
+        TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(test_cases[i].d*test_cases[i].d, result, text);
     }
 }
 
@@ -107,7 +103,7 @@ void test_apply_matrix(void) {
         apply_matrix(test_cases[i].a, test_cases[i].b, d);
         
         snprintf(text,24,"Iteration: %d",i);
-        TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(test_cases[i].d, d,3, text);
+        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].d, d,3, text);
     }
 }
 
@@ -138,7 +134,7 @@ void test_matrix_multiply(void) {
             matrix_multiply(calib, test_cases[i*5+j].delta);
             for (k=0; k<3; k++) {
                 snprintf(text,24,"Iteration: %d:%d",i*5+j,k);
-                TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(test_cases[i*5+j].result[k], calib[k], 4, text);            
+                TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i*5+j].result[k], calib[k], 4, text);            
             }
         }
     }
@@ -147,7 +143,7 @@ void test_matrix_multiply(void) {
 void test_apply_offset(void) {
     char text[24];
     struct test_field {
-        accum x, y, z;
+        double x, y, z;
         matrixx initial;
         matrixx result;
     };
@@ -171,7 +167,7 @@ void test_apply_offset(void) {
         apply_offset(test_cases[i].x, test_cases[i].y, test_cases[i].z, result);
         for (k=0; k<3; k++) {
             snprintf(text,24,"Iteration: %d:%d", i, k);
-            TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
+            TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
         }
     }
 }
@@ -180,7 +176,7 @@ void test_apply_2d_rotation(void) {
     char text[80];
     struct test_field {
         int axes[2];
-        accum vector[2]; 
+        double vector[2]; 
         matrixx matrix;
         matrixx result;
     };
@@ -203,7 +199,7 @@ void test_apply_2d_rotation(void) {
         apply_2d_rotation(test_cases[i].axes, test_cases[i].vector, result);
         for (k=0; k<3; k++) {   
             snprintf(text,24,"Iteration: %d:%d", i, k);
-            TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
+            TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
         }
     }
 }
@@ -212,7 +208,7 @@ void test_apply_2d_scale(void) {
     char text[80];
     struct test_field {
         int axis;
-        accum scale; 
+        double scale; 
         matrixx matrix;
         matrixx result;
     };
@@ -235,7 +231,7 @@ void test_apply_2d_scale(void) {
         apply_scale(test_cases[i].axis, test_cases[i].scale, result);
         for (k=0; k<3; k++) {   
             snprintf(text,24,"Iteration: %d:%d", i, k);
-            TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
+            TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
         }
     }
 }
@@ -264,27 +260,26 @@ void test_normalise(void) {
         {{-1.5441,1.3147,-1.8124}, 3, {-0.5677,0.4834,-0.6664}},    
     };
     vectorr result;
-    accum temp;
+    double temp;
     int i,j;
     for (i=0; i<14; i++) {
         memcpy(result, test_cases[i].a, sizeof(result));
         normalise(result, test_cases[i].len);
         snprintf(text,24,"Iteration: %d", i);
-        TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(test_cases[i].result, result, test_cases[i].len, text);
+        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result, result, test_cases[i].len, text);
         temp = 0;
         for (j=0; j < test_cases[i].len; j++) {
             temp += result[j]*result[j];
         }
-        TEST_ASSERT_EQUAL_FIXED(1.0, temp);
+        TEST_ASSERT_EQUAL_DOUBLE(1.0, temp);
     }
 }
 
 void test_amax() {
-    char text[80];
     struct test_field {
-        accum a;
-        accum b;
-        accum result;
+        double a;
+        double b;
+        double result;
     };
     struct test_field test_cases[7] = {
         {0, 0, 0},
@@ -297,16 +292,15 @@ void test_amax() {
     };
     int i;
     for (i=0; i<7; i++) {
-        TEST_ASSERT_EQUAL_FIXED(test_cases[i].result,amax(test_cases[i].a, test_cases[i].b));
+        TEST_ASSERT_EQUAL_DOUBLE(test_cases[i].result,amax(test_cases[i].a, test_cases[i].b));
     }
 }
 
 void test_amin() {
-    char text[80];
     struct test_field {
-        accum a;
-        accum b;
-        accum result;
+        double a;
+        double b;
+        double result;
     };
     struct test_field test_cases[7] = {
         {0, 0, 0},
@@ -319,15 +313,15 @@ void test_amin() {
     };
     int i;
     for (i=0; i<7; i++) {
-        TEST_ASSERT_EQUAL_FIXED(test_cases[i].result,amin(test_cases[i].a, test_cases[i].b));
+        TEST_ASSERT_EQUAL_DOUBLE(test_cases[i].result,amin(test_cases[i].a, test_cases[i].b));
     }
 }
 
 void test_aabs() {
     char text[80];
     struct test_field {
-        accum a;
-        accum result;
+        double a;
+        double result;
     };
     struct test_field test_cases[7] = {
         {0, 0},
@@ -341,7 +335,7 @@ void test_aabs() {
     int i;
     for (i=0; i<7; i++) {
         snprintf(text, 80, "Iteration: %d", i);
-        TEST_ASSERT_EQUAL_FIXED_MESSAGE(test_cases[i].result, aabs(test_cases[i].a), text);
+        TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(test_cases[i].result, aabs(test_cases[i].a), text);
     }
 }
 
@@ -349,7 +343,7 @@ void test_get_rotation_matrix() {
     char text[80];
     struct test_field {
         int axes[2];
-        accum theta;
+        double theta;
         matrixx result;
     };
     struct test_field test_cases[] = {
@@ -365,7 +359,7 @@ void test_get_rotation_matrix() {
         get_rotation_matrix(test_cases[i].axes, test_cases[i].theta, result);
         for (k=0; k<3; k++) {   
             snprintf(text,24,"Iteration: %d:%d", i, k);
-            TEST_ASSERT_EQUAL_FIXED_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
+            TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result[k], result[k], 4, text);            
         }
     }
 }
@@ -377,8 +371,8 @@ void test_find_rotation_and_scale_of_ellipse() {
         int axes[2];
         int len;
         int precision;
-        accum scale;
-        accum theta; // in degrees
+        double scale;
+        double theta; // in degrees
     };
     struct test_field test_cases[5] = {
         {simple1, {0, 1}, 4, 100, 2.0, 0},
@@ -389,12 +383,13 @@ void test_find_rotation_and_scale_of_ellipse() {
     };
     int i;
     struct ELLIPSE_PARAM result;
+    
     for (i=0; i<5; i++) {
         snprintf(text, 80, "Iteration : %d", i);
         result = find_rotation_and_scale_of_ellipse(test_cases[i].data, test_cases[i].axes, test_cases[i].len, test_cases[i].precision);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.1, test_cases[i].scale, result.scale, text);
-        //TEST_ASSERT_EQUAL_FIXED(-1, result.vector[1]);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.25, test_cases[i].theta, result.theta, text);
+        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.1, test_cases[i].scale, result.scale, text);
+        //TEST_ASSERT_EQUAL_DOUBLE(-1, result.vector[1]);
+        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.25, test_cases[i].theta, result.theta, text);
     }
 }
     
@@ -427,7 +422,7 @@ void test_find_plane() {
     for (i=0; i<5; i++) {
         find_plane(test_cases[i].data, test_cases[i].axes, 40, result);
         snprintf(text, 80, "Iteration: %d", i);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.01, 0, distance2(result, test_cases[i].result), text);
+        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.01, 0, distance2(result, test_cases[i].result), text);
     }
 }
 
@@ -458,19 +453,30 @@ void test_sqrtm() {
 }
 
 void test_calibrate() {
+    CEXCEPTION_T e;
+    const char *file;
+    const char *reason;
+    int line;
     char text[80];
     matrixx result;
     vectorr vector, v_result;
-    int i, k;
-    accum magnitude;
-    calibrate(cal1, 240, result);
-    for (k=0; k<240; k++) {
+    int k;
+    double magnitude;
+    printf("Hello\n");
+    Try {
+    calibrate(cal1, 180, result);
+    }
+    Catch(e) {
+        exception_get_details(&reason, &file, &line);
+        printf("%s: %s: %s: %d", exception_get_string(e), reason, file, line);
+    }
+    for (k=0; k<200; k++) {
         vector[0] = cal1[k*3];
         vector[1] = cal1[k*3+1];
         vector[2] = cal1[k*3+2];
         apply_matrix(vector, result, v_result);
         magnitude = v_result[0]*v_result[0] + v_result[1]*v_result[1] + v_result[2]*v_result[2];
-        snprintf(text, 24, "Data: %d", k);
-        TEST_ASSERT_FIXED_WITHIN_MESSAGE(0.05, 1.0, magnitude, text);
+        snprintf(text, 80, "Data: %f, %f, %f, %f", result[0][0], result[1][1], result[1][2], result[1][3]);
+        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.05, 1.0, magnitude, text);
     }
 }

@@ -100,7 +100,7 @@ void apply_matrix_to_readings(vectorr src[], vectorr dest[], int reading_count, 
     }
 }
 
-void get_data_stats(vectorr readings[], int axes[2], int reading_count, accum offset[2], accum max_data[2], accum min_data[2]) {
+void get_data_stats(vectorr readings[], int axes[2], int reading_count, double offset[2], double max_data[2], double min_data[2]) {
     int i, k;
     for (k=0; k<2; k++) {
         min_data[k] = 0;
@@ -113,20 +113,20 @@ void get_data_stats(vectorr readings[], int axes[2], int reading_count, accum of
         }
         wdt_clear();
     }
-    offset[0] =(min_data[0]+max_data[0])/2.0k;
-    offset[1] =(min_data[1]+max_data[1])/2.0k;
+    offset[0] =(min_data[0]+max_data[0])/2.0;
+    offset[1] =(min_data[1]+max_data[1])/2.0;
 }
 
 
 void show_data(vectorr readings[], int axes[2], int reading_count) {
-    accum offset[2], max_data[2], min_data[2];
-    accum scale;
+    double offset[2], max_data[2], min_data[2];
+    double scale;
     int i, x, y;
     char text[20];
     display_clear_screen();
     get_data_stats(readings, axes, reading_count, offset, max_data, min_data);
-    scale = MIN(32.0k / (max_data[0]-offset[0]),
-                32.0k / (max_data[1]-offset[1]));
+    scale = MIN(32.0 / (max_data[0]-offset[0]),
+                32.0 / (max_data[1]-offset[1]));
     for (i=0; i<reading_count; i++) {
         x = 64+(int)((readings[i][axes[0]]-offset[0])*scale);
         y = 32+(int)((readings[i][axes[1]]-offset[1])*scale);
@@ -149,29 +149,46 @@ void show_modified_readings(vectorr readings[], int axes[2], int reading_count, 
     wdt_clear();
 }
 
-accum get_gyro_offset(int axis) {
+
+double check_calibration(double *data, int len, matrixx calibration) {
+    vectorr vector, v_result;
+    int k;
+    double magnitude;
+    double max_error=0;
+    for (k=0; k<len; k++) {
+        vector[0] = data[k*3];
+        vector[1] = data[k*3+1];
+        vector[2] = data[k*3+2];
+        apply_matrix(vector, calibration, v_result);
+        magnitude = v_result[0]*v_result[0] + v_result[1]*v_result[1] + v_result[2]*v_result[2];
+        max_error += aabs(magnitude-1.0);
+    }
+    return (max_error/len)*100;
+}
+
+double get_gyro_offset(int axis) {
     int i;
-    accum gyro_offset = 0.0k;
+    double gyro_offset = 0.0;
     struct COOKED_SENSORS sensors;
     for (i=0; i<10; i++) {
         sensors_read_uncalibrated(&sensors);
         gyro_offset += sensors.gyro[2];
         wdt_clear();
     }
-    gyro_offset /= 10.0k;
+    gyro_offset /= 10.0;
     return gyro_offset;
 }
 
-int collect_data_around_axis(int axis, accum gyro_offset, double *mag_data, double *grav_data) {
+int collect_data_around_axis(int axis, double gyro_offset, double *mag_data, double *grav_data) {
     struct COOKED_SENSORS sensors;
-    accum gyro=0;
+    double gyro=0;
     int i, j, readings_count;
     double min_separation = 10000000.0;
     i = 0;
     do {
         do {
             sensors_read_uncalibrated(&sensors);
-            gyro += ((sensors.gyro[axis]-gyro_offset)*20k)/1000k;
+            gyro += ((sensors.gyro[axis]-gyro_offset)*20)/1000;
             delay_ms_safe(20);
         } while (aabs(gyro)<(i*3));
         for (j=0; j<3; j++) {
@@ -186,7 +203,7 @@ int collect_data_around_axis(int axis, accum gyro_offset, double *mag_data, doub
 void calibrate_sensors(int32_t a) {
     char text[30];
     matrixx accel_mat, mag_mat;
-    accum gyro_offset = 0k;
+    double gyro_offset = 0;
     int z_axis_count, y_axis_count, offset, data_length;
     double error;
 /* Brief summary of plan:
@@ -223,23 +240,29 @@ void calibrate_sensors(int32_t a) {
     laser_on(false);
     display_on(true);
     display_clear_screen();
-    display_write_multiline(0, "Processing", &small_font);
+    display_write_multiline(0, "Storing", &small_font);
+    //delay_ms_safe(1000);
+    write_data((uint8_t*)leg_space, mag_readings, sizeof(mag_readings));
+    write_data((uint8_t*)(leg_space+sizeof(mag_readings)), grav_readings, sizeof(grav_readings));
+    display_write_multiline(2, "Processing", &small_font);
     //delay_ms_safe(500);
     // calibrate magnetometer
     //wdt_disable(10);
     calibrate(mag_readings, data_length, mag_mat);
-    error = check_calibration(mag_readings, data_length, mag_mat);
-    snprintf(text, 28, "Mag Err:  %.2f%%", error);
-    display_write_multiline(2,text, &small_font);
+    //error = check_calibration(mag_readings, data_length, mag_mat);
+    //snprintf(text, 28, "Mag Err:  %.2f%%", error);
+    //display_write_multiline(2,text, &small_font);
     wdt_clear();
     // calibrate accelerometer
     calibrate(grav_readings, data_length, accel_mat);
-    error = check_calibration(grav_readings, data_length, accel_mat);
-    snprintf(text, 28, "Grav Err: %.2f%%", error);
-    display_write_multiline(4,text, &small_font);
+    //error = check_calibration(grav_readings, data_length, accel_mat);
+    //snprintf(text, 28, "Grav Err: %.2f%%", error);
+    //display_write_multiline(4,text, &small_font);
     wdt_clear();
     display_write_multiline(6, "Done", &small_font);
-    
+    memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
+    memcpy(config.calib.mag, mag_mat, sizeof(matrixx));
+    config_save();
     delay_ms_safe(4000);
     
 }
