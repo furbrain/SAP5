@@ -226,31 +226,26 @@ void find_plane(vectorr *data,
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result) {
     gsl_vector_view eigenvalues;
-    gsl_matrix *eigenvectors, *t1, *t2;
-    int size, i;
+    GSL_MATRIX_DECLARE(eigenvectors, 3, 3);
+    GSL_MATRIX_DECLARE(t1, 3, 3);
+    GSL_MATRIX_DECLARE(t2, 3, 3);
+    int i;
     double temp;
     
-    size = a->size1;
-    eigenvectors = gsl_matrix_alloc(size, size);
-    t1 = gsl_matrix_alloc(size, size);
-    t2 = gsl_matrix_alloc(size, size);
-    gsl_matrix_set_zero(t1);
-    eigenvalues = gsl_matrix_diagonal(t1);
-    eigen3x3(a, eigenvectors, &eigenvalues.vector);
+    gsl_matrix_set_zero(&t1);
+    eigenvalues = gsl_matrix_diagonal(&t1);
+    eigen3x3(a, &eigenvectors, &eigenvalues.vector);
     
     //square root eigenvalues
-    for (i=0; i<size; i++) {
+    for (i=0; i<3; i++) {
         temp = gsl_vector_get(&eigenvalues.vector, i);
         temp = sqrt(temp);
         gsl_vector_set(&eigenvalues.vector, i, temp);
     };
     
-    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, eigenvectors, t1, 0.0, t2);
-    gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, t2, eigenvectors, 0.0, result);
+    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, &eigenvectors, &t1, 0.0, &t2);
+    gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, &t2, &eigenvectors, 0.0, result);
     
-    gsl_matrix_free(eigenvectors);
-    gsl_matrix_free(t1);
-    gsl_matrix_free(t2);
 }
 
 void calibrate(const double *data_array, const int len, matrixx result) {

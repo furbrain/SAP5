@@ -29,7 +29,7 @@ def run(pipe, name):
     pipe.write("program %s\n" % name)
     pipe.write("run\n")
     results = ''
-    abort_time = time.time()+10
+    abort_time = time.time()+30
     with open('/tmp/mdb_fifo','r') as f:
         while True:
             results += f.read()
