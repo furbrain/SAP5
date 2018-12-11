@@ -6,6 +6,7 @@
 #include <xc.h>
 #include "test_maths_fixtures.inc"
 #include "exception.h"
+#include "eigen3x3.h"
 
 
 void suiteSetUp(void) {

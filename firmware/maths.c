@@ -12,6 +12,7 @@
 #include "maths.h"
 #include "display.h"
 #include "calibrate.h"
+#include "eigen3x3.h"
 /* return AxB in C, where A B and C are all pointers to double[3] */
 
 GSL_MATRIX_DECLARE(lsq_input, CALIBRATION_SAMPLES, 9);
@@ -224,20 +225,18 @@ void find_plane(vectorr *data,
 }
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result) {
-    gsl_eigen_nonsymmv_workspace *workspace;
     gsl_vector_view eigenvalues;
     gsl_matrix *eigenvectors, *t1, *t2;
     int size, i;
     double temp;
     
     size = a->size1;
-    workspace = gsl_eigen_nonsymmv_alloc(size);
     eigenvectors = gsl_matrix_alloc(size, size);
     t1 = gsl_matrix_alloc(size, size);
     t2 = gsl_matrix_alloc(size, size);
     gsl_matrix_set_zero(t1);
     eigenvalues = gsl_matrix_diagonal(t1);
-    gsl_eigen_nonsymmv(a, &eigenvalues.vector, eigenvectors, workspace);
+    eigen3x3(a, eigenvectors, &eigenvalues.vector);
     
     //square root eigenvalues
     for (i=0; i<size; i++) {
@@ -249,7 +248,6 @@ void sqrtm(gsl_matrix *a, gsl_matrix *result) {
     gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, eigenvectors, t1, 0.0, t2);
     gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, t2, eigenvectors, 0.0, result);
     
-    gsl_eigen_nonsymmv_free(workspace);
     gsl_matrix_free(eigenvectors);
     gsl_matrix_free(t1);
     gsl_matrix_free(t2);
