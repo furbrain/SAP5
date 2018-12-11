@@ -1,7 +1,6 @@
 #include <xc.h>
-#include <stdfix.h>
 #include "battery.h"
-#include "mcc_generated_files/mcc.h"
+#include "mcc_generated_files/adc1.h"
 
 
 enum BAT_STATUS battery_get_status(){

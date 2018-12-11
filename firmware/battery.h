@@ -1,6 +1,5 @@
 #ifndef BATTERY_H
 #define BATTERY_H
-#include <stdfix.h>
 #define BATTERY_MIN_VOLTAGE 3.2
 #define BATTERY_MAX_VOLTAGE 4.2
 enum BAT_STATUS {

@@ -34,7 +34,7 @@ void setup_adc(double voltage) {
 
 
 void test_battery_get_voltage(void) {
-    accum voltages[] = {2.4k, 3.2k, 3.7k, 4.2k, 4.5k}; 
+    accum voltages[] = {2.4, 3.2, 3.7, 4.2, 4.5}; 
     int i;
     for (i=0; i<5; i++) {
         setup_adc(voltages[i]);
