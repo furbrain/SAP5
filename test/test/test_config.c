@@ -8,6 +8,8 @@
 #include "config.h"
 #include "mock_display.h"
 
+extern const struct CONFIG default_config;
+
 struct CONFIG test_config = {
     {{1,0,2},{0,1,5}},                   //axis orientation
     { //calib section
@@ -15,18 +17,17 @@ struct CONFIG test_config = {
         {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //mag matrix
         0.090                              //laser offset
     },
-    POLAR,                               //Polar display style
+    IMPERIAL,                               //Polar display style
     METRIC,                              //metric units
     30                                   //30s timeout
 };
 
-extern struct CONFIG default_config;
 
 
 int write_data_replacement(void* ptr, const void* src, int length, int num_calls) {
     int i;
     if ((size_t)ptr % 8) return -1;
-    if (((uint8_t*)ptr < config_store.raw) || ((uint8_t*)ptr > config_store.raw+APP_CONFIG_SIZE)) 
+    if (((uint8_t*)ptr < config_store.raw) || (((uint8_t*)ptr)+length > config_store.raw+APP_CONFIG_SIZE)) 
         Throw(0xBADADDA);
     for (i=0; i<length; i++) {
         if (*((uint8_t*)ptr+i) != 0xff) {
@@ -47,11 +48,21 @@ int erase_page_replacement(void *ptr, int num_calls) {
 void setUp(void)
 {
     erase_page_StubWithCallback(erase_page_replacement);
-    memset(config_store.raw, 0xff, APP_CONFIG_SIZE);
+    memset(&config_store.raw, 0xff, APP_CONFIG_SIZE);
+    TEST_ASSERT_EACH_EQUAL_UINT32(0xffffffff, &config_store.raw[0], 0x200);
 }
 
 void tearDown(void)
 {
+}
+
+void test_weird_memory(void) {
+    //CEXCEPTION_T e;
+    //struct CONFIG new_config;
+    write_data_StubWithCallback(write_data_replacement);
+    //new_config = test_config;
+    config_save();
+    //TEST_ASSERT_EQUAL_MEMORY(&test_config, &new_config, sizeof(new_config));
 }
 
 void test_config_save_single(void) {
@@ -105,7 +116,6 @@ void test_write_and_read_first_config(void) {
 
 
 void test_write_and_read_second_config(void) {
-    int counter;
     struct CONFIG new_config;
     write_data_StubWithCallback(write_data_replacement);
     new_config = test_config;

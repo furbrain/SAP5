@@ -20,20 +20,12 @@
 #define CONFIG_WORDS_BASE 0x1fc01740
 #define CONFIG_WORDS_TOP  0x1fc017F0
 
-#ifdef __DEBUG
-    /* put our storage in ram for debug purposes as the simulator doesn't sim flash writes... :( */
-    #define APP_CONFIG_LOCATION 0xA0001000
-    #define APP_LEG_LOCATION    0xA0002000
-    #define APP_CONFIG_SIZE     0x00000800
-    #define APP_LEG_SIZE        0x00002800
-#else
-    #define APP_CONFIG_LOCATION 0x9D009000
-    #define APP_LEG_LOCATION    0x9D009800
-    #define APP_CONFIG_SIZE     0x00000800
-    #define APP_LEG_SIZE        0x00002800
-#endif
+#define APP_CONFIG_LOCATION 0x9D009000
+#define APP_LEG_LOCATION    0x9D009800
+#define APP_CONFIG_SIZE     0x00000800
+#define APP_LEG_SIZE        0x00002800
 
-#ifndef __DEBUG
+#ifndef __DEBUG 
 #define CONST_STORE const
 #else
 #define CONST_STORE
@@ -42,7 +34,11 @@
 
 //put data at specified place if on pic, otherwise align with 0x800 boundary
 #ifdef __XC32
-#define PLACE_DATA_AT(addr) __attribute__((address(addr), space(prog)))
+#ifndef __MPLAB_DEBUGGER_SIMULATOR
+#define PLACE_DATA_AT(addr) __attribute__((address(addr), space(data)))
+#else
+#define PLACE_DATA_AT(addr) __attribute__((aligned(0x800)))
+#endif
 #else
 #define PLACE_DATA_AT(addr) __attribute__((aligned(0x800)))
 #endif

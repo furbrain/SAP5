@@ -39,7 +39,7 @@ void config_save(void){
         erase_page(config_store.raw);
         ptr  = &config_store.configs[0];
     }
-    res =  write_data(ptr, &config, sizeof(struct CONFIG));
+    res =  write_data(ptr, &config, sizeof(config));
     if (res) {
         THROW_WITH_REASON("Store config failed", ERROR_FLASH_STORE_FAILED);
     }

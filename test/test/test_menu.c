@@ -11,16 +11,16 @@ DECLARE_MENU(subsubtest, {
     });
 
 DECLARE_MENU(subtest, {
-    {"Ten", Info, NULL, 0},
-    {"Eleven", Action, action_func, 11},
-    {"Twelve", SubMenu, .submenu=&subsubtest, 0},
-    {"Thirteen", Back, NULL, 0}
+    {"Ten", Info, {NULL}, 0},
+    {"Eleven", Action, {action_func}, 11},
+    {"Twelve", SubMenu, {.submenu=&subsubtest}, 0},
+    {"Thirteen", Back, {NULL}, 0}
     });
 
 DECLARE_MENU(test, {
-    {"One", Info, NULL, 0},
-    {"Two", Action, action_func, 2},
-    {"Three", SubMenu, .submenu=&subtest, 3}
+    {"One", Info, {NULL}, 0},
+    {"Two", Action, {action_func}, 2},
+    {"Three", SubMenu, {.submenu=&subtest}, 3}
     });
     
 DECLARE_EMPTY_MENU(dynamic, 2);
