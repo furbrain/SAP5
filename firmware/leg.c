@@ -4,6 +4,7 @@
 #include "storage.h"
 #include "memory.h"
 #include "utils.h"
+#include "exception.h"
 
 union LEG_STORE leg_store PLACE_DATA_AT(APP_LEG_LOCATION) = {.raw = {[0 ... APP_LEG_SIZE-1]=0xff}};
 
@@ -34,7 +35,7 @@ void *leg_spans_boundary(struct LEG *leg) {
 }
 
 
-int leg_save(struct LEG *leg) {
+void leg_save(struct LEG *leg) {
     struct LEG *ptr = leg_store.legs;
     struct LEG *leg_overflow = &leg_store.legs[MAX_LEG_COUNT];
     void *boundary;
@@ -50,6 +51,7 @@ int leg_save(struct LEG *leg) {
         erase_page(boundary);
     }
     res =  write_data(ptr, leg, sizeof(struct LEG));
-    return res;
+    if (res) {
+        THROW_WITH_REASON("Write leg failed", ERROR_FLASH_STORE_FAILED);
     }
-
+}

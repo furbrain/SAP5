@@ -6,7 +6,8 @@ const char exception_strings[][20] = {
     "Unspecified Error",
     "Menu Full",
     "Menu Empty",
-    "String too big"
+    "String too big",
+    "Mem store failed"
     };
 
 const char global_exception_strings[][20] = {

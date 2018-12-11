@@ -1,35 +1,64 @@
 #include <stdio.h>
-#include "config.h"
-#include "i2c_util.h"
+
 #include "display.h"
 #include "storage.h"
+#include "memory.h"
+#include "exception.h"
+
+#include "config.h"
 
 #ifndef BOOTLOADER
-struct CONFIG config = {
-            {{1,0,2},{0,1,5}},                   //axis orientation
-            { //calib section
-                {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //accel matrix
-                {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //mag matrix
-                0.090                              //laser offset
-            },
-            POLAR,                               //Polar display style
-            METRIC,                              //metric units
-            120                                  //2 min timeout
-        };
+
+union CONFIG_STORE config_store PLACE_DATA_AT(APP_CONFIG_LOCATION) = {.raw = {[0 ... APP_CONFIG_SIZE-1]=0xff}};
+
+const 
+struct CONFIG default_config = {
+        {{1,0,2},{0,1,5}},                   //axis orientation
+        { //calib section
+            {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //accel matrix
+            {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //mag matrix
+            0.090                              //laser offset
+        },
+        POLAR,                               //Polar display style
+        METRIC,                              //metric units
+        120                                  //2 min timeout
+    };
+
+struct CONFIG config;
 
 bool day;
 
-void config_init(){
-    const struct CONFIG* temp_config;
-    temp_config = read_config();
-    if (temp_config != NULL) {
-        config  = *temp_config;
+void config_save(void){
+    CONST_STORE struct CONFIG *ptr = config_store.configs;
+    CONST_STORE struct CONFIG *overflow = &config_store.configs[MAX_CONFIG_COUNT];
+    int res;
+    while ((ptr < overflow) && (ptr->axes.accel[0] != 0xff)) {
+        ptr ++;
+    }
+    if (ptr >= overflow) {
+        erase_page(config_store.raw);
+        ptr  = &config_store.configs[0];
+    }
+    res =  write_data(ptr, &config, sizeof(struct CONFIG));
+    if (res) {
+        THROW_WITH_REASON("Store config failed", ERROR_FLASH_STORE_FAILED);
     }
 }
 
-void config_save(){
-    write_config(&config);
+bool config_ptr_is_valid(struct CONFIG *conf) {
+    return conf->axes.accel[0] != 0xff;
 }
+
+void config_load(void){
+    CONST_STORE struct CONFIG *ptr = &config_store.configs[0];
+    CONST_STORE struct CONFIG *overflow = &config_store.configs[MAX_CONFIG_COUNT];
+    config = default_config;
+    while (config_ptr_is_valid(ptr) && ptr < overflow) {
+        config = *ptr;
+        ptr++;
+    }
+}
+
 
 /* config management */
 void config_set_units(int32_t units) {

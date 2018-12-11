@@ -6,9 +6,11 @@
 #include <stdbool.h>
 #include <stdfix.h>
 #include "maths.h"
+#include "mem_locations.h"
 
 #define FIRMWARE_VERSION 1
 
+#define MAX_CONFIG_COUNT (APP_CONFIG_SIZE / sizeof(struct CONFIG))
 
 /* define sensor axes in reference to unit *
  * all references are imagined with the display facing uppermost and the laser pointing north *
@@ -46,8 +48,17 @@ struct __attribute__((aligned(8))) CONFIG {
     uint8_t length_units;
     uint16_t timeout;
 };
-// this is currently 88 bytes long - perfect!
-// note this needs to be padded to modulo 8 bytes to allow saving to work...
+
+/* Note it is important to keep this as a union to ensure that no other data/ program 
+ * code is kepts in the gap between the last config and the top of its page in memory */
+union CONFIG_STORE {
+    CONST_STORE uint8_t raw[APP_CONFIG_SIZE];
+    CONST_STORE struct CONFIG configs[MAX_CONFIG_COUNT];
+};
+
+extern union CONFIG_STORE config_store;
+
+
 
 #ifndef BOOTLOADER
 extern struct CONFIG config;
@@ -56,8 +67,8 @@ extern uint16_t current_leg;
 
 extern bool day;
 
-void config_init();
-void config_save();
+void config_save(void);
+void config_load(void);
 
 void config_set_units(int32_t units);
 void config_set_style(int32_t style);

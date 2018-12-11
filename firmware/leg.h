@@ -31,7 +31,7 @@ extern union LEG_STORE leg_store;
 struct LEG leg_create(time_t tm, uint16_t survey, uint8_t from, uint8_t to, double delta[3]);
 
 /* save a leg */
-int leg_save(struct LEG *leg);
+void leg_save(struct LEG *leg);
 
 /* if leg spans a page boundary, then return the pointer to the start of the page *
  * otherwise return null */

@@ -65,7 +65,7 @@
     int8:     INT8
     bool:     UINT8
   :defines:
-    - CMOCK_MEM_SIZE=2000
+    - CMOCK_MEM_SIZE=20000
     
 :gcov:
     :html_report_type: basic
@@ -92,13 +92,11 @@
 :libraries:
   :placement: :end
   :flag: "-l${1}"  # or "-L ${1}" for example
-  :common: 
-  :test:
-  :release:
   :system:
     - m
     - gsl
     - gslcblas
+
 :plugins:
   :load_paths:
     - vendor/ceedling/plugins

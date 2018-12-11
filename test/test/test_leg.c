@@ -3,8 +3,9 @@
 #include "unity.h"
 #include "leg.h"
 #include "mock_memory.h"
-#include "storage.h"
+#include "mock_storage.h"
 #include "mem_locations.h"
+#include "exception.h"
 
 struct LEG test_leg = {
     12, //datetime
@@ -14,17 +15,17 @@ struct LEG test_leg = {
     {1.0, 1.0, 2.0} //delta
 };
 
-int write_dword_replacement(void* ptr, const int* src, int num_calls) {
+int write_data_replacement(void* ptr, const void* src, int length, int num_calls) {
     int i;
     if ((size_t)ptr % 8) return -1;
     if (((uint8_t*)ptr < leg_store.raw) || ((uint8_t*)ptr > leg_store.raw+APP_LEG_SIZE)) 
         Throw(0xBADADDA);
-    for (i=0; i<8; i++) {
+    for (i=0; i<length; i++) {
         if (*((uint8_t*)ptr+i) != 0xff) {
             Throw(0xBADDA7A);
         }
     }
-    memcpy(ptr, src, 8);
+    memcpy(ptr, src, length);
     return 0;
 }
 
@@ -84,20 +85,16 @@ void test_leg_spans_boundary(void) {
 
 
 void test_leg_save_single(void) {
-    int result;
-    write_dword_StubWithCallback(write_dword_replacement);
-    result = leg_save(&test_leg);
-    TEST_ASSERT_EQUAL(0, result);
+    write_data_StubWithCallback(write_data_replacement);
+    leg_save(&test_leg);
     TEST_ASSERT_EQUAL_MEMORY(&test_leg, &leg_store.legs[0], sizeof(test_leg));
     TEST_ASSERT_EQUAL_UINT32(0xffffffff, leg_store.legs[1].tm);
 }
 
 void test_leg_save_double(void) {
-    int result;
-    write_dword_StubWithCallback(write_dword_replacement);
-    result = leg_save(&test_leg);
-    result = leg_save(&test_leg);
-    TEST_ASSERT_EQUAL(0, result);
+    write_data_StubWithCallback(write_data_replacement);
+    leg_save(&test_leg);
+    leg_save(&test_leg);
     TEST_ASSERT_EQUAL_MEMORY(&test_leg, &leg_store.legs[1], sizeof(test_leg));
     TEST_ASSERT_EQUAL_UINT32(0xffffffff, leg_store.legs[2].tm);
 }
@@ -105,7 +102,7 @@ void test_leg_save_double(void) {
 void test_leg_save_overflow(void) {
     int counter;
     struct LEG new_leg;
-    write_dword_StubWithCallback(write_dword_replacement);
+    write_data_StubWithCallback(write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     counter = APP_LEG_SIZE/sizeof(new_leg);
     while(counter--) {
@@ -120,7 +117,7 @@ void test_leg_save_overflow(void) {
 void test_leg_save_with_tm_lsb_is_0xff(void) {
     struct LEG new_leg;
     struct LEG *leg_ptr;
-    write_dword_StubWithCallback(write_dword_replacement);
+    write_data_StubWithCallback(write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     new_leg.tm = 0xff;
     leg_save(&new_leg);
@@ -135,7 +132,7 @@ void test_leg_save_page_overflow(void) {
     int counter;
     struct LEG new_leg;
     int index = 0x800/sizeof(new_leg);
-    write_dword_StubWithCallback(write_dword_replacement);
+    write_data_StubWithCallback(write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     // fill whole leg space
     counter = 0;
