@@ -45,6 +45,8 @@
   :commmon: &common_defines
     - __DEBUG
     - __MPLAB_DEBUGGER_SIMULATOR=1
+    - UNITY_INCLUDE_CONFIG_H
+    - CEXCEPTION_USE_CONFIG_FILE
   :test:
     - *common_defines
     - TEST
@@ -71,9 +73,6 @@
 :gcov:
     :html_report_type: basic
     
-:unity:
-    :defines:
-        - UNITY_INCLUDE_CONFIG_H
         
 #:tools:
 # Ceedling defaults to using gcc for compiling, linking, etc.
@@ -86,7 +85,7 @@
         - -I"$": COLLECTION_PATHS_TEST_TOOLCHAIN_INCLUDE               #expands to -I search paths
         - -I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR   #expands to -I search paths
         - -D$: COLLECTION_DEFINES_TEST_AND_VENDOR  #expands to all -D defined symbols
-        - -g -x c -mprocessor=32MM0256GPM028 -legacy-libc -specs=specs.txt
+        - -g -x c -mprocessor=32MM0256GPM028 -legacy-libc -specs=specs.txt -fdata-sections
         - -Wall
         - -fframe-base-loclist
         - -c ${1}                       #source code input file (Ruby method call param list sub)

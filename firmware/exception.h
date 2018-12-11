@@ -1,17 +1,7 @@
 #ifndef _EXCEPTION_H
 #define _EXCEPTION_H
 
-enum EXCEPTION_CODES {
-    ERROR_UNSPECIFIED=0,
-    ERROR_MENU_FULL,
-    ERROR_MENU_EMPTY,
-    ERROR_STRING_TOO_BIG,
-    ERROR_FLASH_STORE_FAILED,
-};
-
-
-#define CEXCEPTION_T enum EXCEPTION_CODES
-
+/* Exception codes are in CExceptionConfig.h */
 #include "CException.h"
     
 #define THROW_WITH_REASON(reason, code) exception_error_handler(reason, __FILE__, __LINE__, code)
