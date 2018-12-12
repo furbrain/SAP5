@@ -44,6 +44,9 @@
   :commmon: &common_defines
     - __DEBUG
     - __MPLAB_DEBUGGER_SIMULATOR=1
+    - CEXCEPTION_USE_CONFIG_FILE
+    - UNITY_INCLUDE_CONFIG_H
+
   :test:
     - *common_defines
     - TEST
@@ -65,14 +68,12 @@
     int8:     INT8
     bool:     UINT8
   :defines:
-    - CMOCK_MEM_SIZE=20000
+    - CMOCK_MEM_SIZE=10000
+  :when_ptr: :compare_ptr
     
 :gcov:
     :html_report_type: basic
     
-:unity:
-    :defines:
-        - UNITY_INCLUDE_CONFIG_H
 
 :flags:
     :test:

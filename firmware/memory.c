@@ -1,5 +1,6 @@
 #include <sys/kmem.h>
 #include <stddef.h>
+#include <stdint.h>
 #include "exception.h"
 #include "memory.h"
 #include "utils.h"
@@ -27,8 +28,8 @@
 */
 void erase_page(void *ptr) {
     unsigned int res;
-    unsigned int page;
-    page = KVA_TO_PA(ptr);
+    size_t page;
+    page = (size_t)KVA_TO_PA(ptr);
     if (page % PAGE_SIZE) {
         THROW_WITH_REASON("Erase page not on page boundary", ERROR_FLASH_STORE_FAILED);
     }
@@ -79,13 +80,13 @@ void erase_memory() {
 */
 void write_row(void *ptr, const void* src) {
     unsigned int res;
-    unsigned int row;
-    row = KVA_TO_PA(ptr);
+    size_t row;
+    row = (size_t)KVA_TO_PA(ptr);
     src = (const void*) KVA_TO_PA(src);
     if (row % ROW_SIZE) {
         THROW_WITH_REASON("Write row not on row boundary", ERROR_FLASH_STORE_FAILED);
     }
-    res = utils_flash_memory((void*)row, (void*)src, FLASH_WRITE_ROW);
+    res = utils_flash_memory((void*)row, src, FLASH_WRITE_ROW);
     if (res) {
         THROW_WITH_REASON("Write row failed", ERROR_FLASH_STORE_FAILED);
     }
@@ -109,9 +110,9 @@ void write_row(void *ptr, const void* src) {
 */
 void write_dword(void *ptr, const void* src){
     unsigned int res;
-    unsigned int dword;
+    size_t dword;
     // Load data into NVMDATA register
-    dword = KVA_TO_PA(ptr);
+    dword = (size_t)KVA_TO_PA(ptr);
     src = (const void*)KVA_TO_PA(src);
     if (dword % DWORD_SIZE) {
         THROW_WITH_REASON("Write address not on doubleword boundary", ERROR_FLASH_STORE_FAILED);
@@ -123,14 +124,14 @@ void write_dword(void *ptr, const void* src){
 }
 
 void write_data(void *ptr,  const void *src, int length){
-    if ((uint32_t)ptr % 8)
+    if ((size_t)ptr % 8)
         THROW_WITH_REASON("Write address not on doubleword boundary", ERROR_FLASH_STORE_FAILED);
     if (length % 8)
         THROW_WITH_REASON("Length not a multiple of 8 bytes", ERROR_FLASH_STORE_FAILED);
-    if ((uint32_t)src % 4)
+    if ((size_t)src % 4)
         THROW_WITH_REASON("Source address not on word boundary", ERROR_FLASH_STORE_FAILED);
     while (length > 0) {
-        if ((((uint32_t)ptr % ROW_SIZE) ==0) && (length >= ROW_SIZE)) {
+        if ((((size_t)ptr % ROW_SIZE) ==0) && (length >= ROW_SIZE)) {
             write_row(ptr, src);
             ptr += ROW_SIZE;
             src += ROW_SIZE;
