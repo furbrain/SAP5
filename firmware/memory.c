@@ -1,33 +1,12 @@
-#include <xc.h>
-#include <stdlib.h>
 #include <sys/kmem.h>
-#include "mcc_generated_files/mcc.h"
+#include <stddef.h>
+#include "exception.h"
 #include "memory.h"
-#include "mem_locations.h"
+#include "utils.h"
 
-
-unsigned int NVMUnlock (unsigned int nvmop) {
-    unsigned int status;
-    // Suspend or Disable all Interrupts
-    INTERRUPT_GlobalDisable();
-    // Enable Flash Write/Erase Operations and Select
-    // Flash operation to perform
-    NVMCON = nvmop;
-    // Write Keys
-    NVMKEY = 0xAA996655;
-    NVMKEY = 0x556699AA;
-    // Start the operation using the Set Register
-    NVMCONSET = 0x8000;
-    // Wait for operation to complete
-    while (NVMCON & 0x8000);
-    // Restore Interrupts
-    INTERRUPT_GlobalEnable();
-    // Disable NVM write enable
-    NVMCONCLR = 0x0004000;
-    // Return WRERR and LVDERR Error Status Bits
-    return (NVMCON & 0x3000);
-}
-
+#define PAGE_SIZE 0x0800
+#define ROW_SIZE 0x0100
+#define DWORD_SIZE 0x0008
 /**
   @Summary
     Erase a page of memory
@@ -46,18 +25,17 @@ unsigned int NVMUnlock (unsigned int nvmop) {
     erasing
 
 */
-int erase_page(void *ptr) {
+void erase_page(void *ptr) {
     unsigned int res;
     unsigned int page;
-    page = (unsigned int) KVA_TO_PA(ptr);
-    if (page % 2048) return -1;
-    // Set NVMADDR to the Start Address of page to erase
-    NVMADDR = page;
-    // Unlock and Erase Page
-    res = NVMUnlock(0x4004);
-    // Return Result
-    if (res) return -2;
-    return 0;
+    page = KVA_TO_PA(ptr);
+    if (page % PAGE_SIZE) {
+        THROW_WITH_REASON("Erase page not on page boundary", ERROR_FLASH_STORE_FAILED);
+    }
+    res = utils_flash_memory((void*)page, NULL, FLASH_ERASE_PAGE);
+    if (res) {
+        THROW_WITH_REASON("Erase page failed", ERROR_FLASH_STORE_FAILED);
+    }
 }
 
 /**
@@ -75,13 +53,12 @@ int erase_page(void *ptr) {
     returns 0 on success, -2 if an error on erase
 
 */
-int erase_memory() {
+void erase_memory() {
     unsigned int res;
-    // Unlock and Erase Program Flash
-    res = NVMUnlock(0x4005);
-    // Return Result
-    if (res) return -2;
-    return 0;
+    res = utils_flash_memory(NULL, NULL, FLASH_ERASE_CHIP);
+    if (res) {
+        THROW_WITH_REASON("Erase chip failed", ERROR_FLASH_STORE_FAILED);
+    }
 }
 
 /**
@@ -100,22 +77,18 @@ int erase_memory() {
     fails
 
 */
-int write_row(void *ptr, const void* src) {
+void write_row(void *ptr, const void* src) {
     unsigned int res;
     unsigned int row;
-    unsigned int src_addr;
-    row = (unsigned int) KVA_TO_PA(ptr);
-    src_addr = (unsigned int) KVA_TO_PA(src);
-    if (row % 256) return -1;
-    // Set NVMADDR to Start Address of row to program
-    NVMADDR = row;
-    // Set NVMSRCADDR to the SRAM data buffer Address
-    NVMSRCADDR = (unsigned int) src_addr;
-    // Unlock and Write Row
-    res = NVMUnlock(0x4003);
-    // Return Result
-    if (res) return -2;
-    return 0;
+    row = KVA_TO_PA(ptr);
+    src = (const void*) KVA_TO_PA(src);
+    if (row % ROW_SIZE) {
+        THROW_WITH_REASON("Write row not on row boundary", ERROR_FLASH_STORE_FAILED);
+    }
+    res = utils_flash_memory((void*)row, (void*)src, FLASH_WRITE_ROW);
+    if (res) {
+        THROW_WITH_REASON("Write row failed", ERROR_FLASH_STORE_FAILED);
+    }
 }
 
 /**
@@ -134,20 +107,39 @@ int write_row(void *ptr, const void* src) {
     fails
 
 */
-int write_dword(void *ptr, const int* src){
+void write_dword(void *ptr, const void* src){
     unsigned int res;
     unsigned int dword;
     // Load data into NVMDATA register
-    dword = (unsigned int) KVA_TO_PA(ptr);
-    if (dword % 8) return -1;
-    NVMDATA0 = src[0];
-    NVMDATA1 = src[1];
-    // Load address to program into NVMADDR register
-    NVMADDR = dword;
-    // Unlock and Write Word
-    res = NVMUnlock (0x4002);
-    // Return Result
-    if (res) return res;
-    return 0;
+    dword = KVA_TO_PA(ptr);
+    src = (const void*)KVA_TO_PA(src);
+    if (dword % DWORD_SIZE) {
+        THROW_WITH_REASON("Write address not on doubleword boundary", ERROR_FLASH_STORE_FAILED);
+    }
+    res = utils_flash_memory((void*)dword, src, FLASH_WRITE_DWORD);
+    if (res) {
+        THROW_WITH_REASON("Write dword failed", ERROR_FLASH_STORE_FAILED);
+    }
 }
 
+void write_data(void *ptr,  const void *src, int length){
+    if ((uint32_t)ptr % 8)
+        THROW_WITH_REASON("Write address not on doubleword boundary", ERROR_FLASH_STORE_FAILED);
+    if (length % 8)
+        THROW_WITH_REASON("Length not a multiple of 8 bytes", ERROR_FLASH_STORE_FAILED);
+    if ((uint32_t)src % 4)
+        THROW_WITH_REASON("Source address not on word boundary", ERROR_FLASH_STORE_FAILED);
+    while (length > 0) {
+        if ((((uint32_t)ptr % ROW_SIZE) ==0) && (length >= ROW_SIZE)) {
+            write_row(ptr, src);
+            ptr += ROW_SIZE;
+            src += ROW_SIZE;
+            length -= ROW_SIZE;            
+        } else {
+            write_dword(ptr, src);
+            ptr += DWORD_SIZE;
+            src += DWORD_SIZE;
+            length -= DWORD_SIZE;
+        }
+    }
+}

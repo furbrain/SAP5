@@ -11,11 +11,11 @@
   @Param
     ptr: pointer to start of memory to be erased.
 
-  @Returns
-    returns 0 on success, -1 if ptr is not on a page boundary
+  @Throws
+    Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-int erase_page(void *ptr);
+void erase_page(void *ptr);
 
 /**
   @Summary
@@ -28,11 +28,11 @@ int erase_page(void *ptr);
   @Param
     No params
 
-  @Returns
-    returns 0 on success, -1 if ptr is not on a page boundary
+  @Throws
+    Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-int erase_memory();
+void erase_memory();
 
 /**
   @Summary
@@ -45,12 +45,11 @@ int erase_memory();
     ptr: pointer to start of memory to be programmed
     src: the data to be copied over
 
-  @Returns
-    returns 0 on success, -1 if ptr is not on a row boundary, -2 if write 
-    fails
+  @Throws
+    Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-int write_row(void *ptr, const void* src);
+void write_row(void *ptr, const void* src);
 
 /**
   @Summary
@@ -63,9 +62,28 @@ int write_row(void *ptr, const void* src);
     ptr: pointer to start of memory to be programmed
     src: the data to be copied over
 
-  @Returns
-    returns 0 on success, -1 if ptr is not on a dword boundary, -2 if write 
-    fails
+  @Throws
+    Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-int write_dword(void *ptr, const int* src);
+void write_dword(void *ptr, const void* src);
+
+/**
+  @Summary
+    Writes data to flash
+
+  @Preconditions
+    destination should point to the start of a doubleword
+    length should be a multiple of 8
+    
+  @Param
+    ptr: pointer to start of memory to be programmed
+    src: the data to be copied over
+    length: the number of bytes to be copied
+
+  @Throws
+    Throws ERROR_FLASH_STORE_FAILED if there is a problem
+
+*/
+void write_data(void *ptr,  const void *src, int length);
+
