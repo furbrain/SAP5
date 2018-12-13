@@ -7,7 +7,7 @@ struct SURVEY survey_current;
 
 /* find current survey - either most recent one if one started in last 8 hours,
    or start a new one */
-void survey_init() {
+void survey_current_init() {
     struct LEG *last_leg;
     time_t now;
     last_leg = leg_find_last();
@@ -17,15 +17,21 @@ void survey_init() {
         if (now > (last_leg->tm + EIGHT_HOURS)) {
             survey_start_new();
         } else {
-            leg_get_survey_details(survey_current.number, 
-                                   &survey_current.max_station, 
-                                   &survey_current.start_time);
+            survey_populate(&survey_current, survey_current.number);
         }
     } else {
         survey_current.number = 0;
         survey_start_new();
     }
 }
+
+/* populate a survey structure with data from storage */
+void survey_populate(struct SURVEY *survey, int number) {
+    survey->number = number;
+    leg_get_survey_details(number, &survey->max_station, &survey->start_time);
+    survey->forward = true;
+}
+
 
 /* start a new survey */
 void survey_start_new() {
