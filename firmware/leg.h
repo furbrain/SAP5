@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <time.h>
 #include "mem_locations.h"
+#include "survey.h"
 
 
 #define MAX_LEG_COUNT (APP_LEG_SIZE / sizeof(struct LEG))
@@ -40,6 +41,9 @@ void *leg_spans_boundary(struct LEG *leg);
 
 /* find a leg */
 struct LEG *leg_find(int survey, int index);
+
+/* find the maximum station within a survey and also the time of the first leg */
+void leg_get_survey_details(int survey, int *max_station, time_t *first_leg);
 
 /*find most recent_leg*/
 struct LEG *leg_find_last(void);

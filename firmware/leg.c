@@ -94,7 +94,58 @@ struct LEG *leg_find(int survey, int index) {
     return NULL;
 }
 
+/* find the maximum station within a survey and also the time of the first leg */
+void leg_get_survey_details(int survey, int *max_station, time_t *first_leg) {
+    int max_st = INT_MIN;
+    time_t first_tm = LONG_MAX;
+    int i;
+    struct LEG *leg;
+    for (i=0; i< MAX_LEG_COUNT; i++) {
+        leg = &leg_store.legs[i % MAX_LEG_COUNT];
+        if (_is_valid(leg) && (leg->survey == survey)) {
+            if (leg->tm < first_tm) {
+                first_tm = leg->tm;
+            }
+            if (leg->from > max_st) {
+                max_st = leg->from;
+            }
+            if (leg->to > max_st) {
+                max_st = leg->to;
+            }
+        }
+    }
+    if (max_st == INT_MIN && first_tm==LONG_MAX) 
+        THROW_WITH_REASON("No legs found for survey", ERROR_SURVEY_NOT_FOUND);
+    *max_station = max_st;
+    *first_leg = first_tm;
+}
+
 /*find most recent_leg*/
 struct LEG *leg_find_last(void) {
+    int i;
+    time_t last_tm = LONG_MIN;
+    int16_t last_survey = 0;
+    struct LEG *leg;
+    struct LEG *last_leg = NULL;
+    // find last survey
+    for (i=0; i< MAX_LEG_COUNT; i++) {
+        leg = &leg_store.legs[i];
+        if (_is_valid(leg)) {
+            if (leg->survey > last_survey) {
+                last_survey = leg->survey;
+            }
+        }
+    }
+    //now find latest_time in last survey
+    for (i=0; i< MAX_LEG_COUNT; i++) {
+        leg = &leg_store.legs[i];
+        if (_is_valid(leg) && (leg->survey == last_survey)) {
+            if (leg->tm > last_tm) {
+                last_leg = leg;
+                last_tm = leg->tm;
+            }
+        }
+    }
+    return last_leg;
 }
 

@@ -16,7 +16,7 @@ struct LEG test_leg = {
 
 struct LEG test_leg_array[6] = {
     {13, 3, 1, 2, {1.0, 2.0, 3.0}},
-    {14, 3, 3, 2, {1.0, 2.0, 3.0}},
+    {14, 3, 4, 2, {1.0, 2.0, 3.0}},
     {15, 1, 1, 2, {1.0, 2.0, 3.0}},
     {16, 2, 2, 3, {1.0, 2.0, 3.0}},
     {17, 2, 1, 3, {1.0, 2.0, 3.0}},
@@ -46,7 +46,6 @@ void erase_page_replacement(void *ptr, int num_calls) {
 
 void setUp(void)
 {
-    write_data_StubWithCallback(write_data_replacement);
     erase_page_StubWithCallback(erase_page_replacement);
     memset(leg_store.raw, 0xff, APP_LEG_SIZE);
 }
@@ -67,6 +66,7 @@ void test_leg_create(void) {
 
 void add_test_legs(void) {
     int i;
+    write_data_StubWithCallback(write_data_replacement);
     for (i=0; i<6; i++) {
         leg_save(&test_leg_array[i]);
     }
@@ -95,9 +95,43 @@ void test_leg_find(void) {
     TEST_ASSERT_NULL_MESSAGE(found_leg, "3,3->NULL");
 }
 
+
 void test_leg_find_last(void) {
-    TEST_IGNORE_MESSAGE("Need to Implement leg_find_last");
+    struct LEG *found_leg;
+    add_test_legs();
+    found_leg = leg_find_last();
+    TEST_ASSERT_EQUAL_PTR_MESSAGE(&leg_store.legs[1], found_leg, "should be last one in survey 3");
 }
+
+void test_leg_get_survey_details(void) {
+    struct test_field {
+        int survey;
+        int max_station;
+        time_t first_time;
+    };
+    struct test_field test_cases[3] = {
+        {1, 2, 15},
+        {2, 3, 16},
+        {3, 4, 12}
+    };
+    int i, max_station;
+    time_t first_time;
+    add_test_legs();
+    for (i = 0; i<3; i++) {
+        leg_get_survey_details(test_cases[i].survey, &max_station, &first_time);
+        TEST_ASSERT_EQUAL(test_cases[i].max_station, max_station);   
+        TEST_ASSERT_EQUAL(test_cases[i].first_time, first_time);   
+    }
+    TEST_ASSERT_THROWS(leg_get_survey_details(34, &max_station, &first_time), ERROR_SURVEY_NOT_FOUND);
+}
+
+void test_leg_find_last_if_no_legs(void) {
+    struct LEG *found_leg;
+    found_leg = leg_find_last();
+    TEST_ASSERT_NULL_MESSAGE(found_leg, "leg_find_last should return NULL if no legs");
+}
+
+
 
 void test_leg_spans_boundary(void) {
     struct test_field {
@@ -120,12 +154,14 @@ void test_leg_spans_boundary(void) {
 
 
 void test_leg_save_single(void) {
+    write_data_StubWithCallback(write_data_replacement);
     leg_save(&test_leg);
     TEST_ASSERT_EQUAL_MEMORY(&test_leg, &leg_store.legs[0], sizeof(test_leg));
     TEST_ASSERT_EQUAL_UINT32(0xffffffff, leg_store.legs[1].tm);
 }
 
 void test_leg_save_double(void) {
+    write_data_StubWithCallback(write_data_replacement);
     leg_save(&test_leg);
     leg_save(&test_leg);
     TEST_ASSERT_EQUAL_MEMORY(&test_leg, &leg_store.legs[1], sizeof(test_leg));
@@ -135,7 +171,7 @@ void test_leg_save_double(void) {
 void test_leg_save_overflow(void) {
     int counter;
     struct LEG new_leg;
-    TEST_IGNORE_MESSAGE("disabled for speed - reenable me!");
+    write_data_StubWithCallback(write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     counter = APP_LEG_SIZE/sizeof(new_leg);
     while(counter--) {
@@ -149,6 +185,7 @@ void test_leg_save_overflow(void) {
 
 void test_leg_save_with_tm_lsb_is_0xff(void) {
     struct LEG new_leg;
+    write_data_StubWithCallback(write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     new_leg.tm = 0xff;
     leg_save(&new_leg);
@@ -163,7 +200,7 @@ void test_leg_save_page_overflow(void) {
     int counter;
     struct LEG new_leg;
     int index = 0x800/sizeof(new_leg);
-    TEST_IGNORE_MESSAGE("disabled for speed - reenable me!");
+    write_data_StubWithCallback(write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     // fill whole leg space
     counter = 0;
@@ -181,5 +218,12 @@ void test_leg_save_page_overflow(void) {
     leg_save(&new_leg);
     TEST_ASSERT_EQUAL_MEMORY(&new_leg, &leg_store.legs[index], sizeof(new_leg));
     TEST_ASSERT_EQUAL_UINT32(0xffffffff, leg_store.legs[index+1].tm);
+}
+
+void test_leg_save_fails(void) {
+    write_data_ExpectAndThrow(NULL, NULL, sizeof(struct LEG), ERROR_FLASH_STORE_FAILED);
+    write_data_IgnoreArg_ptr();
+    write_data_IgnoreArg_src();
+    TEST_ASSERT_THROWS(leg_save(&test_leg), ERROR_FLASH_STORE_FAILED);
 }
 
