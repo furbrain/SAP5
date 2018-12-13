@@ -3,7 +3,8 @@
 
 #include <time.h>
 #include <stdbool.h>
-#include "leg.h"
+
+#define EIGHT_HOURS (8 * 60 * 60)
 
 struct SURVEY {
     int number;
@@ -13,15 +14,11 @@ struct SURVEY {
 };
 #endif // _SURVEY_H
 
+extern struct SURVEY survey_current;
+
 /* find current survey - either most recent one if one started in last 8 hours,
    or start a new one */
-struct SURVEY survey_get_current();
+void survey_init();
 
-
-/* get from and to stations for next leg for this survey */
-void survey_get_next_leg(struct SURVEY survey, int *from, int *to);
-
-/* record that we have added a leg to this survey */
-void survey_add_leg(struct SURVEY *survey, struct LEG *leg);
-
-
+/* start a new survey */
+void survey_start_new();

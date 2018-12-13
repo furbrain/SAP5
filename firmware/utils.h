@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include <stdint.h>
+#include <time.h>
 
 enum FLASH_OP {
     FLASH_WRITE_DWORD = 0x4002,
@@ -19,6 +20,9 @@ void delay_ms(int count);
 
 /* delay for count ms, performing wdt_clear every 500ms */
 void delay_ms_safe(int count);
+
+/* get current time in time_t format */
+time_t utils_get_time();
 
 void wdt_clear(void);
 

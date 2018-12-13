@@ -1,5 +1,7 @@
 #include <xc.h>
+#include <time.h>
 #include "mcc_generated_files/tmr1.h"
+#include "mcc_generated_files/rtcc.h"
 #include "utils.h"
 
 void delay_ms(int count) {
@@ -23,6 +25,14 @@ void delay_ms_safe(int count) {
     delay_ms(count);
     wdt_clear();
 }
+
+/* get current time in time_t format */
+time_t utils_get_time() {
+    struct tm temp_time;
+    RTCC_TimeGet(&temp_time);
+    return mktime(&temp_time);
+}
+
 
 void wdt_clear(void){
     volatile unsigned short *wdtKey;

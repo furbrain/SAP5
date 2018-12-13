@@ -43,7 +43,6 @@
   #  2) add entries to the :common: section (e.g. :test: has TEST defined)
   :commmon: &common_defines
     - __DEBUG
-    - __MPLAB_DEBUGGER_SIMULATOR=1
     - CEXCEPTION_USE_CONFIG_FILE
     - UNITY_INCLUDE_CONFIG_H
 
@@ -60,7 +59,9 @@
   :enforce_strict_ordering: TRUE
   :plugins:
     - :ignore
+    - :ignore_arg
     - :callback
+    - :return_thru_ptr
   :treat_as:
     uint8:    HEX8
     uint16:   HEX16
@@ -72,7 +73,19 @@
   :when_ptr: :compare_ptr
     
 :gcov:
-    :html_report_type: basic
+    :html_report_type: detailed
+    :compile:
+      :*:
+        - -Wall
+        - -Wextra
+        - -Wstrict-prototypes
+        - -Werror
+        - -fdata-sections
+        - -ffunction-sections
+    :link:
+      :*:
+        - -Wl,--gc-sections
+        - -lm -lgsl -lgslcblas
     
 
 :flags:
@@ -85,6 +98,15 @@
 # Ceedling defaults to using gcc for compiling, linking, etc.
 # As [:tools] is blank, gcc will be used (so long as it's in your system path)
 # See documentation to configure a given toolchain for use
+:tools:
+  :gcov_linker:
+    :executable: gcc
+    :arguments:
+      - -fprofile-arcs
+      - -ftest-coverage
+      - ${1}
+      - -lm -lgsl -lgslcblas
+      - -o ${2}
 
 # LIBRARIES
 # These libraries are automatically injected into the build process. Those specified as
@@ -105,4 +127,5 @@
     - stdout_pretty_tests_report
     - module_generator
     - raw_output_report
+    - gcov
 ...
