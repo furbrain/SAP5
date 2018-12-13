@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <stdbool.h>
 
 #include "leg.h"
 #include "memory.h"
@@ -33,13 +34,16 @@ void *leg_spans_boundary(struct LEG *leg) {
     }
 }
 
+static inline bool _is_valid(struct LEG *leg) {
+    return (leg->tm != ULONG_MAX);
+}
 
 void leg_save(struct LEG *leg) {
     CEXCEPTION_T e;
     struct LEG *ptr = leg_store.legs;
     struct LEG *leg_overflow = &leg_store.legs[MAX_LEG_COUNT];
     void *boundary;
-    while ((ptr < leg_overflow) && (ptr->tm != ULONG_MAX)) {
+    while ((ptr < leg_overflow) && _is_valid(ptr)) {
         ptr ++;
     }
     if (ptr >= leg_overflow) {
@@ -50,10 +54,47 @@ void leg_save(struct LEG *leg) {
         erase_page(boundary);
     }
     Try {
-       write_data(ptr, leg, sizeof(struct LEG));
+        write_data(ptr, leg, sizeof(struct LEG));
     }
     Catch (e) {
         if (e==ERROR_FLASH_STORE_FAILED) 
             THROW_WITH_REASON("Save Leg failed",e);
     }
 }
+
+
+/* find a leg */
+struct LEG *leg_find(int survey, int index) {
+    int i;
+    int first_point=0xffffffff;
+    time_t first_tm=LONG_MAX;
+    int count = 0;
+    struct LEG *leg;
+    /* first scan through to find the first relevant point */
+    for (i=0; i< MAX_LEG_COUNT; i++) {
+        leg = &leg_store.legs[i];
+        if (_is_valid(leg) && (leg->survey == survey)) {
+            if (leg->tm < first_tm) {
+                first_point = i;
+                first_tm = leg->tm;
+            }
+        }
+    }
+    if (first_point==0xffffffff) return NULL;
+    for (i=first_point; i< (first_point + MAX_LEG_COUNT); i++) {
+        leg = &leg_store.legs[i % MAX_LEG_COUNT];
+        if (_is_valid(leg) && (leg->survey == survey)) {
+            if (count==index) {
+                return leg;
+            } else {
+                count++;
+            }
+        }
+    }
+    return NULL;
+}
+
+/*find most recent_leg*/
+struct LEG *leg_find_last(void) {
+}
+

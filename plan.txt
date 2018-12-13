@@ -39,7 +39,8 @@ Firmware Tasks:
 . get rangefinder working DONE
 . Get menu working DONE
 . Get sleep and wakeup working DONE
-. Get configuration working
+. Get configuration working DONE
+. Get visualiser working - work as "cave window", so adjust view according to angle of device
 
 
 PC software

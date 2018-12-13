@@ -39,7 +39,7 @@ void *leg_spans_boundary(struct LEG *leg);
 
 
 /* find a leg */
-struct LEG *leg_find(uint16_t survey, int index);
+struct LEG *leg_find(int survey, int index);
 
 /*find most recent_leg*/
 struct LEG *leg_find_last(void);
