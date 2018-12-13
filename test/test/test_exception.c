@@ -74,7 +74,9 @@ void test_throw_with_reason(void) {
     const char *reason;
     const char *file;
     int line;
-    
+    #ifndef __XC32
+    TEST_IGNORE_MESSAGE("can't test exceptions on x64");
+    #endif
     TEST_ASSERT_THROWS(error1 /= error0,2013);
     exception_get_details(&reason, &file, &line);
     TEST_ASSERT_EQUAL_STRING("exception", file);

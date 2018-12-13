@@ -114,12 +114,9 @@
 # tests or releases. These options are MERGED with the options in supplemental yaml files.
 :libraries:
   :placement: :end
-  :flag: "-l${1}"  # or "-L ${1}" for example
+  :flag: "-lm -lgsl -lgslcblas"
   :system:
     - m
-    - gsl
-    - gslcblas
-
 :plugins:
   :load_paths:
     - vendor/ceedling/plugins
