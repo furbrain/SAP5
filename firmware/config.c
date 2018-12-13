@@ -1,7 +1,6 @@
 #include <stdio.h>
 
 #include "display.h"
-#include "storage.h"
 #include "memory.h"
 #include "exception.h"
 
@@ -31,7 +30,6 @@ bool day;
 void config_save(void){
     CONST_STORE struct CONFIG *ptr = config_store.configs;
     CONST_STORE struct CONFIG *overflow = &config_store.configs[MAX_CONFIG_COUNT];
-    int res;
     while ((ptr < overflow) && (ptr->axes.accel[0] != 0xff)) {
         ptr ++;
     }
@@ -39,10 +37,7 @@ void config_save(void){
         erase_page(config_store.raw);
         ptr  = &config_store.configs[0];
     }
-    res =  write_data(ptr, &config, sizeof(config));
-    if (res) {
-        THROW_WITH_REASON("Store config failed", ERROR_FLASH_STORE_FAILED);
-    }
+    write_data(ptr, &config, sizeof(config));
 }
 
 bool config_ptr_is_valid(struct CONFIG *conf) {

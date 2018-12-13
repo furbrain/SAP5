@@ -2,7 +2,6 @@
 
 #include "unity.h"
 #include "mock_memory.h"
-#include "mock_storage.h"
 #include "mem_locations.h"
 #include "exception.h"
 #include "config.h"
@@ -24,24 +23,24 @@ struct CONFIG test_config = {
 
 
 
-int write_data_replacement(void* ptr, const void* src, int length, int num_calls) {
+void write_data_replacement(void* ptr, const void* src, int length, int num_calls) {
     int i;
-    if ((size_t)ptr % 8) return -1;
+    if ((size_t)ptr % 8)
+        THROW_WITH_REASON("Destination ptr not on dword boundary", ERROR_FLASH_STORE_FAILED);
     if (((uint8_t*)ptr < config_store.raw) || (((uint8_t*)ptr)+length > config_store.raw+APP_CONFIG_SIZE)) 
-        Throw(0xBADADDA);
+        THROW_WITH_REASON("Destination memory out of range", ERROR_FLASH_STORE_FAILED);
     for (i=0; i<length; i++) {
         if (*((uint8_t*)ptr+i) != 0xff) {
-            Throw(0xBADDA7A);
+            THROW_WITH_REASON("Memroy not been cleared for write", ERROR_FLASH_STORE_FAILED);
         }
     }
     memcpy(ptr, src, length);
-    return 0;
 }
 
-int erase_page_replacement(void *ptr, int num_calls) {
-    if ((size_t)ptr % 0x800) return -1;
+void erase_page_replacement(void *ptr, int num_calls) {
+    if ((size_t)ptr % 0x800) 
+        THROW_WITH_REASON("Erase page not on page boundary", ERROR_FLASH_STORE_FAILED);
     memset(ptr, 0xff, 0x800);
-    return 0;
 }
 
 
@@ -58,11 +57,11 @@ void tearDown(void)
 
 void test_weird_memory(void) {
     //CEXCEPTION_T e;
-    //struct CONFIG new_config;
+    struct CONFIG new_config;
     write_data_StubWithCallback(write_data_replacement);
-    //new_config = test_config;
+    new_config = test_config;
     config_save();
-    //TEST_ASSERT_EQUAL_MEMORY(&test_config, &new_config, sizeof(new_config));
+    TEST_ASSERT_EQUAL_MEMORY(&test_config, &new_config, sizeof(new_config));
 }
 
 void test_config_save_single(void) {

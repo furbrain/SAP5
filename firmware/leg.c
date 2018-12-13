@@ -1,7 +1,6 @@
 #include <limits.h>
 
 #include "leg.h"
-#include "storage.h"
 #include "memory.h"
 #include "utils.h"
 #include "exception.h"
@@ -36,10 +35,10 @@ void *leg_spans_boundary(struct LEG *leg) {
 
 
 void leg_save(struct LEG *leg) {
+    CEXCEPTION_T e;
     struct LEG *ptr = leg_store.legs;
     struct LEG *leg_overflow = &leg_store.legs[MAX_LEG_COUNT];
     void *boundary;
-    int res;
     while ((ptr < leg_overflow) && (ptr->tm != ULONG_MAX)) {
         ptr ++;
     }
@@ -50,8 +49,11 @@ void leg_save(struct LEG *leg) {
     if (boundary) {
         erase_page(boundary);
     }
-    res =  write_data(ptr, leg, sizeof(struct LEG));
-    if (res) {
-        THROW_WITH_REASON("Write leg failed", ERROR_FLASH_STORE_FAILED);
+    Try {
+       write_data(ptr, leg, sizeof(struct LEG));
+    }
+    Catch (e) {
+        if (e==ERROR_FLASH_STORE_FAILED) 
+            THROW_WITH_REASON("Save Leg failed",e);
     }
 }
