@@ -14,7 +14,7 @@
 #define FEET_PER_METRE 3.281
 #define DEGREES_PER_RADIAN 57.296
 #define GRADS_PER_DEGREE 1.111111111
-
+#define NUM_SENSOR_READINGS 10
 
 
 const char *cartesian_items[] = {"East:","North:","Vert:","Ext:"};
@@ -26,39 +26,54 @@ const char *polar_format[] = {" %03.1f "," %+02.1f "," %.2f "," %.2f "};
 
 double deltas[4];
 
+static bool measure_exit;
+
 DECLARE_EMPTY_MENU(leg_menu, 20);
 
-void get_readings(double *orientation, double *distance){
-	int i,j;
+void get_readings(gsl_vector *orientation){
+    GSL_VECTOR_DECLARE(magnetism, 3);
+    GSL_VECTOR_DECLARE(acceleration, 3);
 	struct COOKED_SENSORS sensors;
-	double mags[3] = {0,0,0};
-	double accels[3] = {0,0,0};
+	double distance;
+    gsl_vector_view sensors_magnetism = gsl_vector_view_array(sensors.mag, 3);    
+    gsl_vector_view sensors_acceleration = gsl_vector_view_array(sensors.accel, 3);    
+	int i;
 
 	display_on(false);
-	laser_on(false);
-	delay_ms(20);
-    sensors_read_cooked(&sensors);
-//	for(i=0;i<8;++i) {
-//        wdt_clear();
-//		delay_ms(10);
-//		sensors_read_uncalibrated(&sensors);
-//		for (j=0;j<3;++j) {
-//			mags[j] += sensors.mag[j];
-//			accels[j] += sensors.accel[j];
-//		}
-//	}
-//	for(j=0;j<3;++j) {
-//		sensors.mag[j] = mags[j]/80;
-//		sensors.accel[j] = accels[j]/40;
-//	}
-	sensors_uncalibrated_to_cooked(&sensors);
-	sensors_get_orientation(&sensors,orientation);
-	normalise(orientation,3);
-    *distance = laser_read(LASER_MEDIUM,1000);
 	laser_on(true);
-	display_on(true);
+	delay_ms_safe(20);
+	gsl_vector_set_zero(&magnetism);
+	gsl_vector_set_zero(&acceleration);
+	for(i=0; i < NUM_SENSOR_READINGS; ++i) {
+		delay_ms_safe(10);
+        sensors_read_cooked(&sensors);
+        gsl_vector_add(&magnetism, &sensors_magnetism.vector);
+        gsl_vector_add(&acceleration, &sensors_acceleration.vector);
+    }
+    gsl_vector_scale(&magnetism, 1.0/NUM_SENSOR_READINGS);
+    gsl_vector_scale(&acceleration, 1.0/NUM_SENSOR_READINGS);
+    distance = laser_read(LASER_MEDIUM, 1000);
+    maths_get_orientation(&magnetism, &acceleration, orientation);
+    display_on(true);
+    laser_on(false);
 }
 
+void measure_get_readings(gsl_vector *orientation) {
+    while (true) {
+ 		switch(get_action()) {
+			case SINGLE_CLICK:
+			case LONG_CLICK:
+				/* take measurement */
+				get_readings(orientation);
+				return;
+				break;
+			case DOUBLE_CLICK:
+			    measure_exit = true;
+				return;
+				break;
+	        default:
+   }
+}
 
 double get_extension(double *o, double distance) {
 	//remember orientations are normalised...
@@ -161,6 +176,22 @@ bool measurement_menu(double *items) {
     return show_menu(leg_menu,1,false);
  */
 }
+
+void new_measure(int32_t a) {
+    GSL_VECTOR_DECLARE(orientation, 3);
+    measure_exit = false;
+    laser_on(true);
+    while (true) {
+        measure_get_reading(orientation);
+        if (measure_exit) break;
+        measure_show_reading(orientation);
+        if (measure_exit) break;
+    }        
+    laser_on(false);
+    display_on(true);
+}
+
+
 
 void measure(int32_t a) {
 	int item = 0;
