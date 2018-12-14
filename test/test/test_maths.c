@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <gsl/gsl_matrix.h>
+#include <gsl/gsl_blas.h>
 #include <xc.h>
 #include "test_maths_fixtures.inc"
 #include "exception.h"
@@ -40,12 +41,16 @@ void test_cross_product(void) {
         {{0.893915,1.630456,0.372925},{0.158390,0.384927,1.943209},{3.024769,-1.677997,0.085844}},
         {{0.123774,0.762176,0.541222},{0.779024,0.305382,0.958143},{0.564994,0.303032,-0.555955}},
     };
-    double result[3];
+    double result_data[3];
+    gsl_vector_view a, b;
+    gsl_vector_view c = gsl_vector_view_array(result_data, 3); 
     int i;
     for (i=0; i<12; i++) {
-        cross_product(dictionary[i][0], dictionary[i][1], result);
+        a = gsl_vector_view_array(dictionary[i][0], 3);
+        b = gsl_vector_view_array(dictionary[i][1], 3);
+        cross_product(&a.vector, &b.vector, &c.vector);
         snprintf(text,24,"Iteration: %d",i);
-        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(dictionary[i][2], result, 3, text);
+        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(dictionary[i][2], result_data, 3, text);
     }
 }
 
@@ -237,6 +242,39 @@ void test_apply_2d_scale(void) {
     }
 }
 
+void test_maths_get_orientation(void) {
+    char text[80];
+    struct test_field {
+        vectorr accel;
+        vectorr magnetism;
+        vectorr result;
+    };
+    struct test_field test_cases[10] = {
+        {{0.,0.,-1.}, {0,6,-8}, {0.,1.,-0.}},
+        {{0.,0.,-1.}, {-6,0,-8}, {1.,0.,-0.}},
+        {{0.,1.,0.}, {-6,8,0}, {-0.,0.,-1.}},
+        {{1.0853,-1.917,0.5346}, {-0.006,-1.1008,-1.2077}, {0.384,-0.3707,0.8457}},
+        {{-1.3236,-1.6466,0.7414}, {-1.9842,0.0488,1.2505}, {0.0467,0.676,0.7354}},
+        {{0.887,-0.8325,1.6711}, {0.1702,-1.4313,-0.5066}, {0.2353,-0.8846,0.4028}},
+        {{-0.2327,-0.2639,0.4711}, {0.6016,0.4042,1.2209}, {0.7394,0.5018,0.4489}},
+        {{1.6346,-0.7231,-1.6382}, {-1.5441,1.3147,-1.8124}, {0.8353,0.4619,0.2982}},
+        {{0.1903,1.2771,-1.2042}, {-0.5934,1.0186,-0.8162}, {0.6679,0.1753,-0.7233}},
+        {{-0.698,-1.3399,-0.4299}, {1.2844,-1.3954,-0.4635}, {-0.309,-0.4205,0.853}},
+    };
+    double result_data[3];
+    gsl_vector_view accel;
+    gsl_vector_view mag;
+    gsl_vector_view result = gsl_vector_view_array(result_data,3);
+    int i;
+    for (i=0; i<10; i++) {
+        accel = gsl_vector_view_array(test_cases[i].accel, 3);
+        mag = gsl_vector_view_array(test_cases[i].magnetism, 3);
+        snprintf(text,24,"Iteration: %d", i);
+        maths_get_orientation(&mag.vector, &accel.vector, &result.vector);
+        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result, result_data, 3, text);
+    }
+}
+
 void test_normalise(void) {
     char text[80];
     struct test_field {
@@ -260,19 +298,18 @@ void test_normalise(void) {
         {{1.6346,-0.7231,-1.6382}, 3, {0.6742,-0.2982,-0.6757}},
         {{-1.5441,1.3147,-1.8124}, 3, {-0.5677,0.4834,-0.6664}},    
     };
-    vectorr result;
-    double temp;
-    int i,j;
+    double result_data[3];
+    gsl_vector_view test;
+    gsl_vector_view result;
+    int i;
     for (i=0; i<14; i++) {
-        memcpy(result, test_cases[i].a, sizeof(result));
-        normalise(result, test_cases[i].len);
+        test = gsl_vector_view_array(test_cases[i].a, test_cases[i].len);
+        result = gsl_vector_view_array(result_data, test_cases[i].len);
+        gsl_vector_memcpy(&result.vector, &test.vector);
+        normalise(&result.vector);
         snprintf(text,24,"Iteration: %d", i);
-        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result, result, test_cases[i].len, text);
-        temp = 0;
-        for (j=0; j < test_cases[i].len; j++) {
-            temp += result[j]*result[j];
-        }
-        TEST_ASSERT_EQUAL_DOUBLE(1.0, temp);
+        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result, result_data, test_cases[i].len, text);
+        TEST_ASSERT_EQUAL_DOUBLE(1.0, gsl_blas_dnrm2(&result.vector));
     }
 }
 

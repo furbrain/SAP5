@@ -21,7 +21,7 @@ double amin(double a, double b);
 double aabs(double a);
 
 /* return AxB in C, where A B and C are all pointers to double[3] */
-void cross_product(const vectorr a, const vectorr b, vectorr c);
+void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c);
 
 
 /* returns square of theh distance between two points*/
@@ -47,8 +47,14 @@ void get_rotation_matrix(const int axes[2], double theta, matrixx matrix);
 /* apply a scale to a specific axis of matrixx */
 void apply_scale(const int axis, const double scale, matrixx matrix);
 
-/* normalise a vector of length n*/
-void normalise(double vector[], int len);
+/* take magnetism and acceleration vectors in device coordinates
+   and return devices orientation in world coordinates */
+void maths_get_orientation(const gsl_vector *magnetism,
+                           const gsl_vector *acceleration,
+                           gsl_vector *orientation);
+
+/* normalise a vector to unit length n*/
+void normalise(gsl_vector *vector);
 
 
 /* find the long axis and ratio of long:short axis for an ellipse *

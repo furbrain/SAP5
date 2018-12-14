@@ -42,10 +42,13 @@ double aabs(const double a) {
 
 
 
-void cross_product(const vectorr a, const vectorr b, vectorr c) {
-	c[0] = (a[1]*b[2]) - (a[2]*b[1]);
-	c[1] = (a[2]*b[0]) - (a[0]*b[2]);
-	c[2] = (a[0]*b[1]) - (a[1]*b[0]);
+void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c) {
+    int i, j, k;
+    for (i=0; i<3; i++) {
+        j = (i+1) % 3;
+        k = (i+2) % 3;
+        gsl_vector_set(c, i, gsl_vector_get(a, j) * gsl_vector_get(b, k) - gsl_vector_get(a, k) * gsl_vector_get(b, j));
+    }
 }
 
 /* returns b . a where a is a vector and b is a matrix. Result in vector C, where A and C are pointers to double[3]
@@ -113,17 +116,28 @@ void apply_scale(const int axis, const double scale, matrixx matrix) {
     matrix_multiply(matrix, new_mat);    
 }
 
+void maths_get_orientation(const gsl_vector *magnetism,
+                           const gsl_vector *acceleration,
+                           gsl_vector *orientation)  {
+    GSL_VECTOR_DECLARE(east, 3);
+    GSL_VECTOR_DECLARE(north, 3);
+    GSL_VECTOR_DECLARE(down, 3);
+    gsl_vector_memcpy(&down, acceleration);
+    normalise(&down);
+    cross_product(&down, magnetism, &east);
+    normalise(&east);
+    cross_product(&east, &down, &north);
+    normalise(&north);
+    gsl_vector_set(orientation, 0, gsl_vector_get(&east, 1));
+    gsl_vector_set(orientation, 1, gsl_vector_get(&north, 1));
+    gsl_vector_set(orientation, 2, -gsl_vector_get(&down, 1));
+    normalise(orientation);
+}
 
-void normalise(double vector[], int len) {
-	double magnitude = 0;
-	int i;
-	for (i=0; i< len; i++) {
-    	magnitude += vector[i] * vector[i];
-    }
-    magnitude = sqrt(magnitude);
-	for (i=0; i< len; i++) {
-    	vector[i] /=magnitude;
-    }
+
+
+void normalise(gsl_vector *vector) {
+    gsl_vector_scale(vector, 1.0/ gsl_blas_dnrm2(vector));
 }
 
 int16_t find_median(int16_t array[], const int16_t len) {
@@ -217,10 +231,10 @@ void find_plane(vectorr *data,
     //gsl_multifit_linear(&lsq_input, &lsq_output, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
     
     //process results
+    normalise(&lsq_res);
     result[0] = gsl_vector_get(&lsq_res,0);
     result[1] = gsl_vector_get(&lsq_res,1);
     result[2] = gsl_vector_get(&lsq_res,2);
-    normalise(result,3);
     gsl_multilarge_linear_free(workspace);
 }
 

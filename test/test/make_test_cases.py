@@ -113,6 +113,32 @@ def make_multiply_matrices_fixture():
             calib = np.matmul(delta, calib)
             print "{%s, %s}," % (bracketiser(delta[0:3]), bracketiser(calib[0:3]))
             
+def make_get_orientation_fixture():
+    for i in range(10):
+        if (i==0):
+            accel = np.array([0,0,-1.0])
+            mag = np.array([0,6,-8])
+        elif (i==1):
+            accel = np.array([0,0,-1.0])
+            mag = np.array([-6,0,-8])
+        elif (i==2):
+            accel = np.array([0,1.0,0])
+            mag = np.array([-6,8,0])
+        else:
+            accel = get_random_vector()[:3]
+            mag = get_random_vector()[:3]
+        accel_normed = accel / np.linalg.norm(accel)
+        east = np.cross(accel, mag)
+        east /= np.linalg.norm(east)
+        north = np.cross(east, accel)
+        north /= np.linalg.norm(north)
+        orientation = np.array([0.0,0.0,0.0])
+        orientation[0] = east[1]
+        orientation[1] = north[1]
+        orientation[2] = -accel_normed[1]
+        orientation /= np.linalg.norm(orientation)
+        print "{%s, %s, %s}," % (bracketiser(accel), bracketiser(mag), bracketiser(orientation))
+            
 def make_normalise_fixture():
     for i in range(10):
         vector = get_random_vector()[:3]
@@ -162,4 +188,4 @@ def make_sqrtm_fixtures():
 
 np.set_printoptions(suppress=True, precision=4)
 np.random.seed(10)
-make_sqrtm_fixtures()
+make_get_orientation_fixture()
