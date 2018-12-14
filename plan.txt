@@ -46,10 +46,42 @@ Firmware Tasks:
 PC software
 . note needs freetype-py and sparse_list
 
-Axes:
+DEVICE Axes:
 X = towards top of display with laser pointing left
 Y = along laser
 Z = coming out of surface of display upwards...
+
+WORLD Axes:
+X = EAST
+Y = NoRTH
+Z = UP
+
+measure function pseudocode
+
+START
+wait for button press... }
+if double_click:         }
+  exit                   } measure_get_reading
+else:                    }
+  take measurement       }
+  
+display menu             }
+if exit:                 }
+  exit                   } measure_show_reading
+else:                    }
+  go to start            }
+END
+
+so main measure function goes
+while (1):
+    measure_get_reading()
+    if measure_exit:
+       exit
+    measure_show_reading()
+    if measure_exit:
+       exit
+
+
 
 post-measure menu
 
@@ -62,4 +94,4 @@ Store -> (assuming "last visited station==1")
     2->Splay
     Custom - needs separate code to run...
     Back
-    
+Back (to main menu...)
