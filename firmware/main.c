@@ -5,6 +5,7 @@
 #include "display.h"
 #include "font.h"
 #include "sensors.h"
+#include "survey.h"
 #include "interface.h"
 #include "laser.h"
 #include "i2c_util.h"
@@ -12,46 +13,14 @@
 #include "exception.h"
 #define TXT_LENGTH 50
 
-void store_readings(void) {
-    int i, j;
-    struct COOKED_SENSORS sensors;
-    struct LEG leg;
-    display_on(false);
-    delay_ms(100);
-    wdt_clear();
-    for(i=0; i<100; i++) {
-        sensors_read_uncalibrated(&sensors);
-        for(j=0; j<3; j++) {
-            leg.delta[j] = sensors.mag[j];
-        }
-        leg.survey = i+256;
-        write_leg(&leg);
-        delay_ms(10);
-        wdt_clear();
-    }
-    laser_on(true);
-    delay_ms(100);
-    wdt_clear();
-    for(i=0; i<100; i++) {
-        sensors_read_uncalibrated(&sensors);
-        for(j=0; j<3; j++) {
-            leg.delta[j] = sensors.mag[j];
-        }
-        leg.survey = i+256;
-        write_leg(&leg);
-        delay_ms(10);
-        wdt_clear();
-    }
-    display_on(true);
-    laser_off();
-}
-
 void display_error(CEXCEPTION_T e) {
     char text[20];
     const char *error;
     const char *reason;
     const char *file;
     int line;
+    display_on(true);
+    laser_on(false);
     display_clear_screen();
     error = exception_get_string(e);
     exception_get_details(&reason, &file, &line);
@@ -77,19 +46,13 @@ void main(void)
     PERIPH_EN_SetHigh();
     exception_init();
     TMR2_Start();
-    wdt_clear();
     config_init();
-    delay_ms(100);
-    wdt_clear();
+    survey_init();
     display_init();
+    sensors_init();    
     wdt_clear();
     display_clear_screen();
-    wdt_clear();
-    sensors_init();    
-    delay_ms(100);
-    wdt_clear();
-    //display_write_text(2, 0, "Working", &large_font, false);
-    //store_readings();
+    delay_ms_safe(10);
     while (1)
     {
         Try {
