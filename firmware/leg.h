@@ -39,17 +39,17 @@ void leg_save(struct LEG *leg);
 
 /* if leg spans a page boundary, then return the pointer to the start of the page *
  * otherwise return null */
-void *leg_spans_boundary(struct LEG *leg);
+void *leg_spans_boundary(const struct LEG *leg);
 
 
 /* find a leg */
-struct LEG *leg_find(int survey, int index);
+const struct LEG *leg_find(int survey, int index);
 
 /* find the maximum station within a survey and also the time of the first leg */
 void leg_get_survey_details(int survey, int *max_station, time_t *first_leg);
 
 /*find most recent_leg*/
-struct LEG *leg_find_last(void);
+const struct LEG *leg_find_last(void);
 
 /* convert a pair of stations to text, do not alter the returned string - owned by this module */
 const char *leg_stations_to_text(uint8_t from, uint8_t to);

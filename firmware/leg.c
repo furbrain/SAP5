@@ -26,7 +26,7 @@ struct LEG leg_create(time_t tm, uint16_t survey, uint8_t from, uint8_t to, gsl_
 /* if leg spans a page boundary, then return the pointer to the start of the page *
  * otherwise return null */
 
-void *leg_spans_boundary(struct LEG *leg) {
+void *leg_spans_boundary(const struct LEG *leg) {
     size_t addr = (size_t)(leg+1);
     size_t overlap = addr % 0x800;
     if (overlap==0) return NULL;
@@ -37,14 +37,14 @@ void *leg_spans_boundary(struct LEG *leg) {
     }
 }
 
-static inline bool _is_valid(struct LEG *leg) {
+static inline bool _is_valid(const struct LEG *leg) {
     return (leg->tm != ULONG_MAX);
 }
 
 void leg_save(struct LEG *leg) {
     CEXCEPTION_T e;
-    struct LEG *ptr = leg_store.legs;
-    struct LEG *leg_overflow = &leg_store.legs[MAX_LEG_COUNT];
+    const struct LEG *ptr = leg_store.legs;
+    const struct LEG *leg_overflow = &leg_store.legs[MAX_LEG_COUNT];
     void *boundary;
     while ((ptr < leg_overflow) && _is_valid(ptr)) {
         ptr ++;
@@ -67,12 +67,12 @@ void leg_save(struct LEG *leg) {
 
 
 /* find a leg */
-struct LEG *leg_find(int survey, int index) {
+const struct LEG *leg_find(int survey, int index) {
     int i;
     int first_point=0xffffffff;
     time_t first_tm=LONG_MAX;
     int count = 0;
-    struct LEG *leg;
+    const struct LEG *leg;
     /* first scan through to find the first relevant point */
     for (i=0; i< MAX_LEG_COUNT; i++) {
         leg = &leg_store.legs[i];
@@ -102,7 +102,7 @@ void leg_get_survey_details(int survey, int *max_station, time_t *first_leg) {
     int max_st = INT_MIN;
     time_t first_tm = LONG_MAX;
     int i;
-    struct LEG *leg;
+    const struct LEG *leg;
     for (i=0; i< MAX_LEG_COUNT; i++) {
         leg = &leg_store.legs[i % MAX_LEG_COUNT];
         if (_is_valid(leg) && (leg->survey == survey)) {
@@ -124,12 +124,12 @@ void leg_get_survey_details(int survey, int *max_station, time_t *first_leg) {
 }
 
 /*find most recent_leg*/
-struct LEG *leg_find_last(void) {
+const struct LEG *leg_find_last(void) {
     int i;
     time_t last_tm = LONG_MIN;
     int16_t last_survey = 0;
-    struct LEG *leg;
-    struct LEG *last_leg = NULL;
+    const struct LEG *leg;
+    const struct LEG *last_leg = NULL;
     // find last survey
     for (i=0; i< MAX_LEG_COUNT; i++) {
         leg = &leg_store.legs[i];

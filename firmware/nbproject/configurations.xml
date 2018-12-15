@@ -31,7 +31,6 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/laser.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/calibrate.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/memory.h</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/storage.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/measure.h</itemPath>
       <itemPath>battery.h</itemPath>
       <itemPath>mem_locations.h</itemPath>
@@ -39,6 +38,10 @@
       <itemPath>CException.h</itemPath>
       <itemPath>exception.h</itemPath>
       <itemPath>gsl_static.h</itemPath>
+      <itemPath>leg.h</itemPath>
+      <itemPath>survey.h</itemPath>
+      <itemPath>eigen3x3.h</itemPath>
+      <itemPath>CExceptionConfig.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -75,12 +78,14 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/laser.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/calibrate.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/memory.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/storage.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/measure.c</itemPath>
       <itemPath>battery.c</itemPath>
       <itemPath>menu.c</itemPath>
       <itemPath>CException.c</itemPath>
       <itemPath>exception.c</itemPath>
+      <itemPath>leg.c</itemPath>
+      <itemPath>survey.c</itemPath>
+      <itemPath>eigen3x3.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -90,7 +95,6 @@
       <itemPath>/home/phil/Projects/SAP5/bootloader/specs.txt</itemPath>
       <itemPath>/home/phil/Projects/SAP5/plan.txt</itemPath>
       <itemPath>/home/phil/Projects/SAP5/production.txt</itemPath>
-      <itemPath>plan.txt</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -219,7 +223,7 @@
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-cross-reference-file" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
-        <property key="heap-size" value="2000"/>
+        <property key="heap-size" value="2048"/>
         <property key="input-libraries" value=""/>
         <property key="kseg-length" value=""/>
         <property key="kseg-origin" value=""/>
@@ -233,7 +237,7 @@
         <property key="report-memory-usage" value="false"/>
         <property key="serial-length" value=""/>
         <property key="serial-origin" value=""/>
-        <property key="stack-size" value="2000"/>
+        <property key="stack-size" value="2048"/>
         <property key="symbol-stripping" value=""/>
         <property key="trace-symbols" value=""/>
         <property key="warn-section-align" value="false"/>

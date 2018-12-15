@@ -2,6 +2,7 @@
 #define _EXCEPTION_H
 
 /* Exception codes are in CExceptionConfig.h */
+#include "CExceptionConfig.h"
 #include "CException.h"
     
 #define THROW_WITH_REASON(reason, code) exception_error_handler(reason, __FILE__, __LINE__, code)

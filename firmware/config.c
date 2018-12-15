@@ -40,7 +40,7 @@ void config_save(void){
     write_data(ptr, &config, sizeof(config));
 }
 
-bool config_ptr_is_valid(struct CONFIG *conf) {
+bool config_ptr_is_valid(const struct CONFIG *conf) {
     return conf->axes.accel[0] != 0xff;
 }
 

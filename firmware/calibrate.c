@@ -7,7 +7,7 @@
 #include "font.h"
 #include "sensors.h"
 #include "maths.h"
-#include "storage.h"
+#include "leg.h"
 #include "calibrate.h"
 
 #define MIN(a,b) ((a)<(b))?(a):(b)
@@ -242,8 +242,8 @@ void calibrate_sensors(int32_t a) {
     display_clear_screen();
     display_write_multiline(0, "Storing", &small_font);
     //delay_ms_safe(1000);
-    write_data((uint8_t*)leg_space, mag_readings, sizeof(mag_readings));
-    write_data((uint8_t*)(leg_space+sizeof(mag_readings)), grav_readings, sizeof(grav_readings));
+    write_data(leg_store.raw, mag_readings, sizeof(mag_readings));
+    write_data(leg_store.raw+sizeof(mag_readings), grav_readings, sizeof(grav_readings));
     display_write_multiline(2, "Processing", &small_font);
     //delay_ms_safe(500);
     // calibrate magnetometer

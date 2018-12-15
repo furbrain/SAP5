@@ -1,7 +1,6 @@
 #ifndef MATHS_H
 #define MATHS_H
 #include <stdint.h>
-#include <stdfix.h>
 #include <gsl/gsl_matrix.h>
 
 typedef double vectorr[3];

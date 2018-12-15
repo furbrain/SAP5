@@ -72,7 +72,7 @@ void measure_get_reading(gsl_vector *orientation) {
 				return;
 				break;
 			case DOUBLE_CLICK:
-			    do_exit();
+			    do_exit(0);
 				return;
 				break;
 	        default:

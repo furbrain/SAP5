@@ -26,7 +26,7 @@
     erasing
 
 */
-void erase_page(void *ptr) {
+void erase_page(const void *ptr) {
     unsigned int res;
     size_t page;
     page = (size_t)KVA_TO_PA(ptr);
@@ -78,7 +78,7 @@ void erase_memory() {
     fails
 
 */
-void write_row(void *ptr, const void* src) {
+void write_row(const void *ptr, const void* src) {
     unsigned int res;
     size_t row;
     row = (size_t)KVA_TO_PA(ptr);
@@ -108,7 +108,7 @@ void write_row(void *ptr, const void* src) {
     fails
 
 */
-void write_dword(void *ptr, const void* src){
+void write_dword(const void *ptr, const void* src){
     unsigned int res;
     size_t dword;
     // Load data into NVMDATA register
@@ -123,7 +123,7 @@ void write_dword(void *ptr, const void* src){
     }
 }
 
-void write_data(void *ptr,  const void *src, int length){
+void write_data(const void *ptr,  const void *src, int length){
     if ((size_t)ptr % 8)
         THROW_WITH_REASON("Write address not on doubleword boundary", ERROR_FLASH_STORE_FAILED);
     if (length % 8)

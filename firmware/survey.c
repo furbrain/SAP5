@@ -8,7 +8,7 @@ struct SURVEY survey_current;
 /* find current survey - either most recent one if one started in last 8 hours,
    or start a new one */
 void survey_current_init() {
-    struct LEG *last_leg;
+    const struct LEG *last_leg;
     time_t now;
     last_leg = leg_find_last();
     if (last_leg) {

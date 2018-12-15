@@ -76,7 +76,7 @@ static void clear_flash()
 	int8_t res;
 
 	while (prog_addr < USER_REGION_TOP) {
-		res = erase_page((void*)prog_addr);
+		erase_page((void*)prog_addr);
 		if (res < 0)
 			return;
 

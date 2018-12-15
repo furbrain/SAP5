@@ -3,6 +3,7 @@
 #include "mcc_generated_files/tmr1.h"
 #include "mcc_generated_files/rtcc.h"
 #include "utils.h"
+#include "exception.h"
 
 void delay_ms(int count) {
     while (count > 0) {
@@ -62,25 +63,25 @@ int utils_flash_memory (void *dest, const void *data, enum FLASH_OP op) {
     int status;
     // Fill out relevant registers
     NVMADDR = (uint32_t)dest;
-    switch (nvmop) {
-    case FLASH_WRITE_DWORD:
-        NVMDATA0 = *((uint32_t*)data);
-        NVMDATA1 = *(((uint32_t*)data)+1);
-        break;
-    case FLASH_WRITE_ROW:
-    case FLASH_ERASE_PAGE:
-        NVMSRCADDR = (uint32_t)data;
-        break;
-    case FLASH_ERASE_CHIP:
-        break;
-    default:
-        THROW_WITH_REASON("Invalid flash operation",ERROR_FLASH_STORE_FAILED)
+    switch (op) {
+        case FLASH_WRITE_DWORD:
+            NVMDATA0 = *((uint32_t*)data);
+            NVMDATA1 = *(((uint32_t*)data)+1);
+            break;
+        case FLASH_WRITE_ROW:
+        case FLASH_ERASE_PAGE:
+            NVMSRCADDR = (uint32_t)data;
+            break;
+        case FLASH_ERASE_CHIP:
+            break;
+        default:
+            THROW_WITH_REASON("Invalid flash operation",ERROR_FLASH_STORE_FAILED);
     }
     // Suspend or Disable all Interrupts
     INTERRUPT_GlobalDisable();
     // Enable Flash Write/Erase Operations and Select
     // Flash operation to perform
-    NVMCON = nvmop;
+    NVMCON = op;
     // Write Keys
     NVMKEY = 0xAA996655;
     NVMKEY = 0x556699AA;
