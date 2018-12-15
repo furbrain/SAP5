@@ -70,10 +70,7 @@ find_rotation_and_scale_of_ellipse(vectorr *data,
 /* find the vector describing a plane from a set of points *
  * data is a set of vectorrs, axes hold the two axes that should be varying most *
  * len is the number of data points */
-void find_plane(vectorr *data,
-                const int axes[2],
-                const int16_t len,
-                vectorr result);
+void find_plane(double *data_array, int len, gsl_vector *result);
         
 
 /* finds the median value of array. array is modified and sorted by this function */
@@ -81,5 +78,5 @@ int16_t find_median(int16_t array[],const int16_t len);
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
-void calibrate(const double *data, const int len, matrixx result);
+void calibrate(const double *data, int len, matrixx result);
 #endif

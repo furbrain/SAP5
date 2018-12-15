@@ -201,41 +201,28 @@ find_rotation_and_scale_of_ellipse(vectorr *data,
     return final;          
 }
 
-void find_plane(vectorr *data,
-                const int axes[2],
-                const int16_t len,
-                vectorr result) {
-    int i;
+static void solve_least_squares(gsl_matrix *input, gsl_vector *output, int num_params, gsl_vector *results) {
     double fit, sfit;
-    gsl_multilarge_linear_workspace *workspace = gsl_multilarge_linear_alloc(
-            gsl_multilarge_linear_normal, 3);
-    
-    //allocate variables
-    GSL_MATRIX_RESIZE(lsq_input, len, 3);
+    gsl_multilarge_linear_workspace *workspace = gsl_multilarge_linear_alloc(gsl_multilarge_linear_normal, num_params);
+    gsl_multilarge_linear_accumulate(input, output, workspace);
+    gsl_multilarge_linear_solve(0.0, results, &fit, &sfit, workspace);
+    gsl_multilarge_linear_free(workspace);
+}
+
+
+void find_plane(double *data_array, int len, gsl_vector *result) {
+    GSL_VECTOR_DECLARE(params, 3);
+
     GSL_VECTOR_RESIZE(lsq_output, len);
-    GSL_VECTOR_RESIZE(lsq_res, 3);
+    gsl_matrix_view input = gsl_matrix_view_array(data_array, len, 3);
     
 
     //initialise variables
     gsl_vector_set_all(&lsq_output, 1.0);
-    for (i=0; i< len; i++) {
-        gsl_matrix_set(&lsq_input,i, 0,(double) data[i][0]);
-        gsl_matrix_set(&lsq_input,i, 1,(double) data[i][1]);
-        gsl_matrix_set(&lsq_input,i, 2,(double) data[i][2]);
-    }
-    
     //calculate plane
-    gsl_multilarge_linear_accumulate(&lsq_input, &lsq_output, workspace);
-    gsl_multilarge_linear_solve(0.0, &lsq_res, &fit, &sfit, workspace);
-    
-    //gsl_multifit_linear(&lsq_input, &lsq_output, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
-    
+    solve_least_squares(&input.matrix, &lsq_output, 3, result);
     //process results
-    normalise(&lsq_res);
-    result[0] = gsl_vector_get(&lsq_res,0);
-    result[1] = gsl_vector_get(&lsq_res,1);
-    result[2] = gsl_vector_get(&lsq_res,2);
-    gsl_multilarge_linear_free(workspace);
+    normalise(result);
 }
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result) {
@@ -292,13 +279,6 @@ static void prepare_input_matrix(gsl_matrix *input, const double *data_array, in
     gsl_vector_memcpy(&z2.vector, &z.vector); gsl_vector_scale(&z2.vector, 2.0); //z2 = z*2
 }
 
-static void solve_least_squares(gsl_matrix *input, gsl_vector *output, int num_params, gsl_vector *results) {
-    double fit, sfit;
-    gsl_multilarge_linear_workspace *workspace = gsl_multilarge_linear_alloc(gsl_multilarge_linear_normal, num_params);
-    gsl_multilarge_linear_accumulate(input, output, workspace);
-    gsl_multilarge_linear_solve(0.0, results, &fit, &sfit, workspace);
-    gsl_multilarge_linear_free(workspace);
-}
 
 static void make_ellipsoid_matrix(gsl_matrix *ellipsoid, gsl_vector *params) {
     int i, j, index;
