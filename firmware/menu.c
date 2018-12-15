@@ -93,7 +93,7 @@ void menu_next(struct menu *menu) {
 }
 
 /* get the menu text, do not alter the returned string, only valid as long as the underlying menu */
-char* menu_get_text(struct menu *menu){
+const char* menu_get_text(struct menu *menu){
     while (menu->submenu) 
         menu = menu->submenu;
     return menu->entries[menu->current_entry].text;

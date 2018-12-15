@@ -70,7 +70,7 @@ void menu_next(struct menu *menu);
 void menu_prev(struct menu *menu);
 
 /* get the menu text, do not alter the returned string, only valid as long as the underlying menu */
-char* menu_get_text(struct menu *menu);
+const char* menu_get_text(struct menu *menu);
 
 /* start using a menu, set current item to first item in top level */
 void menu_initialise(struct menu *menu);
