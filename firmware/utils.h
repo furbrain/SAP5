@@ -3,6 +3,12 @@
 #include <stdint.h>
 #include <time.h>
 
+#ifdef __DEBUG
+#define TESTABLE_STATIC
+#else
+#define TESTABLE_STATIC static
+#endif
+
 enum FLASH_OP {
     FLASH_WRITE_DWORD = 0x4002,
     FLASH_WRITE_ROW = 0x4003,
