@@ -25,19 +25,6 @@ const matrixx identity = {
     {0, 0, 1.0, 0}
 };
 
-double amax(const double a, const double b) {
-    return a > b ? a : b;
-}
-
-double amin(const double a, const double b) {
-    return a < b ? a : b;
-}
-
-double aabs(const double a) {
-    return (a < 0.0) ? (double)(0.0 - a) : (a);
-}
-
-
 
 void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c) {
     int i, j, k;
@@ -62,14 +49,6 @@ void apply_matrix(const vectorr a, matrixx b, vectorr c) {
     }
 }
 
-double distance2(const double *a, const double *b) {
-    double x, y, z;
-    x = a[0]-b[0];
-    y = a[1]-b[1];
-    z = a[2]-b[2];
-    return (x*x)+(y*y)+(z*z);
-}
-
 void matrix_multiply(matrixx calibration, matrixx delta) {
     int i,j,k;
     matrixx cal_copy;
@@ -85,33 +64,6 @@ void matrix_multiply(matrixx calibration, matrixx delta) {
     }
 }
 
-void apply_offset(const double x, const double y, const double z, matrixx matrix) {
-    matrixx new_mat = {
-        {1.0, 0, 0, x},
-        {0, 1.0, 0, y},
-        {0, 0, 1.0, z}
-    };
-    matrix_multiply(matrix, new_mat);
-}
-
-void apply_2d_rotation(const int axes[2], const double vector[2], matrixx matrix) {
-    matrixx new_mat;
-    int x = axes[0];
-    int y = axes[1];
-    memcpy(new_mat, identity, sizeof(new_mat));
-    new_mat[x][x] = vector[0];
-    new_mat[x][y] = vector[1];
-    new_mat[y][x] = -vector[1];
-    new_mat[y][y] = vector[0];
-    matrix_multiply(matrix, new_mat);
-}
-
-void apply_scale(const int axis, const double scale, matrixx matrix) {
-    matrixx new_mat;
-    memcpy(new_mat, identity, sizeof(matrixx));
-    new_mat[axis][axis] = scale;
-    matrix_multiply(matrix, new_mat);    
-}
 
 void maths_get_orientation(const gsl_vector *magnetism,
                            const gsl_vector *acceleration,
@@ -135,67 +87,6 @@ void maths_get_orientation(const gsl_vector *magnetism,
 
 void normalise(gsl_vector *vector) {
     gsl_vector_scale(vector, 1.0/ gsl_blas_dnrm2(vector));
-}
-
-int16_t find_median(int16_t array[], const int16_t len) {
-	int16_t swap;
-	int c,d;
-	for (c = 0 ; c < ( len - 1 ); c++) {
-		for (d = 0 ; d < len - c - 1; d++) {
-			if (array[d] > array[d+1]) {
-				swap       = array[d];
-				array[d]   = array[d+1];
-				array[d+1] = swap;
-			}
-		}
-	}
-	return array[len/2];
-}
-
-void get_rotation_matrix(const int axes[2], double theta, matrixx matrix) {
-    double v[2];
-    memcpy(matrix, identity, sizeof(matrixx));
-    v[0] = cos(theta);
-    v[1] = sin(theta);
-    apply_2d_rotation(axes, v, matrix);
-}
-
-
-/* find the long axis and ratio of long:short axis for an ellipse *
- * data is a set of vectorrs, axes hold the two axes of interest *
- * len is number of data points */
-struct ELLIPSE_PARAM 
-find_rotation_and_scale_of_ellipse(vectorr *data, 
-                                   const int axes[2], 
-                                   const int16_t len,
-                                   int precision) {
-    double maxx;
-    double maxy;
-    double theta;
-    vectorr v;
-    matrixx rotation;
-    int i,j;
-    int a0,a1;
-    struct ELLIPSE_PARAM final = {0, 0};
-    a0 = axes[0];
-    a1 = axes[1];
-    for (i=0; i < precision; i++) {
-        theta = i * M_PI/precision;
-        get_rotation_matrix(axes, theta, rotation);
-        maxx = 0;
-        maxy = 0;
-        for (j=0; j< len; j++) {
-            apply_matrix(data[j], rotation, v);
-            maxx = amax(aabs(v[a0]),maxx);
-            maxy = amax(aabs(v[a1]),maxy);
-        }
-        //if (1) {
-        if ((maxx / maxy) > final.scale) {
-            final.scale = maxx /maxy;
-            final.theta = theta;
-        }
-    }
-    return final;          
 }
 
 static void solve_least_squares(gsl_matrix *input, gsl_vector *output, int num_params, gsl_vector *results) {

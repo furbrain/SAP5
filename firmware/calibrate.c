@@ -161,7 +161,7 @@ double check_calibration(double *data, int len, matrixx calibration) {
         vector[2] = data[k*3+2];
         apply_matrix(vector, calibration, v_result);
         magnitude = v_result[0]*v_result[0] + v_result[1]*v_result[1] + v_result[2]*v_result[2];
-        max_error += aabs(magnitude-1.0);
+        max_error += fabs(magnitude-1.0);
     }
     return (max_error/len)*100;
 }
@@ -190,13 +190,13 @@ int collect_data_around_axis(int axis, double gyro_offset, double *mag_data, dou
             sensors_read_uncalibrated(&sensors);
             gyro += ((sensors.gyro[axis]-gyro_offset)*20)/1000;
             delay_ms_safe(20);
-        } while (aabs(gyro)<(i*3));
+        } while (fabs(gyro)<(i*3));
         for (j=0; j<3; j++) {
            mag_data[i*3+j] = sensors.mag[j];
            grav_data[i*3+j] = sensors.accel[j];
         }
         i++;
-    } while ((aabs(gyro)<400) && i < (CALIBRATION_SAMPLES/2));
+    } while ((fabs(gyro)<400) && i < (CALIBRATION_SAMPLES/2));
     return i;
 }
 
