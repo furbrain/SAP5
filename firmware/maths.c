@@ -262,6 +262,44 @@ void sqrtm(gsl_matrix *a, gsl_matrix *result) {
     
 }
 
+static void prepare_input_matrix(gsl_matrix *input, const double *data_array, int len) {
+    //setup GSL variables and aliases...
+    gsl_matrix_const_view data = gsl_matrix_const_view_array(data_array, len, 3);
+    gsl_vector_const_view x = gsl_matrix_const_column(&data.matrix, 0);
+    gsl_vector_const_view y = gsl_matrix_const_column(&data.matrix, 1);
+    gsl_vector_const_view z = gsl_matrix_const_column(&data.matrix, 2);
+    gsl_vector_view xsq = gsl_matrix_column(&lsq_input, 0);
+    gsl_vector_view ysq = gsl_matrix_column(&lsq_input, 1);
+    gsl_vector_view zsq = gsl_matrix_column(&lsq_input, 2);
+    gsl_vector_view xy2 = gsl_matrix_column(&lsq_input, 3);
+    gsl_vector_view xz2 = gsl_matrix_column(&lsq_input, 4);
+    gsl_vector_view yz2 = gsl_matrix_column(&lsq_input, 5);
+    gsl_vector_view x2  = gsl_matrix_column(&lsq_input, 6);
+    gsl_vector_view y2  = gsl_matrix_column(&lsq_input, 7);
+    gsl_vector_view z2  = gsl_matrix_column(&lsq_input, 8);
+    
+    //copy data into input_matrix
+    gsl_vector_memcpy(&xsq.vector, &x.vector); gsl_vector_mul(&xsq.vector, &x.vector);  // xsq = x*x
+    gsl_vector_memcpy(&ysq.vector, &y.vector); gsl_vector_mul(&ysq.vector, &y.vector);  // ysq = y*y
+    gsl_vector_memcpy(&zsq.vector, &z.vector); gsl_vector_mul(&zsq.vector, &z.vector);  // zsq = z*z
+    
+    gsl_vector_memcpy(&xy2.vector, &x.vector); gsl_vector_mul(&xy2.vector, &y.vector); gsl_vector_scale(&xy2.vector, 2.0); // xy2 = x*y*2  
+    gsl_vector_memcpy(&xz2.vector, &x.vector); gsl_vector_mul(&xz2.vector, &z.vector); gsl_vector_scale(&xz2.vector, 2.0); // xz2 = x*z*2  
+    gsl_vector_memcpy(&yz2.vector, &y.vector); gsl_vector_mul(&yz2.vector, &z.vector); gsl_vector_scale(&yz2.vector, 2.0); // yz2 = y*z*2
+    
+    gsl_vector_memcpy(&x2.vector, &x.vector); gsl_vector_scale(&x2.vector, 2.0); //x2 = x*2  
+    gsl_vector_memcpy(&y2.vector, &y.vector); gsl_vector_scale(&y2.vector, 2.0); //y2 = y*2  
+    gsl_vector_memcpy(&z2.vector, &z.vector); gsl_vector_scale(&z2.vector, 2.0); //z2 = z*2
+}
+
+static void solve_least_squares(gsl_matrix *input, gsl_vector *output, int num_params, gsl_vector *results) {
+    double fit, sfit;
+    gsl_multilarge_linear_workspace *workspace = gsl_multilarge_linear_alloc(gsl_multilarge_linear_normal, num_params);
+    gsl_multilarge_linear_accumulate(input, output, workspace);
+    gsl_multilarge_linear_solve(0.0, results, &fit, &sfit, workspace);
+    gsl_multilarge_linear_free(workspace);
+}
+
 static void make_ellipsoid_matrix(gsl_matrix *ellipsoid, gsl_vector *params) {
     int i, j, index;
     for (i=0; i<3; i++) {
@@ -297,89 +335,54 @@ static void get_centre_coords(gsl_matrix *ellipsoid, gsl_vector *centre) {
     gsl_permutation_free(perm);
 }
 
+static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *centre, gsl_matrix *results) {
+    GSL_MATRIX_DECLARE(T, 4, 4);
+    GSL_MATRIX_DECLARE(temp1, 4, 4);
+    GSL_MATRIX_DECLARE(temp2, 4, 4);
+    gsl_matrix_view temp2_submat = gsl_matrix_submatrix(&temp2, 0, 0, 3, 3);
+
+    //initialise T
+    gsl_matrix_set_identity(&T);
+    gsl_matrix_set(&T, 3, 0, gsl_vector_get(centre, 0));
+    gsl_matrix_set(&T, 3, 1, gsl_vector_get(centre, 1));
+    gsl_matrix_set(&T, 3, 2, gsl_vector_get(centre, 2));
+
+    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, &T, ellipsoid, 0.0, &temp1);
+    gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, &temp1, &T, 0.0, &temp2);
+    gsl_matrix_scale(&temp2_submat.matrix,-1.0*gsl_matrix_get(&temp2,3,3));
+    
+    //return sqrt(temp2)
+    sqrtm(&temp2_submat.matrix, results);
+}
 
 void calibrate(const double *data_array, const int len, matrixx result) {
     double fit, sfit;
     int i,j;
     matrixx ellipsoid;
     GSL_MATRIX_DECLARE(a4, 4, 4);
-    gsl_matrix_view a3 = gsl_matrix_submatrix(&a4,0,0,3,3);
-    GSL_MATRIX_DECLARE(b4, 4, 4);
-    gsl_matrix_view b3 = gsl_matrix_submatrix(&b4,0,0,3,3);
-    GSL_MATRIX_DECLARE(T, 4, 4);
+    GSL_MATRIX_DECLARE(transform, 3, 3);
+    GSL_VECTOR_DECLARE(params, 9);
     GSL_VECTOR_DECLARE(centre, 3);
-    gsl_vector_view xsq, ysq, zsq, xy2, xz2, yz2, x2, y2, z2;
-
-    //setup GSL variables and aliases...
-    gsl_matrix_const_view data = gsl_matrix_const_view_array(data_array, len, 3);
-    gsl_vector_const_view x = gsl_matrix_const_column(&data.matrix, 0);
-    gsl_vector_const_view y = gsl_matrix_const_column(&data.matrix, 1);
-    gsl_vector_const_view z = gsl_matrix_const_column(&data.matrix, 2);
-    gsl_multilarge_linear_workspace *workspace;
-    gsl_permutation *perm;
 
     GSL_MATRIX_RESIZE(lsq_input, len, 9);
     GSL_VECTOR_RESIZE(lsq_output, len);
-    GSL_VECTOR_RESIZE(lsq_res, 9);
-    
-    xsq = gsl_matrix_column(&lsq_input, 0);
-    ysq = gsl_matrix_column(&lsq_input, 1);
-    zsq = gsl_matrix_column(&lsq_input, 2);
-    xy2 = gsl_matrix_column(&lsq_input, 3);
-    xz2 = gsl_matrix_column(&lsq_input, 4);
-    yz2 = gsl_matrix_column(&lsq_input, 5);
-    x2  = gsl_matrix_column(&lsq_input, 6);
-    y2  = gsl_matrix_column(&lsq_input, 7);
-    z2  = gsl_matrix_column(&lsq_input, 8);
-    
-    //load data into input array
-    gsl_vector_memcpy(&xsq.vector, &x.vector); gsl_vector_mul(&xsq.vector, &x.vector);  // xsq = x*x
-    gsl_vector_memcpy(&ysq.vector, &y.vector); gsl_vector_mul(&ysq.vector, &y.vector);  // ysq = y*y
-    gsl_vector_memcpy(&zsq.vector, &z.vector); gsl_vector_mul(&zsq.vector, &z.vector);  // zsq = z*z
-    
-    gsl_vector_memcpy(&xy2.vector, &x.vector); gsl_vector_mul(&xy2.vector, &y.vector); gsl_vector_scale(&xy2.vector, 2.0); // xy2 = x*y*2  
-    gsl_vector_memcpy(&xz2.vector, &x.vector); gsl_vector_mul(&xz2.vector, &z.vector); gsl_vector_scale(&xz2.vector, 2.0); // xz2 = x*z*2  
-    gsl_vector_memcpy(&yz2.vector, &y.vector); gsl_vector_mul(&yz2.vector, &z.vector); gsl_vector_scale(&yz2.vector, 2.0); // yz2 = y*z*2
-    
-    gsl_vector_memcpy(&x2.vector, &x.vector); gsl_vector_scale(&x2.vector, 2.0); //x2 = x*2  
-    gsl_vector_memcpy(&y2.vector, &y.vector); gsl_vector_scale(&y2.vector, 2.0); //y2 = y*2  
-    gsl_vector_memcpy(&z2.vector, &z.vector); gsl_vector_scale(&z2.vector, 2.0); //z2 = z*2
-    
-    //load data into output array
+
+    prepare_input_matrix(&lsq_input, data_array, len);
     gsl_vector_set_all(&lsq_output,1.0);
-    
-    //perform least_squares analysis
-//    gsl_multifit_linear(&lsq_input, &lsq_output, &lsq_res, &lsq_cov, &fit, &lsq_workspace);
-    workspace = gsl_multilarge_linear_alloc(gsl_multilarge_linear_normal, 9);
-    gsl_multilarge_linear_accumulate(&lsq_input, &lsq_output, workspace);
-    gsl_multilarge_linear_solve(0.0, &lsq_res, &fit, &sfit, workspace);
-    gsl_multilarge_linear_free(workspace);
-    //fill a4
-    make_ellipsoid_matrix(&a4, &lsq_res);
-    //fill vghi
+    solve_least_squares(&lsq_input, &lsq_output, 9, &params);
+    make_ellipsoid_matrix(&a4, &params);
     get_centre_coords(&a4, &centre);
+    convert_ellipsoid_to_transform(&a4, &centre, &transform);
+
+    //prepare output
     memcpy(result, identity, sizeof(identity));
     result[0][3] = -1.0*gsl_vector_get(&centre, 0);
     result[1][3] = -1.0*gsl_vector_get(&centre, 1);
     result[2][3] = -1.0*gsl_vector_get(&centre, 2);
-    
-    gsl_matrix_set_identity(&T);
-    gsl_matrix_set(&T, 3, 0, gsl_vector_get(&centre, 0));
-    gsl_matrix_set(&T, 3, 1, gsl_vector_get(&centre, 1));
-    gsl_matrix_set(&T, 3, 2, gsl_vector_get(&centre, 2));
-    
-    //b4 = T.A4.T^T
-    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, &T, &a4, 0.0, &b4);
-    gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, &b4, &T, 0.0, &a4);
-    gsl_matrix_memcpy(&b4, &a4);
-    gsl_matrix_scale(&b3.matrix,-1.0*gsl_matrix_get(&b4,3,3));
-    
-    //A3 = sqrt(B3)
-    sqrtm(&b3.matrix, &a3.matrix);
     //result[0:3,0:3] = a3
     for (i=0; i<3; i++) {
         for (j=0; j<3; j++) {
-            ellipsoid[i][j] = gsl_matrix_get(&a3.matrix, i, j);
+            ellipsoid[i][j] = gsl_matrix_get(&transform, i, j);
         }
         ellipsoid[i][3] = 0.0;
     }
