@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "unity.h"
 #include "leg.h"
@@ -56,12 +57,16 @@ void tearDown(void)
 
 void test_leg_create(void) {
     struct LEG leg;
-    leg = leg_create(10,1,2,3,(double[3]){1.2,3.4,5.6});
+    double data[3] = {1.2,3.4,5.6};
+    gsl_vector_view vector = gsl_vector_view_array(data, 3);
+    leg = leg_create(10,1,2,3,&vector.vector);
     TEST_ASSERT_EQUAL(10,leg.tm);
     TEST_ASSERT_EQUAL(10,leg.tm);
     TEST_ASSERT_EQUAL(10,leg.tm);
     TEST_ASSERT_EQUAL(10,leg.tm);
     TEST_ASSERT_EQUAL_FLOAT(1.2,leg.delta[0]);
+    TEST_ASSERT_EQUAL_FLOAT(3.4,leg.delta[1]);
+    TEST_ASSERT_EQUAL_FLOAT(5.6,leg.delta[2]);
 }
 
 void add_test_legs(void) {
@@ -227,3 +232,40 @@ void test_leg_save_fails(void) {
     TEST_ASSERT_THROWS(leg_save(&test_leg), ERROR_FLASH_STORE_FAILED);
 }
 
+/* convert a pair of stations to text, do not alter the returned string - owned by this module */
+void test_stations_to_text(void) {
+    struct test_field {
+        uint8_t from;
+        uint8_t to;
+        const char *text;
+    };
+    struct test_field test_cases[5] = {
+        {1, 2, "1 -> 2"},
+        {2, 4, "2 -> 4"},
+        {3, LEG_SPLAY, "3 -> -"},
+        {LEG_SPLAY, 5, "- -> 5"},
+        {200, 201, "200 -> 201"}
+    };
+    const char *text;
+    int i;
+    for (i=0; i<5; i++) {
+        text = leg_stations_to_text(test_cases[i].from, test_cases[i].to);
+        TEST_ASSERT_EQUAL_STRING(test_cases[i].text, text);
+    }
+}
+
+
+/* test encoding end-to-end */
+void test_stations_encode_decode(void) {
+    int i;
+    uint8_t from, to, rfrom, rto;
+    int32_t intermediate;
+    for (i=0; i<100; i++) {
+        from = rand() % 256;
+        to = rand() %256;
+        intermediate = leg_stations_encode(from, to);
+        leg_stations_decode(intermediate, &rfrom, &rto);
+        TEST_ASSERT_EQUAL(from, rfrom);
+        TEST_ASSERT_EQUAL(to, rto); 
+    }
+}

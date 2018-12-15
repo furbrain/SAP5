@@ -1,5 +1,6 @@
 #include <limits.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "leg.h"
 #include "memory.h"
@@ -8,14 +9,16 @@
 
 union LEG_STORE leg_store PLACE_DATA_AT(APP_LEG_LOCATION) = {.raw = {[0 ... APP_LEG_SIZE-1]=0xff}};
 
-struct LEG leg_create(time_t tm, uint16_t survey, uint8_t from, uint8_t to, double delta[3]) {
+char leg_stations_description[20];
+
+struct LEG leg_create(time_t tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vector *delta) {
     struct LEG leg;
     int i;
     leg.tm = tm;
     leg.survey = survey;
     leg.from = from;
     leg.to = to;
-    for(i=0; i<3; i++) leg.delta[i] = delta[i];
+    for(i=0; i<3; i++) leg.delta[i] = gsl_vector_get(delta, i);
     return leg;
     
 }
@@ -147,5 +150,48 @@ struct LEG *leg_find_last(void) {
         }
     }
     return last_leg;
+}
+
+/* convert a pair of stations to text, do not alter the returned string - owned by this module */
+const char *leg_stations_to_text(uint8_t from, uint8_t to) {
+    char from_text[8];
+    char to_text[8];
+    if (from==LEG_SPLAY) {
+        sprintf(from_text,"-");
+    } else {
+        sprintf(from_text, "%d", from);
+    }
+    if (to==LEG_SPLAY) {
+        sprintf(to_text,"-");
+    } else {
+        sprintf(to_text, "%d", to);
+    }
+    sprintf(leg_stations_description, "%s -> %s", from_text, to_text);
+    return leg_stations_description;
+}
+
+
+union ENCODER {
+    int32_t code;
+    struct {
+    uint8_t from;
+    uint8_t to;
+    };
+};
+
+/* encode a pair of station numbers as an int32_t */
+int32_t leg_stations_encode(uint8_t from, uint8_t to) {
+    union ENCODER encoder;
+    encoder.from = from;
+    encoder.to = to;
+    return encoder.code;
+}
+
+/* reverse encoding as done by above function */
+void leg_stations_decode(int32_t code, uint8_t *from, uint8_t *to) {
+    union ENCODER encoder;
+    encoder.code = code;
+    *from = encoder.from;
+    *to = encoder.to;
 }
 

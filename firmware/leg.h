@@ -2,11 +2,14 @@
 #define _LEG_H
 #include <stdint.h>
 #include <time.h>
+#include <gsl/gsl_vector.h>
 #include "mem_locations.h"
 #include "survey.h"
 
 
 #define MAX_LEG_COUNT (APP_LEG_SIZE / sizeof(struct LEG))
+#define LEG_SPLAY 0xFF
+
 
 struct __attribute__((aligned(8))) LEG {
     time_t tm; // time of reading
@@ -29,7 +32,7 @@ extern union LEG_STORE leg_store;
 
 
 /* create a leg */
-struct LEG leg_create(time_t tm, uint16_t survey, uint8_t from, uint8_t to, double delta[3]);
+struct LEG leg_create(time_t tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vector *delta);
 
 /* save a leg */
 void leg_save(struct LEG *leg);
@@ -47,6 +50,15 @@ void leg_get_survey_details(int survey, int *max_station, time_t *first_leg);
 
 /*find most recent_leg*/
 struct LEG *leg_find_last(void);
+
+/* convert a pair of stations to text, do not alter the returned string - owned by this module */
+const char *leg_stations_to_text(uint8_t from, uint8_t to);
+
+/* encode a pair of station numbers as an int32_t */
+int32_t leg_stations_encode(uint8_t from, uint8_t to);
+
+/* reverse encoding as done by above function */
+void leg_stations_decode(int32_t, uint8_t *from, uint8_t *to);
 
 
 #endif // _LEG_H
