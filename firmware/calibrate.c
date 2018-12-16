@@ -15,7 +15,7 @@
 static double mag_readings[CALIBRATION_SAMPLES*3]; //3 sets of readings...
 static double grav_readings[CALIBRATION_SAMPLES*3];
 
-
+static
 int get_greatest_axis(struct RAW_SENSORS *raw) {
     int max_abs = 0;
     int axis = 0;
@@ -89,64 +89,6 @@ void calibrate_axes(int dummy) {
     delay_ms_safe(500);
     config_save();
     
-}
-
-static
-void apply_matrix_to_readings(vectorr src[], vectorr dest[], int reading_count, matrixx matrix) {
-    int i;
-    for (i=0; i< reading_count; i++) {
-        apply_matrix(src[i], matrix, dest[i]);
-        wdt_clear();
-    }
-}
-
-void get_data_stats(vectorr readings[], int axes[2], int reading_count, double offset[2], double max_data[2], double min_data[2]) {
-    int i, k;
-    for (k=0; k<2; k++) {
-        min_data[k] = 0;
-        max_data[k] = 0;
-    }
-    for (i=0; i<reading_count; i++) {
-        for (k=0; k<2; k++) {
-            min_data[k] = MIN(min_data[k],readings[i][axes[k]]);
-            max_data[k] = MAX(max_data[k],readings[i][axes[k]]);
-        }
-        wdt_clear();
-    }
-    offset[0] =(min_data[0]+max_data[0])/2.0;
-    offset[1] =(min_data[1]+max_data[1])/2.0;
-}
-
-
-void show_data(vectorr readings[], int axes[2], int reading_count) {
-    double offset[2], max_data[2], min_data[2];
-    double scale;
-    int i, x, y;
-    char text[20];
-    display_clear_screen();
-    get_data_stats(readings, axes, reading_count, offset, max_data, min_data);
-    scale = MIN(32.0 / (max_data[0]-offset[0]),
-                32.0 / (max_data[1]-offset[1]));
-    for (i=0; i<reading_count; i++) {
-        x = 64+(int)((readings[i][axes[0]]-offset[0])*scale);
-        y = 32+(int)((readings[i][axes[1]]-offset[1])*scale);
-        display_setbuffer_xy(x,y);
-        wdt_clear();
-    }
-    x = 64+(int)((0-offset[0])*scale);
-    y = 32+(int)((0-offset[1])*scale);
-    display_draw_line(x-3,y,x+3,y);
-    display_draw_line(x,y-3,x,y+3);
-    display_show_buffer();
-}
-
-void show_modified_readings(vectorr readings[], int axes[2], int reading_count, matrixx matrix) {
-    vectorr modified_readings[400];
-    apply_matrix_to_readings(readings, modified_readings, reading_count, matrix);
-    show_data(modified_readings,axes, reading_count);
-    wdt_clear();
-    delay_ms(800);
-    wdt_clear();
 }
 
 
@@ -240,136 +182,26 @@ void calibrate_sensors(int32_t a) {
     laser_on(false);
     display_on(true);
     display_clear_screen();
-    display_write_multiline(0, "Storing", &small_font);
-    //delay_ms_safe(1000);
-    write_data(leg_store.raw, mag_readings, sizeof(mag_readings));
-    write_data(leg_store.raw+sizeof(mag_readings), grav_readings, sizeof(grav_readings));
-    display_write_multiline(2, "Processing", &small_font);
-    //delay_ms_safe(500);
+    display_write_multiline(0, "Processing", &small_font);
     // calibrate magnetometer
-    //wdt_disable(10);
     calibrate(mag_readings, data_length, mag_mat);
-    //error = check_calibration(mag_readings, data_length, mag_mat);
-    //snprintf(text, 28, "Mag Err:  %.2f%%", error);
-    //display_write_multiline(2,text, &small_font);
+    error = check_calibration(mag_readings, data_length, mag_mat);
+    sprintf(text, "Mag Err:  %.2f%%", error);
+    display_write_multiline(2,text, &small_font);
     wdt_clear();
     // calibrate accelerometer
     calibrate(grav_readings, data_length, accel_mat);
-    //error = check_calibration(grav_readings, data_length, accel_mat);
-    //snprintf(text, 28, "Grav Err: %.2f%%", error);
-    //display_write_multiline(4,text, &small_font);
-    wdt_clear();
+    error = check_calibration(grav_readings, data_length, accel_mat);
+    sprintf(text, "Grav Err: %.2f%%", error);
+    display_write_multiline(4,text, &small_font);
     display_write_multiline(6, "Done", &small_font);
     memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
     memcpy(config.calib.mag, mag_mat, sizeof(matrixx));
+    wdt_clear();
     config_save();
     delay_ms_safe(4000);
     
 }
 void laser_cal() {
-//	int count,x,y;
-//	struct RAW_SENSORS raw;
-//	short int mag_buffers[400][3];
-//	//first get 400 data points with display offx
-//	display_on(false);
-//	laser_on(false);
-//	__delay_ms(1000);
-//	count=0;
-//	for (count=0; count<100; ++count) {
-//		sensors_read_raw(&raw,false);
-//		memcpy(mag_buffers[count],raw.mag,6);
-//		while (!PORT_SENSOR_INT) __delay_ms(1);
-//	}
-//	display_on(false);
-//	laser_on(true);
-//	__delay_ms(1000);
-//	count=0;
-//	for (count=100; count<200; ++count) {
-//		sensors_read_raw(&raw,false);
-//		memcpy(mag_buffers[count],raw.mag,6);
-//		while (!PORT_SENSOR_INT) __delay_ms(1);
-//	}
-//	display_on(true);
-//	laser_on(false);
-//	__delay_ms(1000);
-//	count=0;
-//	for (count=200; count<300; ++count) {
-//		sensors_read_raw(&raw,false);
-//		memcpy(mag_buffers[count],raw.mag,6);
-//		while (!PORT_SENSOR_INT) __delay_ms(1);
-//	}
-//	display_on(true);
-//	laser_on(true);
-//	__delay_ms(1000);
-//	count=0;
-//	for (count=300; count<400; ++count) {
-//		sensors_read_raw(&raw,false);
-//		memcpy(mag_buffers[count],raw.mag,6);
-//		while (!PORT_SENSOR_INT) __delay_ms(1);
-//	}
-//	write_eeprom(0x200,mag_buffers,2400);
-//
 }
 
-
-void full_cal() {
-//	struct RAW_SENSORS sensors;
-//	struct COOKED_SENSORS cooked;
-//	float degrees=0.0;
-//	float deg_cal=0.0;
-//	float deg_limit_p = 1.0;
-//	float deg_limit_m = -1.0;
-//	float nearest = 100000.0;
-//	float distance;
-//	
-//	double mag_buffers[400][3];
-//	int count, len;
-//	int complete = 0;
-//	//wait 2 seconds
-//	__delay_ms(2000);
-//	//beep
-//	//average gyro readings over 1s
-//	for (count=0;count<100;count++) {
-//		sensors_read_cooked(&cooked,false);
-//		deg_cal += cooked.gyro[1];
-//		while (!PORT_SENSOR_INT) __delay_ms(1);
-//	}
-//	deg_cal /= 100.0;
-//	beep_on(4000);
-//	__delay_ms(200);
-//	beep_off();
-//	//record 400 readings 
-//	count=0;
-//	while (count < 400) {
-//		sensors_read_cooked(&cooked,false);
-//		degrees += (cooked.gyro[1]-deg_cal)/100.0;
-//		if ((degrees>deg_limit_p)||(degrees<deg_limit_m)) {
-//			deg_limit_p += 1.0;
-//			deg_limit_m -= 1.0;
-//			memcpy(mag_buffers[count],sensors.mag,6);
-//			count +=1;
-//		}
-//		while (!PORT_SENSOR_INT) __delay_ms(1);
-//	}
-//	// find closest point
-//	for (count=320;count<400;count++) {
-//		distance = (mag_buffers[count][0]-mag_buffers[0][0])*(mag_buffers[count][0]-mag_buffers[0][0]) +
-//				   (mag_buffers[count][1]-mag_buffers[0][1])*(mag_buffers[count][1]-mag_buffers[0][1]) +
-//				   (mag_buffers[count][2]-mag_buffers[0][2])*(mag_buffers[count][2]-mag_buffers[0][2]);
-//		if (distance < nearest) {
-//			len = count;
-//			nearest = distance;
-//		}
-//	}
-//	// do pca...
-//	//beep again
-//	beep_on(4000);
-//	__delay_ms(200);
-//	beep_off();
-//	//copy data to EEPROM
-//	write_eeprom(0x200,mag_buffers,2160);
-//	__delay_ms(100);
-//	beep_on(4000);
-//	__delay_ms(200);
-//	beep_off();
-}
