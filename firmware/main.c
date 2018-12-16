@@ -11,6 +11,7 @@
 #include "i2c_util.h"
 #include "maths.h"
 #include "exception.h"
+#include "config.h"
 #define TXT_LENGTH 50
 
 void display_error(CEXCEPTION_T e) {
@@ -46,8 +47,8 @@ void main(void)
     PERIPH_EN_SetHigh();
     exception_init();
     TMR2_Start();
-    config_init();
-    survey_init();
+    config_load();
+    survey_current_init();
     display_init();
     sensors_init();    
     wdt_clear();

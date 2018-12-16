@@ -2,6 +2,7 @@
 
 #include "display.h"
 #include "memory.h"
+#include "mem_locations.h"
 #include "exception.h"
 
 #include "config.h"

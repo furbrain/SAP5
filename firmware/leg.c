@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "leg.h"
+#include "mem_locations.h"
 #include "memory.h"
 #include "utils.h"
 #include "exception.h"

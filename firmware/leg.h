@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <gsl/gsl_vector.h>
+#include "memory.h"
 #include "mem_locations.h"
 #include "survey.h"
 

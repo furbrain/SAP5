@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdfix.h>
 #include "maths.h"
+#include "memory.h"
 #include "mem_locations.h"
 
 #define FIRMWARE_VERSION 1
