@@ -20,6 +20,8 @@
 *.xy
 *.pyc
 *.log
+*.hex
+*.elf
 /firmware/dist/default/
 /firmware/build/default/
 MPLABXLog*
