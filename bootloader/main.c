@@ -180,8 +180,8 @@ void run_usb(void) {
     PERIPH_EN_SetHigh();
     TMR2_Start();
     delay_ms(100);
-	//display_init();
-	//display_clear_screen();
+	display_init();
+	display_clear_screen();
 	delay_ms(3);
 	while (!usb_finished) {
 		bat_status = battery_get_status();
@@ -192,8 +192,8 @@ void run_usb(void) {
 		counter++;
 		if ((counter & 0xffff)==0) {
 			// only update display every 32 cycles
-			//if (bat_status==CHARGING) display_show_bat(-1);
-			//if (bat_status==CHARGED) display_show_bat(18);
+			if (bat_status==CHARGING) display_show_bat(-1);
+			if (bat_status==CHARGED) display_show_bat(18);
 		}
         wdt_clear();
 	}
@@ -204,13 +204,14 @@ void run_usb(void) {
 
 int main(void)
 {
-	/* first look to see if we should be running bootloader at all... */
-	/* If there was a software reset, jump to the application. In real
-	 * life, this is where you'd put your logic for whether you are
-	 * to enter the bootloader or the application */
+    RCON = 0x0;
+    OSCILLATOR_Initialize();
+    PERIPH_EN_SetLow();
+    PIN_MANAGER_Initialize();
     //INTERRUPT_Initialize();
     while(1) {
         PIN_MANAGER_Initialize();
+        PERIPH_EN_SetLow();
         wdt_clear();
         sleep();
         wdt_clear();
