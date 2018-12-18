@@ -1,22 +1,19 @@
-//put data at specified place if on pic, otherwise align with 0x800 boundary
+//put data at specified place i on pic, otherwise align with 0x800 boundary
 #ifdef __XC32
 #ifndef __MPLAB_DEBUGGER_SIMULATOR
-#define PLACE_DATA_AT(addr) __attribute__((address(addr), space(data)))
+#define PLACE_DATA_AT(addr) __attribute__((address(addr), space(prog)))
 #else
 #define PLACE_DATA_AT(addr) __attribute__((aligned(0x800)))
 #endif
 #else
 #define PLACE_DATA_AT(addr) __attribute__((aligned(0x800)))
 #endif
-
 
 #ifndef __DEBUG 
 #define CONST_STORE const
 #else
 #define CONST_STORE
 #endif
-
-
 /**
   @Summary
     Erase a page of memory

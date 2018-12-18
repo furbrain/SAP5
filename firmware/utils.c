@@ -2,7 +2,7 @@
 #include <time.h>
 #include "mcc_generated_files/tmr1.h"
 #include "mcc_generated_files/rtcc.h"
-#include "mcc_generated_files/mcc.h"
+#include "mcc_generated_files/interrupt_manager.h"
 #include "utils.h"
 #include "exception.h"
 

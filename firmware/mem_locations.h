@@ -24,6 +24,5 @@
 #define APP_LEG_LOCATION    0x9D009800
 #define APP_CONFIG_SIZE     0x00000800
 #define APP_LEG_SIZE        0x00002800
-
 #endif	/* MEM_LOCATIONS_H */
 
