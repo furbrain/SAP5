@@ -118,7 +118,6 @@ void write_dword(const void *ptr, const void* src){
     size_t dword;
     // Load data into NVMDATA register
     dword = (size_t)KVA_TO_PA(ptr);
-    src = (const void*)KVA_TO_PA(src);
     if (dword % DWORD_SIZE) {
         THROW_WITH_REASON("Write address not on doubleword boundary", ERROR_FLASH_STORE_FAILED);
     }
