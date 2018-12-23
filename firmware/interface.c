@@ -40,6 +40,15 @@ void div_by_zero(int32_t a) {
     i0 = i1/i0;
 }
 
+void turn_off(int32_t a) {
+    //turn off peripherals
+    PERIPH_EN_SetLow();
+    while (!SWITCH_GetValue()) {
+        delay_ms_safe(10);
+    }
+    sys_reset(a);
+}
+
 DECLARE_MENU(debug_menu, {
     {"Throw", Action, throw_error, 0},
     {"Freeze", Action, freeze_error, 0},
@@ -100,7 +109,7 @@ DECLARE_MENU(main_menu, {
     {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},
     {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
     {"Debug  >", SubMenu, .submenu = &debug_menu, 0},
-    {"Off", Action, sys_reset, 0}
+    {"Off", Action, turn_off, 0}
 });
 
 
