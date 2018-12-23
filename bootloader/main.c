@@ -183,24 +183,49 @@ void run_usb(void) {
 	display_init();
 	display_clear_screen();
 	delay_ms(3);
-	while (1) {
+	while (!usb_finished) {
 		bat_status = battery_get_status();
-		//if (bat_status==DISCHARGING) {
-        //    U1PWRCbits.USBPWR = 0;
-        //    sys_reset(0);
-        //}
+		if (bat_status==DISCHARGING) {
+            U1PWRCbits.USBPWR = 0;
+            sys_reset(0);
+        }
 		counter++;
 		if ((counter & 0xffff)==0) {
 			// only update display every 32 cycles
-            display_show_bat(-1);
+			if (bat_status==CHARGING) display_show_bat(-1);
+			if (bat_status==CHARGED) display_show_bat(18);
 		}
         wdt_clear();
 	}
+    USBDeviceDetach();
+    delay_ms(80);
+    JumpToApp();
 }
 
 int main(void)
 {
-    PERIPH_EN_SetHigh();
-    run_usb();
+    RCON = 0x0;
+    OSCILLATOR_Initialize();
+    PERIPH_EN_SetLow();
+    PIN_MANAGER_Initialize();
+    //INTERRUPT_Initialize();
+    while(1) {
+        PIN_MANAGER_Initialize();
+        PERIPH_EN_SetLow();
+        wdt_clear();
+        sleep();
+        RCON = 0x0;
+        wdt_clear();
+        if (PORTBbits.RB6) {
+            /* USB connected */
+            PERIPH_EN_SetHigh();
+            run_usb();
+        }
+        if (!SWITCH_GetValue()) {
+            /* button has been pressed*/
+            RCON = 0x0;
+            JumpToApp();
+        }
+    }
 }
 
