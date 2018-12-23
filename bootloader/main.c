@@ -214,6 +214,7 @@ int main(void)
         PERIPH_EN_SetLow();
         wdt_clear();
         sleep();
+        RCON = 0x0;
         wdt_clear();
         if (PORTBbits.RB6) {
             /* USB connected */
