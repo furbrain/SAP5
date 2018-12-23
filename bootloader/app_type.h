@@ -9,7 +9,7 @@
 #define	APP_TYPE_H
 
 /*define one of BOOTLOADER, BOOTLOADER_APP or STANDALONE*/
-#define BOOTLOADER
+#define BOOTLOADER_APP
 
 
 #endif	/* APP_TYPE_H */
