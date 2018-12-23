@@ -7,8 +7,6 @@
 
 #include "config.h"
 
-#ifndef BOOTLOADER
-
 union CONFIG_STORE config_store PLACE_DATA_AT(APP_CONFIG_LOCATION) = {.raw = {[0 ... APP_CONFIG_SIZE-1]=0xff}};
 
 const 
@@ -85,4 +83,3 @@ void config_set_timeout(int32_t timeout) {
     config.timeout = timeout;
     config_save();
 }
-#endif    

@@ -4,7 +4,12 @@
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/interrupt_manager.h"
 #include "utils.h"
+#include "app_type.h"
+#ifndef BOOTLOADER
 #include "exception.h"
+#else
+#define THROW_WITH_REASON(reason, code) {}
+#endif
 
 void delay_ms(int count) {
     while (count > 0) {

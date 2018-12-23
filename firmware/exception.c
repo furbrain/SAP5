@@ -55,7 +55,7 @@ static unsigned int _excep_addr;
 static char _excep_reason[12];
 
 //omit this function if not using XC32...
-#ifdef __XC32__
+#if 0
 void _general_exception_handler(void) {
     _excep_code=(_CP0_GET_CAUSE() & 0x0000007C) >> 2;
     _excep_addr=_CP0_GET_EPC();

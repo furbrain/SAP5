@@ -1,7 +1,12 @@
 #include <sys/kmem.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "app_type.h"
+#ifndef BOOTLOADER
 #include "exception.h"
+#else
+#define THROW_WITH_REASON(reason, code) {}
+#endif
 #include "memory.h"
 #include "utils.h"
 

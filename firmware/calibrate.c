@@ -194,11 +194,11 @@ void calibrate_sensors(int32_t a) {
     error = check_calibration(grav_readings, data_length, accel_mat);
     sprintf(text, "Grav Err: %.2f%%", error);
     display_write_multiline(4,text, &small_font);
-    display_write_multiline(6, "Done", &small_font);
     memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
     memcpy(config.calib.mag, mag_mat, sizeof(matrixx));
     wdt_clear();
     config_save();
+    display_write_multiline(6, "Done", &small_font);
     delay_ms_safe(4000);
     
 }
