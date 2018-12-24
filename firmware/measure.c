@@ -62,6 +62,7 @@ void do_exit(int32_t a) {
     measure_exit = true;
 }
 
+TESTABLE_STATIC
 void measure_get_reading(gsl_vector *orientation) {
     display_clear_screen();
     display_write_text(2, 0, "---*", &large_font,false);
@@ -136,7 +137,7 @@ void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     char text[30];
     int i;
     for (i=0; i<3; i++) {
-        sprintf(text, format[i], gsl_vector_get(orientation, i));
+        sprintf(text, format[i], gsl_vector_get(orientation, i) * length_scale);
         menu_append_info(menu, text);
     }
     sprintf(text, "Ext  %.2f", get_extension(orientation) * length_scale);
