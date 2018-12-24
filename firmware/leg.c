@@ -167,7 +167,7 @@ const char *leg_stations_to_text(uint8_t from, uint8_t to) {
     } else {
         sprintf(to_text, "%d", to);
     }
-    sprintf(leg_stations_description, "%s -> %s", from_text, to_text);
+    sprintf(leg_stations_description, "%s  ->  %s", from_text, to_text);
     return leg_stations_description;
 }
 

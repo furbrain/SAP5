@@ -63,6 +63,9 @@ void do_exit(int32_t a) {
 }
 
 void measure_get_reading(gsl_vector *orientation) {
+    display_clear_screen();
+    display_write_text(2, 0, "---*", &large_font,false);
+    laser_on(true);
     while (true) {
  		switch(get_action()) {
 			case SINGLE_CLICK:
@@ -112,16 +115,16 @@ void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     char text[30];
     calculate_bearings(orientation, &compass, &inclination);
 
-    sprintf(text, "%05.1f'", compass * degree_scale);
+    sprintf(text, "%05.1f`", compass * degree_scale);
     menu_append_info(menu, text);
 
-    sprintf(text, "%+.1f'", inclination * degree_scale);
+    sprintf(text, "%+.1f`", inclination * degree_scale);
     menu_append_info(menu, text);
 
-    sprintf(text, "Dst %.2f", get_distance(orientation) * length_scale);
+    sprintf(text, "Dist  %.2f", get_distance(orientation) * length_scale);
     menu_append_info(menu, text);
 
-    sprintf(text, "Ext %.2f", get_extension(orientation) * length_scale);
+    sprintf(text, "Ext  %.2f", get_extension(orientation) * length_scale);
     menu_append_info(menu, text);
 }
 
@@ -136,7 +139,7 @@ void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
         sprintf(text, format[i], gsl_vector_get(orientation, i));
         menu_append_info(menu, text);
     }
-    sprintf(text, "Ext %.2f", get_extension(orientation));
+    sprintf(text, "Ext  %.2f", get_extension(orientation) * length_scale);
     menu_append_info(menu, text);
 }
 
@@ -181,7 +184,7 @@ void measure_show_reading(gsl_vector *orientation) {
     setup_storage_menu();
     menu_append_submenu(&measure_menu, "Store", &storage_menu);
     menu_append_back(&measure_menu, "Discard");
-    menu_append_action(&measure_menu, "Main menu", do_exit, 0);
+    menu_append_action(&measure_menu, "Main   menu", do_exit, 0);
     // run menus
     show_menu(&measure_menu);
 }
