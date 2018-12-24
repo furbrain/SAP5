@@ -8,7 +8,8 @@ enum action {
     Action,
     Back,
     Info,
-    SubMenu
+    SubMenu,
+    Exit
 };
 
 typedef void (*menu_callback)(int);
@@ -62,6 +63,9 @@ void menu_append_action(struct menu *menu, const char *text, void (*action) (int
 
 /* add a back entry to a menu */
 void menu_append_back(struct menu *menu, const char *text);
+
+/* add an exit entry to a menu */
+void menu_append_exit(struct menu *menu, const char *text);
 
 /* move the menu to the next item, wrapping if necessary */
 void menu_next(struct menu *menu);

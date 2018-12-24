@@ -73,6 +73,20 @@ void menu_append_back(struct menu *menu, const char *text){
     menu->length++;
 }
 
+/* add an exit entry to a menu */
+void menu_append_exit(struct menu *menu, const char *text) {
+    struct menu_entry *entry;
+    if (menu->length >= menu->max_length) {
+        Throw(ERROR_MENU_FULL);
+    }
+    entry = menu->entries + menu->length;
+    SAFE_STRING_COPY(entry->text, text, MENU_TEXT_LENGTH-1);
+    entry->type = Exit;
+    entry->action = NULL;
+    entry->argument = 0;
+    menu->length++;
+}
+
 
 
 /* move the menu to the next item, wrapping if necessary */
@@ -124,6 +138,9 @@ enum action menu_action(struct menu *menu) {
             parent->submenu = NULL;
         }
         return Back;
+        break;
+    case Exit:
+        return Exit;
         break;
     case Info:
     default:

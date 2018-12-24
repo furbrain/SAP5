@@ -20,7 +20,8 @@ DECLARE_MENU(subtest, {
 DECLARE_MENU(test, {
     {"One", Info, {NULL}, 0},
     {"Two", Action, {action_func}, 2},
-    {"Three", SubMenu, {.submenu=&subtest}, 3}
+    {"Three", SubMenu, {.submenu=&subtest}, 3},
+    {"Exit", Exit, {NULL}, 0}
     });
     
 DECLARE_EMPTY_MENU(dynamic, 2);
@@ -56,13 +57,16 @@ void test_declare_menu(void) {
     TEST_ASSERT_EQUAL_STRING("One", test.entries[0].text);
     TEST_ASSERT_EQUAL_STRING("Two", test.entries[1].text);
     TEST_ASSERT_EQUAL_STRING("Three", test.entries[2].text);
+    TEST_ASSERT_EQUAL_STRING("Exit", test.entries[3].text);
     TEST_ASSERT_EQUAL(Info, test.entries[0].type);
     TEST_ASSERT_EQUAL(Action, test.entries[1].type);
+    TEST_ASSERT_EQUAL(SubMenu, test.entries[2].type);
+    TEST_ASSERT_EQUAL(Exit, test.entries[3].type);
     TEST_ASSERT_EQUAL(0, test.entries[0].argument);
     TEST_ASSERT_EQUAL(2, test.entries[1].argument);
     TEST_ASSERT_EQUAL(3, test.entries[2].argument);
     TEST_ASSERT_EQUAL(0, test.current_entry);
-    TEST_ASSERT_EQUAL(3, test.length);
+    TEST_ASSERT_EQUAL(4, test.length);
     TEST_ASSERT_NULL(test.submenu);
 }
 
@@ -127,9 +131,22 @@ void test_menu_append_back(void) {
     TEST_ASSERT_THROWS(menu_append_back(&dynamic,"Back3"), ERROR_MENU_FULL);
 }
 
+/* add an exit entry to a menu */
+void test_menu_append_exit(void) {
+    reset_menus();
+    menu_append_exit(&dynamic,"Exit");
+    TEST_ASSERT_EQUAL(1, dynamic.length);
+    TEST_ASSERT_EQUAL_STRING("Exit",menu_get_text(&dynamic));
+    TEST_ASSERT_EQUAL(Exit, dynamic_entries[0].type);
+    TEST_ASSERT_THROWS(menu_append_exit(&dynamic, long_str), ERROR_STRING_TOO_BIG);
+    menu_append_back(&dynamic,"Exit2");
+    TEST_ASSERT_THROWS(menu_append_exit(&dynamic,"Exit3"), ERROR_MENU_FULL);
+}
 void test_menu_prev(void) {
     reset_menus();
     TEST_ASSERT_EQUAL(0, test.current_entry);
+    menu_prev(&test);        
+    TEST_ASSERT_EQUAL(3, test.current_entry);
     menu_prev(&test);        
     TEST_ASSERT_EQUAL(2, test.current_entry);
     menu_prev(&test);        
@@ -164,6 +181,8 @@ void test_menu_next(void) {
     TEST_ASSERT_EQUAL(1, test.current_entry);
     menu_next(&test);        
     TEST_ASSERT_EQUAL(2, test.current_entry);
+    menu_next(&test);        
+    TEST_ASSERT_EQUAL(3, test.current_entry);
     menu_next(&test);        
     TEST_ASSERT_EQUAL(0, test.current_entry);
 }
@@ -251,6 +270,14 @@ void test_menu_action_back(void) {
     TEST_ASSERT_EQUAL(Back, result);
     TEST_ASSERT_NULL(subtest.submenu);
     TEST_ASSERT_NULL(test.submenu);
+}
+
+void test_menu_action_exit(void) {
+    enum action result;
+    reset_menus();
+    test.current_entry = 3;
+    result = menu_action(&test);    
+    TEST_ASSERT_EQUAL(Exit, result);
 }
 
 void test_menu_action_action(void) {

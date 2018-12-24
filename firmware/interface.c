@@ -344,6 +344,7 @@ void show_menu(struct menu *menu) {
                 beep(3600, 20);
                 switch (menu_action(menu)) {
                     case Action:
+                    case Exit:
                         return;
                         break;
                     case Back:
