@@ -8,6 +8,8 @@ void measure(int32_t a);
 #include <gsl/gsl_vector.h>
 #include "menu.h"
 
+void measure_get_reading(gsl_vector *orientation);
+
 /* calculate extension for this reading */
 double get_extension(gsl_vector *orientation);
 

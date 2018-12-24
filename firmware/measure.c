@@ -183,7 +183,7 @@ void measure_show_reading(gsl_vector *orientation) {
     }
     setup_storage_menu();
     menu_append_submenu(&measure_menu, "Store", &storage_menu);
-    menu_append_back(&measure_menu, "Discard");
+    menu_append_exit(&measure_menu, "Discard");
     menu_append_action(&measure_menu, "Main   menu", do_exit, 0);
     // run menus
     show_menu(&measure_menu);
