@@ -176,7 +176,6 @@ void run_usb(void) {
     SYSTEM_Initialize();
 	/* setup ports */	
 /* enable peripherals */
-    PIN_MANAGER_Initialize();
     PERIPH_EN_SetHigh();
     TMR2_Start();
     delay_ms(100);
@@ -226,6 +225,7 @@ int main(void)
             RCON = 0x0;
             JumpToApp();
         }
+        sys_reset(0);
     }
 }
 
