@@ -95,6 +95,17 @@
       <itemPath>/home/phil/Projects/SAP5/bootloader/specs.txt</itemPath>
       <itemPath>/home/phil/Projects/SAP5/plan.txt</itemPath>
       <itemPath>/home/phil/Projects/SAP5/production.txt</itemPath>
+      <itemPath>../test/test/test_battery.c</itemPath>
+      <itemPath>../test/test/test_config.c</itemPath>
+      <itemPath>../test/test/test_exception.c</itemPath>
+      <itemPath>../test/test/test_gsl_static.c</itemPath>
+      <itemPath>../test/test/test_leg.c</itemPath>
+      <itemPath>../test/test/test_maths.c</itemPath>
+      <itemPath>../test/test/test_maths_fixtures.inc</itemPath>
+      <itemPath>../test/test/test_measure.c</itemPath>
+      <itemPath>../test/test/test_memory.c</itemPath>
+      <itemPath>../test/test/test_menu.c</itemPath>
+      <itemPath>../test/test/test_survey.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
