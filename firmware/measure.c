@@ -21,15 +21,17 @@
 #define GRADS_PER_DEGREE 1.111111111
 #define NUM_SENSOR_READINGS 10
 
+#define METRIC_UNIT 'm'
+#define IMPERIAL_UNIT '\''
+#define DEGREE_SYMBOL '`'
+#define GRAD_SYMBOL 'g'
+
 GSL_VECTOR_DECLARE(measure_orientation, 3);
 
 static bool measure_exit;
 
 DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
-
-static const char metric_unit = 'm';
-static const char imperial_unit = '\'';
 
 void get_reading(gsl_vector *orientation){
     GSL_VECTOR_DECLARE(magnetism, 3);
@@ -116,14 +118,15 @@ void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     double compass, inclination;
     double degree_scale = (config.display_style==GRAD) ? GRADS_PER_DEGREE : 1.0;
     double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
-    char length_unit = (config.length_units==IMPERIAL) ? imperial_unit : metric_unit;
+    char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
+    char angle_symbol = (config.display_style==GRAD) ? GRAD_SYMBOL : DEGREE_SYMBOL;
     char text[30];
     calculate_bearings(orientation, &compass, &inclination);
 
-    sprintf(text, "%05.1f`", compass * degree_scale);
+    sprintf(text, "%05.1f%c", compass * degree_scale, angle_symbol);
     menu_append_info(menu, text);
 
-    sprintf(text, "%+.1f`", inclination * degree_scale);
+    sprintf(text, "%+.1f%c", inclination * degree_scale, angle_symbol);
     menu_append_info(menu, text);
 
     sprintf(text, "Dist  %.2f%c", get_distance(orientation) * length_scale, length_unit);
@@ -138,7 +141,7 @@ TESTABLE_STATIC
 void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     const char *format[] = {"E: %+.2f%c", "N: %+.2f%c","V: %+.2f%c"};
     double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
-    char length_unit = (config.length_units==IMPERIAL) ? imperial_unit : metric_unit;
+    char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
     char text[30];
     int i;
     for (i=0; i<3; i++) {

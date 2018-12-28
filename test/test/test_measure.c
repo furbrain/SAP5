@@ -161,6 +161,37 @@ void test_add_polar_entries_to_menu_imperial(void) {
     }  
 }
 
+void test_add_gradian_entries_to_menu(void) {
+    DECLARE_EMPTY_MENU(test_menu, 4);
+    struct test_field {
+        double deltas[3];
+        char texts[4][15];        
+    };
+    struct test_field test_cases[] = {
+        {{0, 0, 0}, "000.0g", "+0.0g", "Dist  0.00m", "Ext  0.00m"},
+        {{1, 0, 0}, "100.0g", "+0.0g", "Dist  1.00m", "Ext  1.00m"},
+        {{0, 1, 0}, "000.0g", "+0.0g", "Dist  1.00m", "Ext  1.00m"},
+        {{3, 0, 4}, "100.0g", "+59.0g","Dist  5.00m", "Ext  3.00m"},
+        {{0, -3, 4}, "200.0g", "+59.0g","Dist  5.00m", "Ext  3.00m"},
+        {{0.3, 0.4, 0.0}, "041.0g", "+0.0g", "Dist  0.50m", "Ext  0.50m"},
+        {{0.3, -0.4, 1.2}, "159.0g", "+74.9g", "Dist  1.30m", "Ext  0.50m"}
+    };
+    int i, j;
+    gsl_vector_view orientation;
+    config.display_style=GRAD;
+    for (i=0; i<7; i++) {
+        orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        menu_clear(&test_menu);
+        add_polar_entries_to_menu(&orientation.vector, &test_menu);
+        for (j=0; j<4; j++) {
+            TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], menu_get_text(&test_menu));
+            menu_next(&test_menu);
+        }
+    }  
+}
+
+
+
 void test_add_cartesian_entries_to_menu(void) {
     DECLARE_EMPTY_MENU(test_menu, 4);
     struct test_field {
