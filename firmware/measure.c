@@ -28,6 +28,9 @@ static bool measure_exit;
 DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
 
+static const char metric_unit = 'm';
+static const char imperial_unit = '\'';
+
 void get_reading(gsl_vector *orientation){
     GSL_VECTOR_DECLARE(magnetism, 3);
     GSL_VECTOR_DECLARE(acceleration, 3);
@@ -113,6 +116,7 @@ void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     double compass, inclination;
     double degree_scale = (config.display_style==GRAD) ? GRADS_PER_DEGREE : 1.0;
     double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
+    char length_unit = (config.length_units==IMPERIAL) ? imperial_unit : metric_unit;
     char text[30];
     calculate_bearings(orientation, &compass, &inclination);
 
@@ -122,25 +126,26 @@ void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     sprintf(text, "%+.1f`", inclination * degree_scale);
     menu_append_info(menu, text);
 
-    sprintf(text, "Dist  %.2f", get_distance(orientation) * length_scale);
+    sprintf(text, "Dist  %.2f%c", get_distance(orientation) * length_scale, length_unit);
     menu_append_info(menu, text);
 
-    sprintf(text, "Ext  %.2f", get_extension(orientation) * length_scale);
+    sprintf(text, "Ext  %.2f%c", get_extension(orientation) * length_scale, length_unit);
     menu_append_info(menu, text);
 }
 
 /* add a set of cartesian entries to a menu */
 TESTABLE_STATIC
 void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
-    const char *format[] = {"E: %+.2f", "N: %+.2f","V: %+.2f"};
+    const char *format[] = {"E: %+.2f%c", "N: %+.2f%c","V: %+.2f%c"};
     double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
+    char length_unit = (config.length_units==IMPERIAL) ? imperial_unit : metric_unit;
     char text[30];
     int i;
     for (i=0; i<3; i++) {
-        sprintf(text, format[i], gsl_vector_get(orientation, i) * length_scale);
+        sprintf(text, format[i], gsl_vector_get(orientation, i) * length_scale, length_unit);
         menu_append_info(menu, text);
     }
-    sprintf(text, "Ext  %.2f", get_extension(orientation) * length_scale);
+    sprintf(text, "Ext  %.2f%c", get_extension(orientation) * length_scale, length_unit);
     menu_append_info(menu, text);
 }
 
