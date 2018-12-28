@@ -16,7 +16,6 @@
         <itemPath>mcc_generated_files/usb/usb_hal.h</itemPath>
         <itemPath>mcc_generated_files/usb/usb_hal_pic32mm.h</itemPath>
         <itemPath>mcc_generated_files/adc1.h</itemPath>
-        <itemPath>mcc_generated_files/exceptions.h</itemPath>
         <itemPath>mcc_generated_files/i2c1.h</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.h</itemPath>
         <itemPath>mcc_generated_files/mcc.h</itemPath>
@@ -51,7 +50,6 @@
         <itemPath>mcc_generated_files/usb/usb_device_events.c</itemPath>
         <itemPath>mcc_generated_files/usb/usb_device.c</itemPath>
         <itemPath>mcc_generated_files/adc1.c</itemPath>
-        <itemPath>mcc_generated_files/exceptions.c</itemPath>
         <itemPath>mcc_generated_files/i2c1.c</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
         <itemPath>mcc_generated_files/mcc.c</itemPath>
@@ -128,7 +126,8 @@
         <property key="enable-symbols" value="false"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
-        <property key="extra-include-directories" value="../../gsl-2.5"/>
+        <property key="extra-include-directories"
+                  value="../../gsl-2.5;../../../../../opt/microchip/xc32/v2.05/pic32mx/include"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -284,7 +283,6 @@
         <property key="UART1" value="true"/>
         <property key="UART2" value="true"/>
         <property key="UART3" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
