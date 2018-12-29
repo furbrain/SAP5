@@ -159,6 +159,7 @@ void store_leg(int32_t code) {
     leg = leg_create(utils_get_time(), survey_current.number, 0, 0, &measure_orientation);
     leg_stations_decode(code, &leg.from, &leg.to);
     leg_save(&leg);
+    survey_add_leg(&survey_current, &leg);
 }
 
 static
