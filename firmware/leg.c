@@ -99,8 +99,9 @@ const struct LEG *leg_find(int survey, int index) {
 }
 
 /* find the maximum station within a survey and also the time of the first leg */
-void leg_get_survey_details(int survey, int *max_station, time_t *first_leg) {
+void leg_get_survey_details(int survey, int *max_station, time_t *first_leg, bool *last_leg_forward) {
     int max_st = INT_MIN;
+    bool forward = false;
     time_t first_tm = LONG_MAX;
     int i;
     const struct LEG *leg;
@@ -112,9 +113,11 @@ void leg_get_survey_details(int survey, int *max_station, time_t *first_leg) {
             }
             if (leg->from > max_st) {
                 max_st = leg->from;
+                forward = (leg->to > leg->from);
             }
             if (leg->to > max_st) {
                 max_st = leg->to;
+                forward = (leg->to > leg->from);
             }
         }
     }
@@ -122,6 +125,7 @@ void leg_get_survey_details(int survey, int *max_station, time_t *first_leg) {
         THROW_WITH_REASON("No legs found for survey", ERROR_SURVEY_NOT_FOUND);
     *max_station = max_st;
     *first_leg = first_tm;
+    *last_leg_forward = forward;
 }
 
 /*find most recent_leg*/

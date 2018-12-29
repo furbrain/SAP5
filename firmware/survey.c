@@ -28,8 +28,7 @@ void survey_current_init() {
 /* populate a survey structure with data from storage */
 void survey_populate(struct SURVEY *survey, int number) {
     survey->number = number;
-    leg_get_survey_details(number, &survey->max_station, &survey->start_time);
-    survey->forward = true;
+    leg_get_survey_details(number, &survey->max_station, &survey->start_time, &survey->last_leg_forward);
 }
 
 
@@ -37,8 +36,15 @@ void survey_populate(struct SURVEY *survey, int number) {
 void survey_start_new() {
     survey_current.number += 1;
     survey_current.max_station = 1;
-    survey_current.forward = true;
+    survey_current.last_leg_forward = false;
     survey_current.start_time = utils_get_time();
 }
 
-
+/* update a survey with details of a leg*/
+void survey_add_leg(struct SURVEY *survey, struct LEG *leg){
+    int max_station = (leg->from > leg->to) ? leg->from : leg->to;
+    if (max_station > survey->max_station) {
+        survey->max_station = max_station;
+        survey->last_leg_forward = (leg->to > leg->from);
+    }
+}

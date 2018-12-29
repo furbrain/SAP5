@@ -24,7 +24,7 @@ struct LEG test_leg_array[6] = {
     {12, 3, 2, 3, {1.0, 2.0, 3.0}},
 };
 
-void write_data_replacement(void* ptr, const void* src, int length, int num_calls) {
+void write_data_replacement(const void* ptr, const void* src, int length, int num_calls) {
     int i;
     if ((size_t)ptr % 8)
         THROW_WITH_REASON("Destination ptr not on dword boundary", ERROR_FLASH_STORE_FAILED);
@@ -35,13 +35,13 @@ void write_data_replacement(void* ptr, const void* src, int length, int num_call
             THROW_WITH_REASON("Memory not been cleared for write", ERROR_FLASH_STORE_FAILED);
         }
     }
-    memcpy(ptr, src, length);
+    memcpy((void *)ptr, src, length);
 }
 
-void erase_page_replacement(void *ptr, int num_calls) {
+void erase_page_replacement(const void *ptr, int num_calls) {
     if ((size_t)ptr % 0x800) 
         THROW_WITH_REASON("Erase page not on page boundary", ERROR_FLASH_STORE_FAILED);
-    memset(ptr, 0xff, 0x800);
+    memset((void*)ptr, 0xff, 0x800);
 }
 
 
@@ -79,7 +79,7 @@ void add_test_legs(void) {
    
 
 void test_leg_find(void) {
-    struct LEG *found_leg;
+    const struct LEG *found_leg;
     add_test_legs();
     found_leg = leg_find(1, 0);
     TEST_ASSERT_EQUAL_PTR_MESSAGE(&leg_store.legs[2], found_leg, "1,0->2");
@@ -102,7 +102,7 @@ void test_leg_find(void) {
 
 
 void test_leg_find_last(void) {
-    struct LEG *found_leg;
+    const struct LEG *found_leg;
     add_test_legs();
     found_leg = leg_find_last();
     TEST_ASSERT_EQUAL_PTR_MESSAGE(&leg_store.legs[1], found_leg, "should be last one in survey 3");
@@ -113,25 +113,28 @@ void test_leg_get_survey_details(void) {
         int survey;
         int max_station;
         time_t first_time;
+        bool forward;
     };
     struct test_field test_cases[3] = {
-        {1, 2, 15},
-        {2, 3, 16},
-        {3, 4, 12}
+        {1, 2, 15, true},
+        {2, 3, 16, true},
+        {3, 4, 12, false}
     };
     int i, max_station;
     time_t first_time;
+    bool forward;
     add_test_legs();
     for (i = 0; i<3; i++) {
-        leg_get_survey_details(test_cases[i].survey, &max_station, &first_time);
+        leg_get_survey_details(test_cases[i].survey, &max_station, &first_time, &forward);
         TEST_ASSERT_EQUAL(test_cases[i].max_station, max_station);   
         TEST_ASSERT_EQUAL(test_cases[i].first_time, first_time);   
+        TEST_ASSERT_EQUAL(test_cases[i].forward, forward);   
     }
-    TEST_ASSERT_THROWS(leg_get_survey_details(34, &max_station, &first_time), ERROR_SURVEY_NOT_FOUND);
+    TEST_ASSERT_THROWS(leg_get_survey_details(34, &max_station, &first_time, &forward), ERROR_SURVEY_NOT_FOUND);
 }
 
 void test_leg_find_last_if_no_legs(void) {
-    struct LEG *found_leg;
+    const struct LEG *found_leg;
     found_leg = leg_find_last();
     TEST_ASSERT_NULL_MESSAGE(found_leg, "leg_find_last should return NULL if no legs");
 }
@@ -240,11 +243,11 @@ void test_stations_to_text(void) {
         const char *text;
     };
     struct test_field test_cases[5] = {
-        {1, 2, "1 -> 2"},
-        {2, 4, "2 -> 4"},
-        {3, LEG_SPLAY, "3 -> -"},
-        {LEG_SPLAY, 5, "- -> 5"},
-        {200, 201, "200 -> 201"}
+        {1, 2, "1  ->  2"},
+        {2, 4, "2  ->  4"},
+        {3, LEG_SPLAY, "3  ->  -"},
+        {LEG_SPLAY, 5, "-  ->  5"},
+        {200, 201, "200  ->  201"}
     };
     const char *text;
     int i;

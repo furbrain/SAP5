@@ -4,12 +4,14 @@
 #include <time.h>
 #include <stdbool.h>
 
+#include "leg.h"
+
 #define EIGHT_HOURS (8 * 60 * 60)
 
 struct SURVEY {
     int number;
     int max_station;
-    bool forward;
+    bool last_leg_forward;
     time_t start_time;
 };
 #endif // _SURVEY_H
@@ -25,3 +27,6 @@ void survey_populate(struct SURVEY *survey, int number);
 
 /* start a new survey */
 void survey_start_new();
+
+/* update a survey with details of a leg*/
+void survey_add_leg(struct SURVEY *survey, struct LEG *leg);

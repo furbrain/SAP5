@@ -1,11 +1,11 @@
 #ifndef _LEG_H
 #define _LEG_H
 #include <stdint.h>
+#include <stdbool.h>
 #include <time.h>
 #include <gsl/gsl_vector.h>
 #include "memory.h"
 #include "mem_locations.h"
-#include "survey.h"
 
 
 #define MAX_LEG_COUNT (APP_LEG_SIZE / sizeof(struct LEG))
@@ -46,8 +46,8 @@ void *leg_spans_boundary(const struct LEG *leg);
 /* find a leg */
 const struct LEG *leg_find(int survey, int index);
 
-/* find the maximum station within a survey and also the time of the first leg */
-void leg_get_survey_details(int survey, int *max_station, time_t *first_leg);
+/* find the maximum station within a survey and also the time of the first leg, and the direction of the last leg */
+void leg_get_survey_details(int survey, int *max_station, time_t *first_leg, bool *last_leg_forward);
 
 /*find most recent_leg*/
 const struct LEG *leg_find_last(void);
