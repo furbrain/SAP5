@@ -34,6 +34,8 @@ Hardware Tasks:
 
 
 Firmware Tasks:
+. Get proper error detection working on laser reading
+. Give some more generous time to get result as well?
 . Get different styles of leg working (forward, backward, leapfrog)
 . Get custom leg selection working
 . Get visualiser working - work as "cave window", so adjust view according to angle of device
