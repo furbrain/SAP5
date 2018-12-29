@@ -34,13 +34,11 @@ Hardware Tasks:
 
 
 Firmware Tasks:
-. Get button working - probably as an interrupt
-. get flick working  - repeatedly poll and use hysteresis
-. get rangefinder working DONE
-. Get menu working DONE
-. Get sleep and wakeup working DONE
-. Get configuration working DONE
+. Get different styles of leg working (forward, backward, leapfrog)
+. Get custom leg selection working
 . Get visualiser working - work as "cave window", so adjust view according to angle of device
+. Get set date working
+. Get set time working
 
 
 PC software
@@ -55,31 +53,6 @@ WORLD Axes:
 X = EAST
 Y = NoRTH
 Z = UP
-
-measure function pseudocode
-
-START
-wait for button press... }
-if double_click:         }
-  exit                   } measure_get_reading
-else:                    }
-  take measurement       }
-  
-display menu             }
-if exit:                 }
-  exit                   } measure_show_reading
-else:                    }
-  go to start            }
-END
-
-so main measure function goes
-while (1):
-    measure_get_reading()
-    if measure_exit:
-       exit
-    measure_show_reading()
-    if measure_exit:
-       exit
 
 
 
