@@ -15,6 +15,7 @@
 #include "survey.h"
 #include "leg.h"
 #include "gsl_static.h"
+#include "exception.h"
 
 #define FEET_PER_METRE 3.281
 #define DEGREES_PER_RADIAN 57.296
@@ -202,9 +203,25 @@ void measure_show_reading(gsl_vector *orientation) {
 
 
 void measure(int32_t a) {
+    CEXCEPTION_T e;
     measure_exit = false;
     while (true) {
-        measure_get_reading(&measure_orientation);
+        Try {
+            measure_get_reading(&measure_orientation);
+        }
+        Catch (e) {
+            if (e==ERROR_LASER_READ_FAILED) {
+                display_on(true);
+                laser_on(false);
+                display_clear_screen(true);
+                display_write_text(0, 0, "Laser read", &large_font, false, true);
+                display_write_text(4, 0, "failed", &large_font, false, true);
+                delay_ms_safe(3000);
+                continue;
+            } else {
+                Throw(e);
+            }
+        }
         if (measure_exit) break;
         measure_show_reading(&measure_orientation);
         if (measure_exit) break;

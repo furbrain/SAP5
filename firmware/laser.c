@@ -33,6 +33,23 @@ double laser_get_result(void) {
     return result;
 }
 
+TESTABLE_STATIC
+void laser_start(enum LASER_SPEED speed) {
+    char text[32];
+    int i;
+    UART1_ReceiveBufferClear();
+    switch (speed){
+        case LASER_SLOW:
+            UART1_Write('M');
+            break;
+        case LASER_MEDIUM:
+            UART1_Write('D');
+            break;
+        case LASER_FAST:
+            UART1_Write('F');
+            break;
+    }
+}
 
 void laser_on(bool enable) {
     UART1_ReceiveBufferClear();
@@ -55,19 +72,3 @@ double laser_read(enum LASER_SPEED speed, int timeout) {
     return laser_get_result()+config.calib.laser_offset;
 }
 
-void laser_start(enum LASER_SPEED speed) {
-    char text[32];
-    int i;
-    UART1_ReceiveBufferClear();
-    switch (speed){
-        case LASER_SLOW:
-            UART1_Write('M');
-            break;
-        case LASER_MEDIUM:
-            UART1_Write('D');
-            break;
-        case LASER_FAST:
-            UART1_Write('F');
-            break;
-    }
-}
