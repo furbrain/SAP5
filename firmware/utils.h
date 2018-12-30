@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#ifdef __DEBUG
+#ifdef TEST
 #define TESTABLE_STATIC
 #else
 #define TESTABLE_STATIC static

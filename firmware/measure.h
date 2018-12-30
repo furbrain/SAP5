@@ -4,7 +4,7 @@
 void measure(int32_t a);
 
 /* expose functions for testing purpose */
-#ifdef __DEBUG
+#ifdef TEST
 #include <gsl/gsl_vector.h>
 #include "menu.h"
 
