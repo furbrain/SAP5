@@ -13,6 +13,7 @@
 #include "calibrate.h"
 #include "menu.h"
 #include "exception.h"
+#include "debug.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
@@ -25,20 +26,6 @@ void beep(int a, int b) {
 
 void set_date(int32_t a);
 void set_time(int32_t a);
-void throw_error(int32_t a) {
-    THROW_WITH_REASON("Just a random reason to get cross", ERROR_UNSPECIFIED);
-}
-
-void freeze_error(int32_t a) {
-    volatile int32_t x;
-    while(1) {x = a;};
-}
-
-void div_by_zero(int32_t a) {
-    int i1=1;
-    int i0=0;
-    i0 = i1/i0;
-}
 
 void turn_off(int32_t a) {
     //turn off peripherals
@@ -49,12 +36,6 @@ void turn_off(int32_t a) {
     sys_reset(a);
 }
 
-DECLARE_MENU(debug_menu, {
-    {"Throw", Action, throw_error, 0},
-    {"Freeze", Action, freeze_error, 0},
-    {"DivByZero", Action, div_by_zero, 0},
-            
-});
 
 DECLARE_MENU(timeout_menu, {
     {"30s", Action, config_set_timeout, 30},
