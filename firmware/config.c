@@ -11,7 +11,7 @@ union CONFIG_STORE config_store PLACE_DATA_AT(APP_CONFIG_LOCATION) = {.raw = {[0
 
 const 
 struct CONFIG default_config = {
-        {{1,0,2},{0,1,5}},                   //axis orientation
+        {{4, 3, 2}, {0, 1, 2}},                   //axis orientation
         { //calib section
             {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //accel matrix
             {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //mag matrix

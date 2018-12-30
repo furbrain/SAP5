@@ -209,11 +209,11 @@ enum INPUT get_action() {
     sensors_read_cooked(&sensors);
     /* look for "flip" movements */
     //debug("f%.2g",sensors.gyro[1]);
-    if (sensors.gyro[1] > 30.0) {
+    if (sensors.gyro[1] < -30.0) {
         last_activity_counter = 0;
         return display_inverted ? FLIP_DOWN : FLIP_UP;
     }
-    if (sensors.gyro[1]<-30.0) {
+    if (sensors.gyro[1] > 30.0) {
         last_activity_counter = 0;
         return display_inverted ? FLIP_UP : FLIP_DOWN;
     }
@@ -227,8 +227,8 @@ enum INPUT get_action() {
     }
     /* check to see if display needs flipping */
     /* use 0.5g - gives a hysteresis of about +/- 30 degrees */
-    if ((sensors.accel[0]<-0.5) && display_inverted) display_flip(false);
-    if ((sensors.accel[0] > 0.5) && !display_inverted) display_flip(true);
+    if ((sensors.accel[0] > 0.5) && display_inverted) display_flip(false);
+    if ((sensors.accel[0] < -0.5) && !display_inverted) display_flip(true);
     /* search for a click */
     if (last_click != NONE) {
         /* momentarily disable interrupts */
