@@ -85,7 +85,7 @@ void render_data_to_page(uint8_t page, uint8_t column, const uint8_t *data, uint
 }
 
 
-void display_clear_page(uint8_t page) {
+void display_clear_page(uint8_t page, bool immediate) {
 	page = (page+top_page)%8;
 	set_column(0);
 	set_page(page);
@@ -95,13 +95,15 @@ void display_clear_page(uint8_t page) {
 	write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer,128);
 #else
 	memset(buffer[page],0,128);
-	write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer[page],128);
+    if (immediate) {
+        write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer[page],128);
+    }
 #endif
 }
-void display_clear_screen() {
+void display_clear_screen(bool immediate) {
 	int x = 0;
 	for(x=0;x<8;++x) {
-		display_clear_page(x);
+		display_clear_page(x, immediate);
 	}
 }
 
@@ -110,38 +112,51 @@ void display_set_brightness(uint8_t brightness){
 }
 
 #ifndef BOOTLOADER
-void display_write_text(int page, int column, const char* text, const struct FONT *font, bool right_justify) {
+void display_write_text(int page, int column, const char* text, const struct FONT *font, bool right_justify, bool immediate) {
     int i = 0;
     int end_col;
     uint8_t temp_buffer[128];
     page = (page+top_page)%8;
     while (i<font->max_pages) {
         memset(temp_buffer,0,128);
-        set_page(page+i);
+        if (immediate) set_page(page+i);
         if (right_justify) {
             end_col = render_text_to_page(temp_buffer,i,0,text,font);
-            if (end_col > column) {
-                set_column(0);
-            } else {
-                set_column(column-end_col);
-            }
+            if (immediate) {
+                if (end_col > column) {
+                    set_column(0);
+                } else {
+                    set_column(column-end_col);
+                }
                 display_send_data(temp_buffer,end_col);
+            } else {
+                if (end_col > column) {
+                    render_text_to_page(buffer[page+i], i, 0, text, font);
+                } else {
+                    render_text_to_page(buffer[page+i], i, column-end_col, text, font);                    
+                }
+            }
         } else {
-            end_col = render_text_to_page(temp_buffer,i,column,text,font);
-            set_column(column);
-            display_send_data(&temp_buffer[column],end_col-column);
+            if (immediate) {
+                end_col = render_text_to_page(temp_buffer,i,column,text,font);
+                set_column(column);
+                display_send_data(&temp_buffer[column],end_col-column);
+            } else {
+                render_text_to_page(buffer[page+i],i, column, text, font);
+            }
+            
         }
         i++;
     }
 }
 
-void display_write_multiline(int page,const char* text, const struct FONT *font) {
+void display_write_multiline(int page, const char* text, bool immediate) {
 	char buf[18];
 	int i = 0;
 	while (*text) {
 		if (*text=='\n') {
             buf[i] = 0;
-            display_write_text(page,0,buf,font,false);
+            display_write_text(page, 0, buf, &small_font, false, immediate);
             i = 0;
             page+=2;
 		} else {
@@ -153,7 +168,7 @@ void display_write_multiline(int page,const char* text, const struct FONT *font)
 		text++;
 	}
     buf[i]=0;
-	display_write_text(page,0,buf,font,false);
+	display_write_text(page, 0, buf, &small_font, false, immediate);
 }
 
 /* display an rle encoded image */

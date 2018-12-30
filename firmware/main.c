@@ -22,19 +22,19 @@ void display_error(CEXCEPTION_T e) {
     int line;
     display_on(true);
     laser_on(false);
-    display_clear_screen();
+    display_clear_screen(true);
     error = exception_get_string(e);
     exception_get_details(&reason, &file, &line);
     snprintf(text,18,"Err: %s", error);
-    display_write_multiline(0,text, &small_font);
+    display_write_multiline(0,text, true);
     snprintf(text,18,"%s", reason);
-    display_write_multiline(2,text, &small_font);
+    display_write_multiline(2,text, true);
     if (strlen(reason)>17) {
         snprintf(text,18,"%s", reason+16);
-        display_write_multiline(4,text, &small_font);        
+        display_write_multiline(4,text, true);        
     }
     snprintf(text,18,"%s:%d", file, line);
-    display_write_multiline(6,text, &small_font);
+    display_write_multiline(6,text, true);
     delay_ms_safe(5000);
 }
 
@@ -52,7 +52,7 @@ void main(void)
     display_init();
     sensors_init();    
     wdt_clear();
-    display_clear_screen();
+    display_clear_screen(true);
     delay_ms_safe(10);
     while (1)
     {

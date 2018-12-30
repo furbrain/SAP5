@@ -69,8 +69,8 @@ void do_exit(int32_t a) {
 
 TESTABLE_STATIC
 void measure_get_reading(gsl_vector *orientation) {
-    display_clear_screen();
-    display_write_text(2, 0, "---*", &large_font,false);
+    display_clear_screen(true);
+    display_write_text(2, 0, "---*", &large_font,false, true);
     laser_on(true);
     while (true) {
  		switch(get_action()) {

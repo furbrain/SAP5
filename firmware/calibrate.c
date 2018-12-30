@@ -22,7 +22,7 @@ int get_greatest_axis(struct RAW_SENSORS *raw) {
     int i;
     for (i=0; i<3; i++) {
         if (abs(raw->accel[i])> max_abs) {
-            if (raw->accel[i]) {
+            if (raw->accel[i] < 0) {
                 axis = i;
             } else {
                 axis = i+3;
@@ -33,7 +33,7 @@ int get_greatest_axis(struct RAW_SENSORS *raw) {
     return axis;
 }
 
-const int compass_axis_map[] = {1,0,5,4,3,2};
+const int compass_axis_map[] = {4,3,2,1,0,5};
 
 static
 int get_compass_axis(int axis) {
@@ -72,21 +72,21 @@ void calibrate_axes(int dummy) {
         "Please place the\ndisplay flat on\na level surface"
     };
     for (i=2; i>=0; i--) {
-        display_clear_screen();
-        display_write_multiline(0, instructions[i], &small_font);
+        display_clear_screen(true);
+        display_write_multiline(0, instructions[i], true);
         delay_ms_safe(3000);
         set_axis(i);
     }
     if (!check_sane_axes()) {
-        display_clear_screen();
-        display_write_multiline(0, "Invalid axes\nfound.\nAborting", &small_font);
+        display_clear_screen(true);
+        display_write_multiline(0, "Invalid axes\nfound.\nAborting", true);
         return;
     }
     snprintf(text,18, "%d %d %d", config.axes.accel[0], config.axes.accel[1], config.axes.accel[2]);
-    display_write_text(1,0,text, &small_font, false);
+    display_write_text(1,0,text, &small_font, false, true);
     snprintf(text,18, "%d %d %d", config.axes.mag[0], config.axes.mag[1], config.axes.mag[2]);
-    display_write_text(4,0,text, &small_font, false);
-    delay_ms_safe(500);
+    display_write_text(4,0,text, &small_font, false, true);
+    delay_ms_safe(6000);
     config_save();
     
 }
@@ -151,12 +151,12 @@ void calibrate_sensors(int32_t a) {
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
-    display_clear_screen();
-    display_write_multiline(0, "Place device on a\nlevel surface\nand leave alone", &small_font);
+    display_clear_screen(true);
+    display_write_multiline(0, "Place device on a\nlevel surface\nand leave alone", true);
     delay_ms_safe(2000);
     gyro_offset = get_gyro_offset(2);
-    display_clear_screen();
-    display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", &small_font);
+    display_clear_screen(true);
+    display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", true);
     delay_ms_safe(1500);
     /* Now rotate around z-axis and read in ~CALIBRATION_SAMPLES/2 readings */
     laser_on(true);
@@ -166,12 +166,12 @@ void calibrate_sensors(int32_t a) {
     
     /* now read data on y-axis */
     display_on(true);
-    display_clear_screen();
-    display_write_multiline(0, "Point laser at\nfixed target", &small_font);
+    display_clear_screen(true);
+    display_write_multiline(0, "Point laser at\nfixed target", true);
     delay_ms_safe(2000);
     gyro_offset = get_gyro_offset(1);
-    display_clear_screen();
-    display_write_multiline(0, "Rotate device\n360' while\nleaving laser\non target", &small_font);
+    display_clear_screen(true);
+    display_write_multiline(0, "Rotate device\n360' while\nleaving laser\non target", true);
     delay_ms_safe(1500);
     offset = z_axis_count*3;
     display_on(false);
@@ -181,24 +181,24 @@ void calibrate_sensors(int32_t a) {
     wdt_clear();
     laser_on(false);
     display_on(true);
-    display_clear_screen();
-    display_write_multiline(0, "Processing", &small_font);
+    display_clear_screen(true);
+    display_write_multiline(0, "Processing", true);
     // calibrate magnetometer
     calibrate(mag_readings, data_length, mag_mat);
     error = check_calibration(mag_readings, data_length, mag_mat);
     sprintf(text, "Mag Err:  %.2f%%", error);
-    display_write_multiline(2,text, &small_font);
+    display_write_multiline(2,text, true);
     wdt_clear();
     // calibrate accelerometer
     calibrate(grav_readings, data_length, accel_mat);
     error = check_calibration(grav_readings, data_length, accel_mat);
     sprintf(text, "Grav Err: %.2f%%", error);
-    display_write_multiline(4,text, &small_font);
+    display_write_multiline(4,text, true);
     memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
     memcpy(config.calib.mag, mag_mat, sizeof(matrixx));
     wdt_clear();
     config_save();
-    display_write_multiline(6, "Done", &small_font);
+    display_write_multiline(6, "Done", true);
     delay_ms_safe(4000);
     
 }

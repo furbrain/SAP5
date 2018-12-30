@@ -122,16 +122,16 @@ void set_date(int32_t a) {
     int done = false;
     struct tm dt;
     RTCC_TimeGet(&dt);
-    display_clear_screen();
+    display_clear_screen(true);
     while (true) {
         strcpy(text, "                ");
         text[pos_arr[pos]] = 'v';
-        display_write_text(1, 0, text, &small_font, false);
+        display_write_text(1, 0, text, &small_font, false, true);
         text[pos_arr[pos]] = '^';
-        display_write_text(5, 0, text, &small_font, false);
+        display_write_text(5, 0, text, &small_font, false, true);
         //sprintf(text,"%02X/%02X/%02X %02X:%02X X",1,2,3,4,5);
         sprintf(text, "%02d/%02d/%02d %02d:%02d X", dt.tm_mday, dt.tm_mon, dt.tm_year, dt.tm_hour, dt.tm_min);
-        display_write_text(3, 0, text, &small_font, false);
+        display_write_text(3, 0, text, &small_font, false, true);
         switch (get_action()) {
             case FLIP_LEFT:
                 pos = (pos + 11 - 1) % 11;
@@ -184,7 +184,7 @@ void TMR2_CallBack(void) {
         last_activity_counter=0;
     }
     if (state == (SWITCH_ACTIVE_HIGH ? 0x0800 : 0x07ff)) {
-        /* we have justtransitiioned to a '0' and held it for 11 T2 cycles */
+        /* we have just transitiioned to a '0' and held it for 11 T2 cycles */
         if (last_activity_counter > 1000) {
             last_click = LONG_CLICK;
         }
@@ -209,11 +209,11 @@ void swipe_text(const char *text, bool left) {
 void scroll_text(const char *text, bool up) {
     if (!day) {
         if (up) {
-            display_clear_page(6);
-            display_clear_page(7);
+            display_clear_page(6, true);
+            display_clear_page(7, true);
         } else {
-            display_clear_page(0);
-            display_clear_page(1);
+            display_clear_page(0, true);
+            display_clear_page(1, true);
         }
     }
     display_scroll_text(day ? 0 : 2, 0, text, &large_font, up);
@@ -311,8 +311,8 @@ void show_status() {
                 break;
         }
         snprintf(header, 17, "%02d:%02d        ", dt.tm_hour, dt.tm_min);
-        display_write_text(0, 0, header, &small_font, false);
-        display_write_text(6, 0, footer, &small_font, false);
+        display_write_text(0, 0, header, &small_font, false, true);
+        display_write_text(6, 0, footer, &small_font, false, true);
         render_data_to_page(0, 104, bat_status, 24);
         for (x = 0; x < 24; ++x) {
             bat_status[x] = reverse(bat_status[x]);

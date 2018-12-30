@@ -180,7 +180,7 @@ void run_usb(void) {
     TMR2_Start();
     delay_ms(100);
 	display_init();
-	display_clear_screen();
+	display_clear_screen(true);
 	delay_ms(3);
 	while (!usb_finished) {
 		bat_status = battery_get_status();
