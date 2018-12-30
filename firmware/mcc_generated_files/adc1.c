@@ -91,6 +91,10 @@ void ADC1_Initialize (void)
     // SAMC 25; EXTSAM disabled; ADRC PBCLK; ADCS 29; 
 
    AD1CON3 = 0x191D;
+   
+   //enable band-gap
+   
+   AD1CON5 = 0x1000;
 
     // CH0SA AN0; CH0NA AVSS; 
 

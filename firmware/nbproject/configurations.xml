@@ -42,6 +42,7 @@
       <itemPath>survey.h</itemPath>
       <itemPath>eigen3x3.h</itemPath>
       <itemPath>CExceptionConfig.h</itemPath>
+      <itemPath>debug.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -86,6 +87,7 @@
       <itemPath>leg.c</itemPath>
       <itemPath>survey.c</itemPath>
       <itemPath>eigen3x3.c</itemPath>
+      <itemPath>debug.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -106,6 +108,10 @@
       <itemPath>../test/test/test_memory.c</itemPath>
       <itemPath>../test/test/test_menu.c</itemPath>
       <itemPath>../test/test/test_survey.c</itemPath>
+      <itemPath>../test/test/test_laser.c</itemPath>
+      <itemPath>../test/project-native.yml</itemPath>
+      <itemPath>../test/project-real.yml</itemPath>
+      <itemPath>../test/project-sim.yml</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
