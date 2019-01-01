@@ -59,6 +59,9 @@ struct MODEL_STATION *find_station(uint8_t number) {
 TESTABLE_STATIC
 struct MODEL_STATION *add_station(uint8_t number, double *pos) {
     struct MODEL_STATION *station;
+    if (station_count >= MODEL_MAX_STORAGE) {
+        THROW_WITH_REASON("Too many stations in survey to store", ERROR_SURVEY_TOO_BIG);
+    }
     station = &model_stations[station_count];
     station->number = number;
     station->pos[0] = pos[0];
@@ -74,6 +77,9 @@ TESTABLE_STATIC
 void add_leg(struct MODEL_STATION *from, struct MODEL_STATION *to) {
     struct MODEL_LEG *leg;
     //FIXME raise error if too many legs
+    if (model_leg_count >= MODEL_MAX_STORAGE) {
+        THROW_WITH_REASON("Too many legs in survey to store", ERROR_SURVEY_TOO_BIG);
+    }
     leg = &model_legs[model_leg_count];
     leg->from = from;
     leg->to = to;
@@ -94,7 +100,7 @@ bool leg_has_been_processed(struct LEG *leg) {
 TESTABLE_STATIC
 void mark_leg_as_processed(struct LEG *leg) {
     //FIXME raise error if too many legs
-    if (processed_leg_count == MODEL_MAX_STORAGE) {
+    if (processed_leg_count >= MODEL_MAX_STORAGE) {
         THROW_WITH_REASON("Too many legs in survey to store", ERROR_SURVEY_TOO_BIG);
     }
     processed_legs[processed_leg_count] = leg;

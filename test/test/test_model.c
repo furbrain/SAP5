@@ -34,24 +34,24 @@ void erase_page_replacement(const void *ptr, int num_calls) {
     memset((void*)ptr, 0xff, 0x800);
 }
 
-
-void setUp(void)
-{
-    erase_page_StubWithCallback(erase_page_replacement);
-    memset(leg_store.raw, 0xff, APP_LEG_SIZE);
-}
-
-void tearDown(void)
-{
-}
-
-
 void add_test_legs(void) {
     int i;
     write_data_StubWithCallback(write_data_replacement);
     for (i=0; i<6; i++) {
         leg_save(&test_leg_array[i]);
     }
+}
+
+void setUp(void)
+{
+    erase_page_StubWithCallback(erase_page_replacement);
+    memset(leg_store.raw, 0xff, APP_LEG_SIZE);
+    reset_lists();
+    add_test_legs();
+}
+
+void tearDown(void)
+{
 }
 
 /* generate a model of the survey given by survey*/
@@ -64,6 +64,9 @@ void test_reset_lists(void) {
     model_leg_count = 1;
     processed_leg_count = 2;
     station_count = 3;
+    TEST_ASSERT_EQUAL(1, model_leg_count);
+    TEST_ASSERT_EQUAL(2, processed_leg_count);
+    TEST_ASSERT_EQUAL(3, station_count);
     reset_lists();
     TEST_ASSERT_EQUAL(0, model_leg_count);
     TEST_ASSERT_EQUAL(0, processed_leg_count);
@@ -73,7 +76,6 @@ void test_reset_lists(void) {
 /*set first from station in survey to (0,0,0)
   Throws ERROR_SURVEY_PROCESS_FAIL if no legs found*/
 void test_initialise_first_station(void) {
-    add_test_legs();
     initialise_first_station(2);
     TEST_ASSERT_EQUAL(2,model_stations[0].number);
     TEST_ASSERT_EQUAL_DOUBLE(0.0, model_stations[0].pos[0]);
@@ -82,25 +84,71 @@ void test_initialise_first_station(void) {
     TEST_ASSERT_THROWS(initialise_first_station(5),ERROR_NO_SURVEY_DATA);
 }
 
+/* add a station to the found list, along with its position*/
+void test_add_station(void) {
+    struct MODEL_STATION *station;
+    TEST_ASSERT_EQUAL(0, station_count);
+    station = add_station(1,(double[3]) {1,2,3});
+    TEST_ASSERT_EQUAL(1, station_count);
+    TEST_ASSERT_EQUAL_PTR(station, &model_stations[0]);
+    TEST_ASSERT_EQUAL(1, station->number);
+    TEST_ASSERT_EQUAL_DOUBLE(1.0, station->pos[0]);
+    TEST_ASSERT_EQUAL_DOUBLE(2.0, station->pos[1]);
+    TEST_ASSERT_EQUAL_DOUBLE(3.0, station->pos[2]);
+}
+
+void test_add_station_throws_error_when_full(void) {
+    int i;
+    for (i=0; i< MODEL_MAX_STORAGE; ++i) {
+        add_station(i,(double[3]) {1,2,3});
+    }
+    TEST_ASSERT_THROWS(add_station(i,(double[3]) {1,2,3}), ERROR_SURVEY_TOO_BIG);
+}
+
 /*if a station has already been found, return a pointer to it
  * otherwise return null*/
 void test_find_station(void) {
-    TEST_IGNORE_MESSAGE("Need to Implement test");    
-}
-/* add a station to the found list, along with its position*/
-void test_add_station(void) {
-    TEST_IGNORE_MESSAGE("Need to Implement test");
+    struct MODEL_STATION *a, *b, *c, *d;
+    a = add_station(2, (double[3]) {1,2,3});
+    b = add_station(4, (double[3]) {1,2,3});
+    c = add_station(3, (double[3]) {1,2,3});
+    d = add_station(4, (double[3]) {1,2,3});
+    TEST_ASSERT_EQUAL_PTR(a, find_station(2));
+    TEST_ASSERT_EQUAL_PTR(b, find_station(4));
+    TEST_ASSERT_EQUAL_PTR(c, find_station(3));
+    TEST_ASSERT_EQUAL_PTR(b, find_station(4));
+    TEST_ASSERT_NULL(find_station(15));
 }
 
 /* add a model leg to the list*/
 void test_add_leg(void) {
-    TEST_IGNORE_MESSAGE("Need to Implement test");    
+    struct MODEL_STATION *a, *b, *c, *d;
+    a = add_station(2, (double[3]) {1,2,1});
+    b = add_station(4, (double[3]) {1,1,2});
+    c = add_station(3, (double[3]) {1,2,4});
+    d = add_station(4, (double[3]) {1,2,5});
+    add_leg(a,b);
+    add_leg(b,c);
+    add_leg(c,d);
+    TEST_ASSERT_EQUAL_PTR(a,model_legs[0].from);
+    TEST_ASSERT_EQUAL_PTR(b,model_legs[0].to);
+    TEST_ASSERT_EQUAL_PTR(b,model_legs[1].from);
+    TEST_ASSERT_EQUAL_PTR(c,model_legs[1].to);
+    TEST_ASSERT_EQUAL_PTR(c,model_legs[2].from);
+    TEST_ASSERT_EQUAL_PTR(d,model_legs[2].to);
+}
+
+void test_add_leg_throw_error_when_full(void) {
+    int i;
+    for (i=0; i < MODEL_MAX_STORAGE; ++i) {
+        add_leg(NULL,NULL);
+    }
+    TEST_ASSERT_THROWS(add_leg(NULL, NULL), ERROR_SURVEY_TOO_BIG);
 }
 
 /*test whether a leg has been processed*/
 void test_leg_has_been_processed(void) {
     int i,j;
-    reset_lists();
     for (i=0; i<6; ++i) {
         for (j=0; j<i; ++j) {
             TEST_ASSERT_TRUE(leg_has_been_processed(&test_leg_array[j]));
@@ -115,7 +163,6 @@ void test_leg_has_been_processed(void) {
 /*mark a survey leg as having been processed*/
 void test_mark_leg_as_processed_throws_error(void) {
     int i;
-    reset_lists();
     for (i=0; i<MODEL_MAX_STORAGE; ++i) {
         mark_leg_as_processed(test_leg_array);
     }
