@@ -43,6 +43,7 @@
       <itemPath>eigen3x3.h</itemPath>
       <itemPath>CExceptionConfig.h</itemPath>
       <itemPath>debug.h</itemPath>
+      <itemPath>model.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -88,6 +89,7 @@
       <itemPath>survey.c</itemPath>
       <itemPath>eigen3x3.c</itemPath>
       <itemPath>debug.c</itemPath>
+      <itemPath>model.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -112,6 +114,7 @@
       <itemPath>../test/project-native.yml</itemPath>
       <itemPath>../test/project-real.yml</itemPath>
       <itemPath>../test/project-sim.yml</itemPath>
+      <itemPath>../test/test/test_model.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -173,14 +176,15 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C32>
-        <property key="additional-warnings" value="false"/>
+        <property key="additional-warnings" value="true"/>
         <property key="addresss-attribute-use" value="false"/>
         <property key="enable-app-io" value="false"/>
         <property key="enable-omit-frame-pointer" value="false"/>
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
-        <property key="extra-include-directories" value="../../gsl-2.5"/>
+        <property key="extra-include-directories"
+                  value="../../gsl-2.5;/opt/microchip/xc32/v2.05/pic32mx/include"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
