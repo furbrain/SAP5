@@ -186,6 +186,18 @@ def make_sqrtm_fixtures():
         b_symm = (b + b.T)/2 +3*np.eye(3)
         print bracketiser(b_symm),',', bracketiser(scipy.linalg.sqrtm(b_symm))    
 
+def make_convert_to_device_fixtures(samples):
+    np.random.seed(56)
+    orientation  = np.quaternion(1,0,0,0)
+    orientation *= np.exp(quaternion.x * np.random.random()) 
+    orientation *= np.exp(quaternion.y* np.random.random())
+    print bracketiser(quaternion.as_rotation_matrix(orientation))
+    for i in range(samples):
+        vector = np.random.random((3,))
+        res = quaternion.rotate_vectors(orientation, vector)
+        print '{',bracketiser(vector), ',', bracketiser(res[0:2]),'},'
+    
+
 np.set_printoptions(suppress=True, precision=4)
 np.random.seed(10)
-make_get_orientation_fixture()
+make_convert_to_device_fixtures(20)

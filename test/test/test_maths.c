@@ -107,7 +107,7 @@ void test_matrix_multiply(void) {
     }
 }
 
-void test_maths_get_orientation(void) {
+void test_maths_get_orientation_as_vector(void) {
     char text[80];
     struct test_field {
         vectorr accel;
@@ -135,7 +135,7 @@ void test_maths_get_orientation(void) {
         accel = gsl_vector_view_array(test_cases[i].accel, 3);
         mag = gsl_vector_view_array(test_cases[i].magnetism, 3);
         snprintf(text,24,"Iteration: %d", i);
-        maths_get_orientation(&mag.vector, &accel.vector, &result.vector);
+        maths_get_orientation_as_vector(&mag.vector, &accel.vector, &result.vector);
         TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].result, result_data, 3, text);
     }
 }

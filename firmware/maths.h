@@ -21,9 +21,15 @@ void matrix_multiply(matrixx delta, matrixx calibration);
 
 /* take magnetism and acceleration vectors in device coordinates
    and return devices orientation in world coordinates */
-void maths_get_orientation(const gsl_vector *magnetism,
+void maths_get_orientation_as_vector(const gsl_vector *magnetism,
                            const gsl_vector *acceleration,
                            gsl_vector *orientation);
+
+/* take magnetism and acceleration vectors in device coordinates
+   and return devices orientation as a rotation matrix */
+void maths_get_orientation_as_matrix(const gsl_vector *magnetism,
+                                     const gsl_vector *acceleration,
+                                     gsl_matrix *orientation);
 
 /* normalise a vector to unit length n*/
 void normalise(gsl_vector *vector);

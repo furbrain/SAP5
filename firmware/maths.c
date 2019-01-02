@@ -63,24 +63,30 @@ void matrix_multiply(matrixx calibration, matrixx delta) {
         }
     }
 }
+/* take magnetism and acceleration vectors in device coordinates
+   and return devices orientation as a rotation matrix */
+void maths_get_orientation_as_matrix(const gsl_vector *magnetism,
+                                     const gsl_vector *acceleration,
+                                     gsl_matrix *orientation) {
+    gsl_vector_view east = gsl_matrix_column(orientation, 0);
+    gsl_vector_view north = gsl_matrix_column(orientation, 1);
+    gsl_vector_view up = gsl_matrix_column(orientation, 2);
+    gsl_vector_memcpy(&up.vector, acceleration);
+    gsl_vector_scale(&up.vector, -1.0);
+    normalise(&up.vector);
+    cross_product(magnetism, &up.vector, &east.vector);
+    normalise(&east.vector);
+    cross_product(&up.vector, &east.vector, &north.vector);
+    normalise(&north.vector);
+}
 
-
-void maths_get_orientation(const gsl_vector *magnetism,
+void maths_get_orientation_as_vector(const gsl_vector *magnetism,
                            const gsl_vector *acceleration,
                            gsl_vector *orientation)  {
-    GSL_VECTOR_DECLARE(east, 3);
-    GSL_VECTOR_DECLARE(north, 3);
-    GSL_VECTOR_DECLARE(down, 3);
-    gsl_vector_memcpy(&down, acceleration);
-    normalise(&down);
-    cross_product(&down, magnetism, &east);
-    normalise(&east);
-    cross_product(&east, &down, &north);
-    normalise(&north);
-    gsl_vector_set(orientation, 0, gsl_vector_get(&east, 1));
-    gsl_vector_set(orientation, 1, gsl_vector_get(&north, 1));
-    gsl_vector_set(orientation, 2, -gsl_vector_get(&down, 1));
-    normalise(orientation);
+    GSL_MATRIX_DECLARE(rotation, 3, 3);
+    gsl_vector_view answer = gsl_matrix_row(&rotation,1);
+    maths_get_orientation_as_matrix(magnetism, acceleration, &rotation);
+    gsl_vector_memcpy(orientation, &answer.vector);
 }
 
 

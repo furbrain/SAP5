@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 64
+
 extern bool display_inverted;
 void display_init();
 
