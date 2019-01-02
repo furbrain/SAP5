@@ -86,7 +86,7 @@ void measure_get_reading(gsl_vector *orientation) {
 				return;
 				break;
 	        default:
-	    delay_ms_safe(10); 
+                delay_ms_safe(10); 
         }
     }
 }

@@ -44,6 +44,7 @@
       <itemPath>CExceptionConfig.h</itemPath>
       <itemPath>debug.h</itemPath>
       <itemPath>model.h</itemPath>
+      <itemPath>visualise.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -90,6 +91,7 @@
       <itemPath>eigen3x3.c</itemPath>
       <itemPath>debug.c</itemPath>
       <itemPath>model.c</itemPath>
+      <itemPath>visualise.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -388,7 +388,7 @@ void display_draw_line(int x0, int y0, int x1, int y1) {
     int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1; 
     int err = (dx>dy ? dx : -dy)/2, e2;
 
-    for(;;){
+    while (true) {
         display_setbuffer_xy(x0,y0);
         if (x0==x1 && y0==y1) break;
         e2 = err;
