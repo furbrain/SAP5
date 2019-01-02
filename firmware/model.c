@@ -45,6 +45,7 @@ TESTABLE_STATIC
 struct MODEL_STATION *find_station(uint8_t number) {
     int i;
     struct MODEL_STATION *station;
+    if (number==LEG_SPLAY) return NULL;
     for (i=0; i< station_count; i++) {
         station = &model_stations[i];
         if (station->number == number) {

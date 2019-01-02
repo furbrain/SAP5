@@ -18,6 +18,8 @@ struct LEG test_leg_array[] = {
     {22, 4, 4, 1, {0.0, -2.0, 0.0}}, //1* = {1,0,1}
     {23, 5, 1, 2, {0.0, 1.0, 2.0}},
     {24, 5, 3, 4, {0.0, 1.0, 2.0}},
+    {25, 6, 1, LEG_SPLAY, {0.0, 1.0, 0.0}},
+    {25, 6, 1, LEG_SPLAY, {0.0, -1.0, 0.0}},
     {12, 3, 2, 3, {1.0, 2.0, 3.0}},
 };
 
@@ -104,6 +106,13 @@ void test_model_generate_fails_with_disjoint_survey(void) {
     TEST_ASSERT_THROWS(model_generate(5, &cave), ERROR_SURVEY_IS_DISJOINT);
 }
 
+void test_model_generate_with_splay_legs(void) {
+    struct MODEL_CAVE cave;
+    model_generate(6, &cave);
+    TEST_ASSERT_EQUAL(2, cave.leg_count);
+    TEST_ASSERT_EQUAL(3, cave.station_count);
+}
+
 /*reset all lists*/
 void test_reset_lists(void) {
     model_leg_count = 1;
@@ -153,15 +162,17 @@ void test_add_station_throws_error_when_full(void) {
 /*if a station has already been found, return a pointer to it
  * otherwise return null*/
 void test_find_station(void) {
-    struct MODEL_STATION *a, *b, *c, *d;
+    struct MODEL_STATION *a, *b, *c, *d, *e;
     a = add_station(2, (double[3]) {1,2,3});
     b = add_station(4, (double[3]) {1,2,3});
     c = add_station(3, (double[3]) {1,2,3});
     d = add_station(4, (double[3]) {1,2,3});
+    e = add_station(LEG_SPLAY, (double[3]) {1,2,3});
     TEST_ASSERT_EQUAL_PTR(a, find_station(2));
     TEST_ASSERT_EQUAL_PTR(b, find_station(4));
     TEST_ASSERT_EQUAL_PTR(c, find_station(3));
     TEST_ASSERT_EQUAL_PTR(b, find_station(4));
+    TEST_ASSERT_NULL(find_station(LEG_SPLAY))
     TEST_ASSERT_NULL(find_station(15));
 }
 
