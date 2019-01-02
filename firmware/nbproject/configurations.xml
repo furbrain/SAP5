@@ -117,6 +117,8 @@
       <itemPath>../test/project-real.yml</itemPath>
       <itemPath>../test/project-sim.yml</itemPath>
       <itemPath>../test/test/test_model.c</itemPath>
+      <itemPath>../test/test/test_visualise.c</itemPath>
+      <itemPath>../test/test/make_test_cases.py</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
