@@ -14,7 +14,7 @@ TESTABLE_STATIC int model_leg_count;
 TESTABLE_STATIC struct MODEL_STATION model_stations[MODEL_MAX_STORAGE];
 TESTABLE_STATIC int station_count;
 
-TESTABLE_STATIC struct LEG *processed_legs[MODEL_MAX_STORAGE];
+TESTABLE_STATIC const struct LEG *processed_legs[MODEL_MAX_STORAGE];
 TESTABLE_STATIC int processed_leg_count;
 
 /*reset all lists*/
@@ -74,7 +74,7 @@ struct MODEL_STATION *add_station(uint8_t number, double *pos) {
 
 /* add a model leg to the list*/
 TESTABLE_STATIC
-void add_leg(struct MODEL_STATION *from, struct MODEL_STATION *to) {
+void add_leg(const struct MODEL_STATION *from, const struct MODEL_STATION *to) {
     struct MODEL_LEG *leg;
     //FIXME raise error if too many legs
     if (model_leg_count >= MODEL_MAX_STORAGE) {
@@ -88,7 +88,7 @@ void add_leg(struct MODEL_STATION *from, struct MODEL_STATION *to) {
 
 /*test whether a leg has been processed*/
 TESTABLE_STATIC
-bool leg_has_been_processed(struct LEG *leg) {
+bool leg_has_been_processed(const struct LEG *leg) {
     int i;
     for (i=0; i<processed_leg_count; ++i) {
         if (processed_legs[i] == leg) return true;
@@ -98,7 +98,7 @@ bool leg_has_been_processed(struct LEG *leg) {
 
 /*mark a survey leg as having been processed*/
 TESTABLE_STATIC
-void mark_leg_as_processed(struct LEG *leg) {
+void mark_leg_as_processed(const struct LEG *leg) {
     //FIXME raise error if too many legs
     if (processed_leg_count >= MODEL_MAX_STORAGE) {
         THROW_WITH_REASON("Too many legs in survey to store", ERROR_SURVEY_TOO_BIG);
@@ -125,6 +125,22 @@ void sub_delta(const double *origin, const double *offset, double *result) {
     }
 }
 
+TESTABLE_STATIC
+struct MODEL_STATION *add_station_and_leg(const struct MODEL_STATION *known, const struct LEG *leg, bool forwards) {
+    struct MODEL_STATION *unknown;
+    double next_pos[3];
+    if (forwards) {
+        add_delta(known->pos, leg->delta, next_pos);
+        unknown = add_station(leg->to, next_pos);
+    } else {
+        sub_delta(known->pos, leg->delta, next_pos);
+        unknown = add_station(leg->from, next_pos);
+    }
+    add_leg(known, unknown);
+    mark_leg_as_processed(leg);
+    return unknown;
+}
+
 /* generate a model of the survey given by survey*/
 void model_generate(uint16_t survey, struct MODEL_CAVE *cave) {
     struct LEG *leg;
@@ -146,28 +162,21 @@ void model_generate(uint16_t survey, struct MODEL_CAVE *cave) {
                 from = find_station(leg->from);
                 to = find_station(leg->to);
                 if (from) {
-                    add_delta(from->pos, leg->delta, pos);
-                    changed = true;
+                    fake = add_station_and_leg(from, leg, true);
                     if (to) {
-                        fake = add_station(leg->to, pos);
-                        add_leg(from, fake);
                         add_leg(to, fake);
-                    } else {
-                        to = add_station(leg->to, pos);
-                        add_leg(from, to);
                     }
                     changed = true;
                 } else if (to) {
-                    sub_delta(to->pos, leg->delta, pos);
-                    from = add_station(leg->from, pos);
-                    add_leg(from, to);
+                    add_station_and_leg(to, leg, false);
+                    changed = true;
                 } else {
                     complete = false;
                 }
             }
         }
         if (complete) break; //hurrah we're done
-        if (!changed) break; //booo error - survey is disjoint
+        if (!changed) THROW_WITH_REASON("Survey is not connected", ERROR_SURVEY_IS_DISJOINT);
         //otherwise re-cycle
     }
     cave->legs = model_legs;

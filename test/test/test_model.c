@@ -5,14 +5,23 @@
 #include "exception.h"
 #include "mock_memory.h"
 
-struct LEG test_leg_array[6] = {
+struct LEG test_leg_array[] = {
     {13, 3, 1, 2, {1.0, 2.0, 3.0}},
     {14, 3, 4, 2, {1.0, 2.0, 3.0}},
     {15, 1, 1, 2, {1.0, 2.0, 3.0}},
     {16, 2, 2, 3, {1.0, 2.0, 3.0}},
     {17, 2, 1, 3, {1.0, 2.0, 3.0}},
+    {18, 4, 1, 2, {1.0, 0.0, 0.0}}, //1={0,0,0}, 2={1,0,0}
+    {19, 4, 3, 2, {0.0, -2.0, 0.0}}, //3={1,2,0}
+    {20, 4, 4, 5, {1.0, 1.0, 1.0}}, //delayed leg - needs connecting (5={2,3,2})
+    {21, 4, 3, 4, {0.0, 0.0, 1.0}}, //4={1,2,1}
+    {22, 4, 4, 1, {0.0, -2.0, 0.0}}, //1* = {1,0,1}
+    {23, 5, 1, 2, {0.0, 1.0, 2.0}},
+    {24, 5, 3, 4, {0.0, 1.0, 2.0}},
     {12, 3, 2, 3, {1.0, 2.0, 3.0}},
 };
+
+int test_leg_count = sizeof(test_leg_array) / sizeof(test_leg_array[0]);
 
 void write_data_replacement(const void* ptr, const void* src, int length, int num_calls) {
     int i;
@@ -37,7 +46,7 @@ void erase_page_replacement(const void *ptr, int num_calls) {
 void add_test_legs(void) {
     int i;
     write_data_StubWithCallback(write_data_replacement);
-    for (i=0; i<6; i++) {
+    for (i=0; i<test_leg_count; i++) {
         leg_save(&test_leg_array[i]);
     }
 }
@@ -56,7 +65,43 @@ void tearDown(void)
 
 /* generate a model of the survey given by survey*/
 void test_model_generate(void) {
-    TEST_IGNORE_MESSAGE("design test for model_generate");
+    /* test with a circular survey with one delayed leg connection*/
+    struct test_field {
+        uint8_t number;
+        double pos[3];
+    };
+    struct test_field test_cases[6] = {
+        {1, {0,0,0}},
+        {2, {1,0,0}},
+        {3, {1,2,0}},
+        {4, {1,2,1}},
+        {5, {2,3,2}},
+        {1, {1,0,1}} //this last one is a "fake" station, so not searched in main loop
+    };
+    int i;
+    struct MODEL_CAVE cave;
+    const struct MODEL_STATION *station;
+    char text[20];
+    model_generate(4, &cave);
+    TEST_ASSERT_EQUAL(6, cave.leg_count);
+    TEST_ASSERT_EQUAL(6, cave.station_count);
+    for (i=0; i<5; ++i) {
+        station = find_station(test_cases[i].number);
+        sprintf(text, "Station: %d", test_cases[i].number);
+        TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(test_cases[i].pos, station->pos, 3, text);
+    }
+    // find the "fake leg"
+    for (i=0; i< cave.leg_count; ++i) {
+        struct MODEL_LEG *leg = &cave.legs[i];
+        if (leg->from->number==leg->to->number) {
+            TEST_ASSERT_EQUAL_DOUBLE_ARRAY(test_cases[5].pos, leg->to->pos, 3);
+        }
+    }
+}
+
+void test_model_generate_fails_with_disjoint_survey(void) {
+    struct MODEL_CAVE cave;
+    TEST_ASSERT_THROWS(model_generate(5, &cave), ERROR_SURVEY_IS_DISJOINT);
 }
 
 /*reset all lists*/
@@ -81,7 +126,7 @@ void test_initialise_first_station(void) {
     TEST_ASSERT_EQUAL_DOUBLE(0.0, model_stations[0].pos[0]);
     TEST_ASSERT_EQUAL_DOUBLE(0.0, model_stations[0].pos[1]);
     TEST_ASSERT_EQUAL_DOUBLE(0.0, model_stations[0].pos[2]);
-    TEST_ASSERT_THROWS(initialise_first_station(5),ERROR_NO_SURVEY_DATA);
+    TEST_ASSERT_THROWS(initialise_first_station(7),ERROR_NO_SURVEY_DATA);
 }
 
 /* add a station to the found list, along with its position*/
