@@ -25,6 +25,24 @@ void reset_lists() {
     processed_leg_count = 0;
 }
 
+/* add a station to the found list, along with its position
+ * raise error if too many stations added */
+TESTABLE_STATIC
+struct MODEL_STATION *add_station(uint8_t number, double *pos) {
+    struct MODEL_STATION *station;
+    if (station_count >= MODEL_MAX_STORAGE) {
+        THROW_WITH_REASON("Too many stations in survey to store", ERROR_SURVEY_TOO_BIG);
+    }
+    station = &model_stations[station_count];
+    station->number = number;
+    station->pos[0] = pos[0];
+    station->pos[1] = pos[1];
+    station->pos[2] = pos[2];
+    ++station_count;
+    return station;
+    //FIXME raise error if too many stations...
+}
+
 /*set first from station in survey to (0,0,0)
   Throws ERROR_SURVEY_PROCESS_FAIL if no legs found*/
 TESTABLE_STATIC
@@ -53,24 +71,6 @@ struct MODEL_STATION *find_station(uint8_t number) {
         }
     }
     return NULL;
-}
-
-/* add a station to the found list, along with its position
- * raise error if too many stations added */
-TESTABLE_STATIC
-struct MODEL_STATION *add_station(uint8_t number, double *pos) {
-    struct MODEL_STATION *station;
-    if (station_count >= MODEL_MAX_STORAGE) {
-        THROW_WITH_REASON("Too many stations in survey to store", ERROR_SURVEY_TOO_BIG);
-    }
-    station = &model_stations[station_count];
-    station->number = number;
-    station->pos[0] = pos[0];
-    station->pos[1] = pos[1];
-    station->pos[2] = pos[2];
-    ++station_count;
-    return station;
-    //FIXME raise error if too many stations...
 }
 
 /* add a model leg to the list*/
@@ -144,7 +144,7 @@ struct MODEL_STATION *add_station_and_leg(const struct MODEL_STATION *known, con
 
 /* generate a model of the survey given by survey*/
 void model_generate(uint16_t survey, struct MODEL_CAVE *cave) {
-    struct LEG *leg;
+    const struct LEG *leg;
     struct MODEL_STATION *from;
     struct MODEL_STATION *to;
     struct MODEL_STATION *fake;
@@ -155,7 +155,6 @@ void model_generate(uint16_t survey, struct MODEL_CAVE *cave) {
     while (true) {
         bool changed = false;
         bool complete = true;
-        double pos[3];
         for (i=0; i<MAX_LEG_COUNT; i++) {
             leg = &leg_store.legs[i];
             if (leg->survey == survey) {

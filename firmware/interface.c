@@ -38,32 +38,32 @@ void turn_off(int32_t a) {
 
 
 DECLARE_MENU(timeout_menu, {
-    {"30s", Action, config_set_timeout, 30},
-    {"60s", Action, config_set_timeout, 60},
-    {"2  min", Action, config_set_timeout, 120},
-    {"5  min", Action, config_set_timeout, 300},
-    {"10  mins", Action, config_set_timeout, 600},
-    {"Back", Back, NULL, 0}
+    {"30s", Action, {config_set_timeout}, 30},
+    {"60s", Action, {config_set_timeout}, 60},
+    {"2  min", Action, {config_set_timeout}, 120},
+    {"5  min", Action, {config_set_timeout}, 300},
+    {"10  mins", Action, {config_set_timeout}, 600},
+    {"Back", Back, {NULL}, 0}
 });
 
 DECLARE_MENU(display_menu, {
     /* Display menu */
-    {"Day", Action, config_set_day, true},
-    {"Night", Action, config_set_day, false},
-    {"Back", Back, NULL, 0}
+    {"Day", Action, {config_set_day}, true},
+    {"Night", Action, {config_set_day}, false},
+    {"Back", Back, {NULL}, 0}
 });
 
 DECLARE_MENU(style_menu, {
-    {"Cartesian", Action, config_set_style, CARTESIAN},
-    {"Polar", Action, config_set_style, POLAR},
-    {"Grad", Action, config_set_style, GRAD},
-    {"Back", Back, 0},
+    {"Cartesian", Action, {config_set_style}, CARTESIAN},
+    {"Polar", Action, {config_set_style}, POLAR},
+    {"Grad", Action, {config_set_style}, GRAD},
+    {"Back", Back, {NULL}, 0}
 });
 
 DECLARE_MENU(units_menu, {
-    {"Metric", Action, config_set_units, METRIC},
-    {"Imperial", Action, config_set_units, IMPERIAL},
-    {"Back", Back, NULL, 0}
+    {"Metric", Action, {config_set_units}, METRIC},
+    {"Imperial", Action, {config_set_units}, IMPERIAL},
+    {"Back", Back, {NULL}, 0}
 });
 
 DECLARE_MENU(settings_menu, {    /* settings menu */
@@ -71,26 +71,26 @@ DECLARE_MENU(settings_menu, {    /* settings menu */
     {"Style  >", SubMenu, .submenu = &style_menu, 0},
     {"Display  >", SubMenu, .submenu = &display_menu, 0},
     {"Timeout  >", SubMenu, .submenu = &timeout_menu, 0},
-    {"Set  Date", Action, set_time, 0},
-    {"Set  Time", Action, set_time, 0},
-    {"Back", Back, NULL, 0},
+    {"Set  Date", Action, {set_time}, 0},
+    {"Set  Time", Action, {set_time}, 0},
+    {"Back", Back, {NULL}, 0},
 });
 
 DECLARE_MENU(calibration_menu, {
     /* calibrate menu */
-    {"Sensors", Action, calibrate_sensors, 0},
+    {"Sensors", Action, {calibrate_sensors}, 0},
     //{"Laser",Action,laser_cal, 0},
     //{"Align",Action,align_cal, 0},
-    {"Axes", Action, calibrate_axes, 0},
-    {"Back", Back, NULL, 0},
+    {"Axes", Action, {calibrate_axes}, 0},
+    {"Back", Back, {NULL}, 0},
 });
 
 DECLARE_MENU(main_menu, {
-    {"Measure", Action, measure, 0},
+    {"Measure", Action, {measure}, 0},
     {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},
     {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
     {"Debug  >", SubMenu, .submenu = &debug_menu, 0},
-    {"Off", Action, turn_off, 0}
+    {"Off", Action, {turn_off}, 0}
 });
 
 
@@ -100,7 +100,6 @@ void set_date(int32_t a) {
     char text[18];
     int pos = 0;
     int pos_arr[] = {0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15};
-    int done = false;
     struct tm dt;
     RTCC_TimeGet(&dt);
     display_clear_screen(true);
@@ -113,7 +112,7 @@ void set_date(int32_t a) {
         //sprintf(text,"%02X/%02X/%02X %02X:%02X X",1,2,3,4,5);
         sprintf(text, "%02d/%02d/%02d %02d:%02d X", dt.tm_mday, dt.tm_mon, dt.tm_year, dt.tm_hour, dt.tm_min);
         display_write_text(3, 0, text, &small_font, false, true);
-        switch (get_action()) {
+        switch (get_input()) {
             case FLIP_LEFT:
                 pos = (pos + 11 - 1) % 11;
                 delay_ms(600);
@@ -128,6 +127,8 @@ void set_date(int32_t a) {
             case SINGLE_CLICK:
             case DOUBLE_CLICK:
                 return;
+            default:
+                break;
         }
         delay_ms(50);
     }
@@ -202,7 +203,7 @@ void scroll_text(const char *text, bool up) {
 
 /* get the offset of the menu_item with the specified index */
 
-enum INPUT get_action() {
+enum INPUT get_input() {
     struct COOKED_SENSORS sensors;
     enum INPUT temp;
 
@@ -259,7 +260,7 @@ void show_status() {
     struct tm dt;
     /* batt icon 50% charge: 0x1f,0x20,0x2f*9,0x20*9,0x20,0x1f,0x04,0x03 */
     /* reverse bit order for second line */
-    char bat_status[24];
+    unsigned char bat_status[24];
     int charge;
     //charge = battery_get_units();
     charge = 15;
@@ -303,15 +304,13 @@ void show_status() {
 }
 
 void show_menu(struct menu *menu) {
-    enum action action;
     menu_initialise(menu);
     scroll_text(menu_get_text(menu), true);
     while (true) {
         wdt_clear();
         delay_ms(50);
         show_status();
-        action = get_action();
-        switch (action) {
+        switch (get_input()) {
             case FLIP_DOWN:
                 //index = get_previous_menu_item(menu, index);
                 //scroll_text(menu_get_text(menu), false);
@@ -339,6 +338,8 @@ void show_menu(struct menu *menu) {
                 }
             case DOUBLE_CLICK:
                 //hibernate();
+                break;
+            default:
                 break;
         }
     }

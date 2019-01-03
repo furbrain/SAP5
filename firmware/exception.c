@@ -50,12 +50,12 @@ void exception_error_handler(const char *reason, const char *file, int line, int
     Throw(error_code);
 }
 
-static unsigned int _excep_code;
-static unsigned int _excep_addr;
-static char _excep_reason[12];
 
 //omit this function if not using XC32...
 #if 0
+static unsigned int _excep_code;
+static unsigned int _excep_addr;
+static char _excep_reason[12];
 void _general_exception_handler(void) {
     _excep_code=(_CP0_GET_CAUSE() & 0x0000007C) >> 2;
     _excep_addr=_CP0_GET_EPC();

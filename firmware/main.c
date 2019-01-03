@@ -38,7 +38,7 @@ void display_error(CEXCEPTION_T e) {
     delay_ms_safe(5000);
 }
 
-void main(void)
+int main(void)
 {
     CEXCEPTION_T e;
     wdt_clear();
@@ -64,4 +64,5 @@ void main(void)
             display_error(e);
         }
     }
+    return 0;
 }

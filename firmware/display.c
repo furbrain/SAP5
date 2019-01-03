@@ -1,7 +1,9 @@
+#include <string.h>
+#include <stdlib.h>
+
 #include "display.h"
 #include "i2c_util.h"
 #include "utils.h"
-#include <string.h>
 
 #define SCROLL_RATE 0
 #define SWIPE_STEP 8
@@ -18,7 +20,7 @@ int cur_column = 0;
 int cur_page = 0;
 
 int8_t send1(uint8_t command) {
-	write_i2c_command_block(DISPLAY_ADDRESS,0x00,&command,1);
+	return write_i2c_command_block(DISPLAY_ADDRESS,0x00,&command,1);
 }
 
 int8_t send2(uint8_t command, uint8_t data) {

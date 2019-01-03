@@ -9,9 +9,9 @@
 #include "maths.h"
 #include "leg.h"
 #include "calibrate.h"
+#include "utils.h"
+#include "laser.h"
 
-#define MIN(a,b) ((a)<(b))?(a):(b)
-#define MAX(a,b) ((a)>(b))?(a):(b)
 static double mag_readings[CALIBRATION_SAMPLES*3]; //3 sets of readings...
 static double grav_readings[CALIBRATION_SAMPLES*3];
 
@@ -124,8 +124,7 @@ double get_gyro_offset(int axis) {
 int collect_data_around_axis(int axis, double gyro_offset, double *mag_data, double *grav_data) {
     struct COOKED_SENSORS sensors;
     double gyro=0;
-    int i, j, readings_count;
-    double min_separation = 10000000.0;
+    int i, j;
     i = 0;
     do {
         do {

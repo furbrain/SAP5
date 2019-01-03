@@ -24,7 +24,7 @@ double laser_get_result(void) {
     char *error;
     int read_count;
     double result;
-    read_count = UART1_ReadBuffer(text, 15);
+    read_count = UART1_ReadBuffer((uint8_t*)text, 15);
     text[read_count]=0;
     result = strtod(text+2, &error);
     if (error==text+2) {
@@ -35,8 +35,6 @@ double laser_get_result(void) {
 
 TESTABLE_STATIC
 void laser_start(enum LASER_SPEED speed) {
-    char text[32];
-    int i;
     UART1_ReceiveBufferClear();
     switch (speed){
         case LASER_SLOW:

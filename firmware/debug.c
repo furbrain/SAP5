@@ -7,6 +7,7 @@
 #include "font.h"
 #include "exception.h"
 #include "battery.h"
+#include "utils.h"
 
 
 void show_sensors(int32_t a) {
@@ -14,7 +15,7 @@ void show_sensors(int32_t a) {
     int i;
     char text[20];
     while (true) {
-        switch (get_action()) {
+        switch (get_input()) {
             case SINGLE_CLICK:
             case DOUBLE_CLICK:
             case LONG_CLICK:
@@ -40,7 +41,7 @@ void show_details(int32_t a) {
     char text[20];
     double voltage;
     while (true) {
-        switch (get_action()) {
+        switch (get_input()) {
             case SINGLE_CLICK:
             case DOUBLE_CLICK:
             case LONG_CLICK:
@@ -66,7 +67,9 @@ void throw_error(int32_t a) {
 }
 
 void freeze_error(int32_t a) {
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
     volatile int32_t x;
+#pragma GCC diagnostic pop
     while(1) {x = a;};
 }
 
@@ -78,9 +81,9 @@ void div_by_zero(int32_t a) {
 
 
 DECLARE_MENU(debug_menu, {
-    {"Sensors", Action, show_sensors, 0},
-    {"Readings", Action, show_details, 0},
-    {"Throw", Action, throw_error, 0},
-    {"Freeze", Action, freeze_error, 0},
-    {"DivByZero", Action, div_by_zero, 0}            
+    {"Sensors", Action, {show_sensors}, 0},
+    {"Readings", Action, {show_details}, 0},
+    {"Throw", Action, {throw_error}, 0},
+    {"Freeze", Action, {freeze_error}, 0},
+    {"DivByZero", Action, {div_by_zero}, 0}            
 });

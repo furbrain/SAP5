@@ -1,6 +1,7 @@
 #include <xc.h>
 #include "battery.h"
 #include "mcc_generated_files/adc1.h"
+#include "utils.h"
 
 
 enum BAT_STATUS battery_get_status(){
@@ -12,7 +13,6 @@ enum BAT_STATUS battery_get_status(){
 #ifndef BOOTLOADER
 double battery_get_voltage(){
 	double bat_voltage, bg_voltage;
-    int i;
     ADC1_Initialize();
     ADC1_ChannelSelect(ADC1_BAT_SENSE);
     ADC1_Start();
@@ -42,7 +42,6 @@ double battery_get_voltage(){
 
 int battery_get_units() {
     double voltage;
-    int result;
     voltage = battery_get_voltage();
     /* scale voltage to range of 0->1, where 0 is minimum acceptable and 1 is maximum acceptable */
     voltage -= BATTERY_MIN_VOLTAGE;

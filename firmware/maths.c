@@ -105,12 +105,8 @@ static void solve_least_squares(gsl_matrix *input, gsl_vector *output, int num_p
 
 
 void find_plane(double *data_array, int len, gsl_vector *result) {
-    GSL_VECTOR_DECLARE(params, 3);
-
     GSL_VECTOR_RESIZE(lsq_output, len);
     gsl_matrix_view input = gsl_matrix_view_array(data_array, len, 3);
-    
-
     //initialise variables
     gsl_vector_set_all(&lsq_output, 1.0);
     //calculate plane
@@ -230,7 +226,6 @@ static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *ce
 }
 
 void calibrate(const double *data_array, const int len, matrixx result) {
-    double fit, sfit;
     int i,j;
     matrixx ellipsoid;
     GSL_MATRIX_DECLARE(a4, 4, 4);

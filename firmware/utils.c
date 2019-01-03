@@ -51,7 +51,9 @@ void wdt_clear(void){
 void sys_reset(int32_t a){
     /* The following reset procedure is from the Family Reference Manual,
 	 * Chapter 7, "Resets," under "Software Resets." */
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
     int x;
+#pragma GCC diagnostic pop
 	/* Unlock sequence */
 	SYSKEY = 0x00000000;
 	SYSKEY = 0xaa996655;
@@ -66,7 +68,6 @@ void sys_reset(int32_t a){
 }
 
 int utils_flash_memory (void *dest, const void *data, enum FLASH_OP op) {
-    int status;
     // Fill out relevant registers
     NVMADDR = (uint32_t)dest;
     switch (op) {

@@ -134,6 +134,7 @@ void write_data(const void *ptr,  const void *src, int length){
         THROW_WITH_REASON("Length not a multiple of 8 bytes", ERROR_FLASH_STORE_FAILED);
     if ((size_t)src % 4)
         THROW_WITH_REASON("Source address not on word boundary", ERROR_FLASH_STORE_FAILED);
+#pragma GCC diagnostic ignored "-Wpointer-arith"    
     while (length > 0) {
         if ((((size_t)ptr % ROW_SIZE) ==0) && (length >= ROW_SIZE)) {
             write_row(ptr, src);
@@ -147,4 +148,5 @@ void write_data(const void *ptr,  const void *src, int length){
             length -= DWORD_SIZE;
         }
     }
+#pragma GCC diagnostic pop
 }

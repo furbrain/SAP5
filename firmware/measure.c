@@ -57,7 +57,7 @@ void get_reading(gsl_vector *orientation){
     gsl_vector_scale(&magnetism, 1.0/NUM_SENSOR_READINGS);
     gsl_vector_scale(&acceleration, 1.0/NUM_SENSOR_READINGS);
     distance = laser_read(LASER_MEDIUM, 1000);
-    maths_get_orientation(&magnetism, &acceleration, orientation);
+    maths_get_orientation_as_vector(&magnetism, &acceleration, orientation);
     gsl_vector_scale(orientation, distance);
     display_on(true);
     laser_on(false);
@@ -74,7 +74,7 @@ void measure_get_reading(gsl_vector *orientation) {
     display_write_text(2, 0, "---*", &large_font,false, true);
     laser_on(true);
     while (true) {
- 		switch(get_action()) {
+ 		switch(get_input()) {
 			case SINGLE_CLICK:
 			case LONG_CLICK:
 				/* take measurement */
@@ -175,7 +175,6 @@ void add_storage_menu_entry(struct menu *menu, uint8_t from, uint8_t to) {
 TESTABLE_STATIC
 void setup_storage_menu(void) {
     int last = survey_current.max_station;
-    char text[30];
     menu_clear(&storage_menu);
     add_storage_menu_entry(&storage_menu, last, last+1);
     add_storage_menu_entry(&storage_menu, last, LEG_SPLAY);

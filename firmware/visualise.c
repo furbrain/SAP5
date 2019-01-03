@@ -1,4 +1,5 @@
 #include <gsl/gsl_blas.h>
+#include <gsl/gsl_math.h>
 #include "visualise.h"
 #include "utils.h"
 #include "display.h"
@@ -6,6 +7,7 @@
 #include "maths.h"
 #include "interface.h"
 #include "sensors.h"
+#include "survey.h"
 
 
 
@@ -36,16 +38,16 @@ void get_offset_and_scale(const struct MODEL_CAVE *cave,
     int i;
     for (i=0; i< cave->station_count; ++i) {
         convert_to_device(transform->orientation, cave->stations[i].pos, &x, &y);
-        maxx = fmax(maxx,x);
-        maxy = fmax(maxy,y);
-        minx = fmin(minx,x);
-        miny = fmin(miny,y);
+        maxx = GSL_MAX(maxx,x);
+        maxy = GSL_MAX(maxy,y);
+        minx = GSL_MIN(minx,x);
+        miny = GSL_MIN(miny,y);
     }
     transform->offset[0] = -(maxx+minx)/2.0;
     transform->offset[1] = -(maxy+miny)/2.0;
     scale_x = DISPLAY_WIDTH / (maxx-minx);
     scale_y = DISPLAY_HEIGHT / (maxy-miny);
-    transform->scale = fmin(scale_x, scale_y);
+    transform->scale = GSL_MIN(scale_x, scale_y);
 }
 
 /* convert a station in xyz real-world coordinates to xy screen coordinates*/
@@ -84,7 +86,7 @@ void display_cave(const struct MODEL_CAVE *cave,
 
 /* show a list of surveys held on the device*/
 void visualise_show_menu(int32_t a){
-    
+    visualise_survey(survey_current.number);
 }
 
 /* display a cave on the screen*/
@@ -97,7 +99,7 @@ void visualise_survey(uint16_t survey){
 
     model_generate(survey, &cave);
     while (true) {
- 		switch(get_action()) {
+ 		switch(get_input()) {
 			case SINGLE_CLICK:
 			case LONG_CLICK:
 			case DOUBLE_CLICK:

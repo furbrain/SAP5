@@ -6,6 +6,7 @@
 #include "i2c_util.h"
 #include "maths.h"
 #include "mcc_generated_files/rtcc.h"
+#include "utils.h"
 
 #define MPU_ADDRESS 0x68
 #define MPU_COMMAND(command,data) write_i2c_data2(MPU_ADDRESS,command,data)
@@ -134,7 +135,7 @@ void sensors_read_raw(struct RAW_SENSORS *sensors){
     int i;
     read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, sizeof(*sensors));
     for(i=0; i< 10; ++i) {
-        byte_swap(&((int16_t*)sensors)[i]);
+        byte_swap(&((uint16_t*)sensors)[i]);
     }
 }
 
@@ -172,7 +173,6 @@ void sensors_raw_to_uncalibrated(struct COOKED_SENSORS *cooked, struct RAW_SENSO
 
 void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors) {
     struct RAW_SENSORS raw_sensors;
-    int i;
     sensors_read_raw (&raw_sensors);
 	sensors_raw_to_uncalibrated(sensors, &raw_sensors);    
 }

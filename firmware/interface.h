@@ -19,7 +19,7 @@ enum INPUT {
 
 extern struct menu main_menu;
 
-enum INPUT get_action();
+enum INPUT get_input();
 extern volatile enum INPUT last_click;
 void show_menu(struct menu *menu);
 #endif
