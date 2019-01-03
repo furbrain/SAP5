@@ -195,7 +195,7 @@ def make_convert_to_device_fixtures(samples):
     for i in range(samples):
         vector = np.random.random((3,))
         res = quaternion.rotate_vectors(orientation, vector)
-        print '{',bracketiser(vector), ',', bracketiser(res[0:2]),'},'
+        print '{',bracketiser(vector), ',', bracketiser(list(reversed(-1*res[0:2]))),'},'
     
 
 np.set_printoptions(suppress=True, precision=4)

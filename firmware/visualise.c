@@ -20,8 +20,11 @@ void convert_to_device(const gsl_matrix *orientation,
     gsl_vector_const_view world = gsl_vector_const_view_array(coords, 3);
     GSL_VECTOR_DECLARE(device, 3);
     gsl_blas_dgemv(CblasNoTrans, 1.0, orientation, &world.vector, 0.0, &device);
-    *x = gsl_vector_get(&device, 0);
-    *y = gsl_vector_get(&device, 1);
+    //note that the following look a bit weird because
+    //the screens y axis is the negative x-axis in device coords
+    //the screens x axis is the negative y-axis in device coords
+    *y = -gsl_vector_get(&device, 0);
+    *x = -gsl_vector_get(&device, 1);
 }
 
 /* given an orientation, calculate the scale and offset
@@ -63,7 +66,7 @@ void translate_station(const struct MODEL_STATION *station,
     dx *= transform->scale;
     dy *= transform->scale;
     *x = (int)(dx + (DISPLAY_WIDTH/2));
-    *y = (int)((DISPLAY_HEIGHT/2)-dy);       
+    *y = (int)(dy + (DISPLAY_HEIGHT/2));       
 }
 
 /* show a cave on the screen, given a current orientation */
