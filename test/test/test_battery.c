@@ -2,6 +2,7 @@
 #include "CException.h"
 #include "battery.h"
 #include "mock_adc1.h"
+#include "mock_utils.h"
 #include <stdio.h>
 #include <string.h>
 #include <xc.h>
@@ -23,11 +24,13 @@ void setup_adc(double voltage) {
     ADC1_Initialize_Expect();
     ADC1_ChannelSelect_Expect(ADC1_BAT_SENSE);
     ADC1_Start_Expect();
+    delay_ms_safe_Expect(1);
     ADC1_Stop_Expect();
     ADC1_IsConversionComplete_IgnoreAndReturn(true);
     ADC1_ConversionResultGet_ExpectAndReturn(get_adc_result(voltage));
     ADC1_ChannelSelect_Expect(ADC1_CHANNEL_VBG);
     ADC1_Start_Expect();
+    delay_ms_safe_Expect(1);
     ADC1_Stop_Expect();
     ADC1_ConversionResultGet_ExpectAndReturn(get_adc_result(1.2));
 }

@@ -23,7 +23,7 @@ struct CONFIG test_config = {
 
 
 
-void write_data_replacement(void* ptr, const void* src, int length, int num_calls) {
+void write_data_replacement(const void* ptr, const void* src, int length, int num_calls) {
     int i;
     if ((size_t)ptr % 8)
         THROW_WITH_REASON("Destination ptr not on dword boundary", ERROR_FLASH_STORE_FAILED);
@@ -34,13 +34,13 @@ void write_data_replacement(void* ptr, const void* src, int length, int num_call
             THROW_WITH_REASON("Memroy not been cleared for write", ERROR_FLASH_STORE_FAILED);
         }
     }
-    memcpy(ptr, src, length);
+    memcpy((void*)ptr, src, length);
 }
 
-void erase_page_replacement(void *ptr, int num_calls) {
+void erase_page_replacement(const void *ptr, int num_calls) {
     if ((size_t)ptr % 0x800) 
         THROW_WITH_REASON("Erase page not on page boundary", ERROR_FLASH_STORE_FAILED);
-    memset(ptr, 0xff, 0x800);
+    memset((void*)ptr, 0xff, 0x800);
 }
 
 

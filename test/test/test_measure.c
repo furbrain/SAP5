@@ -250,10 +250,10 @@ void test_add_cartesian_entries_to_menu_imperial(void) {
 }
 
 void test_measure_get_reading_double_press(void) {
-    display_clear_screen_Expect();
-    display_write_text_Expect(2, 0, "---*", &large_font, false);
+    display_clear_screen_Expect(true);
+    display_write_text_Expect(2, 0, "---*", &large_font, false, true);
     laser_on_Expect(true);
-    get_action_ExpectAndReturn(DOUBLE_CLICK);
+    get_input_ExpectAndReturn(DOUBLE_CLICK);
     measure_get_reading(NULL);
 }
     

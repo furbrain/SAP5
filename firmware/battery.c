@@ -23,8 +23,8 @@ double battery_get_voltage(){
     {
         ADC1_Tasks();   
     }
-    //bat_voltage = ADC1_ConversionResultGet();
-    bat_voltage = ADC1BUF0;
+    bat_voltage = ADC1_ConversionResultGet();
+    //bat_voltage = ADC1BUF0;
     ADC1_ChannelSelect(ADC1_CHANNEL_VBG);
     ADC1_Start();
     //Provide Delay
@@ -34,10 +34,10 @@ double battery_get_voltage(){
     {
         ADC1_Tasks();   
     }
-    //bg_voltage = ADC1_ConversionResultGet();
-    bg_voltage = ADC1BUF0;
+    bg_voltage = ADC1_ConversionResultGet();
+    //bg_voltage = ADC1BUF0;
     
-	return (bat_voltage);
+	return (bat_voltage/bg_voltage * 1.2);
 }
 
 int battery_get_units() {
