@@ -375,12 +375,20 @@ void display_show_buffer(void) {
 
 void display_setbuffer_xy(int x, int y) {
 	int page;
+    if (x<0) return;
+    if (y<0) return;
+    if (x>=DISPLAY_WIDTH) return;
+    if (y>=DISPLAY_HEIGHT) return;
 	page = ((y/8) + top_page) % 8;
 	buffer[page][x] |= 1 << (y%8);
 }
 
-void display_clearbuffer_xy(uint8_t x, uint8_t y) {
+void display_clearbuffer_xy(int x, int y) {
 	int page;
+    if (x<0) return;
+    if (y<0) return;
+    if (x>=DISPLAY_WIDTH) return;
+    if (y>=DISPLAY_HEIGHT) return;
 	page = ((y/8) + top_page) % 8;
 	buffer[page][x] &= ~(1 << (y%8));	
 }
