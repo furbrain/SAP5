@@ -14,6 +14,7 @@
 #include "menu.h"
 #include "exception.h"
 #include "debug.h"
+#include "visualise.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
@@ -89,6 +90,7 @@ DECLARE_MENU(main_menu, {
     {"Measure", Action, {measure}, 0},
     {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},
     {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
+    {"Visualise", Action, {visualise_show_menu}, 0},
     {"Debug  >", SubMenu, .submenu = &debug_menu, 0},
     {"Off", Action, {turn_off}, 0}
 });
