@@ -27,11 +27,11 @@
       <itemPath>config.h</itemPath>
       <itemPath>maths.h</itemPath>
       <itemPath>interface.h</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/app_type.h</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/laser.h</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/calibrate.h</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/memory.h</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/measure.h</itemPath>
+      <itemPath>app_type.h</itemPath>
+      <itemPath>laser.h</itemPath>
+      <itemPath>calibrate.h</itemPath>
+      <itemPath>memory.h</itemPath>
+      <itemPath>measure.h</itemPath>
       <itemPath>battery.h</itemPath>
       <itemPath>mem_locations.h</itemPath>
       <itemPath>menu.h</itemPath>
@@ -80,10 +80,10 @@
       <itemPath>maths.c</itemPath>
       <itemPath>interface.c</itemPath>
       <itemPath>config.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/laser.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/calibrate.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/memory.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/measure.c</itemPath>
+      <itemPath>laser.c</itemPath>
+      <itemPath>calibrate.c</itemPath>
+      <itemPath>memory.c</itemPath>
+      <itemPath>measure.c</itemPath>
       <itemPath>battery.c</itemPath>
       <itemPath>menu.c</itemPath>
       <itemPath>CException.c</itemPath>
@@ -129,7 +129,6 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>.</Elem>
-    <Elem>/home/phil/Projects/SAP5/bootloader</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
