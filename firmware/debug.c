@@ -1,5 +1,7 @@
 #include <stdbool.h>
+#include <time.h>
 
+#include "mcc_generated_files/rtcc.h"
 #include "debug.h"
 #include "interface.h"
 #include "sensors.h"
@@ -53,10 +55,16 @@ void show_details(int32_t a) {
         sensors_read_uncalibrated(&sensors);
         voltage = battery_get_voltage();
         display_clear_screen(false);
-        sprintf(text,"Voltage: %4.2fv", voltage);
+        struct tm dt;
+        RTCC_TimeGet(&dt);
+        strftime(text, 20, "Time: %H:%M:%S", &dt);
+        display_write_text(0, 0, text, &small_font, false, false);
+        strftime(text, 20, "Date: %Y-%m-%d", &dt);
         display_write_text(2, 0, text, &small_font, false, false);
-        sprintf(text,"Temp: %4.1f`", sensors.temp);
+        sprintf(text,"Voltage: %4.2fv", voltage);
         display_write_text(4, 0, text, &small_font, false, false);
+        sprintf(text,"Temp: %4.1f`", sensors.temp);
+        display_write_text(6, 0, text, &small_font, false, false);
         display_show_buffer();
         delay_ms_safe(500);
     }

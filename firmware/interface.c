@@ -15,6 +15,7 @@
 #include "exception.h"
 #include "debug.h"
 #include "visualise.h"
+#include "datetime.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
@@ -24,9 +25,6 @@ volatile enum INPUT last_click = NONE;
 
 void beep(int a, int b) {
 }
-
-void set_date(int32_t a);
-void set_time(int32_t a);
 
 void turn_off(int32_t a) {
     //turn off peripherals
@@ -72,8 +70,8 @@ DECLARE_MENU(settings_menu, {    /* settings menu */
     {"Style  >", SubMenu, .submenu = &style_menu, 0},
     {"Display  >", SubMenu, .submenu = &display_menu, 0},
     {"Timeout  >", SubMenu, .submenu = &timeout_menu, 0},
-    {"Set  Date", Action, {set_time}, 0},
-    {"Set  Time", Action, {set_time}, 0},
+    {"Set  Date", Action, {datetime_set_date}, 0},
+    {"Set  Time", Action, {datetime_set_time}, 0},
     {"Back", Back, {NULL}, 0},
 });
 
@@ -95,61 +93,10 @@ DECLARE_MENU(main_menu, {
     {"Off", Action, {turn_off}, 0}
 });
 
-
-
-void set_date(int32_t a) {
-    /* first display date */
-    char text[18];
-    int pos = 0;
-    int pos_arr[] = {0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15};
-    struct tm dt;
-    RTCC_TimeGet(&dt);
-    display_clear_screen(true);
-    while (true) {
-        strcpy(text, "                ");
-        text[pos_arr[pos]] = 'v';
-        display_write_text(1, 0, text, &small_font, false, true);
-        text[pos_arr[pos]] = '^';
-        display_write_text(5, 0, text, &small_font, false, true);
-        //sprintf(text,"%02X/%02X/%02X %02X:%02X X",1,2,3,4,5);
-        sprintf(text, "%02d/%02d/%02d %02d:%02d X", dt.tm_mday, dt.tm_mon, dt.tm_year, dt.tm_hour, dt.tm_min);
-        display_write_text(3, 0, text, &small_font, false, true);
-        switch (get_input()) {
-            case FLIP_LEFT:
-                pos = (pos + 11 - 1) % 11;
-                delay_ms(600);
-                break;
-            case FLIP_RIGHT:
-                pos = (pos + 1) % 11;
-                delay_ms(600);
-                break;
-            case FLIP_UP:
-            case FLIP_DOWN:
-                break;
-            case SINGLE_CLICK:
-            case DOUBLE_CLICK:
-                return;
-            default:
-                break;
-        }
-        delay_ms(50);
-    }
-}
-
-void set_time(int32_t a) {
-}
-
-/* a null-terminated list of menu_entries */
-
-
-
-
 /* set up timer interrupts etc */
 /* Timer 2 is our input poller counter */
 /* timer 3 is click length counter */
 /* timer 2 delay: 2ms  = */
-#define CLICKS_PER_MS (FCY_PER_MS/256)
-#define T2_DELAY (2*CLICKS_PER_MS)
 uint32_t last_activity_counter = 0;
 
 /* change notification interrupt, called every 2ms*/

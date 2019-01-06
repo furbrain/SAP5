@@ -46,6 +46,7 @@
       <itemPath>model.h</itemPath>
       <itemPath>visualise.h</itemPath>
       <itemPath>selector.h</itemPath>
+      <itemPath>datetime.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -94,6 +95,7 @@
       <itemPath>model.c</itemPath>
       <itemPath>visualise.c</itemPath>
       <itemPath>selector.c</itemPath>
+      <itemPath>datetime.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -122,6 +124,7 @@
       <itemPath>../test/test/test_visualise.c</itemPath>
       <itemPath>../test/test/make_test_cases.py</itemPath>
       <itemPath>../test/test/test_selector.c</itemPath>
+      <itemPath>../test/test/test_datetime.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

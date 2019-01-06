@@ -3,13 +3,10 @@
 #include "mcc_generated_files/mcc.h"
 #include "utils.h"
 #include "display.h"
-#include "font.h"
 #include "sensors.h"
 #include "survey.h"
 #include "interface.h"
 #include "laser.h"
-#include "i2c_util.h"
-#include "maths.h"
 #include "exception.h"
 #include "config.h"
 #define TXT_LENGTH 50
