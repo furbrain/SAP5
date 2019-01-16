@@ -8,9 +8,9 @@ refdes=J4
 T 41400 51800 5 10 0 1 0 0 1
 footprint=waterproof-usb-micro
 T 41400 51800 5 10 0 1 0 0 1
-model=320010000
+model=UB-MC5BR3-SDWP604-4S-TF
 T 41400 51800 5 10 0 1 0 0 1
-model-name=ST-USB-001G
+model-name=ST-USB-001GUB-MC5BR3-SDWP604-4S-TF
 }
 C 43400 53200 1 0 0 generic-power.sym
 {

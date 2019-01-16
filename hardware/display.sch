@@ -4,9 +4,9 @@ C 74300 46500 1 0 0 connector4-1.sym
 T 76100 47400 5 10 0 0 0 0 1
 device=CONNECTOR_4
 T 74300 47900 5 10 1 1 0 0 1
-refdes=DISPLAY
+refdes=DISPLAY1
 T 74300 46500 5 10 0 0 0 0 1
-footprint=oled
+footprint=JUMPER4
 }
 C 76900 47300 1 0 0 generic-power.sym
 {
