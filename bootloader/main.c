@@ -100,29 +100,20 @@ void display_show_bat(int charge) {
 
 
 void sleep(void) {
-    //TRISA = 0;
-    //TRISB = 0;
-    //TRISC = 0;
+    TRISA = 0;
+    TRISB = 0;
+    TRISC = 0;
     TRISCbits.TRISC9 = 1;
     TRISBbits.TRISB6 = 1;
-    //LATA = 0;
-    //LATB = 0;
-    //LATC = 0;
+    LATA = 0;
+    LATB = 0;
+    LATC = 0;
     INTCONbits.MVEC = 1;
-    //    CNBI: PORT B Change Notification
-    //    Priority: 7
-        IPC2bits.CNBIP = 7;
-    //    Sub Priority: 0
-        IPC2bits.CNBIS = 0;
-    //    CNCI: PORT C Change Notification
-    //    Priority: 7
-        IPC2bits.CNCIP = 7;
-    //    Sub Priority: 0
-        IPC2bits.CNCIS = 0;
-
-    SYSKEY = 0x12345678; //write invalid key to force lock
-    SYSKEY = 0xAA996655; //write Key1 to SYSKEY
-    SYSKEY = 0x556699AA; //write Key2 to SYSKEY
+    IPC2bits.CNBIP = 7;
+    IPC2bits.CNBIS = 0;
+    IPC2bits.CNCIP = 7;
+    IPC2bits.CNCIS = 0;
+    SYSTEM_RegUnlock();
     PMDCONbits.PMDLOCK = 0;
     PMD1 = 0xffffffff;
     PMD2 = 0xffffffff;
@@ -133,16 +124,13 @@ void sleep(void) {
     PMD7 = 0xffffffff;
     PMDCONbits.PMDLOCK = 1;
     PWRCONbits.VREGS = 0;
-    PWRCONbits.RETEN = 0;    
+    PWRCONbits.RETEN = 1;    
     OSCCONbits.SLPEN = 1;
-    SYSKEY = 0x12345678;
+    SYSTEM_RegLock();
     __builtin_enable_interrupts();
     asm("wait");
     asm("nop;nop;nop;nop;");
-    //re-enable modules
-    SYSKEY = 0x12345678; //write invalid key to force lock
-    SYSKEY = 0xAA996655; //write Key1 to SYSKEY
-    SYSKEY = 0x556699AA; //write Key2 to SYSKEY
+    SYSTEM_RegUnlock();
     PMDCONbits.PMDLOCK = 0;
     PMD1 = 0x0;
     PMD2 = 0x0;
@@ -152,7 +140,7 @@ void sleep(void) {
     PMD6 = 0x0;
     PMD7 = 0x0;
     PMDCONbits.PMDLOCK = 1;
-    SYSKEY = 0x12345678;
+    SYSTEM_RegLock();
 }
 
 void JumpToApp(void)
@@ -204,17 +192,11 @@ void run_usb(void) {
 int main(void)
 {
     RCON = 0x0;
-    OSCILLATOR_Initialize();
-    PERIPH_EN_SetLow();
     PIN_MANAGER_Initialize();
-    //INTERRUPT_Initialize();
+    PERIPH_EN_SetLow();
     while(1) {
         PIN_MANAGER_Initialize();
         PERIPH_EN_SetLow();
-        wdt_clear();
-        sleep();
-        RCON = 0x0;
-        wdt_clear();
         if (PORTBbits.RB6) {
             /* USB connected */
             PERIPH_EN_SetHigh();
@@ -225,6 +207,8 @@ int main(void)
             RCON = 0x0;
             JumpToApp();
         }
+        delay_ms_safe(40);
+        sleep();
         sys_reset(0);
     }
 }

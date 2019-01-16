@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <time.h>
+#include <xc.h>
 
 #include "mcc_generated_files/rtcc.h"
 #include "debug.h"
@@ -10,7 +11,83 @@
 #include "exception.h"
 #include "battery.h"
 #include "utils.h"
+#include "mcc_generated_files/mcc.h"
+#include "mcc_generated_files/pin_manager.h"
+#include "mcc_generated_files/tmr1.h"
+#include "mcc_generated_files/tmr2.h"
 
+void SetPlainFRC(void) {
+    SYSTEM_RegUnlock();
+    OSCCONbits.NOSC = 0;
+    OSCCONSET = 1;
+    SYSTEM_RegLock();
+    while (OSCCONbits.OSWEN);
+}
+
+void DisableModules(void) {
+    SYSTEM_RegUnlock();
+    PMDCONbits.PMDLOCK = 0;
+    PMD1 = 0xffffffff;
+    PMD2 = 0xffffffff;
+    PMD3 = 0xffffffff;
+    PMD4 = 0xffffffff;
+    PMD5 = 0xffffffff;
+    PMD6 = 0xfffffffe; //leave RTCC on...
+    PMD7 = 0xffffffff;
+    PMDCONbits.PMDLOCK = 1;
+    SYSTEM_RegLock();
+    
+}
+
+void EnableModules(void) {
+    SYSTEM_RegUnlock();
+    PMDCONbits.PMDLOCK = 0;
+    PMD1 = 0;
+    PMD2 = 0;
+    PMD3 = 0;
+    PMD4 = 0;
+    PMD5 = 0;
+    PMD6 = 0; //leave RTCC on...
+    PMD7 = 0;
+    PMDCONbits.PMDLOCK = 1;
+    SYSTEM_RegLock();
+    
+}
+
+void sleep(void) {
+    //TRISA = 0;
+    //TRISB = 0;
+    //TRISC = 0;
+    TRISCbits.TRISC9 = 1;
+    TRISBbits.TRISB6 = 1;
+    SetPlainFRC();
+    DisableModules();
+    SYSTEM_RegUnlock();
+    PWRCONbits.VREGS = 0;
+    PWRCONbits.RETEN = 1;    
+    OSCCONbits.SLPEN = 1;
+    SYSTEM_RegLock();
+    __builtin_enable_interrupts();
+    asm("wait");
+    asm("nop;nop;nop;nop;");
+    EnableModules();
+}
+
+void do_sleep(int32_t a) {
+    delay_ms_safe(1000);
+    PIN_MANAGER_Initialize();
+    PERIPH_EN_SetLow();
+    TMR1_Stop();
+    TMR2_Stop();
+    wdt_clear();
+    sleep();
+    wdt_clear();
+    TMR2_Start();
+
+    PERIPH_EN_SetHigh();
+    display_init();
+    config.length_units=IMPERIAL;
+}
 
 void show_sensors(int32_t a) {
     struct COOKED_SENSORS sensors;
@@ -89,6 +166,7 @@ void div_by_zero(int32_t a) {
 
 
 DECLARE_MENU(debug_menu, {
+    {"Sleep", Action, {do_sleep}, 0},
     {"Sensors", Action, {show_sensors}, 0},
     {"Readings", Action, {show_details}, 0},
     {"Throw", Action, {throw_error}, 0},
