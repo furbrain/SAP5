@@ -1,0 +1,78 @@
+v 20180520 1
+P 100 1200 400 1200 1 0 0
+{
+T 300 1250 5 8 1 1 0 6 1
+pinnumber=1
+T 300 1150 5 8 0 1 0 8 1
+pinseq=1
+T 450 1200 9 8 1 1 0 0 1
+pinlabel=USB
+T 450 1200 5 8 0 1 0 2 1
+pintype=pwr
+}
+P 1100 100 1100 400 1 0 0
+{
+T 1150 300 5 8 1 1 0 2 1
+pinnumber=2
+T 1050 300 5 8 0 1 0 8 1
+pinseq=2
+T 1100 450 9 8 1 1 0 3 1
+pinlabel=GND
+T 1100 600 5 8 0 1 0 3 1
+pintype=pwr
+}
+P 2100 1200 1900 1200 1 0 0
+{
+T 1900 1250 5 8 1 1 0 0 1
+pinnumber=3
+T 1900 1150 5 8 0 1 0 2 1
+pinseq=3
+T 1750 1200 9 8 1 1 0 6 1
+pinlabel=\_CHG\_
+T 1750 1200 5 8 0 1 0 8 1
+pintype=io
+}
+V 1850 1200 50 6 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+P 100 800 400 800 1 0 0
+{
+T 300 850 5 8 1 1 0 6 1
+pinnumber=4
+T 300 750 5 8 0 1 0 8 1
+pinseq=4
+T 450 800 9 8 1 1 0 0 1
+pinlabel=DC
+T 450 800 5 8 0 1 0 2 1
+pintype=pwr
+}
+P 2100 800 1800 800 1 0 0
+{
+T 1900 850 5 8 1 1 0 0 1
+pinnumber=5
+T 1900 750 5 8 0 1 0 2 1
+pinseq=5
+T 1750 800 9 8 1 1 0 6 1
+pinlabel=BAT
+T 1750 800 5 8 0 1 0 8 1
+pintype=pwr
+}
+B 400 400 1400 1200 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 1800 1700 8 10 1 1 0 6 1
+refdes=U?
+T 400 1700 9 10 1 0 0 0 1
+MAX1555
+T 400 1900 5 10 0 0 0 0 1
+device=MAX1555
+T 400 2100 5 10 0 0 0 0 1
+footprint=SOT25
+T 400 2300 5 10 0 0 0 0 1
+author=Phil Underwood
+T 400 2500 5 10 0 0 0 0 1
+documentation=https://www.maximintegrated.com/en/products/power/battery-management/MAX1555.html
+T 400 2700 5 10 0 0 0 0 1
+description=SOT23 Dual-Input USB/AC Adapter 1-Cell Li+ Battery Charger
+T 400 2900 5 10 0 0 0 0 1
+numslots=0
+T 400 3100 5 10 0 0 0 0 1
+dist-license=GPL2
+T 400 3300 5 10 0 0 0 0 1
+use-license=GPL2

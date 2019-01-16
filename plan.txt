@@ -3,6 +3,7 @@ Kit:
 3v Laser rangefinder off aliexpress with serial comms
 4-way conector for this...
 MPU 9250
+SH1106
 SSD1306 display
 
 MCP1710 power supply for PIC
@@ -10,11 +11,9 @@ PIC32MM0256GPL028 - processor
 5-way connector for programming
 
 Also a.N.other LDO to provide power for peripherals...
-TC1240A chargepump - configure as a tripler with some extra diodes and caps
 use CC0805KKX5R8BB475 as caps - 4.7uF 25V cap in 0805 package
-use SS0520-7-F as diodes with voltage tripler layout SOD-123 package
 
-CN3065 usb lipo charger
+MAX1555 usb lipo charger
 
 300mAH lipo battery
 JST connector
@@ -24,3 +23,50 @@ Hammond enclosure as before
 possibly 3d printed adapter for rangefinder within enclosure
 waterproof micro usb connector + dust plug
 
+Use low power timing crystal for RTCC
+
+Hardware Tasks:
+. update footprints for JST and USB connectors
+
+
+
+Firmware Tasks:
+. Get proper error detection working on laser reading DONE
+. Give some more generous time to get result as well?
+. Get different styles of leg working (forward, backward, leapfrog)
+. Get custom leg selection working
+. Get visualiser working - work as "cave window", so adjust view according to angle of device
+. Get set date working
+. Get set time working
+. Add some debug menu options - show uncalibrated sensor readings...
+.                             - gyro readings
+.                             - battery voltage
+
+
+PC software
+. note needs freetype-py and sparse_list
+
+DEVICE Axes:
+X = towards top of display with laser pointing left
+Y = along laser
+Z = coming out of surface of display upwards...
+
+WORLD Axes:
+X = EAST
+Y = NoRTH
+Z = UP
+
+
+
+post-measure menu
+
+Readings  - no action, just visible
+Discard
+Store -> (assuming "last visited station==1")
+    1->2
+    1->Splay
+    2->1
+    2->Splay
+    Custom - needs separate code to run...
+    Back
+Back (to main menu...)

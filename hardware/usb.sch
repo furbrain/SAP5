@@ -6,7 +6,7 @@ device=CONNECTOR_5
 T 41500 53500 5 10 1 1 0 0 1
 refdes=J4
 T 41400 51800 5 10 0 1 0 0 1
-footprint=MICRO-USB5+4P-SMD-0.65-B
+footprint=waterproof-usb-micro
 T 41400 51800 5 10 0 1 0 0 1
 model=320010000
 T 41400 51800 5 10 0 1 0 0 1

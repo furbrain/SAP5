@@ -1,0 +1,1 @@
+../firmware/linker.ld

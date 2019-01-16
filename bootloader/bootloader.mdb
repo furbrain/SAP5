@@ -1,0 +1,6 @@
+device pic32mm0256gpm028
+set poweroptions.powerenable true
+set voltagevalue 3.0
+hwtool pickit3
+program dist/default/production/bootloader.production.elf
+quit
