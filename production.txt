@@ -9,5 +9,5 @@ Keep MPU9250 as is on board DONE
 Need to fix capacitor on VCap - should be a 10uF cap, may need to be bigger footprint. DONE
 Add low power oscillator chip SITIME 153x or something... DONE
 Add a buzzer - use wired buzzer, powered off programming pins...  needs a resistor... DONE
-
+Check resistor value before sending ***FIXME***
 
