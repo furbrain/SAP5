@@ -55,11 +55,6 @@ void INTERRUPT_Initialize (void)
     // Enable Multi Vector Configuration
     INTCONbits.MVEC = 1;
     
-    //    MICI: I2C 1 Master
-    //    Priority: 1
-        IPC16bits.I2C1MIP = 1;
-    //    Sub Priority: 0
-        IPC16bits.I2C1MIS = 0;
     //    CNBI: PORT B Change Notification
     //    Priority: 7
         IPC2bits.CNBIP = 7;
@@ -70,11 +65,6 @@ void INTERRUPT_Initialize (void)
         IPC2bits.CNCIP = 7;
     //    Sub Priority: 0
         IPC2bits.CNCIS = 0;
-    //    TI: Timer 2
-    //    Priority: 1
-        IPC4bits.T2IP = 1;
-    //    Sub Priority: 0
-        IPC4bits.T2IS = 0;
     //    UERI: UART 1 Error
     //    Priority: 1
         IPC13bits.U1EIP = 1;
@@ -90,4 +80,14 @@ void INTERRUPT_Initialize (void)
         IPC13bits.U1RXIP = 1;
     //    Sub Priority: 0
         IPC13bits.U1RXIS = 0;
+    //    MICI: I2C 1 Master
+    //    Priority: 1
+        IPC16bits.I2C1MIP = 1;
+    //    Sub Priority: 0
+        IPC16bits.I2C1MIS = 0;
+    //    TI: Timer 2
+    //    Priority: 1
+        IPC4bits.T2IP = 1;
+    //    Sub Priority: 0
+        IPC4bits.T2IS = 0;
 }

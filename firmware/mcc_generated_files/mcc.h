@@ -48,14 +48,15 @@
 #include "pin_manager.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "tmr1.h"
 #include "rtcc.h"
-#include "tmr2.h"
-#include "i2c1.h"
 #include "uart1.h"
 #include "adc1.h"
+#include "mccp2_compare.h"
+#include "i2c1.h"
 #include "interrupt_manager.h"
 #include "exceptions.h"
+#include "tmr2.h"
+#include "tmr1.h"
 
 #define _XTAL_FREQ  24000000UL
 

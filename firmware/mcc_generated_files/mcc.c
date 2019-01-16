@@ -52,7 +52,7 @@
 #pragma config SOSCHP = OFF    // Secondary Oscillator High Power Enable bit->SOSC oprerates in normal power mode.
 #pragma config ALTI2C = OFF    // Alternate I2C1 Pins Location Enable bit->Primary I2C1 pins are used
 #pragma config FUSBIDIO = ON    // USBID pin control->USBID pin is controlled by the port function
-#pragma config FVBUSIO = OFF   // VBUS Pin Control->VBUS pin is controlled by port function
+#pragma config FVBUSIO = ON    // VBUS Pin Control->VBUS pin is controlled by port function
 
 // FICD
 #pragma config JTAGEN = OFF    // JTAG Enable bit->JTAG is disabled
@@ -89,14 +89,15 @@
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    INTERRUPT_Initialize();
     OSCILLATOR_Initialize();
+    INTERRUPT_Initialize();
     I2C1_Initialize();
     UART1_Initialize();
     ADC1_Initialize();
+    MCCP2_COMPARE_Initialize();
     TMR2_Initialize();
-    TMR1_Initialize();
     RTCC_Initialize();
+    TMR1_Initialize();
     INTERRUPT_GlobalEnable();
 }
 
