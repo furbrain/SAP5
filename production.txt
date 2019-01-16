@@ -1,12 +1,13 @@
 To switch over to "properly made" PCBs (rather than homebrew):
 
-Need to add pull-up resistors to SDA and SCL
-Switch Peripheral LDO to MAX1624(ish)
-Switch USB charger for MAX1555 - because known to work... hopefully.
-Keep MCP1810 power supply for Vcpu
-Keep MPU9250 as is on board
-Need to fix capacitor on VCap - should be a 10uF cap, may need to be bigger footprint...
-Add low power oscillator chip SITIME 153x or something...
-Add a buzzer if space
+Add resistor divider to UART Rx DONE
+Need to add pull-up resistors to SDA and SCL DONE
+Switch Peripheral LDO to MAX1624(ish) - No, we'll keep as the XC jobbie for now
+Switch USB charger for MAX1555 - because known to work. Need to connect CHG pin... DONE
+Keep MC78LC30 as charger, but change footprint DONE
+Keep MPU9250 as is on board DONE
+Need to fix capacitor on VCap - should be a 10uF cap, may need to be bigger footprint. DONE
+Add low power oscillator chip SITIME 153x or something... DONE
+Add a buzzer - use wired buzzer, powered off programming pins...  needs a resistor... DONE
 
 
