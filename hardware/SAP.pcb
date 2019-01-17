@@ -1047,14 +1047,14 @@ Element["" "0402" "R10" "10k" 35.6502mm 7.7500mm 1.0799mm -0.5301mm 0 100 ""]
 
 	)
 
-Element["" "0402" "R9" "2k" 35.8998mm 25.1500mm -2.4296mm -0.8901mm 0 100 ""]
+Element["" "0402" "R9" "2.2k" 35.8998mm 25.1500mm -2.4296mm -0.8901mm 0 100 ""]
 (
 	Pad[15.74mil -3.93mil 15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "1" "1" "square"]
 	Pad[-15.74mil -3.93mil -15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "2" "2" "square"]
 
 	)
 
-Element["" "0402" "R8" "2k" 39.3002mm 25.1100mm 1.3600mm -0.4801mm 0 100 ""]
+Element["" "0402" "R8" "2.2k" 39.3002mm 25.1100mm 1.3600mm -0.4801mm 0 100 ""]
 (
 	Pad[-15.74mil -3.93mil -15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "1" "1" "square"]
 	Pad[15.74mil -3.93mil 15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "2" "2" "square"]
@@ -1131,7 +1131,7 @@ Element["" "0402" "C2" "0.1uF" 20.0200mm 16.0802mm -0.5199mm -2.3043mm 0 100 ""]
 
 	)
 
-Element["" "0402" "R7" "1k" 18.9800mm 22.7900mm -0.7801mm 0.3799mm 0 100 ""]
+Element["" "0402" "R7" "100" 18.9800mm 22.7900mm -0.7801mm 0.3799mm 0 100 ""]
 (
 	Pad[-15.74mil -3.93mil -15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "1" "1" "square"]
 	Pad[15.74mil -3.93mil 15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "2" "2" "square"]
@@ -1349,6 +1349,10 @@ Layer(1 "top power" "copper")
 	Line[22.3800mm 6.3200mm 21.3500mm 6.3200mm 10.00mil 20.00mil "clearline"]
 	Line[21.3500mm 6.3200mm 20.1300mm 7.5400mm 10.00mil 20.00mil "clearline"]
 	Line[20.1300mm 7.5400mm 788.96mil 7.5400mm 10.00mil 20.00mil "clearline"]
+	Line[21.9590mm 607.00mil 21.8868mm 15.4900mm 10.00mil 20.00mil "clearline"]
+	Line[21.8868mm 15.4900mm 20.6400mm 15.4900mm 10.00mil 20.00mil "clearline"]
+	Line[31.3400mm 7.4002mm 31.2502mm 7.4900mm 10.00mil 20.00mil "clearline"]
+	Line[31.2502mm 7.4900mm 30.9100mm 7.4900mm 10.00mil 20.00mil "clearline"]
 )
 Layer(2 "top ground" "copper")
 (
@@ -1436,6 +1440,11 @@ Layer(2 "top ground" "copper")
 	Line[11.9200mm 6.5400mm 11.9200mm 6.0300mm 10.00mil 20.00mil "clearline"]
 	Line[32.8400mm 12.7550mm 32.9650mm 12.8800mm 10.00mil 20.00mil "clearline"]
 	Line[32.9650mm 12.8800mm 33.9500mm 12.8800mm 10.00mil 20.00mil "clearline"]
+	Line[1463.00mil 31.0600mm 1463.00mil 31.8299mm 0.1810mm 12.00mil "clearline"]
+	Line[1463.00mil 31.8299mm 37.0300mm 31.9600mm 0.1810mm 12.00mil "clearline"]
+	Line[37.0300mm 31.9600mm 37.0300mm 33.5400mm 0.1810mm 12.00mil "clearline"]
+	Line[32.1396mm 7.4002mm 32.1700mm 7.4305mm 10.00mil 20.00mil "clearline"]
+	Line[32.1700mm 7.4305mm 32.1700mm 8.1300mm 10.00mil 20.00mil "clearline"]
 )
 Layer(3 "top signal" "copper")
 (
@@ -1711,6 +1720,7 @@ NetList()
 		Connect("U1-8")
 		Connect("U1-27")
 		Connect("U6-2")
+		Connect("U7-9")
 		Connect("U7-11")
 		Connect("U7-18")
 		Connect("U7-20")
