@@ -2,9 +2,13 @@
 Element["" "OLED Display" "" "D000" 18.2000mm 17.3000mm 0.0000 0.0000 0 100 ""]
 (
 	Pin[-15.8000mm -14.2500mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,edge2"]
+	ElementArc [-15.8mm -14.25mm 3.0mm 3.0mm 0 360 10.00mil]
 	Pin[15.7000mm -14.2500mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,edge2"]
+	ElementArc [15.7000mm -14.2500mm 3.0mm 3.0mm 0 360 10.00mil]
 	Pin[-15.8000mm 14.2500mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,edge2"]
+	ElementArc [-15.8000mm 14.2500mm 3.0mm 3.0mm 0 360 10.00mil]
 	Pin[15.7000mm 14.2500mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,edge2"]
+	ElementArc [15.7000mm 14.2500mm 3.0mm 3.0mm 0 360 10.00mil]
 	Pin[-3.8000mm -15.0000mm 60.00mil 30.00mil 66.00mil 38.00mil "1" "1" "square,edge2"]
 	Pin[-1.2600mm -15.0000mm 60.00mil 30.00mil 66.00mil 38.00mil "2" "2" "edge2"]
 	Pin[1.2800mm -15.0000mm 60.00mil 30.00mil 66.00mil 38.00mil "3" "3" "edge2"]
