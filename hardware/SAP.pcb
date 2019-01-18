@@ -1216,6 +1216,40 @@ Element["" "0402" "C16" "0.1uF" 31.4698mm 32.2400mm -1.1998mm 0.7101mm 2 100 ""]
 
 	)
 
+Element["found,selected" "QFN24G-0.4-3X3MMB" "U7" "unknown" 32.0200mm 29.3000mm -250.00mil 0.0000 3 100 ""]
+(
+	Pad[39.37mil -66.92mil 39.37mil -58.07mil 7.87mil 20.00mil 13.90mil "1" "1" "square"]
+	Pad[23.62mil -66.92mil 23.62mil -51.18mil 7.87mil 20.00mil 15.87mil "2" "2" "square"]
+	Pad[7.87mil -66.92mil 7.87mil -51.18mil 7.87mil 20.00mil 15.87mil "3" "3" "square"]
+	Pad[-7.87mil -66.92mil -7.87mil -51.18mil 7.87mil 20.00mil 15.87mil "4" "4" "square"]
+	Pad[-23.62mil -66.92mil -23.62mil -51.18mil 7.87mil 20.00mil 15.87mil "5" "5" "square"]
+	Pad[-39.37mil -66.92mil -39.37mil -58.07mil 7.87mil 20.00mil 13.90mil "6" "6" "square"]
+	Pad[-66.92mil -39.37mil -58.07mil -39.37mil 7.87mil 20.00mil 13.90mil "7" "7" "square"]
+	Pad[-66.92mil -23.62mil -51.18mil -23.62mil 7.87mil 20.00mil 15.87mil "8" "8" "square"]
+	Pad[-66.92mil -7.87mil -51.18mil -7.87mil 7.87mil 20.00mil 15.87mil "9" "9" "square"]
+	Pad[-66.92mil 7.87mil -51.18mil 7.87mil 7.87mil 20.00mil 15.87mil "10" "10" "square"]
+	Pad[-66.92mil 23.62mil -51.18mil 23.62mil 7.87mil 20.00mil 15.87mil "11" "11" "square"]
+	Pad[-66.92mil 39.37mil -58.07mil 39.37mil 7.87mil 20.00mil 13.90mil "12" "12" "square"]
+	Pad[-39.37mil 58.07mil -39.37mil 66.92mil 7.87mil 20.00mil 13.90mil "13" "13" "square,edge2"]
+	Pad[-23.62mil 51.18mil -23.62mil 66.92mil 7.87mil 20.00mil 15.87mil "14" "14" "square,edge2"]
+	Pad[-7.87mil 51.18mil -7.87mil 66.92mil 7.87mil 20.00mil 15.87mil "15" "15" "square,edge2"]
+	Pad[7.87mil 51.18mil 7.87mil 66.92mil 7.87mil 20.00mil 15.87mil "16" "16" "square,edge2"]
+	Pad[23.62mil 51.18mil 23.62mil 66.92mil 7.87mil 20.00mil 15.87mil "17" "17" "square,edge2"]
+	Pad[39.37mil 58.07mil 39.37mil 66.92mil 7.87mil 20.00mil 13.90mil "18" "18" "square,edge2"]
+	Pad[58.07mil 39.37mil 66.92mil 39.37mil 7.87mil 20.00mil 13.90mil "19" "19" "square,edge2"]
+	Pad[51.18mil 23.62mil 66.92mil 23.62mil 7.87mil 20.00mil 15.87mil "20" "20" "square,edge2"]
+	Pad[51.18mil 7.87mil 66.92mil 7.87mil 7.87mil 20.00mil 15.87mil "21" "21" "square,edge2"]
+	Pad[51.18mil -7.87mil 66.92mil -7.87mil 7.87mil 20.00mil 15.87mil "22" "22" "square,edge2"]
+	Pad[51.18mil -23.62mil 66.92mil -23.62mil 7.87mil 20.00mil 15.87mil "23" "23" "square,edge2"]
+	Pad[58.07mil -39.37mil 66.92mil -39.37mil 7.87mil 20.00mil 13.90mil "24" "24" "square,edge2"]
+	ElementLine [-59.05mil -59.05mil 37.95mil -59.05mil 5.00mil]
+	ElementLine [37.95mil -59.05mil 59.05mil -37.95mil 5.00mil]
+	ElementLine [59.05mil -37.95mil 59.05mil 59.05mil 5.00mil]
+	ElementLine [-59.05mil 59.05mil 59.05mil 59.05mil 5.00mil]
+	ElementLine [-59.05mil -59.05mil -59.05mil 59.05mil 5.00mil]
+	ElementArc [70.00mil -70.00mil 10.00mil 10.00mil 270 360 10.00mil]
+
+	)
 Layer(1 "top power" "copper")
 (
 	Line[21.5000mm 32.6503mm 21.5000mm 32.6503mm 10.00mil 20.00mil "clearline"]
@@ -1393,7 +1427,6 @@ Layer(2 "top ground" "copper")
 	Line[32.1700mm 7.4305mm 32.1700mm 8.1300mm 10.00mil 20.00mil "clearline"]
 	Line[33.5300mm 29.9099mm 33.7298mm 29.9099mm 0.1810mm 12.00mil "clearline"]
 	Line[33.5300mm 29.9099mm 33.7099mm 29.9099mm 0.1810mm 12.00mil "clearline"]
-	Line[33.7099mm 29.9099mm 34.3600mm 30.5600mm 0.1810mm 12.00mil "clearline"]
 	Line[34.3600mm 30.5600mm 34.3400mm 30.5800mm 0.1810mm 12.00mil "clearline"]
 	Line[34.3400mm 30.5800mm 34.3400mm 31.3100mm 0.1810mm 12.00mil "clearline"]
 	Line[34.3400mm 31.3100mm 33.9700mm 31.6800mm 0.1810mm 12.00mil "clearline"]
@@ -1425,6 +1458,14 @@ Layer(2 "top ground" "copper")
 	Line[256.00mil 11.4900mm 9.8700mm 11.4900mm 25.00mil 20.00mil "clearline"]
 	Line[9.8700mm 11.4900mm 10.6200mm 12.2400mm 25.00mil 20.00mil "clearline"]
 	Line[10.6200mm 12.2400mm 11.9900mm 12.2400mm 25.00mil 20.00mil "clearline"]
+	Line[20.0200mm 479.00mil 19.9466mm 12.2400mm 10.00mil 20.00mil "clearline"]
+	Line[19.9466mm 12.2400mm 19.3500mm 12.2400mm 10.00mil 20.00mil "clearline"]
+	Line[33.7198mm 29.8999mm 33.7198mm 29.9000mm 0.1810mm 12.00mil "clearline"]
+	Line[33.7198mm 29.9000mm 34.2000mm 29.9000mm 0.1810mm 12.00mil "clearline"]
+	Line[34.2000mm 29.9000mm 34.3900mm 30.0900mm 0.1810mm 12.00mil "clearline"]
+	Line[34.3900mm 30.0900mm 34.3900mm 30.2700mm 0.1810mm 12.00mil "clearline"]
+	Line[34.3900mm 30.2700mm 34.3900mm 31.0700mm 10.00mil 20.00mil "clearline"]
+	Line[34.3900mm 31.0700mm 34.1100mm 31.3500mm 10.00mil 20.00mil "clearline"]
 )
 Layer(3 "top signal" "copper")
 (
@@ -1611,11 +1652,12 @@ Layer(4 "bottom power" "copper")
 	Line[27.8400mm 18.5100mm 27.8400mm 19.6600mm 10.00mil 20.00mil "clearline"]
 	Line[18.8600mm 15.5900mm 18.9500mm 15.5000mm 25.00mil 20.00mil "clearline"]
 	Line[18.9500mm 15.5000mm 20.8000mm 15.5000mm 25.00mil 20.00mil "clearline"]
+	Line[30.0600mm 34.5300mm 10.8500mm 34.5300mm 25.00mil 20.00mil "clearline"]
+	Line[10.8500mm 34.5300mm 10.7750mm 34.4550mm 25.00mil 20.00mil "clearline"]
 )
 Layer(5 "bottom ground" "copper")
 (
 	Line[30.0600mm 34.5300mm 29.9800mm 34.4500mm 25.00mil 20.00mil "clearline"]
-	Line[29.9800mm 34.4500mm 10.7700mm 34.4500mm 25.00mil 20.00mil "clearline"]
 	Polygon("clearpoly")
 	(
 		[0.0000 0.0000] [42.3600mm 0.0000] [42.3600mm 38.5400mm] [0.0000 38.5400mm] 
