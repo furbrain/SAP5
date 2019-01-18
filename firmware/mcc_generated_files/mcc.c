@@ -96,8 +96,8 @@ void SYSTEM_Initialize(void)
     ADC1_Initialize();
     MCCP2_COMPARE_Initialize();
     TMR2_Initialize();
-    RTCC_Initialize();
     TMR1_Initialize();
+    RTCC_Initialize();
     INTERRUPT_GlobalEnable();
 }
 
