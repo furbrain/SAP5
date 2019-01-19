@@ -94,7 +94,6 @@ void SYSTEM_Initialize(void)
     I2C1_Initialize();
     UART1_Initialize();
     ADC1_Initialize();
-    MCCP2_COMPARE_Initialize();
     TMR2_Initialize();
     RTCC_Initialize();
     TMR1_Initialize();
