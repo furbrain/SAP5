@@ -48,6 +48,7 @@
       <itemPath>visualise.h</itemPath>
       <itemPath>selector.h</itemPath>
       <itemPath>datetime.h</itemPath>
+      <itemPath>beep.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -98,6 +99,7 @@
       <itemPath>visualise.c</itemPath>
       <itemPath>selector.c</itemPath>
       <itemPath>datetime.c</itemPath>
+      <itemPath>beep.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -127,6 +129,7 @@
       <itemPath>../test/test/make_test_cases.py</itemPath>
       <itemPath>../test/test/test_selector.c</itemPath>
       <itemPath>../test/test/test_datetime.c</itemPath>
+      <itemPath>../test/test/test_beep.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

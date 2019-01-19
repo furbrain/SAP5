@@ -16,6 +16,7 @@
 #include "debug.h"
 #include "visualise.h"
 #include "datetime.h"
+#include "beep.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
@@ -23,8 +24,6 @@
 
 volatile enum INPUT last_click = NONE;
 
-void beep(int a, int b) {
-}
 
 void turn_off(int32_t a) {
     //turn off peripherals
@@ -270,7 +269,7 @@ void show_menu(struct menu *menu) {
                 break;
                 //case FLIP_RIGHT:
             case SINGLE_CLICK:
-                beep(3600, 20);
+                beep(512, 20);
                 switch (menu_action(menu)) {
                     case Action:
                     case Exit:
