@@ -1,7 +1,7 @@
 # release: pcb 4.0.2
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
-FileVersion[20091103]
+FileVersion[20100606]
 
 PCB["SAP" 46.0000mm 40.0000mm]
 
@@ -792,7 +792,6 @@ Via[18.8600mm 15.5900mm 1.3000mm 20.00mil 0.0000 0.7000mm "" ""]
 Via[22.6000mm 6.1000mm 1.3000mm 20.00mil 0.0000 0.7000mm "" ""]
 Via[32.3700mm 14.4900mm 1.3000mm 20.00mil 0.0000 0.7000mm "" ""]
 Via[32.8700mm 16.1900mm 1.3000mm 20.00mil 0.0000 0.7000mm "" ""]
-Via[1.8700mm 29.4900mm 60.00mil 20.00mil 0.0000 0.7000mm "" "thermal(4X)"]
 Via[7.0700mm 30.7500mm 60.00mil 20.00mil 0.0000 0.7000mm "" ""]
 Via[9.3800mm 26.6400mm 60.00mil 20.00mil 0.0000 0.7000mm "" ""]
 Via[7.7200mm 24.2800mm 60.00mil 20.00mil 0.0000 0.7000mm "" ""]
@@ -802,7 +801,7 @@ Via[33.6900mm 7.5700mm 1.3000mm 20.00mil 0.0000 0.7000mm "" "thermal(4X)"]
 Via[21.9900mm 26.3700mm 60.00mil 20.00mil 0.0000 35.00mil "" "thermal(4X)"]
 Via[14.3800mm 24.2500mm 1.3000mm 20.00mil 0.0000 0.7000mm "" ""]
 Via[20.1400mm 24.2200mm 1.3000mm 20.00mil 0.0000 0.7000mm "" ""]
-Via[17.2800mm 17.0600mm 1.3000mm 20.00mil 0.0000 0.7000mm "" "thermal(4X)"]
+Via[18.8000mm 17.1500mm 1.3000mm 20.00mil 0.0000 0.7000mm "" "thermal(4X)"]
 Via[10.5900mm 19.2100mm 60.00mil 20.00mil 0.0000 35.00mil "" "thermal(4X)"]
 Via[14.5900mm 14.0100mm 1.3000mm 20.00mil 0.0000 0.7000mm "" ""]
 Via[18.6500mm 14.0200mm 1.3000mm 20.00mil 0.0000 0.7000mm "" ""]
@@ -946,14 +945,7 @@ Element["" "SOT25" "U9" "unknown" 15.5086mm 26.3251mm 0.2788mm -2.2422mm 0 100 "
 
 	)
 
-Element["" "0603" "R6" "1k" 15.5900mm 32.4800mm -0.8100mm -2.0800mm 0 100 ""]
-(
-	Pad[-25.59mil -4.92mil -25.59mil 4.92mil 29.52mil 20.00mil 35.52mil "1" "1" "square"]
-	Pad[25.59mil -4.92mil 25.59mil 4.92mil 29.52mil 20.00mil 35.52mil "2" "2" "square"]
-
-	)
-
-Element["found,selected" "waterproof-usb-micro" "J4" "unknown" 22.7800mm 38.6700mm 6.2000mm -1.8300mm 0 100 ""]
+Element["found" "waterproof-usb-micro" "J4" "unknown" 22.7800mm 38.6700mm 6.2000mm -1.8300mm 0 100 ""]
 (
 	Pad[-0.6500mm -0.7000mm 0.6500mm -0.7000mm 0.7000mm 0.5000mm 1.2000mm "0" "__" "square"]
 	Pad[4.4000mm -0.9000mm 4.8000mm -0.9000mm 0.9000mm 0.5000mm 1.4000mm "0" "__" "square,edge2"]
@@ -1075,7 +1067,7 @@ Element["" "0402" "C2" "0.1uF" 20.0200mm 16.0802mm -0.5199mm -2.3043mm 0 100 ""]
 
 	)
 
-Element["" "0402" "R7" "100" 18.9800mm 22.7900mm -0.7801mm 0.3799mm 0 100 ""]
+Element["" "0402" "R7" "330" 18.9800mm 22.7900mm -0.7801mm 0.3799mm 0 100 ""]
 (
 	Pad[-15.74mil -3.93mil -15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "1" "1" "square"]
 	Pad[15.74mil -3.93mil 15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "2" "2" "square"]
@@ -1168,16 +1160,16 @@ Element["" "0603" "C3" "10uF" 32.1900mm 12.8800mm -0.7201mm -2.0101mm 0 100 ""]
 
 	)
 
-Element["" "oled" "DISPLAY1" "unknown" 22.0100mm 18.4700mm 0.0000 0.0000 3 100 ""]
+Element["lock" "oled" "DISPLAY1" "unknown" 22.0100mm 18.4700mm 13.9100mm -3.1800mm 3 100 ""]
 (
-	Pin[14.2500mm -15.8000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole"]
-	Pin[14.2500mm 15.7000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole"]
-	Pin[-14.2500mm -15.8000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole"]
-	Pin[-14.2500mm 15.7000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,warn"]
-	Pin[15.0000mm -3.8000mm 60.00mil 30.00mil 66.00mil 38.00mil "1" "1" "square,thermal(4X)"]
-	Pin[15.0000mm -1.2600mm 60.00mil 30.00mil 66.00mil 38.00mil "2" "2" ""]
-	Pin[15.0000mm 1.2800mm 60.00mil 30.00mil 66.00mil 38.00mil "3" "3" ""]
-	Pin[15.0000mm 3.8200mm 60.00mil 30.00mil 66.00mil 38.00mil "4" "4" ""]
+	Pin[14.2500mm -15.8000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,lock"]
+	Pin[14.2500mm 15.7000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,lock"]
+	Pin[-14.2500mm -15.8000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,lock"]
+	Pin[-14.2500mm 15.7000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,lock"]
+	Pin[15.0000mm -3.8000mm 60.00mil 30.00mil 66.00mil 38.00mil "1" "1" "square,lock,thermal(4X)"]
+	Pin[15.0000mm -1.2600mm 60.00mil 30.00mil 66.00mil 38.00mil "2" "2" "lock"]
+	Pin[15.0000mm 1.2800mm 60.00mil 30.00mil 66.00mil 38.00mil "3" "3" "lock"]
+	Pin[15.0000mm 3.8200mm 60.00mil 30.00mil 66.00mil 38.00mil "4" "4" "lock"]
 	ElementLine [16.8000mm -17.8000mm 16.8000mm 17.7000mm 10.00mil]
 	ElementLine [-16.9000mm 17.7000mm 16.8000mm 17.7000mm 10.00mil]
 	ElementLine [-16.9000mm -17.8000mm -16.9000mm 17.7000mm 10.00mil]
@@ -1216,7 +1208,7 @@ Element["" "0402" "C16" "0.1uF" 31.4698mm 32.2400mm -1.1998mm 0.7101mm 2 100 ""]
 
 	)
 
-Element["found,selected" "QFN24G-0.4-3X3MMB" "U7" "unknown" 32.0200mm 29.3000mm -250.00mil 0.0000 3 100 ""]
+Element["found" "QFN24G-0.4-3X3MMB" "U7" "unknown" 32.0200mm 29.3000mm -250.00mil 0.0000 3 100 ""]
 (
 	Pad[39.37mil -66.92mil 39.37mil -58.07mil 7.87mil 20.00mil 13.90mil "1" "1" "square"]
 	Pad[23.62mil -66.92mil 23.62mil -51.18mil 7.87mil 20.00mil 15.87mil "2" "2" "square"]
@@ -1248,6 +1240,13 @@ Element["found,selected" "QFN24G-0.4-3X3MMB" "U7" "unknown" 32.0200mm 29.3000mm 
 	ElementLine [-59.05mil 59.05mil 59.05mil 59.05mil 5.00mil]
 	ElementLine [-59.05mil -59.05mil -59.05mil 59.05mil 5.00mil]
 	ElementArc [70.00mil -70.00mil 10.00mil 10.00mil 270 360 10.00mil]
+
+	)
+
+Element["" "0402" "R6" "1k" 15.6000mm 32.4400mm -0.8501mm -2.2201mm 0 100 ""]
+(
+	Pad[-15.74mil -3.93mil -15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "1" "1" "square"]
+	Pad[15.74mil -3.93mil 15.74mil 3.93mil 19.68mil 20.00mil 25.68mil "2" "2" "square"]
 
 	)
 Layer(1 "top power" "copper")
@@ -1401,10 +1400,8 @@ Layer(2 "top ground" "copper")
 	Line[13.3000mm 30.2290mm 13.3000mm 32.4100mm 25.00mil 20.00mil "clearline"]
 	Line[19.9902mm 26.4105mm 20.0007mm 26.4000mm 25.00mil 20.00mil "clearline"]
 	Line[20.0007mm 26.4000mm 22.0200mm 26.4000mm 25.00mil 20.00mil "clearline"]
-	Line[14.9400mm 32.3550mm 14.8850mm 32.4100mm 10.00mil 20.00mil "clearline"]
 	Line[14.8850mm 32.4100mm 13.3300mm 32.4100mm 10.00mil 20.00mil "clearline"]
 	Line[784.26mil 16.4800mm 19.7902mm 16.6100mm 10.00mil 20.00mil "clearline"]
-	Line[19.7902mm 16.6100mm 17.4300mm 16.6100mm 10.00mil 20.00mil "clearline"]
 	Line[285.44mil 18.4999mm 8.0303mm 19.2800mm 25.00mil 20.00mil "clearline"]
 	Line[8.0303mm 19.2800mm 10.7800mm 19.2800mm 25.00mil 20.00mil "clearline"]
 	Line[10.7800mm 19.2800mm 464.52mil 18.2612mm 25.00mil 20.00mil "clearline"]
@@ -1466,6 +1463,9 @@ Layer(2 "top ground" "copper")
 	Line[34.3900mm 30.0900mm 34.3900mm 30.2700mm 0.1810mm 12.00mil "clearline"]
 	Line[34.3900mm 30.2700mm 34.3900mm 31.0700mm 10.00mil 20.00mil "clearline"]
 	Line[34.3900mm 31.0700mm 34.1100mm 31.3500mm 10.00mil 20.00mil "clearline"]
+	Line[784.26mil 16.4800mm 19.2502mm 17.1500mm 10.00mil 20.00mil "clearline"]
+	Line[19.2502mm 17.1500mm 18.8000mm 17.1500mm 10.00mil 20.00mil "clearline"]
+	Line[14.7700mm 32.4100mm 15.0800mm 32.4100mm 10.00mil 20.00mil "clearline"]
 )
 Layer(3 "top signal" "copper")
 (
@@ -1543,7 +1543,6 @@ Layer(3 "top signal" "copper")
 	Line[37.5600mm 6.3400mm 37.5600mm 8.2300mm 10.00mil 20.00mil "clearline"]
 	Line[37.5600mm 8.2300mm 36.1888mm 378.00mil 10.00mil 20.00mil "clearline"]
 	Line[36.1888mm 378.00mil 29.6298mm 378.00mil 10.00mil 20.00mil "clearline"]
-	Line[16.2400mm 32.3550mm 16.3850mm 32.5000mm 10.00mil 20.00mil "clearline"]
 	Line[16.3850mm 32.5000mm 17.6300mm 32.5000mm 10.00mil 20.00mil "clearline"]
 	Line[20.2200mm 19.6600mm 20.2200mm 21.9900mm 10.00mil 20.00mil "clearline"]
 	Line[20.2200mm 21.9900mm 19.4200mm 22.7900mm 10.00mil 20.00mil "clearline"]
@@ -1619,6 +1618,7 @@ Layer(3 "top signal" "copper")
 	Line[38.9004mm 21.6404mm 37.0100mm 19.7500mm 10.00mil 20.00mil "clearline"]
 	Line[15.9800mm 6.8300mm 17.7700mm 5.0400mm 10.00mil 20.00mil "clearline"]
 	Line[17.7700mm 5.0400mm 19.9200mm 5.0400mm 10.00mil 20.00mil "clearline"]
+	Line[16.4000mm 32.5000mm 16.0300mm 32.5000mm 10.00mil 20.00mil "clearline"]
 )
 Layer(4 "bottom power" "copper")
 (
@@ -1661,6 +1661,10 @@ Layer(5 "bottom ground" "copper")
 	Polygon("clearpoly")
 	(
 		[0.0000 0.0000] [42.3600mm 0.0000] [42.3600mm 38.5400mm] [0.0000 38.5400mm] 
+		Hole (
+			[32.0000mm 25.8000mm] [32.0000mm 26.0300mm] [28.6900mm 29.3400mm] [28.6800mm 29.3400mm] [28.6500mm 29.3700mm] 
+			[32.0200mm 32.7400mm] [35.4800mm 29.2800mm] 
+		)
 	)
 )
 Layer(6 "bottom signal" "copper")
@@ -1696,6 +1700,8 @@ Layer(9 "bottom silk" "silk")
 )
 Layer(10 "top silk" "silk")
 (
+	Line[19.8300mm 32.2500mm 19.8300mm 32.7100mm 10.00mil 20.00mil "clearline,selected"]
+	Line[20.1000mm 32.4600mm 19.5600mm 32.4600mm 10.00mil 20.00mil "clearline,selected"]
 )
 NetList()
 (
