@@ -1,0 +1,1 @@
+../chips/USB_Connector/CUI_UJ2-MIBH-4-SMT-TR-67.fp
