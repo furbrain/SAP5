@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import struct
+from struct_parser import StructParser
 import numpy as np
 import scipy.stats
 
@@ -10,12 +10,15 @@ def normalise(vectors):
     return vectors/np.linalg.norm(vectors, axis=0)
 
 class Leg():
-    def __init__(self, data):
-        dt,survey,fro,to, x,y,z = struct.unpack_from("IH2B3ixxxx", data)
-        self.delta = np.array([x,y,z]) / 32768.0
-        
-    def __str__(self):
-        return str(self.delta)
+    __FMT__ = [
+        ('tm', 'I'),
+        ('survey', 'H'),
+        ('from', 'B'),
+        ('to', 'B'),
+        ('delta', '3f')
+    ]
+
+
 
 raw = p.read_program(0x9d009800, 5600)
 data1 = np.array([Leg(raw[i*24:(i+1)*24]).delta for i in range(100)])

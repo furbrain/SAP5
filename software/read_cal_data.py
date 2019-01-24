@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import struct
+from struct_parser import StructParser
 import numpy as np
 import scipy.stats
 from collections import namedtuple
@@ -13,9 +14,6 @@ p = bootloader.Programmer()
 def normalise(vectors):
     return vectors/np.linalg.norm(vectors, axis=0)
 
-Axes = namedtuple('Axes','accel mag')
-Axis = namedtuple('Axis','x y z')
-Calib = namedtuple('Calib', 'accel mag laser_offset')
 
 class Leg():
     def __init__(self, data):
@@ -31,22 +29,22 @@ class Leg():
         raw = p.read_program(0x9d009800, 5800)
         return np.array([Leg(raw[i*12:(i+1)*12]).a for i in range(400)])
 
-class Config():
-    def __init__(self, data):
-        self.axes = Axes(Axis(*struct.unpack_from("3c",data[0:3])),
-                         Axis(*struct.unpack_from("3c",data[3:6])))
-        self.calib = Calib(np.reshape(struct.unpack_from("12f",data[8:56]),(4,3)),
-                           np.reshape(struct.unpack_from("12f",data[56:104]),(4,3)),
-                           struct.unpack_from("i",data[102:106])[0])
-#    struct {
-#        matrixx accel;
-#        matrixx mag;
-#        accum laser_offset;
-#    } calib;
-#    uint8_t display_style;
-#    uint8_t length_units;
-#    uint16_t timeout;
-#};
+class Config(StructParser):
+    __FMT__ = [
+        ('axes', [
+            ('accel', '3c'),
+            ('mag',   '3c')
+            ]),
+        ('calib', [
+            ('accel', '12f'),
+            ('mag',   '12f'),
+            ('laser_offset', 'i')
+            ]),
+        ('display_style', 'B'),
+        ('length_units', 'B'),
+        ('timeout', 'h')
+    ]
+
     @staticmethod
     def get_latest():
         raw = p.read_program(0x9d009000,0x800)
