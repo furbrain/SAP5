@@ -11,6 +11,9 @@
 *new.pcb
 *old.pcb
 *.bak
+*.bak0
+*.bak1
+*.bak2
 *.svg
 *.gbr
 *.ngc
@@ -24,6 +27,7 @@
 *.elf
 /firmware/dist/default/
 /firmware/build/default/
+/firmware/disassembly/
 MPLABXLog*
 *#
 /bootloader/dist/default/
