@@ -18,6 +18,7 @@ for survey, fname in enumerate(sys.argv[1:]):
     for line in open(fname):
         if line.startswith("*date"):
             dt = datetime.datetime.strptime(line[6:16],"%Y.%m.%d")
+            dt += datetime.timedelta(minutes=random.randint(0,96)*15)
         if line.startswith("*data passage"):
             break
         match = re.match(leg_pattern, line)
@@ -33,4 +34,4 @@ for survey, fname in enumerate(sys.argv[1:]):
             tm = time.mktime(dt.timetuple())
             print tm, survey, frm, to, dx, dy, dz
             dt += datetime.timedelta(seconds=random.randint(0,300))
-            output.write(struct.pack("IHBB3f",tm, survey, int(frm), int(to), dx, dy, dz))
+            output.write(struct.pack("IHBB3f0q",tm, survey, int(frm), int(to), dx, dy, dz))
