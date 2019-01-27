@@ -24,7 +24,7 @@ class ActualImportDialog(gui.ImportDialog):
         for leg in survey['legs']:
             text += "{frm} {to} {delta[0]:.2f} {delta[1]:.2f} {delta[2]:.2f}\n".format(**leg.__dict__)
         text += "*end XXX\n"
-        return text
+        return (str(survey['time']),text)
         
     def get_texts(self, template):
         texts = []
