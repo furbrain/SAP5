@@ -5,19 +5,19 @@ import wx.stc
 import gui
 import legs
 import importer
+import svxtextctrl
 
 class ActualMainFrame(gui.MainFrame):
     def __init__(self, *args, **kwargs):
         gui.MainFrame.__init__(self, *args, **kwargs)
-        self.documents.DeleteAllPages()
+        self.documents.DeleteAllPages()        
 
     def Import(self, event):
         dlg = importer.ActualImportDialog(self, None)
         if dlg.ShowModal()==wx.ID_OK:
             texts = dlg.get_texts(None)
             for title, text in texts:
-                doc = wx.stc.StyledTextCtrl(self.documents)
-                doc.SetText(text)
+                doc = svxtextctrl.SvxTextCtrl(self.documents, text=text, filename=title)
                 self.documents.AddPage(doc,title)
 
     def Cut(self, event):
