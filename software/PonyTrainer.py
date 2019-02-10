@@ -2,44 +2,23 @@
 # -*- coding: UTF-8 -*-
 import wx
 import wx.stc
+from wx.lib.docview import DocManager, DocTemplate, DOC_NEW
 import gui
-import legs
 import importer
 import svxtextctrl
+from svxview import SVXView
+from svxdocument import SVXDocument
 
-class ActualMainFrame(gui.MainFrame):
-    def __init__(self, *args, **kwargs):
-        gui.MainFrame.__init__(self, *args, **kwargs)
-        self.documents.DeleteAllPages()        
-
+class ActualMainFrame(gui.PonyFrame):
     def Import(self, event):
         dlg = importer.ActualImportDialog(self, None)
         if dlg.ShowModal()==wx.ID_OK:
             texts = dlg.get_texts(None)
             for title, text in texts:
-                doc = svxtextctrl.SvxTextCtrl(self.documents, text=text, filename=title)
-                self.documents.AddPage(doc,title)
-
-    def Cut(self, event):
-        pg = self.documents.GetCurrentPage()
-        if pg:
-            pg.Cut()
-    
-    def Copy(self, event):
-        pg = self.documents.GetCurrentPage()
-        if pg:
-            pg.Copy()
-    
-    def Paste(self, event):
-        pg = self.documents.GetCurrentPage()
-        if pg:
-            pg.Paste()
-    
-    def Save(self, event):
-        pass
-        
-    def SaveAs(self, event):
-        pass
+                doc = self._docManager.CreateDocument("",flags=DOC_NEW)
+                doc.SetTitle(title)
+                doc.SetText(text)
+                doc.GetFirstView().GetFrame().SetTitle(title)
         
     def Quit(self, event):
         self.Close()
@@ -52,7 +31,10 @@ class ActualMainFrame(gui.MainFrame):
         gui.AboutDialog(self).ShowModal()
                         
 PonyTrainer = wx.App(False)
-frame = ActualMainFrame(None, wx.ID_ANY, "")
+docmanager = DocManager()
+template = DocTemplate(docmanager, "Survex files", "*.svx", "", "svx", "Svx Doc", "Svx View", SVXDocument, SVXView)
+docmanager.AssociateTemplate(template)
+frame = ActualMainFrame(docmanager, None, wx.ID_ANY, "")
 PonyTrainer.SetTopWindow(frame)
 frame.Show()
 PonyTrainer.MainLoop()        
