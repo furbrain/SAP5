@@ -1,23 +1,15 @@
 from wx.lib.docview import Document
-
+import os
 class SVXDocument(Document):
     def GetEditor(self):
         return self.GetFirstView().editor
-        
-    def OnSaveDocument(self, filename):
-        if not self.GetEditor().SaveFile(filename):
-            return False
-        self.Modify(False)
-        self.SetDocumentSaved(True)
-        
-    def OnOpenDocument(self, filename):
-        if not self.GetEditor().LoadFile(filename):
-            return False
-        self.SetFilename(filename, True)
-        self.Modify(False)
-        self.UpdateAllViews()
-        return True
-        
+    
+    def LoadObject(self, f):
+        self.GetEditor().SetText(f.read())
+    
+    def SaveObject(self, f):
+        f.write(self.GetEditor().GetText())
+            
     def IsModified(self):
         return Document.IsModified(self) or self.GetEditor().IsModified()
         

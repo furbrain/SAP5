@@ -4,26 +4,47 @@ import struct
 class StructParser:
     ALIGNMENT = 1
     
-    def __init__(self, data, fmt=None):
-        self.offset = 0
+    @classmethod
+    def create_empty(cls):
+        zero_array = array.array('b',[0]*cls.get_len())
+        return cls.from_buffer(zero_array)
+    
+    @classmethod
+    def from_buffer(cls, buff, fmt=None):
+        obj = cls()
+        offset = 0
         if fmt is None:
-            fmt = self.FMT
+            fmt = obj.FMT
         else:
-            self.FMT = fmt
+            obj.FMT = fmt
         for key, value in fmt:
             if isinstance(value, six.string_types):
-                if self.is_list(value):
-                    setattr(self, key, list(struct.unpack_from(value, data, self.offset)))
+                if obj.is_list(value):
+                    setattr(obj, key, list(struct.unpack_from(value, buff, offset)))
                 else:
-                    setattr(self, key, struct.unpack_from(value, data, self.offset)[0])
-                self.offset += struct.calcsize(value)
+                    setattr(obj, key, struct.unpack_from(value, buff, offset)[0])
+                offset += struct.calcsize(value)
             else:
-                obj = StructParser(data[self.offset:], value)
-                setattr(self, key, obj)
-                self.offset += obj.offset
-        if self.offset % self.ALIGNMENT:
-            self.offset += self.ALIGNMENT - (self.offset % self.ALIGNMENT)
+                subobj = StructParser.from_buffer(buff[offset:], value)
+                setattr(obj, key, subobj)
+                offset += subobj.get_len(value)
+        return obj
 
+    @classmethod        
+    def get_len(cls, fmt=None):
+        if fmt is None:
+            fmt = cls.FMT
+        length = 0
+        for key, value in fmt:
+            if isinstance(value, six.string_types):
+                length += struct.calcsize(value)
+            else:
+                length += StructParser.get_len(value)
+        if length % cls.ALIGNMENT:
+            length += cls.ALIGNMENT - (length % cls.ALIGNMENT)
+        return length
+        
+                    
     def is_list(self, value):
         if value[-1]=="s": return False
         if value[0] in '=<>!@':
@@ -41,6 +62,7 @@ class StructParser:
             if isinstance(value, six.string_types):
                 text += " "*indent*4 + key +": " + str(getattr(self, key)) + "\n"
             else:
+                text += " "*indent*4 + key +":\n"
                 text += getattr(self, key).as_str(indent+1)
         return text
         
@@ -50,11 +72,12 @@ class StructParser:
     @classmethod
     def read_array(cls, data):
         offset = 0
+        obj_size = cls.get_len()
         arr = []
         try:
             while True:
-                obj = cls(data[offset:])
-                offset += obj.offset
+                obj = cls.from_buffer(data[offset:])
+                offset += obj_size
                 if obj.is_valid(): arr.append(obj)
         except struct.error:
             pass
