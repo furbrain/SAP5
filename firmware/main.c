@@ -9,6 +9,8 @@
 #include "laser.h"
 #include "exception.h"
 #include "config.h"
+//FIXME
+#include "debug.h"
 #define TXT_LENGTH 50
 
 void display_error(CEXCEPTION_T e) {
@@ -46,6 +48,7 @@ int main(void)
     TMR2_Start();
     config_load();
     survey_current_init();
+    delay_ms_safe(100);
     display_init();
     sensors_init();    
     wdt_clear();
@@ -54,7 +57,8 @@ int main(void)
     while (1)
     {
         Try {
-            show_menu(&main_menu);
+            show_details(0);
+            //show_menu(&main_menu);
             wdt_clear();
         }
         Catch(e) {

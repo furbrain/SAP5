@@ -138,7 +138,7 @@ void show_details(int32_t a) {
         display_write_text(0, 0, text, &small_font, false, false);
         strftime(text, 20, "Date: %Y-%m-%d", &dt);
         display_write_text(2, 0, text, &small_font, false, false);
-        sprintf(text,"Voltage: %4.2fv", voltage);
+        sprintf(text,"Battery: %4.2fv", voltage);
         display_write_text(4, 0, text, &small_font, false, false);
         sprintf(text,"Temp: %4.1f`", sensors.temp);
         display_write_text(6, 0, text, &small_font, false, false);

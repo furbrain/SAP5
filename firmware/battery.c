@@ -14,6 +14,7 @@ enum BAT_STATUS battery_get_status(){
 double battery_get_voltage(){
 	double bat_voltage, bg_voltage;
     ADC1_Initialize();
+    AD1CON5bits.BGREQ=1;
     ADC1_ChannelSelect(ADC1_BAT_SENSE);
     ADC1_Start();
     //Provide Delay
@@ -36,8 +37,8 @@ double battery_get_voltage(){
     }
     bg_voltage = ADC1_ConversionResultGet();
     //bg_voltage = ADC1BUF0;
-    
-	return (bat_voltage/bg_voltage * 1.2);
+    //return (bat_voltage*1.0);
+	return (bat_voltage/bg_voltage * 1.2 * 3.0);
 }
 
 int battery_get_units() {

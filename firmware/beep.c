@@ -1,6 +1,5 @@
 #include <xc.h>
 #include "beep.h"
-#include "mcc_generated_files/mccp2_compare.h"
 #include "utils.h"
 
 /* initialise beeping circuitry...*/

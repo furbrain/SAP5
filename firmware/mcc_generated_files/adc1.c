@@ -80,9 +80,9 @@ static ADC_OBJECT adc1_obj;
 
 void ADC1_Initialize (void)
 {
-    // ASAM disabled; DONE disabled; FORM Integer 16-bit; SAMP disabled; SSRC Clearing sample bit ends sampling and starts conversion; SIDL disabled; MODE12 10-bit; ON enabled; 
+    // ASAM disabled; DONE disabled; FORM Integer 16-bit; SAMP disabled; SSRC Clearing sample bit ends sampling and starts conversion; SIDL disabled; MODE12 12-bit; ON enabled; 
 
-   AD1CON1 = 0x8000;
+   AD1CON1 = 0x8008;
 
     // CSCNA disabled; BUFM disabled; SMPI 1; OFFCAL disabled; VCFG AVDD/AVSS; BUFREGEN disabled; 
 
