@@ -7,7 +7,13 @@ const char exception_strings[][20] = {
     "Menu Full",
     "Menu Empty",
     "String too big",
-    "Mem store failed"
+    "Mem store failed",
+    "Survey not found",
+    "Laser read failed",
+    "No survey data",
+    "Survey too big",
+    "Survey is disjoint",
+    "Magnetometer Error",
     };
 
 const char global_exception_strings[][20] = {
