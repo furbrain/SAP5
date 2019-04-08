@@ -168,7 +168,6 @@ void run_usb(void) {
     //Re-enable peripherals...
     
 	enum BAT_STATUS bat_status;
-    RTCC_TimeReset(true);
     SYSTEM_Initialize();
 	/* setup ports */	
 /* enable peripherals */
@@ -201,6 +200,8 @@ int main(void)
 {
     RCON = 0x0;
     PIN_MANAGER_Initialize();
+    RTCC_TimeReset(true);
+    RTCC_Initialize();
     PERIPH_EN_SetLow();
     wdt_enable();
     while(1) {

@@ -15,7 +15,7 @@
   @Description:
     This source file provides implementations for MPLAB(c) Code Configurator interrupts.
     Generation Information :
-        Product Revision  :  MPLAB(c) Code Configurator - 4.26.2
+        Product Revision  :  MPLAB(c) Code Configurator - 4.26.9
         Device            :  PIC32MM0256GPM028
     The generated drivers are tested against the following:
         Compiler          :  XC32 1.42
@@ -931,6 +931,152 @@
 #define IO_RB13_SetDigitalOutput()   ( TRISBCLR = (1 << 13) )
 /**
   @Summary
+    Sets the GPIO pin, RB15, high using LATBbits.LATB15.
+
+  @Description
+    Sets the GPIO pin, RB15, high using LATBbits.LATB15.
+
+  @Preconditions
+    The RB15 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB15 high (1)
+    IO_RB15_SetHigh();
+    </code>
+
+*/
+#define IO_RB15_SetHigh()          ( LATBSET = (1 << 15) )
+/**
+  @Summary
+    Sets the GPIO pin, RB15, low using LATBbits.LATB15.
+
+  @Description
+    Sets the GPIO pin, RB15, low using LATBbits.LATB15.
+
+  @Preconditions
+    The RB15 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB15 low (0)
+    IO_RB15_SetLow();
+    </code>
+
+*/
+#define IO_RB15_SetLow()           ( LATBCLR = (1 << 15) )
+/**
+  @Summary
+    Toggles the GPIO pin, RB15, using LATBbits.LATB15.
+
+  @Description
+    Toggles the GPIO pin, RB15, using LATBbits.LATB15.
+
+  @Preconditions
+    The RB15 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Toggle RB15
+    IO_RB15_Toggle();
+    </code>
+
+*/
+#define IO_RB15_Toggle()           ( LATBINV = (1 << 15) )
+/**
+  @Summary
+    Reads the value of the GPIO pin, RB15.
+
+  @Description
+    Reads the value of the GPIO pin, RB15.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    uint16_t portValue;
+
+    // Read RB15
+    postValue = IO_RB15_GetValue();
+    </code>
+
+*/
+#define IO_RB15_GetValue()         PORTBbits.RB15
+/**
+  @Summary
+    Configures the GPIO pin, RB15, as an input.
+
+  @Description
+    Configures the GPIO pin, RB15, as an input.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB15 as an input
+    IO_RB15_SetDigitalInput();
+    </code>
+
+*/
+#define IO_RB15_SetDigitalInput()   ( TRISBSET = (1 << 15) )
+/**
+  @Summary
+    Configures the GPIO pin, RB15, as an output.
+
+  @Description
+    Configures the GPIO pin, RB15, as an output.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB15 as an output
+    IO_RB15_SetDigitalOutput();
+    </code>
+
+*/
+#define IO_RB15_SetDigitalOutput()   ( TRISBCLR = (1 << 15) )
+/**
+  @Summary
     Sets the GPIO pin, RB2, high using LATBbits.LATB2.
 
   @Description
@@ -1386,11 +1532,11 @@
   @Example
     <code>
     // Set RB5 high (1)
-    IO_RB5_SetHigh();
+    CHG_SetHigh();
     </code>
 
 */
-#define IO_RB5_SetHigh()          ( LATBSET = (1 << 5) )
+#define CHG_SetHigh()          ( LATBSET = (1 << 5) )
 /**
   @Summary
     Sets the GPIO pin, RB5, low using LATBbits.LATB5.
@@ -1410,11 +1556,11 @@
   @Example
     <code>
     // Set RB5 low (0)
-    IO_RB5_SetLow();
+    CHG_SetLow();
     </code>
 
 */
-#define IO_RB5_SetLow()           ( LATBCLR = (1 << 5) )
+#define CHG_SetLow()           ( LATBCLR = (1 << 5) )
 /**
   @Summary
     Toggles the GPIO pin, RB5, using LATBbits.LATB5.
@@ -1434,11 +1580,11 @@
   @Example
     <code>
     // Toggle RB5
-    IO_RB5_Toggle();
+    CHG_Toggle();
     </code>
 
 */
-#define IO_RB5_Toggle()           ( LATBINV = (1 << 5) )
+#define CHG_Toggle()           ( LATBINV = (1 << 5) )
 /**
   @Summary
     Reads the value of the GPIO pin, RB5.
@@ -1460,11 +1606,11 @@
     uint16_t portValue;
 
     // Read RB5
-    postValue = IO_RB5_GetValue();
+    postValue = CHG_GetValue();
     </code>
 
 */
-#define IO_RB5_GetValue()         PORTBbits.RB5
+#define CHG_GetValue()         PORTBbits.RB5
 /**
   @Summary
     Configures the GPIO pin, RB5, as an input.
@@ -1484,11 +1630,11 @@
   @Example
     <code>
     // Sets the RB5 as an input
-    IO_RB5_SetDigitalInput();
+    CHG_SetDigitalInput();
     </code>
 
 */
-#define IO_RB5_SetDigitalInput()   ( TRISBSET = (1 << 5) )
+#define CHG_SetDigitalInput()   ( TRISBSET = (1 << 5) )
 /**
   @Summary
     Configures the GPIO pin, RB5, as an output.
@@ -1508,11 +1654,157 @@
   @Example
     <code>
     // Sets the RB5 as an output
-    IO_RB5_SetDigitalOutput();
+    CHG_SetDigitalOutput();
     </code>
 
 */
-#define IO_RB5_SetDigitalOutput()   ( TRISBCLR = (1 << 5) )
+#define CHG_SetDigitalOutput()   ( TRISBCLR = (1 << 5) )
+/**
+  @Summary
+    Sets the GPIO pin, RB6, high using LATBbits.LATB6.
+
+  @Description
+    Sets the GPIO pin, RB6, high using LATBbits.LATB6.
+
+  @Preconditions
+    The RB6 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB6 high (1)
+    IO_RB6_SetHigh();
+    </code>
+
+*/
+#define IO_RB6_SetHigh()          ( LATBSET = (1 << 6) )
+/**
+  @Summary
+    Sets the GPIO pin, RB6, low using LATBbits.LATB6.
+
+  @Description
+    Sets the GPIO pin, RB6, low using LATBbits.LATB6.
+
+  @Preconditions
+    The RB6 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Set RB6 low (0)
+    IO_RB6_SetLow();
+    </code>
+
+*/
+#define IO_RB6_SetLow()           ( LATBCLR = (1 << 6) )
+/**
+  @Summary
+    Toggles the GPIO pin, RB6, using LATBbits.LATB6.
+
+  @Description
+    Toggles the GPIO pin, RB6, using LATBbits.LATB6.
+
+  @Preconditions
+    The RB6 must be set to an output.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Toggle RB6
+    IO_RB6_Toggle();
+    </code>
+
+*/
+#define IO_RB6_Toggle()           ( LATBINV = (1 << 6) )
+/**
+  @Summary
+    Reads the value of the GPIO pin, RB6.
+
+  @Description
+    Reads the value of the GPIO pin, RB6.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    uint16_t portValue;
+
+    // Read RB6
+    postValue = IO_RB6_GetValue();
+    </code>
+
+*/
+#define IO_RB6_GetValue()         PORTBbits.RB6
+/**
+  @Summary
+    Configures the GPIO pin, RB6, as an input.
+
+  @Description
+    Configures the GPIO pin, RB6, as an input.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB6 as an input
+    IO_RB6_SetDigitalInput();
+    </code>
+
+*/
+#define IO_RB6_SetDigitalInput()   ( TRISBSET = (1 << 6) )
+/**
+  @Summary
+    Configures the GPIO pin, RB6, as an output.
+
+  @Description
+    Configures the GPIO pin, RB6, as an output.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    // Sets the RB6 as an output
+    IO_RB6_SetDigitalOutput();
+    </code>
+
+*/
+#define IO_RB6_SetDigitalOutput()   ( TRISBCLR = (1 << 6) )
 /**
   @Summary
     Sets the GPIO pin, RB7, high using LATBbits.LATB7.

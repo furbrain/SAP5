@@ -15,7 +15,7 @@
   @Description:
     This source file provides implementations for MPLAB(c) Code Configurator interrupts.
     Generation Information : 
-        Product Revision  :  MPLAB(c) Code Configurator - 4.26.2
+        Product Revision  :  MPLAB(c) Code Configurator - 4.26.9
         Device            :  PIC32MM0256GPM028
     The generated drivers are tested against the following:
         Compiler          :  XC32 1.42
@@ -67,8 +67,8 @@ void PIN_MANAGER_Initialize(void)
     /****************************************************************************
      * Setting the GPIO Direction SFR(s)
      ***************************************************************************/
-    TRISA = 0x0000;
-    TRISB = 0x9F4B;
+    TRISA = 0x0010;
+    TRISB = 0x9F7B;
     TRISC = 0x0200;
 
     /****************************************************************************
@@ -78,7 +78,7 @@ void PIN_MANAGER_Initialize(void)
     CNPDB = 0x0040;
     CNPDC = 0x0000;
     CNPUA = 0x0000;
-    CNPUB = 0x0000;
+    CNPUB = 0x0020;
     CNPUC = 0x0200;
 
     /****************************************************************************
