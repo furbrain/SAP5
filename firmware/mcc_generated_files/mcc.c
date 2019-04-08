@@ -69,7 +69,7 @@
 #pragma config WINDIS = OFF    // Windowed Watchdog Timer Disable bit->Watchdog timer is in non-window mode
 #pragma config RWDTPS = PS4096    // Run Mode Watchdog Timer Postscale Selection bits->1:4096
 #pragma config RCLKSEL = LPRC    // Run Mode Watchdog Timer Clock Source Selection bits->Clock source is LPRC (same as for sleep mode)
-#pragma config FWDTEN = ON    // Watchdog Timer Enable bit->WDT is enabled
+#pragma config FWDTEN = OFF    // Watchdog Timer Enable bit->WDT is disabled
 
 // FOSCSEL
 #pragma config FNOSC = FRCDIV    // Oscillator Selection bits->Fast RC oscillator (FRC) with divide-by-N
