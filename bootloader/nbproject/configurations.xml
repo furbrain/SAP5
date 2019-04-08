@@ -7,14 +7,17 @@
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
                      projectFiles="true">
-        <itemPath>mcc_generated_files/usb/usb.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_ch9.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_common.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_config.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_local.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_hal.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_hal_pic32mm.h</itemPath>
+        <logicalFolder name="usb" displayName="usb" projectFiles="true">
+          <itemPath>mcc_generated_files/usb/usb_hal_pic32mm.h</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_ch9.h</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_device_generic.h</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_device.h</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_device_local.h</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_device_config.h</itemPath>
+          <itemPath>mcc_generated_files/usb/usb.h</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_common.h</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_hal.h</itemPath>
+        </logicalFolder>
         <itemPath>mcc_generated_files/adc1.h</itemPath>
         <itemPath>mcc_generated_files/i2c1.h</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.h</itemPath>
@@ -24,7 +27,7 @@
         <itemPath>mcc_generated_files/tmr1.h</itemPath>
         <itemPath>mcc_generated_files/tmr2.h</itemPath>
         <itemPath>mcc_generated_files/uart1.h</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_generic.h</itemPath>
+        <itemPath>mcc_generated_files/exceptions.h</itemPath>
       </logicalFolder>
       <itemPath>display.h</itemPath>
       <itemPath>i2c_util.h</itemPath>
@@ -40,15 +43,30 @@
                    projectFiles="true">
       <itemPath>linker.ld</itemPath>
     </logicalFolder>
+    <logicalFolder name="Resource Files"
+                   displayName="Resource Files"
+                   projectFiles="true">
+      <logicalFolder name="MCC Generated Files"
+                     displayName="MCC Generated Files"
+                     projectFiles="true">
+        <logicalFolder name="usb" displayName="usb" projectFiles="true">
+          <logicalFolder name="utilities" displayName="utilities" projectFiles="true">
+          </logicalFolder>
+        </logicalFolder>
+      </logicalFolder>
+    </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
                      projectFiles="true">
-        <itemPath>mcc_generated_files/usb/usb_descriptors.c</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_events.c</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device.c</itemPath>
+        <logicalFolder name="usb" displayName="usb" projectFiles="true">
+          <itemPath>mcc_generated_files/usb/usb_device_generic.c</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_device_events.c</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_device.c</itemPath>
+          <itemPath>mcc_generated_files/usb/usb_descriptors.c</itemPath>
+        </logicalFolder>
         <itemPath>mcc_generated_files/adc1.c</itemPath>
         <itemPath>mcc_generated_files/i2c1.c</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
@@ -58,7 +76,7 @@
         <itemPath>mcc_generated_files/tmr1.c</itemPath>
         <itemPath>mcc_generated_files/tmr2.c</itemPath>
         <itemPath>mcc_generated_files/uart1.c</itemPath>
-        <itemPath>mcc_generated_files/usb/usb_device_generic.c</itemPath>
+        <itemPath>mcc_generated_files/exceptions.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>display.c</itemPath>
@@ -102,6 +120,21 @@
         <archiverTool>
         </archiverTool>
         <loading>
+          <makeArtifact PL="../firmware"
+                        CT="1"
+                        CN="default"
+                        AC="true"
+                        BL="true"
+                        WD="../firmware"
+                        BC="${MAKE}  -f Makefile CONF=default"
+                        DBC="${MAKE}  -f Makefile CONF=default TYPE_IMAGE=DEBUG_RUN"
+                        CC="${MAKE}  -f Makefile CONF=default clean"
+                        OP="dist/default/production/firmware.production.hex"
+                        DOP="dist/default/debug/firmware.debug.elf"
+                        FL="dist/default/production/firmware.production.hex"
+                        PD="dist/default/production/firmware.production.elf"
+                        DD="dist/default/debug/firmware.debug.elf">
+          </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
@@ -297,7 +330,7 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d03ffff"/>
-        <property key="poweroptions.powerenable" value="true"/>
+        <property key="poweroptions.powerenable" value="false"/>
         <property key="programmertogo.imagename" value=""/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

@@ -80,11 +80,11 @@ void RTCC_Initialize(void)
        RTCTIME = 0x10564100; //  hours/minutes/seconds
        
    }
-       // ON enabled; OUTSEL Alarm Event; WRLOCK disabled; AMASK Every Half Second; ALMRPT 0; RTCOE disabled; CHIME disabled; ALRMEN disabled; 
-       RTCCON1 = 0x8000;
+       // ON disabled; OUTSEL Alarm Event; WRLOCK disabled; AMASK Every Half Second; ALMRPT 0; RTCOE disabled; CHIME disabled; ALRMEN disabled; 
+       RTCCON1 = 0x0;
    
-       // DIV 15999; CLKSEL LPRC; FDIV 0; 
-       RTCCON2 = 0x3E7F0001;
+       // DIV 16383; CLKSEL 50_HZ; FDIV 0; 
+       RTCCON2 = 0x3FFF0002;
    RTCCON1SET = (1 << _RTCCON1_WRLOCK_POSITION);
    SYSTEM_RegLock();
 
