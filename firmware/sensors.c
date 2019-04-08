@@ -135,7 +135,7 @@ void byte_swap(uint16_t *word){
 void sensors_read_raw(struct RAW_SENSORS *sensors){
     int i;
     if (read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, sizeof(*sensors))) {
-        //THROW_WITH_REASON("I2C communication failed", ERROR_MAGNETOMETER_FAILED);
+        THROW_WITH_REASON("I2C communication failed", ERROR_MAGNETOMETER_FAILED);
     }
     for(i=0; i< 10; ++i) {
         byte_swap(&((uint16_t*)sensors)[i]);

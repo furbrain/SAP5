@@ -15,10 +15,10 @@ support_struts = [[-25, -20.43, 0],
                   [-25, 20.43, 0],
                   [25, 20.43, 0]];
 
-screw_dents = [[-14.5,-38],
-               [14.5,-38],
-               [-14.5,-6.6],
-               [14.5,-6.6]];
+screw_dents = [[-14.5,-37.6],
+               [14.5,-37.6],
+               [-14.5,-6.2],
+               [14.5,-6.2]];
 
 corners = [[-25,-38],
            [25,-38]];
@@ -52,7 +52,7 @@ module beta(width, height) {
             translate([-22,-2,0]) cube([29,42,height+6]);
             
             //battery holder
-            translate([-12.25,8,0]) cube([24.5,32,height]);
+            translate([-22,-2,0]) cube([34,22,height+3]);
         }
         for(i=mount_holes) {
             translate(i) cylinder(d=5.7,h=height*3, center=true);
@@ -65,14 +65,16 @@ module beta(width, height) {
         }
 
         //battery pack
-        translate([-10.25,10,-5]) cube([20.5,28,30]);
+        translate([-20,0,-0.1]) cube([30,18,8]);
+        translate([-22.1,0,-0.1]) cube([2.3,2,8.5]);
         //laser_holder
         translate([-20,0,height+3]) cube([25,45,14]);
         translate([-17,-4,height+3]) cube([16,8,8]);
+        //speaker
+        translate([0,-10,-0.1]) cylinder(d=36,h=1);
     }
 }
        
-//alpha();
 intersection() {
     cube([55,80,100],center=true);
     beta(3,4);

@@ -51,9 +51,9 @@ def rectangle(x,y,z, tool_radius):
 ensemble = gc.Aggregate(
     rounded_hole(8.7, 3.6, -2.0, 0.75),
     rounded_hole(8.7, 3.6, -4.0, 0.75),
-    rounded_hole(9.7, 4.6, -0.8, 0.75),
-    rectangle(11, 5, -0.2, 0.75))
+    rounded_hole(9.7, 4.6, -1.4, 0.75),
+    rectangle(11, 5, -0.8, 0.75))
 
 print ("M03 S750\n")
-print(gc.Translate([-0.8,9.0,0], ensemble))
+print(gc.Translate([-0.8,10.5,0], ensemble))
 print("M05\n")

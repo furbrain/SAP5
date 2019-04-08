@@ -19,7 +19,7 @@ MAX1555 usb lipo charger
 JST connector
 
 A button
-Hammond enclosure as before
+Hammond enclosure as before 1953LTBU
 possibly 3d printed adapter for rangefinder within enclosure
 waterproof micro usb connector + dust plug
 
@@ -27,6 +27,13 @@ Use low power timing crystal for RTCC
 
 Hardware Tasks:
 . update footprints for JST and USB connectors
+. create adaptor for oscillator
+. adjust 3d printed frame for
+    - shorter battery leads??
+    - buzzer
+    - pull pcb back from end by 0.4mm
+. make 3d printed washers...
+. design laser cuttung template - DONE
 
 
 

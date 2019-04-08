@@ -19,7 +19,7 @@ struct CONFIG default_config = {
         },
         POLAR,                               //Polar display style
         METRIC,                              //metric units
-        120                                  //2 min timeout
+        30                                  //2 min timeout
     };
 
 struct CONFIG config;

@@ -6,7 +6,13 @@
 
 enum BAT_STATUS battery_get_status(){
     
-	if (PORTBbits.RB6) return CHARGING;
+	if (PORTBbits.RB6) {
+        if (PORTBbits.RB5) {
+            return CHARGED;
+        } else {
+            return CHARGING;
+        }
+    }
     return DISCHARGING;
 }
 

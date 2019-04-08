@@ -11,6 +11,7 @@
 #include "config.h"
 //FIXME
 #include "debug.h"
+#include "beep.h"
 #define TXT_LENGTH 50
 
 void display_error(CEXCEPTION_T e) {
@@ -50,15 +51,17 @@ int main(void)
     survey_current_init();
     delay_ms_safe(100);
     display_init();
-    sensors_init();    
+    sensors_init();
+    beep_initialise();
     wdt_clear();
     display_clear_screen(true);
     delay_ms_safe(10);
+    beep_happy();
     while (1)
     {
         Try {
-            show_details(0);
-            //show_menu(&main_menu);
+            //show_sensors(0);
+            show_menu(&main_menu);
             wdt_clear();
         }
         Catch(e) {
