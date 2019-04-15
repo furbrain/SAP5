@@ -120,21 +120,6 @@
         <archiverTool>
         </archiverTool>
         <loading>
-          <makeArtifact PL="../firmware"
-                        CT="1"
-                        CN="default"
-                        AC="true"
-                        BL="true"
-                        WD="../firmware"
-                        BC="${MAKE}  -f Makefile CONF=default"
-                        DBC="${MAKE}  -f Makefile CONF=default TYPE_IMAGE=DEBUG_RUN"
-                        CC="${MAKE}  -f Makefile CONF=default clean"
-                        OP="dist/default/production/firmware.production.hex"
-                        DOP="dist/default/debug/firmware.debug.elf"
-                        FL="dist/default/production/firmware.production.hex"
-                        PD="dist/default/production/firmware.production.elf"
-                        DD="dist/default/debug/firmware.debug.elf">
-          </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>

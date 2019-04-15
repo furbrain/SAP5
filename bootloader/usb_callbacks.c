@@ -259,16 +259,6 @@ int8_t app_unknown_setup_request_callback()
 
 			read_address = SetupPkt.wValue | ((uint32_t) SetupPkt.wIndex) << 16;
 
-			/* Range-check address */
-			if (read_address < USER_REGION_BASE)
-				return -1;
-			if (read_address + SetupPkt.wLength > USER_REGION_TOP)
-				return -1;
-
-			/* Check for overflow (unlikely on known MCUs) */
-			if (read_address + SetupPkt.wLength < read_address)
-				return -1;
-
 			/* Check length */
 			if (SetupPkt.wLength > sizeof(prog_buf))
 				return -1;
