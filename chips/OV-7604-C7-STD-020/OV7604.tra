@@ -22,12 +22,12 @@ pinwidthhorizontal	400
 # if you have a device with slots, you'll have to use slot= and slotdef=						
 # use comment= if there are special information you want to add						
 version	20180520 1					
-name	SiT1630				
-device	SiT1630					
+name	OV7604				
+device	OV7604					
 refdes	U?					
-footprint	SiT1630			
+footprint	OV7604			
 description	Micropower Voltage Regulator
-documentation	https://www.sitime.com/datasheet/SiT1630
+documentation	
 author	Phil Underwood					
 numslots	0					
 dist-license	GPL2					
@@ -55,6 +55,8 @@ use-license	GPL2
 #	"if you want to write a ""\"" use ""\\"" as escape sequence"					
 #						
 #pinnr	seq	type	style	posit.	net	label
+1       clk clk r       CLKOUT
 2		pwr	line	b		Gnd
-3		clk	clk	r		CLK
+3		in	line	l		CLKOE
+4       pwr line    l       Vdd
 4		pwr	line	l		Vdd
