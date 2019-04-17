@@ -43,12 +43,19 @@ Firmware Tasks:
 . Get different styles of leg working (forward, backward, leapfrog)
 . Get custom leg selection working
 . Get visualiser working - work as "cave window", so adjust view according to angle of device
-. Get set date working
-. Get set time working
+. Get set date working DONE
+. Get set time working DONE
 . Add some debug menu options - show uncalibrated sensor readings...
+.                             - show calibrated sensor readings with magnitudes
 .                             - gyro readings
 .                             - battery voltage
-
+. Change UI - start in measurement mode
+            - from here a single click takes you to the main menu
+            - long click anywhere takes a new readings
+            - double click anywhere turns off
+. fix calibration routine for accelerometer - I think just needs fitting to a sphere
+. also do stop start calibration - so more accurate readings, but fewer of them.
+. 1.5s to move, measure over 500ms intervals            
 
 PC software
 . note needs freetype-py and sparse_list
@@ -77,3 +84,19 @@ Store -> (assuming "last visited station==1")
     Custom - needs separate code to run...
     Back
 Back (to main menu...)
+
+Bluetooth:
+Reset sequence
+SF,1 #reset to factory settings
+S-,Shetland #set name
+SS,C0 #enable correct services
+
+Enable advertisement:
+A,0050,005E
+
+Turn speaker on:
+[,1,2,XXXX,YYYY
+XXXX = 1024000 / f
+YYYY = XXXX/2
+Turn speaker off:
+[,1,0,0,0
