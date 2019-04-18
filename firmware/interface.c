@@ -25,14 +25,6 @@
 volatile enum INPUT last_click = NONE;
 
 
-void turn_off(int32_t a) {
-    //turn off peripherals
-    PERIPH_EN_SetLow();
-    while (!SWITCH_GetValue()) {
-        delay_ms_safe(10);
-    }
-    sys_reset(a);
-}
 
 
 DECLARE_MENU(timeout_menu, {
@@ -89,7 +81,7 @@ DECLARE_MENU(main_menu, {
     {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
     {"Visualise", Action, {visualise_show_menu}, 0},
     {"Debug  >", SubMenu, .submenu = &debug_menu, 0},
-    {"Off", Action, {turn_off}, 0}
+    {"Off", Action, {utils_turn_off}, 0}
 });
 
 /* set up timer interrupts etc */
@@ -121,7 +113,7 @@ void TMR2_CallBack(void) {
         last_activity_counter=0;
     }
     if (last_activity_counter>(config.timeout*500)) {
-        sys_reset(0);
+        utils_turn_off(0);
     }
 }
 
