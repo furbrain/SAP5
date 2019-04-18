@@ -30,6 +30,7 @@
 GSL_VECTOR_DECLARE(measure_orientation, 3);
 
 static bool measure_exit;
+bool measure_requested;
 
 DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
@@ -194,37 +195,93 @@ void measure_show_reading(gsl_vector *orientation) {
     setup_storage_menu();
     menu_append_submenu(&measure_menu, "Store", &storage_menu);
     menu_append_exit(&measure_menu, "Discard");
-    menu_append_action(&measure_menu, "Main   menu", do_exit, 0);
+    menu_append_submenu(&measure_menu, "Main   menu", &main_menu, 0);
     // run menus
     show_menu(&measure_menu);
 }
 
 
 
-void measure(int32_t a) {
+//void measure(int32_t a) {
+//    CEXCEPTION_T e;
+//    measure_exit = false;
+//    while (true) {
+//        Try {
+//            measure_get_reading(&measure_orientation);
+//        }
+//        Catch (e) {
+//            if (e==ERROR_LASER_READ_FAILED) {
+//                display_on(true);
+//                laser_on(false);
+//                display_clear_screen(true);
+//                display_write_text(0, 0, "Laser read", &large_font, false, true);
+//                display_write_text(4, 0, "failed", &large_font, false, true);
+//                delay_ms_safe(3000);
+//                continue;
+//            } else {
+//                Throw(e);
+//            }
+//        }
+//        if (measure_exit) break;
+//        measure_show_reading(&measure_orientation);
+//        if (measure_exit) break;
+//    }        
+//    laser_on(false);
+//    display_on(true);
+//}
+
+void do_reading() {
     CEXCEPTION_T e;
-    measure_exit = false;
+    Try {
+        measure_get_reading(&measure_orientation);
+    }
+    Catch (e) {
+        if (e==ERROR_LASER_READ_FAILED) {
+            display_on(true);
+            laser_on(false);
+            display_clear_screen(true);
+            display_write_text(0, 0, "Laser read", &large_font, false, true);
+            display_write_text(4, 0, "failed", &large_font, false, true);
+            delay_ms_safe(3000);
+            return;
+        } else {
+            Throw(e);
+        }
+    }
+    measure_show_reading(&measure_orientation);    
+}
+
+void ready_to_measure() {
+    display_clear_screen(true);
+    display_write_text(2, 0, "---*", &large_font,false, true);
+    laser_on();    
+}
+
+void measure() {
+    ready_to_measure();
     while (true) {
-        Try {
-            measure_get_reading(&measure_orientation);
+        wdt_clear();
+        if (measure_requested) {
+            measure_requested = false;
+            delay_ms_safe(2000);
+            do_reading();
+            ready_to_measure();
+            continue;
         }
-        Catch (e) {
-            if (e==ERROR_LASER_READ_FAILED) {
-                display_on(true);
-                laser_on(false);
-                display_clear_screen(true);
-                display_write_text(0, 0, "Laser read", &large_font, false, true);
-                display_write_text(4, 0, "failed", &large_font, false, true);
-                delay_ms_safe(3000);
-                continue;
-            } else {
-                Throw(e);
-            }
+        switch (get_input()) {
+            case SINGLE_CLICK:
+                show_menu(&main_menu);
+                ready_to_measure();
+                break;
+            case LONG_CLICK:
+                do_reading();
+                ready_to_measure();
+                break;
+            case DOUBLE_CLICK:
+                utils_turn_off(0);
+                break;
+            default:
+                break;
         }
-        if (measure_exit) break;
-        measure_show_reading(&measure_orientation);
-        if (measure_exit) break;
-    }        
-    laser_on(false);
-    display_on(true);
+    }
 }

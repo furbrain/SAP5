@@ -18,6 +18,7 @@
 #include "visualise.h"
 #include "datetime.h"
 #include "beep.h"
+#include "laser.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
@@ -77,7 +78,7 @@ DECLARE_MENU(calibration_menu, {
 });
 
 DECLARE_MENU(main_menu, {
-    {"Measure", Action, {measure}, 0},
+    {"Measure", Exit, {NULL}, 0},
     {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},
     {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
     {"Visualise", Action, {visualise_show_menu}, 0},
@@ -244,6 +245,7 @@ void show_status() {
 }
 
 void show_menu(struct menu *menu) {
+    laser_off();
     menu_initialise(menu);
     scroll_text(menu_get_text(menu), true);
     while (true) {
@@ -277,7 +279,11 @@ void show_menu(struct menu *menu) {
                         break;
                 }
             case DOUBLE_CLICK:
-                //hibernate();
+                utils_turn_off(0);
+                break;
+            case LONG_CLICK:
+                measure_requested=true;
+                return;
                 break;
             default:
                 break;

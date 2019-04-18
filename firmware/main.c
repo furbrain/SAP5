@@ -59,9 +59,7 @@ int main(void)
     while (1)
     {
         Try {
-            //show_sensors(0);
-            show_menu(&main_menu);
-            wdt_clear();
+            measure();
         }
         Catch(e) {
             display_error(e);
