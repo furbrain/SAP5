@@ -125,16 +125,16 @@ void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     calculate_bearings(orientation, &compass, &inclination);
 
     sprintf(text, "%05.1f%c", compass * degree_scale, angle_symbol);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 
     sprintf(text, "%+.1f%c", inclination * degree_scale, angle_symbol);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 
     sprintf(text, "Dist  %.2f%c", get_distance(orientation) * length_scale, length_unit);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 
     sprintf(text, "Ext  %.2f%c", get_extension(orientation) * length_scale, length_unit);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 }
 
 /* add a set of cartesian entries to a menu */
@@ -147,10 +147,10 @@ void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     int i;
     for (i=0; i<3; i++) {
         sprintf(text, format[i], gsl_vector_get(orientation, i) * length_scale, length_unit);
-        menu_append_info(menu, text);
+        menu_append_submenu(menu, text, &main_menu);
     }
     sprintf(text, "Ext  %.2f%c", get_extension(orientation) * length_scale, length_unit);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 }
 
 
