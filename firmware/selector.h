@@ -19,8 +19,8 @@ void selector_write_char(char text, int column);
 char selector_choose(struct SELECTOR_CHOICES *choices, int column);
 
 #ifdef TEST
-extern const uint8_t up_marker[16];
-extern const uint8_t down_marker[16];
-extern const uint8_t empty_marker[16];
+extern const uint8_t up_marker[15];
+extern const uint8_t down_marker[15];
+extern const uint8_t empty_marker[15];
 #endif
 #endif // _SELECTOR_H

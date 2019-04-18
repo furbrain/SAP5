@@ -7,9 +7,15 @@ struct {
 } TRISBbits;
     
 struct {
+	uint8_t LATB5;
     uint8_t LATB6;
 } LATBbits;
 
+struct {
+	uint8_t BGREQ;
+} AD1CON5bits;
+
 #define PORTBbits LATBbits
 #define RB6 LATB6
+#define RB5 LATB5
 #endif

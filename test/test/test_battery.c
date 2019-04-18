@@ -27,7 +27,7 @@ void setup_adc(double voltage) {
     delay_ms_safe_Expect(1);
     ADC1_Stop_Expect();
     ADC1_IsConversionComplete_IgnoreAndReturn(true);
-    ADC1_ConversionResultGet_ExpectAndReturn(get_adc_result(voltage));
+    ADC1_ConversionResultGet_ExpectAndReturn(get_adc_result(voltage/3));
     ADC1_ChannelSelect_Expect(ADC1_CHANNEL_VBG);
     ADC1_Start_Expect();
     delay_ms_safe_Expect(1);
@@ -53,7 +53,7 @@ void test_battery_get_units(void) {
     struct test_field test_cases[6] = {
         {2.0, 0},
         {BATTERY_MIN_VOLTAGE, 0},
-        {(BATTERY_MIN_VOLTAGE+BATTERY_MAX_VOLTAGE)/2, 10},
+        {(BATTERY_MIN_VOLTAGE+BATTERY_MAX_VOLTAGE)/2+0.01, 10},
         {BATTERY_MAX_VOLTAGE-0.01, 19},
         {BATTERY_MAX_VOLTAGE, 19},
         {5.0, 19}};

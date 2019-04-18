@@ -31,7 +31,11 @@ void test_gsl_error(void)
     TEST_ASSERT_THROWS_GSL(gsl_fft_complex_radix2_forward(NULL,1,3), GSL_EINVAL);
     exception_get_details(&reason, &file, &line);
     TEST_ASSERT_EQUAL_STRING("n is not a power of 2", reason);
-    TEST_ASSERT_EQUAL_STRING("fft/c_radix2.c", file);
+    #ifdef __unix__
+	    TEST_ASSERT_EQUAL_STRING("c_radix2.c", file);
+    #else
+    	TEST_ASSERT_EQUAL_STRING("fft/c_radix2.c", file);
+    #endif
 }
 
 void test_get_details(void) {
