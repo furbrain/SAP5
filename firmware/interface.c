@@ -93,26 +93,37 @@ DECLARE_MENU(main_menu, {
 uint32_t last_activity_counter = 0;
 
 /* change notification interrupt, called every 2ms*/
+/* 0 = button pressed, 1 is released*/
 void TMR2_CallBack(void) {
     static uint16_t state = 0x0001;
+    static bool ignore_release = true;
     last_activity_counter++;
-    state = ((state << 1) | SWITCH_GetValue()) & 0x0fff;
-    if (state == (SWITCH_ACTIVE_HIGH ? 0x07ff : 0x0800)) {
-        /* we have just transitioned to a '1' and held it for 11 T2 cycles*/
-        if (last_activity_counter > 200) {
-            /* it's been more than a quarter second since the last press started */
-            last_click = SINGLE_CLICK;
-        } else {
+    
+    state = ((state << 1) | SWITCH_GetValue()) & 0xffff;
+    if (state == 0xf000) {
+        /* we have just transitioned to a '1' and held it for 12 T2 cycles*/
+        if (last_activity_counter < 200) {
+            /* it's been more than a 0.4s since the last press finished */
             last_click = DOUBLE_CLICK;
+            ignore_release = true;
         }
         last_activity_counter=0;
     }
-    if (state == (SWITCH_ACTIVE_HIGH ? 0x0800 : 0x07ff)) {
-        /* we have just transitiioned to a '0' and held it for 11 T2 cycles */
-        if (last_activity_counter > 1000) {
-            last_click = LONG_CLICK;
+    if (state == 0x0fff) {
+        /* we have just released the button*/
+        last_activity_counter = 0;
+        if (!ignore_release) {
+            last_click = SINGLE_CLICK;
         }
-        last_activity_counter=0;
+        ignore_release = false;
+    }
+    if (state == 0x0000) {
+        if (last_activity_counter > 1000) {
+            if (!ignore_release) {
+                last_click = LONG_CLICK;
+                ignore_release=true;
+            }
+        }        
     }
     if (last_activity_counter>(config.timeout*500)) {
         utils_turn_off(0);
@@ -179,7 +190,6 @@ enum INPUT get_input() {
         temp = last_click;
         last_click = NONE;
         INTERRUPT_GlobalEnable();
-        last_activity_counter = 0;
         return temp;
     }
     //nothing else found - so return NONE
@@ -278,6 +288,7 @@ void show_menu(struct menu *menu) {
                     case Info: //do nothing on click if INFO item.
                         break;
                 }
+                break;
             case DOUBLE_CLICK:
                 utils_turn_off(0);
                 break;

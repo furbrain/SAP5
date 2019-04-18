@@ -30,7 +30,7 @@
 GSL_VECTOR_DECLARE(measure_orientation, 3);
 
 static bool measure_exit;
-bool measure_requested;
+bool measure_requested = false;
 
 DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
@@ -67,29 +67,6 @@ void get_reading(gsl_vector *orientation){
 static
 void do_exit(int32_t a) {
     measure_exit = true;
-}
-
-TESTABLE_STATIC
-void measure_get_reading(gsl_vector *orientation) {
-    display_clear_screen(true);
-    display_write_text(2, 0, "---*", &large_font,false, true);
-    laser_on();
-    while (true) {
- 		switch(get_input()) {
-			case SINGLE_CLICK:
-			case LONG_CLICK:
-				/* take measurement */
-				get_reading(orientation);
-				return;
-				break;
-			case DOUBLE_CLICK:
-			    do_exit(0);
-				return;
-				break;
-	        default:
-                delay_ms_safe(10); 
-        }
-    }
 }
 
 /* calculate extension from current readings */
@@ -195,7 +172,7 @@ void measure_show_reading(gsl_vector *orientation) {
     setup_storage_menu();
     menu_append_submenu(&measure_menu, "Store", &storage_menu);
     menu_append_exit(&measure_menu, "Discard");
-    menu_append_submenu(&measure_menu, "Main   menu", &main_menu, 0);
+    menu_append_submenu(&measure_menu, "Main   menu", &main_menu);
     // run menus
     show_menu(&measure_menu);
 }
@@ -233,7 +210,7 @@ void measure_show_reading(gsl_vector *orientation) {
 void do_reading() {
     CEXCEPTION_T e;
     Try {
-        measure_get_reading(&measure_orientation);
+        get_reading(&measure_orientation);
     }
     Catch (e) {
         if (e==ERROR_LASER_READ_FAILED) {
@@ -252,6 +229,7 @@ void do_reading() {
 }
 
 void ready_to_measure() {
+    display_on();
     display_clear_screen(true);
     display_write_text(2, 0, "---*", &large_font,false, true);
     laser_on();    
