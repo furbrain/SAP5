@@ -1,16 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include "mcc_generated_files/mcc.h"
+#include "measure.h"
 #include "utils.h"
 #include "display.h"
 #include "sensors.h"
 #include "survey.h"
-#include "interface.h"
 #include "laser.h"
 #include "exception.h"
 #include "config.h"
 //FIXME
-#include "debug.h"
 #include "beep.h"
 #define TXT_LENGTH 50
 
@@ -20,8 +19,8 @@ void display_error(CEXCEPTION_T e) {
     const char *reason;
     const char *file;
     int line;
-    display_on(true);
-    laser_on(false);
+    display_on();
+    laser_off();
     display_clear_screen(true);
     error = exception_get_string(e);
     exception_get_details(&reason, &file, &line);

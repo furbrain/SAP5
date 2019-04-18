@@ -49,14 +49,16 @@ void laser_start(enum LASER_SPEED speed) {
     }
 }
 
-void laser_on(bool enable) {
+void laser_on() {
     UART1_ReceiveBufferClear();
-    if (enable)
-        UART1_Write('O');
-    else
-        UART1_Write('C');
-
+    UART1_Write('O');
 }
+
+void laser_off() {
+    UART1_ReceiveBufferClear();
+    UART1_Write('C');
+}
+
 
 double laser_read(enum LASER_SPEED speed, int timeout) {
     laser_start(speed);

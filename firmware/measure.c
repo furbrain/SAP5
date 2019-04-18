@@ -43,8 +43,8 @@ void get_reading(gsl_vector *orientation){
     gsl_vector_view sensors_acceleration = gsl_vector_view_array(sensors.accel, 3);    
 	int i;
 
-	display_on(false);
-	laser_on(true);
+	display_off();
+	laser_on();
 	delay_ms_safe(20);
 	gsl_vector_set_zero(&magnetism);
 	gsl_vector_set_zero(&acceleration);
@@ -59,8 +59,8 @@ void get_reading(gsl_vector *orientation){
     distance = laser_read(LASER_MEDIUM, 1000);
     maths_get_orientation_as_vector(&magnetism, &acceleration, orientation);
     gsl_vector_scale(orientation, distance);
-    display_on(true);
-    laser_on(false);
+    display_on();
+    laser_off();
 }
 
 static
@@ -72,7 +72,7 @@ TESTABLE_STATIC
 void measure_get_reading(gsl_vector *orientation) {
     display_clear_screen(true);
     display_write_text(2, 0, "---*", &large_font,false, true);
-    laser_on(true);
+    laser_on();
     while (true) {
  		switch(get_input()) {
 			case SINGLE_CLICK:

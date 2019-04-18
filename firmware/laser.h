@@ -9,7 +9,8 @@ enum LASER_SPEED {
     };
 
 /* Turns the laser on or off*/
-void laser_on(bool enable);
+void laser_on();
+void laser_off();
 
 /* take a reading with the laser and return the (calibrated) distance
    throws ERROR_LASER_READ_FAILED if an invalid reading occurred, or took

@@ -158,13 +158,13 @@ void calibrate_sensors(int32_t a) {
     display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", true);
     delay_ms_safe(1500);
     /* Now rotate around z-axis and read in ~CALIBRATION_SAMPLES/2 readings */
-    laser_on(true);
-    display_on(false);
+    laser_on();
+    display_off();
     z_axis_count = collect_data_around_axis(2, gyro_offset, mag_readings, grav_readings);
     wdt_clear();
     
     /* now read data on y-axis */
-    display_on(true);
+    display_on();
     display_clear_screen(true);
     display_write_multiline(0, "Point laser at\nfixed target", true);
     delay_ms_safe(2000);
@@ -173,13 +173,13 @@ void calibrate_sensors(int32_t a) {
     display_write_multiline(0, "Rotate device\n360' while\nleaving laser\non target", true);
     delay_ms_safe(1500);
     offset = z_axis_count*3;
-    display_on(false);
-    laser_on(true);
+    display_off();
+    laser_on();
     y_axis_count = collect_data_around_axis(1, gyro_offset, mag_readings+offset, grav_readings+offset);
     data_length = z_axis_count + y_axis_count;
     wdt_clear();
-    laser_on(false);
-    display_on(true);
+    laser_off();
+    display_on();
     display_clear_screen(true);
     display_write_multiline(0, "Processing", true);
     // calibrate magnetometer

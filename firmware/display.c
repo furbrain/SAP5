@@ -51,13 +51,14 @@ void display_close() {
 	send1(0xAE);
 }
 
-void display_on(bool enable){
-	if (enable) {
-		send1(0xAF); 
-	} else {
-		send1 (0xAE);
-	}
+void display_on(){
+    send1(0xAF); 
 }
+
+void display_off() {
+    send1 (0xAE);
+}
+
 
 void set_page(int page) {
 	send1(page+0xB0);
