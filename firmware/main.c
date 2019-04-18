@@ -37,9 +37,7 @@ void display_error(CEXCEPTION_T e) {
     delay_ms_safe(5000);
 }
 
-int main(void)
-{
-    CEXCEPTION_T e;
+void initialise() {
     wdt_clear();
     RTCC_TimeReset(true);
     SYSTEM_Initialize();
@@ -53,10 +51,15 @@ int main(void)
     sensors_init();
     beep_initialise();
     wdt_clear();
-    display_clear_screen(true);
-    delay_ms_safe(10);
+    display_clear_screen(true);    
+}
+
+int main(void)
+{
+    CEXCEPTION_T e;
+    initialise();
     beep_happy();
-    while (1)
+    while (true)
     {
         Try {
             measure();
