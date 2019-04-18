@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "battery.h"
 #include "interface.h"
 #include "sensors.h"
 #include "display.h"
@@ -193,17 +194,16 @@ unsigned char reverse(unsigned char b) {
 }
 
 void show_status() {
+    const int FOOTER_LENGTH = 16;
     char header[17];
     char footer[17] = "                "; //16 spaces
-#define FOOTER_LENGTH 16
     int x;
     struct tm dt;
     /* batt icon 50% charge: 0x1f,0x20,0x2f*9,0x20*9,0x20,0x1f,0x04,0x03 */
     /* reverse bit order for second line */
     unsigned char bat_status[24];
     int charge;
-    //charge = battery_get_units();
-    charge = 15;
+    charge = battery_get_units();
     if (!day) {
         bat_status[0] = 0xf8;
         bat_status[1] = 0x04;
