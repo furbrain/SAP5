@@ -139,9 +139,9 @@ void sqrtm(gsl_matrix *a, gsl_matrix *result) {
     
 }
 
-static void prepare_input_matrix(gsl_matrix *input, const double *data_array, int len) {
+static void prepare_input_matrix(gsl_matrix *input, const gsl_matrix *original_data, int len) {
     //setup GSL variables and aliases...
-    gsl_matrix_const_view data = gsl_matrix_const_view_array(data_array, len, 3);
+    gsl_matrix_const_view data = gsl_matrix_const_submatrix(original_data, 0, 0, len, 3);
     gsl_vector_const_view x = gsl_matrix_const_column(&data.matrix, 0);
     gsl_vector_const_view y = gsl_matrix_const_column(&data.matrix, 1);
     gsl_vector_const_view z = gsl_matrix_const_column(&data.matrix, 2);
@@ -225,7 +225,7 @@ static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *ce
     sqrtm(&temp2_submat.matrix, results);
 }
 
-void calibrate(const double *data_array, const int len, matrixx result) {
+void calibrate(const gsl_matrix *data, const int len, matrixx result) {
     int i,j;
     matrixx ellipsoid;
     GSL_MATRIX_DECLARE(a4, 4, 4);
@@ -236,7 +236,7 @@ void calibrate(const double *data_array, const int len, matrixx result) {
     GSL_MATRIX_RESIZE(lsq_input, len, 9);
     GSL_VECTOR_RESIZE(lsq_output, len);
 
-    prepare_input_matrix(&lsq_input, data_array, len);
+    prepare_input_matrix(&lsq_input, data, len);
     gsl_vector_set_all(&lsq_output,1.0);
     solve_least_squares(&lsq_input, &lsq_output, 9, &params);
     make_ellipsoid_matrix(&a4, &params);

@@ -41,5 +41,5 @@ void find_plane(double *data_array, int len, gsl_vector *result);
         
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
-void calibrate(const double *data, int len, matrixx result);
+void calibrate(const gsl_matrix *data, int len, matrixx result);
 #endif

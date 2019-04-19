@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <gsl/gsl_sort_vector.h>
 #include "display.h"
 #include "font.h"
 #include "sensors.h"
@@ -11,9 +12,13 @@
 #include "calibrate.h"
 #include "utils.h"
 #include "laser.h"
+#include "gsl_static.h"
+#include "beep.h"
 
-static double mag_readings[CALIBRATION_SAMPLES*3]; //3 sets of readings...
-static double grav_readings[CALIBRATION_SAMPLES*3];
+GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES, 3);
+GSL_MATRIX_DECLARE(grav_readings, CALIBRATION_SAMPLES, 3);
+GSL_MATRIX_DECLARE(temp_mag_readings, CALIBRATION_SUB_SAMPLES, 3);
+GSL_MATRIX_DECLARE(temp_grav_readings, CALIBRATION_SUB_SAMPLES, 3);
 
 static
 int get_greatest_axis(struct RAW_SENSORS *raw) {
@@ -92,15 +97,15 @@ void calibrate_axes(int dummy) {
 }
 
 
-double check_calibration(double *data, int len, matrixx calibration) {
+double check_calibration(const gsl_matrix *data, int len, matrixx calibration) {
     vectorr vector, v_result;
     int k;
     double magnitude;
     double max_error=0;
     for (k=0; k<len; k++) {
-        vector[0] = data[k*3];
-        vector[1] = data[k*3+1];
-        vector[2] = data[k*3+2];
+        vector[0] = gsl_matrix_get(data,k,0);
+        vector[1] = gsl_matrix_get(data,k,1);
+        vector[2] = gsl_matrix_get(data,k,2);
         apply_matrix(vector, calibration, v_result);
         magnitude = v_result[0]*v_result[0] + v_result[1]*v_result[1] + v_result[2]*v_result[2];
         max_error += fabs(magnitude-1.0);
@@ -121,31 +126,57 @@ double get_gyro_offset(int axis) {
     return gyro_offset;
 }
 
-int collect_data_around_axis(int axis, double gyro_offset, double *mag_data, double *grav_data) {
+int collect_data_around_axis(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset) {
     struct COOKED_SENSORS sensors;
-    double gyro=0;
+    gsl_vector_view mag_sensors = gsl_vector_view_array(sensors.mag,3);
+    gsl_vector_view grav_sensors = gsl_vector_view_array(sensors.accel,3);
+    gsl_vector_view samples;
+    gsl_vector_view median;
     int i, j;
-    i = 0;
-    do {
-        do {
+    for (i=0; i< 8; i++) {
+        //delay to let user move to position
+        delay_ms_safe(1500);
+        //read in samples
+        for (j=0; j<CALIBRATION_SUB_SAMPLES; j++) {
             sensors_read_uncalibrated(&sensors);
-            gyro += ((sensors.gyro[axis]-gyro_offset)*20)/1000;
-            delay_ms_safe(20);
-        } while (fabs(gyro)<(i*3));
-        for (j=0; j<3; j++) {
-           mag_data[i*3+j] = sensors.mag[j];
-           grav_data[i*3+j] = sensors.accel[j];
+            gsl_matrix_set_row(&temp_mag_readings, j, &mag_sensors.vector);
+            gsl_matrix_set_row(&temp_grav_readings, j, &grav_sensors.vector);
         }
-        i++;
-    } while ((fabs(gyro)<400) && i < (CALIBRATION_SAMPLES/2));
-    return i;
+        //sort our samples
+        for (j=0; j<3; j++){
+            samples = gsl_matrix_column(&temp_mag_readings,j);
+            gsl_sort_vector(&samples.vector);
+            samples = gsl_matrix_column(&temp_grav_readings,j);
+            gsl_sort_vector(&samples.vector);
+        }
+        //append median of all sample data to the set of readings
+        median = gsl_matrix_row(&temp_mag_readings,CALIBRATION_SUB_SAMPLES/2);
+        gsl_matrix_set_row(mag_data, i+offset, &median.vector);
+        median = gsl_matrix_row(&temp_grav_readings,CALIBRATION_SUB_SAMPLES/2);
+        gsl_matrix_set_row(grav_data, i+offset, &median.vector);
+        //beep to let user know to move to next position.
+        beep_beep();
+    }
+    beep_happy();
+    return 8;
 }
+//    do {
+//        do {
+//            sensors_read_uncalibrated(&sensors);
+//            gyro += ((sensors.gyro[axis]-gyro_offset)*20)/1000;
+//            delay_ms_safe(20);
+//        } while (fabs(gyro)<(i*3));
+//        for (j=0; j<3; j++) {
+//           mag_data[i*3+j] = sensors.mag[j];
+//           grav_data[i*3+j] = sensors.accel[j];
+//        }
+//        i++;
+//    } while ((fabs(gyro)<400) && i < (CALIBRATION_SAMPLES/2));
 
 void calibrate_sensors(int32_t a) {
     char text[30];
     matrixx accel_mat, mag_mat;
-    double gyro_offset = 0;
-    int z_axis_count, y_axis_count, offset, data_length;
+    int z_axis_count, y_axis_count, data_length;
     double error;
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
@@ -153,14 +184,15 @@ void calibrate_sensors(int32_t a) {
     display_clear_screen(true);
     display_write_multiline(0, "Place device on a\nlevel surface\nand leave alone", true);
     delay_ms_safe(2000);
-    gyro_offset = get_gyro_offset(2);
+    //gyro_offset = get_gyro_offset(2);
     display_clear_screen(true);
-    display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", true);
+    display_write_multiline(0, "After each beep\nrotate by ~45'\nleaving display\nfacing up", true);
     delay_ms_safe(1500);
+    beep_beep();
     /* Now rotate around z-axis and read in ~CALIBRATION_SAMPLES/2 readings */
     laser_on();
     display_off();
-    z_axis_count = collect_data_around_axis(2, gyro_offset, mag_readings, grav_readings);
+    z_axis_count = collect_data_around_axis(&mag_readings, &grav_readings, 0);
     wdt_clear();
     
     /* now read data on y-axis */
@@ -168,14 +200,13 @@ void calibrate_sensors(int32_t a) {
     display_clear_screen(true);
     display_write_multiline(0, "Point laser at\nfixed target", true);
     delay_ms_safe(2000);
-    gyro_offset = get_gyro_offset(1);
+    //gyro_offset = get_gyro_offset(1);
     display_clear_screen(true);
-    display_write_multiline(0, "Rotate device\n360' while\nleaving laser\non target", true);
+    display_write_multiline(0, "After each beep\nrotate by ~45'\nleaving laser\non target", true);
     delay_ms_safe(1500);
-    offset = z_axis_count*3;
     display_off();
     laser_on();
-    y_axis_count = collect_data_around_axis(1, gyro_offset, mag_readings+offset, grav_readings+offset);
+    y_axis_count = collect_data_around_axis(&mag_readings, &grav_readings, z_axis_count);
     data_length = z_axis_count + y_axis_count;
     wdt_clear();
     laser_off();
@@ -183,14 +214,14 @@ void calibrate_sensors(int32_t a) {
     display_clear_screen(true);
     display_write_multiline(0, "Processing", true);
     // calibrate magnetometer
-    calibrate(mag_readings, data_length, mag_mat);
-    error = check_calibration(mag_readings, data_length, mag_mat);
+    calibrate(&mag_readings, data_length, mag_mat);
+    error = check_calibration(&mag_readings, data_length, mag_mat);
     sprintf(text, "Mag Err:  %.2f%%", error);
     display_write_multiline(2,text, true);
     wdt_clear();
     // calibrate accelerometer
-    calibrate(grav_readings, data_length, accel_mat);
-    error = check_calibration(grav_readings, data_length, accel_mat);
+    calibrate(&grav_readings, data_length, accel_mat);
+    error = check_calibration(&grav_readings, data_length, accel_mat);
     sprintf(text, "Grav Err: %.2f%%", error);
     display_write_multiline(4,text, true);
     memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
