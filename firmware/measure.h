@@ -1,6 +1,7 @@
 #ifndef MEASURE_H
 #define MEASURE_H
 /* take one or more measurements and store them */
+#include <stdbool.h>
 void measure();
 extern bool measure_requested;
 /* expose functions for testing purpose */

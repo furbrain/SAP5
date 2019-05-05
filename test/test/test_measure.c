@@ -18,6 +18,12 @@
 #include "config.h"
 #include "exception.h"
 
+DECLARE_MENU(main_menu, {
+    {"30s", Info, {NULL}, 0},
+    {"Back", Back, {NULL}, 0}
+});
+
+
 void setUp(void) {
     config.length_units=METRIC;
     config.display_style=POLAR;
@@ -247,14 +253,6 @@ void test_add_cartesian_entries_to_menu_imperial(void) {
             menu_next(&test_menu);
         }
     }  
-}
-
-void test_measure_get_reading_double_press(void) {
-    display_clear_screen_Expect(true);
-    display_write_text_Expect(2, 0, "---*", &large_font, false, true);
-    laser_on_Expect(true);
-    get_input_ExpectAndReturn(DOUBLE_CLICK);
-    measure_get_reading(NULL);
 }
     
     
