@@ -48,6 +48,7 @@ struct __attribute__((aligned(8))) CONFIG {
     uint8_t display_style;
     uint8_t length_units;
     uint16_t timeout;
+    bool bt_present;
 };
 
 /* Note it is important to keep this as a union to ensure that no other data/ program 
