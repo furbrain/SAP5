@@ -68,9 +68,10 @@
     uint32:   UINT32
     int8:     INT8
     bool:     UINT8
+    uint8_t*: STRING
   :defines:
     - CMOCK_MEM_SIZE=10000
-  :when_ptr: :compare_ptr
+  :when_ptr: :smart
     
 :gcov:
     :html_report_type: detailed

@@ -2,6 +2,7 @@
 #define INTERFACE_H
 #include <stdint.h>
 #include <stdbool.h>
+#include "menu.h"
 
 enum INPUT {
     NONE = 0,
