@@ -82,3 +82,33 @@ void bt_leave_command_mode(void) {
 		THROW_WITH_REASON("Leave command mode", ERROR_BLUETOOTH_COMMAND_FAILED);
 	}
 }
+
+void bt_beep(double freq) {
+	uint16_t count;
+	char buffer[20];
+	check_bt_present();
+	freq = 1024000.0/freq;
+	count = freq;
+	sprintf(buffer,"[,1,2,%04hX,%04hX",count,count/2);
+	bt_send_command(buffer,10);
+}
+
+void bt_beep_off(void) {
+	check_bt_present();
+	bt_send_command("[,1,0,0,0",10);
+}
+
+void bt_reset(void) {
+	bt_enter_command_mode();
+	bt_send_command("SF,1",500); //reset to factory settings
+	bt_send_command("S-,Shetland",50); //set name
+	bt_send_command("SS,C0",20); //enable correct services
+	bt_leave_command_mode();
+}
+
+void bt_advertise(void) {
+	bt_enter_command_mode();
+	bt_send_command("A,0050,005E", 500);
+	bt_leave_command_mode();
+}
+

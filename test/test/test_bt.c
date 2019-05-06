@@ -41,12 +41,25 @@ void expect_read(char* text) {
 	UART2_TransferStatusGet_ExpectAndReturn(UART2_TRANSFER_STATUS_RX_EMPTY);
 }
 
-void expect_command(const char* cmd, unsigned int timeout) {
-	char buffer[30];
-	SAFE_STRING_COPY(buffer, cmd, 26);
-	strcat(buffer,"\r");
+void expect_enter(void) {
 	UART2_ReceiveBufferClear_Expect();
-	expect_write(buffer);
+	expect_write("$$$");
+	delay_ms_safe_Expect(10);
+	expect_read("CMD>");
+}
+
+void expect_leave(void) {
+	UART2_ReceiveBufferClear_Expect();
+	expect_write("---\r");
+	delay_ms_safe_Expect(50);
+	expect_read("END\r");
+}
+
+#define expect_command(cmd, timeout) expect_command_raw(cmd "\r", timeout)
+
+void expect_command_raw(const char* cmd, unsigned int timeout) {
+	UART2_ReceiveBufferClear_Expect();
+	expect_write(cmd);
 	delay_ms_safe_Expect(timeout);
 	expect_read("AOK\r");
 }
@@ -94,10 +107,7 @@ void test_bt_read_str_throws_if_unable_to_empty_buffer(void) {
 
 void test_bt_enter_command_mode(void)
 {
-	UART2_ReceiveBufferClear_Expect();
-	expect_write("$$$");
-	delay_ms_safe_Expect(10);
-	expect_read("CMD>");
+	expect_enter();
 	bt_enter_command_mode();
 }
 
@@ -137,10 +147,7 @@ void test_bt_send_command_bt_absent(void)
 
 void test_bt_leave_command_mode(void)
 {
-	UART2_ReceiveBufferClear_Expect();
-	expect_write("---\r");
-	delay_ms_safe_Expect(50);
-	expect_read("END\r");
+	expect_leave();
 	bt_leave_command_mode();
 }
 
@@ -161,7 +168,43 @@ void test_bt_leave_command_mode_bt_absent(void)
 
 void test_bt_beep(void)
 {
-    TEST_IGNORE_MESSAGE("Need to Implement bt");
+	struct test_field {
+		double f;
+		const char* text;
+	};
+	struct test_field test_cases[] = {
+		{523.251, "[,1,2,07A4,03D2\r"},
+		{659.255, "[,1,2,0611,0308\r"},
+		{783.991, "[,1,2,051A,028D\r"},
+		{1046.5, "[,1,2,03D2,01E9\r"}
+	};
+	int i;
+	for (i=0;i<4;i++) {
+		expect_command_raw(test_cases[i].text, 10);
+		bt_beep(test_cases[i].f);
+	}
+}
+
+void test_bt_reset(void)
+{
+	expect_enter();
+	expect_command("SF,1",500); //reset to factory settings
+	expect_command("S-,Shetland",50); //set name
+	expect_command("SS,C0",20); //enable correct services
+	expect_leave();
+	bt_reset();
+}
+
+void test_bt_reset_bt_absent(void) {
+	THROWS_ERROR_IF_BT_ABSENT(bt_reset());
+}
+
+void test_bt_advertise(void)
+{
+	expect_enter();
+	expect_command("A,0050,005E",500);
+	expect_leave();
+	bt_advertise();
 }
 
 void test_bt_send_data(void)
