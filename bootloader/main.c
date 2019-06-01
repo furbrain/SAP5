@@ -111,6 +111,7 @@ void sleep(void) {
     TRISA = 0;
     TRISB = 0;
     TRISC = 0;
+    TRISAbits.TRISA4 = 1;
     TRISCbits.TRISC9 = 1;
     TRISBbits.TRISB6 = 1;
     LATA = 0;
