@@ -29,7 +29,6 @@
 
 GSL_VECTOR_DECLARE(measure_orientation, 3);
 
-static bool measure_exit;
 bool measure_requested = false;
 
 DECLARE_EMPTY_MENU(measure_menu, 12);
@@ -62,11 +61,6 @@ void get_reading(gsl_vector *orientation){
     gsl_vector_scale(orientation, distance);
     display_on();
     laser_off();
-}
-
-static
-void do_exit(int32_t a) {
-    measure_exit = true;
 }
 
 /* calculate extension from current readings */
