@@ -45,4 +45,10 @@ void beep_sad(void) {
 void beep_beep(void) {
     beep(1000,20);
 }
-    
+
+void beep_finish(void) {
+    beep(1046.50, 30); //C    
+    beep(783.991, 30); //G
+    beep(659.255, 30); //E
+    beep(523.251, 30); //C
+}

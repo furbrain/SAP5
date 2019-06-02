@@ -250,6 +250,7 @@ void measure() {
                 ready_to_measure();
                 break;
             case DOUBLE_CLICK:
+                beep_finish();
                 utils_turn_off(0);
                 break;
             default:
