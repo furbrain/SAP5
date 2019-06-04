@@ -74,7 +74,11 @@
 // FOSCSEL
 #pragma config FNOSC = FRCDIV    // Oscillator Selection bits->Fast RC oscillator (FRC) with divide-by-N
 #pragma config PLLSRC = FRC    // System PLL Input Clock Selection bit->FRC oscillator is selected as PLL reference input on device reset
+#ifdef EXTERNAL_CLOCK
 #pragma config SOSCEN = ON    // Secondary Oscillator Enable bit->Secondary oscillator (SOSC) is enabled
+#else
+#pragma config SOSCEN = OFF  //SOSC is not enabled
+#endif
 #pragma config IESO = OFF    // Two Speed Startup Enable bit->Two speed startup is disabled
 #pragma config POSCMOD = OFF    // Primary Oscillator Selection bit->Primary oscillator is disabled
 #pragma config OSCIOFNC = OFF    // System Clock on CLKO Pin Enable bit->OSCO pin operates as a normal I/O
@@ -117,7 +121,11 @@ void OSCILLATOR_Initialize(void)
     //Clear NOSC,CLKLOCK and OSWEN bits
     OSCCONCLR = _OSCCON_NOSC_MASK | _OSCCON_CLKLOCK_MASK | _OSCCON_OSWEN_MASK;
     // CF No Clock Failure; FRCDIV FRC/1; SLPEN Device will enter Idle mode when a WAIT instruction is issued; NOSC SPLL; SOSCEN enabled; CLKLOCK Clock and PLL selections are locked; OSWEN Oscillator switch initiate; 
+#ifdef EXTERNAL_CLOCK
     OSCCON = (0x182 | _OSCCON_OSWEN_MASK);
+#else
+    OSCCON = (0x180 | _OSCCON_OSWEN_MASK);
+#endif    
     SYSTEM_RegLock();
     // ON disabled; DIVSWEN disabled; RSLP disabled; ROSEL SYSCLK; OE disabled; SIDL disabled; RODIV 0; 
     REFO1CON = 0x0;

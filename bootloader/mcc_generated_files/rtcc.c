@@ -84,7 +84,12 @@ void RTCC_Initialize(void)
        RTCCON1 = 0x8000;
    
        // DIV 16383; CLKSEL SOSC; FDIV 0; 
+#ifdef EXTERNAL_CLOCK
        RTCCON2 = 0x3FFF0000;
+#else 
+       // DIV 16383; CLKSEL LPRC; FDIV 0;
+       RTCCON2 = 0x3FFF0001;
+#endif
    RTCCON1SET = (1 << _RTCCON1_WRLOCK_POSITION);
    SYSTEM_RegLock();
 

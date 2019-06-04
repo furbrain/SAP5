@@ -35,3 +35,5 @@ MPLABXLog*
 /bootloader/nbproject/private/
 /firmware/nbproject/private/
 /test/experiments/
+/bootloader/build/internal_clock/
+/bootloader/dist/internal_clock/

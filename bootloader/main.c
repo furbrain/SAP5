@@ -11,11 +11,16 @@
 #include "display.h"
 #include "usb_callbacks.h"
 #include "utils.h"
+#include "memory.h"
 #include "mcc_generated_files/usb/usb_hal_pic32mm.h"
 
 #define DISPLAY_ADDRESS 0x3C
 
-
+#ifdef EXTERNAL_CLOCK
+CONST_STORE int HARDWARE_VERSION PLACE_DATA_AT(HARDWARE_VERSION_LOCATION) = 0x01;
+#else
+CONST_STORE int HARDWARE_VERSION PLACE_DATA_AT(HARDWARE_VERSION_LOCATION) = 0x00;
+#endif
 
 static int8_t write_display(uint8_t page, uint8_t column, uint8_t* buffer, uint16_t len) {
     write_i2c_data1(DISPLAY_ADDRESS,0xB0+page);
