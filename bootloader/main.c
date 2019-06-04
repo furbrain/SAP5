@@ -1,48 +1,6 @@
-/*
- * M-Stack USB Bootloader
- *
- *  M-Stack is free software: you can redistribute it and/or modify it under
- *  the terms of the GNU Lesser General Public License as published by the
- *  Free Software Foundation, version 3; or the Apache License, version 2.0
- *  as published by the Apache Software Foundation.  If you have purchased a
- *  commercial license for this software from Signal 11 Software, your
- *  commerical license superceeds the information in this header.
- *
- *  M-Stack is distributed in the hope that it will be useful, but WITHOUT
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- *  License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this software.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  You should have received a copy of the Apache License, verion 2.0 along
- *  with this software.  If not, see <http://www.apache.org/licenses/>.
- *
- * Alan Ott
- * Signal 11 Software
- * 2016-03-31
- */
-
 #include <xc.h>
 #include <string.h>
 #include <stdbool.h>
-
-
-/* Variables from linker script.
- *
- * The way to pass values from the linker script to the program is to create
- * variables in the linker script and extern them in the program.  The only
- * catch is that assignment operations in the linker script only set
- * variable _addresses_, and not variable values.  Thus to get the data in
- * the program, you need to take the _address_ of the variables created by
- * the linker script (and ignore their actual values).  This may seem hacky,
- * but the GNU LD manual cites it as the recommended way to do it.  See
- * section 3.5.5 "Source Code Reference."
- *
- * It's also worth noting that addresses in the Linker Script are virtual,
- * and what we want in most cases in a bootloader are physical addresses.
- */
 
 #include "mcc_generated_files/mcc.h"
 #include "app_type.h"
