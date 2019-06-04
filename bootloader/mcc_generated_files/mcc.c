@@ -64,12 +64,12 @@
 #pragma config LPBOREN = ON    // Downside Voltage Protection Enable bit->Low power BOR is enabled, when main BOR is disabled
 
 // FWDT
-#pragma config SWDTPS = PS1048576    // Sleep Mode Watchdog Timer Postscale Selection bits->1:1048576
+#pragma config SWDTPS = PS131072    // Sleep Mode Watchdog Timer Postscale Selection bits->1:131072
 #pragma config FWDTWINSZ = PS25_0    // Watchdog Timer Window Size bits->Watchdog timer window size is 25%
 #pragma config WINDIS = OFF    // Windowed Watchdog Timer Disable bit->Watchdog timer is in non-window mode
 #pragma config RWDTPS = PS4096    // Run Mode Watchdog Timer Postscale Selection bits->1:4096
 #pragma config RCLKSEL = LPRC    // Run Mode Watchdog Timer Clock Source Selection bits->Clock source is LPRC (same as for sleep mode)
-#pragma config FWDTEN = OFF    // Watchdog Timer Enable bit->WDT is disabled
+#pragma config FWDTEN = ON    // Watchdog Timer Enable bit->WDT is enabled
 
 // FOSCSEL
 #pragma config FNOSC = FRCDIV    // Oscillator Selection bits->Fast RC oscillator (FRC) with divide-by-N

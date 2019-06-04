@@ -61,14 +61,6 @@ void display_show_bat(int charge) {
 	render_data_to_page(1,104,bat_status,24);
 }
 
-void wdt_enable(void) {
-    WDTCONbits.ON = 1;
-}
-
-void wdt_disable(void) {
-    WDTCONbits.ON = 0;
-}
-
 
 void sleep(void) {
     TRISA = 0;
@@ -167,7 +159,6 @@ int main(void)
     RTCC_TimeReset(true);
     RTCC_Initialize();
     PERIPH_EN_SetLow();
-    wdt_enable();
     while(1) {
         PIN_MANAGER_Initialize();
         PERIPH_EN_SetLow();
@@ -182,7 +173,6 @@ int main(void)
             JumpToApp();
         }
         delay_ms_safe(40);
-        wdt_disable();
         sleep();
         sys_reset(0);
     }
