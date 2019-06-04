@@ -15,6 +15,21 @@ void beep_initialise(void){
     TRISBCLR = 0x03;
 }
 
+/*just a beepy beep*/
+void beep_beep(void) {
+#ifdef BOOTLOADER
+    CCP2PR = 30000;
+    CCP2RA = 30000;
+    CCP2CON1bits.ON = 1;
+    delay_ms_safe(20);
+    CCP2CON1bits.ON = 0;
+#else
+    beep(1000,20);
+#endif
+}
+
+#ifndef BOOTLOADER
+/* make a happy sounding beep - CEGC*/
 /* beep at freq for duration milliseconds*/
 void beep(double freq, int duration) {
     uint32_t priVal;
@@ -27,7 +42,6 @@ void beep(double freq, int duration) {
     CCP2CON1bits.ON = 0;
 }
 
-/* make a happy sounding beep - CEGC*/
 void beep_happy(void) {
     beep(523.251, 30); //C
     beep(659.255, 30); //E
@@ -41,10 +55,6 @@ void beep_sad(void) {
     beep(493.883, 800);
 }
 
-/*just a beepy beep*/
-void beep_beep(void) {
-    beep(1000,20);
-}
 
 void beep_finish(void) {
     beep(1046.50, 30); //C    
@@ -52,3 +62,4 @@ void beep_finish(void) {
     beep(659.255, 30); //E
     beep(523.251, 30); //C
 }
+#endif
