@@ -61,6 +61,36 @@ void display_show_bat(int charge) {
 	render_data_to_page(1,104,bat_status,24);
 }
 
+void disable_modules(void) {
+    SYSTEM_RegUnlock();
+    PMDCONbits.PMDLOCK = 0;
+    PMD1 = 0xffffffff;
+    PMD2 = 0xffffffff;
+    PMD3 = 0xffffffff;
+    PMD4 = 0xffffffff;
+    PMD5 = 0xffffffff;
+    PMD6 = 0xfffffffe; //leave RTCC on...
+    PMD7 = 0xffffffff;
+    PMDCONbits.PMDLOCK = 1;
+    PWRCONbits.VREGS = 0;
+    PWRCONbits.RETEN = 1;    
+    OSCCONbits.SLPEN = 1;
+    SYSTEM_RegLock();    
+}
+
+void enable_modules(void) {
+    SYSTEM_RegUnlock();
+    PMDCONbits.PMDLOCK = 0;
+    PMD1 = 0x0;
+    PMD2 = 0x0;
+    PMD3 = 0x0;
+    PMD4 = 0x0;
+    PMD5 = 0x0;
+    PMD6 = 0x0;
+    PMD7 = 0x0;
+    PMDCONbits.PMDLOCK = 1;
+    SYSTEM_RegLock();
+}
 
 void sleep(void) {
     TRISA = 0;
@@ -77,34 +107,11 @@ void sleep(void) {
     IPC2bits.CNBIS = 0;
     IPC2bits.CNCIP = 7;
     IPC2bits.CNCIS = 0;
-    SYSTEM_RegUnlock();
-    PMDCONbits.PMDLOCK = 0;
-    PMD1 = 0xffffffff;
-    PMD2 = 0xffffffff;
-    PMD3 = 0xffffffff;
-    PMD4 = 0xffffffff;
-    PMD5 = 0xffffffff;
-    PMD6 = 0xfffffffe; //leave RTCC on...
-    PMD7 = 0xffffffff;
-    PMDCONbits.PMDLOCK = 1;
-    PWRCONbits.VREGS = 0;
-    PWRCONbits.RETEN = 1;    
-    OSCCONbits.SLPEN = 1;
-    SYSTEM_RegLock();
+    disable_modules();
     __builtin_enable_interrupts();
     asm("wait");
     asm("nop;nop;nop;nop;");
-    SYSTEM_RegUnlock();
-    PMDCONbits.PMDLOCK = 0;
-    PMD1 = 0x0;
-    PMD2 = 0x0;
-    PMD3 = 0x0;
-    PMD4 = 0x0;
-    PMD5 = 0x0;
-    PMD6 = 0x0;
-    PMD7 = 0x0;
-    PMDCONbits.PMDLOCK = 1;
-    SYSTEM_RegLock();
+    enable_modules();
 }
 
 void JumpToApp(void)
@@ -152,16 +159,58 @@ void run_usb(void) {
     JumpToApp();
 }
 
-int main(void)
-{
+void low_power_oscillator_initialise(void) {
+    SYSTEM_RegUnlock();
+    // ORPOL disabled; SIDL disabled; SRC USB; TUN Center frequency; POL disabled; ON disabled; 
+    OSCTUN = 0x1000;
+    // PLLODIV 1:4; PLLMULT 12x; PLLICLK FRC; 
+    SPLLCON = 0x2050080;
+    // WDTO disabled; GNMI disabled; CF disabled; WDTS disabled; NMICNT 0; LVD disabled; SWNMI disabled; 
+    RNMICON = 0x0;
+    // SBOREN disabled; VREGS disabled; RETEN disabled; 
+    PWRCON = 0x0;
+    //Clear NOSC,CLKLOCK and OSWEN bits
+    OSCCONCLR = _OSCCON_NOSC_MASK | _OSCCON_CLKLOCK_MASK | _OSCCON_OSWEN_MASK;
+    // CF No Clock Failure; FRCDIV FRC/1; SLPEN Device will enter Idle mode when a WAIT instruction is issued; NOSC SPLL; SOSCEN enabled; CLKLOCK Clock and PLL selections are locked; OSWEN Oscillator switch initiate; 
+#ifdef EXTERNAL_CLOCK
+    OSCCON = (0x082 | _OSCCON_OSWEN_MASK);
+#else
+    OSCCON = (0x080 | _OSCCON_OSWEN_MASK);
+#endif    
+    SYSTEM_RegLock();
+    // ON disabled; DIVSWEN disabled; RSLP disabled; ROSEL SYSCLK; OE disabled; SIDL disabled; RODIV 0; 
+    REFO1CON = 0x0;
+    // ROTRIM 0; 
+    REFO1TRIM = 0x0;
+
+}
+
+void initialise(void) {
     RCON = 0x0;
+    enable_modules();
     PIN_MANAGER_Initialize();
+    INTERRUPT_Initialize();
+    OSCILLATOR_Initialize();
+    //I2C1_Initialize();
+    //USBDeviceInit();
+    //UART1_Initialize();
+    //ADC1_Initialize();
+    TMR2_Initialize();
+    TMR1_Initialize();
     RTCC_TimeReset(true);
     RTCC_Initialize();
+    //USBDeviceAttach();
+    INTERRUPT_GlobalEnable();
     PERIPH_EN_SetLow();
+    
+}
+
+int main(void)
+{
+    initialise();
+    delay_ms_safe(20);
     while(1) {
-        PIN_MANAGER_Initialize();
-        PERIPH_EN_SetLow();
+        enable_modules();
         if (PORTBbits.RB6) {
             /* USB connected */
             PERIPH_EN_SetHigh();
@@ -173,6 +222,8 @@ int main(void)
             JumpToApp();
         }
         delay_ms_safe(40);
+        PIN_MANAGER_Initialize();
+        PERIPH_EN_SetLow();
         sleep();
         sys_reset(0);
     }
