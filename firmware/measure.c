@@ -16,6 +16,8 @@
 #include "leg.h"
 #include "gsl_static.h"
 #include "exception.h"
+#include "beep.h"
+#include "images.h"
 
 #define FEET_PER_METRE 3.281
 #define DEGREES_PER_RADIAN 57.296
@@ -225,7 +227,7 @@ void do_reading() {
 void ready_to_measure() {
     display_on();
     display_clear_screen(true);
-    display_write_text(2, 0, "---*", &large_font,false, true);
+    display_rle_image(image_laser2);
     laser_on();    
 }
 
@@ -233,6 +235,7 @@ void measure() {
     ready_to_measure();
     while (true) {
         wdt_clear();
+        show_status();
         if (measure_requested) {
             measure_requested = false;
             delay_ms_safe(2000);
@@ -250,11 +253,11 @@ void measure() {
                 ready_to_measure();
                 break;
             case DOUBLE_CLICK:
-                beep_finish();
                 utils_turn_off(0);
                 break;
             default:
                 break;
         }
+        delay_ms_safe(10);
     }
 }
