@@ -1,1 +1,1 @@
-extern const char image_rotate[];
+extern const char image_laser[];
