@@ -101,9 +101,9 @@ void TMR2_CallBack(void) {
     
     state = ((state << 1) | SWITCH_GetValue()) & 0xffff;
     if (state == 0xf000) {
-        /* we have just transitioned to a '1' and held it for 12 T2 cycles*/
+        /* we have just pressed the button and held it for 12 T2 cycles*/
         if (last_activity_counter < 200) {
-            /* it's been more than a 0.4s since the last press finished */
+            /* it's been less than 0.4s since the last press finished */
             last_click = DOUBLE_CLICK;
             ignore_release = true;
         }
@@ -118,7 +118,7 @@ void TMR2_CallBack(void) {
         ignore_release = false;
     }
     if (state == 0x0000) {
-        if (last_activity_counter > 1000) {
+        if (last_activity_counter > 750) {
             if (!ignore_release) {
                 last_click = LONG_CLICK;
                 ignore_release=true;

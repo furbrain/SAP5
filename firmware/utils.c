@@ -55,6 +55,7 @@ void sys_reset(){
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
     int x;
 #pragma GCC diagnostic pop
+    INTERRUPT_GlobalDisable();
 	/* Unlock sequence */
 	SYSKEY = 0x00000000;
 	SYSKEY = 0xaa996655;
@@ -70,6 +71,7 @@ void sys_reset(){
 
 void utils_turn_off(int32_t a) {
     //turn off peripherals
+    beep_finish();
     PERIPH_EN_SetLow();
     while (!SWITCH_GetValue()) {
         delay_ms_safe(10);

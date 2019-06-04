@@ -19,6 +19,9 @@ void display_error(CEXCEPTION_T e) {
     const char *reason;
     const char *file;
     int line;
+    PERIPH_EN_SetHigh();
+    delay_ms_safe(100);
+    display_init();
     display_on();
     laser_off();
     display_clear_screen(true);
@@ -56,17 +59,21 @@ void initialise() {
 
 int main(void)
 {
+    int err_count = 0;
     CEXCEPTION_T e;
     initialise();
     beep_happy();
-    while (true)
+    while (err_count < 3)
     {
         Try {
             measure();
         }
         Catch(e) {
+            err_count++;
             display_error(e);
+            beep_sad();
         }
     }
+    utils_turn_off(0);
     return 0;
 }
