@@ -6,6 +6,7 @@
 #include "mcc_generated_files/pin_manager.h"
 #include "utils.h"
 #include "app_type.h"
+#include "beep.h"
 #ifndef BOOTLOADER
 #include "exception.h"
 #else

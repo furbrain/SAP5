@@ -104,13 +104,13 @@ static void solve_least_squares(gsl_matrix *input, gsl_vector *output, int num_p
 }
 
 
-void find_plane(double *data_array, int len, gsl_vector *result) {
+void find_plane(gsl_matrix *input, gsl_vector *result) {
+    int len = input->size1;
     GSL_VECTOR_RESIZE(lsq_output, len);
-    gsl_matrix_view input = gsl_matrix_view_array(data_array, len, 3);
     //initialise variables
     gsl_vector_set_all(&lsq_output, 1.0);
     //calculate plane
-    solve_least_squares(&input.matrix, &lsq_output, 3, result);
+    solve_least_squares(input, &lsq_output, 3, result);
     //process results
     normalise(result);
 }
@@ -219,7 +219,7 @@ static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *ce
 
     gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, &T, ellipsoid, 0.0, &temp1);
     gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, &temp1, &T, 0.0, &temp2);
-    gsl_matrix_scale(&temp2_submat.matrix,-1.0*gsl_matrix_get(&temp2,3,3));
+    gsl_matrix_scale(&temp2_submat.matrix,-1.0 / gsl_matrix_get(&temp2,3,3));
     
     //return sqrt(temp2)
     sqrtm(&temp2_submat.matrix, results);
@@ -242,7 +242,6 @@ void calibrate(const gsl_matrix *data, const int len, matrixx result) {
     make_ellipsoid_matrix(&a4, &params);
     get_centre_coords(&a4, &centre);
     convert_ellipsoid_to_transform(&a4, &centre, &transform);
-
     //prepare output
     memcpy(result, identity, sizeof(identity));
     result[0][3] = -1.0*gsl_vector_get(&centre, 0);

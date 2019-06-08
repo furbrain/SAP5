@@ -135,7 +135,7 @@ int collect_data_around_axis(gsl_matrix *mag_data, gsl_matrix *grav_data, int of
     int i, j;
     for (i=0; i< 8; i++) {
         //delay to let user move to position
-        delay_ms_safe(1500);
+        delay_ms_safe(5000);
         //read in samples
         for (j=0; j<CALIBRATION_SUB_SAMPLES; j++) {
             sensors_read_uncalibrated(&sensors);
@@ -155,7 +155,10 @@ int collect_data_around_axis(gsl_matrix *mag_data, gsl_matrix *grav_data, int of
         median = gsl_matrix_row(&temp_grav_readings,CALIBRATION_SUB_SAMPLES/2);
         gsl_matrix_set_row(grav_data, i+offset, &median.vector);
         //beep to let user know to move to next position.
+        laser_off();
+        delay_ms(300);
         beep_beep();
+        laser_on();
     }
     beep_happy();
     return 8;
@@ -177,7 +180,7 @@ void calibrate_sensors(int32_t a) {
     char text[30];
     matrixx accel_mat, mag_mat;
     int z_axis_count, y_axis_count, data_length;
-    double error;
+    double grav_error, mag_error;
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
@@ -213,24 +216,33 @@ void calibrate_sensors(int32_t a) {
     display_on();
     display_clear_screen(true);
     display_write_multiline(0, "Processing", true);
+    delay_ms_safe(2000);
     // calibrate magnetometer
+    write_data(leg_store.raw, &mag_readings_data, CALIBRATION_SAMPLES*3*4);
+    write_data(&leg_store.raw[0x800], &grav_readings_data, CALIBRATION_SAMPLES*3*4);
     calibrate(&mag_readings, data_length, mag_mat);
-    error = check_calibration(&mag_readings, data_length, mag_mat);
-    sprintf(text, "Mag Err:  %.2f%%", error);
+    mag_error = check_calibration(&mag_readings, data_length, mag_mat);
+    sprintf(text, "Mag Err:  %.2f%%", mag_error);
     display_write_multiline(2,text, true);
     wdt_clear();
     // calibrate accelerometer
     calibrate(&grav_readings, data_length, accel_mat);
-    error = check_calibration(&grav_readings, data_length, accel_mat);
-    sprintf(text, "Grav Err: %.2f%%", error);
+    grav_error = check_calibration(&grav_readings, data_length, accel_mat);
+    sprintf(text, "Grav Err: %.2f%%", grav_error);
     display_write_multiline(4,text, true);
-    memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
-    memcpy(config.calib.mag, mag_mat, sizeof(matrixx));
-    wdt_clear();
-    config_save();
-    display_write_multiline(6, "Done", true);
     delay_ms_safe(4000);
-    
+    if (isnan(grav_error) || isnan(mag_error)) {
+        display_write_multiline(2, "Calibration failed\nNot Saved", true);
+    } else if ((grav_error > 5.0) || (mag_error > 5.0)) {
+        display_write_multiline(2, "Poor calibration\nNot saved", true);
+    } else {
+        display_write_multiline(2, "Calibration Good\nSaved.", true);
+        memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
+        memcpy(config.calib.mag, mag_mat, sizeof(matrixx));
+        wdt_clear();
+        config_save();
+    }
+    delay_ms_safe(4000);    
 }
 
 void laser_cal() {

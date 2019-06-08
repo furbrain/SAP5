@@ -9,7 +9,7 @@
 #include "exception.h"
 #include "eigen3x3.h"
 #include "gsl_static.h"
-
+#include "mag_sample_data.inc"
 
 void suiteSetUp(void) {
     exception_init();
@@ -200,17 +200,28 @@ void test_find_plane() {
     double error;
     GSL_VECTOR_DECLARE(result, 3);
     gsl_vector_view expected;
+    gsl_matrix_view input;
     #ifdef __MPLAB_DEBUGGER_SIMULATOR
     TEST_IGNORE_MESSAGE("This fails on simulator due to bugs in the sim :(");
     #endif
     for (i=0; i<5; i++) {
-        find_plane((double*)test_cases[i].data, 40, &result);
+    	input = gsl_matrix_view_array((double*)test_cases[i].data, 40, 3);
+        find_plane(&input.matrix, &result);
         expected = gsl_vector_view_array(test_cases[i].result, 3);
         gsl_vector_sub(&result, &expected.vector);
         snprintf(text, 80, "Iteration: %d", i);
         
         TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.01, 0, gsl_blas_dnrm2(&result), text);
     }
+}
+
+void test_find_plane2() {
+    GSL_VECTOR_DECLARE(result, 3);
+    gsl_matrix_view mag_view = gsl_matrix_view_array(mag_sample_data,16,3);
+    gsl_matrix_view aiming = gsl_matrix_submatrix(&mag_view.matrix,8,0,8,3);
+    find_plane(&mag_view.matrix, &result);
+    printf("find_plane2\n");
+    gsl_vector_fprintf(stdout, &result,"%f");
 }
 
 void test_sqrtm() {
@@ -249,25 +260,28 @@ void test_calibrate() {
     vectorr vector, v_result;
     int k;
     double magnitude;
-    TEST_IGNORE_MESSAGE("This currently fails as I have changed CALIBRATION_SAMPLES - need to fix!");
-    gsl_matrix_view cal1_m = gsl_matrix_view_array(cal1,180,3);
+    gsl_matrix_view cal1_m = gsl_matrix_view_array(mag_sample_data,16,3);
     #ifdef __MPLAB_DEBUGGER_SIMULATOR
     TEST_IGNORE_MESSAGE("This fails on simulator due to bugs in the sim :(");
     #endif
     Try {
-    calibrate(&cal1_m.matrix, 180, result);
+    calibrate(&cal1_m.matrix, 16, result);
     }
     Catch(e) {
         exception_get_details(&reason, &file, &line);
         printf("%s: %s: %s: %d", exception_get_string(e), reason, file, line);
     }
-    for (k=0; k<200; k++) {
-        vector[0] = cal1[k*3];
-        vector[1] = cal1[k*3+1];
-        vector[2] = cal1[k*3+2];
+    for (k=0; k<3; k++) {
+        printf("MTX: %12f, %12f, %12f, %12f\n", result[k][0], result[k][1], result[k][2], result[k][3]);
+    }
+    for (k=0; k<16; k++) {
+        vector[0] = mag_sample_data[k*3];
+        vector[1] = mag_sample_data[k*3+1];
+        vector[2] = mag_sample_data[k*3+2];
         apply_matrix(vector, result, v_result);
         magnitude = v_result[0]*v_result[0] + v_result[1]*v_result[1] + v_result[2]*v_result[2];
-        snprintf(text, 80, "Data: %f, %f, %f, %f", result[0][0], result[1][1], result[1][2], result[1][3]);
-        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.05, 1.0, magnitude, text);
+        printf("mag: %f\n", fabs(1.0-magnitude));
+        snprintf(text, 80, "Data: %d", k);
+        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.07, 1.0, magnitude, text);
     }
 }

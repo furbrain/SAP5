@@ -134,6 +134,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>.</Elem>
+    <Elem>../bootloader</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

@@ -37,7 +37,7 @@ void normalise(gsl_vector *vector);
 /* find the vector describing a plane from a set of points *
  * data is a set of vectorrs, axes hold the two axes that should be varying most *
  * len is the number of data points */
-void find_plane(double *data_array, int len, gsl_vector *result);
+void find_plane(gsl_matrix *input, gsl_vector *result);
         
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 

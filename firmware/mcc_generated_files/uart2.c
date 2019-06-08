@@ -422,10 +422,6 @@ UART2_STATUS UART2_StatusGet (void)
     return U2STA;
 }
 
-void UART2_ReceiveBufferClear(void) {
-    uint8_t buffer[UART2_CONFIG_RX_BYTEQ_LENGTH];
-    UART2_ReadBuffer(buffer, UART2_CONFIG_RX_BYTEQ_LENGTH);
-}
 
 
 /**
