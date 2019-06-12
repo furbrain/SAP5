@@ -19,13 +19,6 @@ GSL_MATRIX_DECLARE(lsq_input, CALIBRATION_SAMPLES, 9);
 GSL_VECTOR_DECLARE(lsq_output, CALIBRATION_SAMPLES);
 
 
-const matrixx identity = {
-    {1.0, 0, 0, 0},
-    {0, 1.0, 0, 0},
-    {0, 0, 1.0, 0}
-};
-
-
 void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c) {
     int i, j, k;
     for (i=0; i<3; i++) {
@@ -35,34 +28,31 @@ void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c) {
     }
 }
 
-/* returns b . a where a is a vector and b is a matrix. Result in vector C, where A and C are pointers to double[3]
- * and B is a pointer to double[16] */
-void apply_matrix(const vectorr a, matrixx b, vectorr c) {
-    int i;
-    int j;
-    for (i=0; i<3; i++){
-        c[i] = 0;
-        for(j=0; j<3; j++) {
-            c[i] += a[j]* b[i][j];
-        }
-        c[i] += b[i][3];
-    }
+/* create a calibration structure from a data array*/
+calibration calibration_from_doubles(double *data) {
+    calibration c;
+    c.transform = gsl_matrix_view_array(data,3,3);
+    c.offset = gsl_vector_view_array(&data[9],3);
+    return c;
 }
 
-void matrix_multiply(matrixx calibration, matrixx delta) {
-    int i,j,k;
-    matrixx cal_copy;
-    memcpy(cal_copy, calibration, sizeof(matrixx));
-    for (i=0; i<3; i++) {
-        for (j=0; j<4; j++) {
-            calibration[i][j] = 0;
-            for (k=0; k<3; k++) {
-                calibration[i][j] += delta[i][k]* cal_copy[k][j];
-            }
-            calibration[i][j] += delta[i][3] * (j==3 ? 1 : 0);
-        }
-    }
+
+/* copy data from src calibration to dest*/
+void calibration_memcpy(calibration *dest, const calibration *src) {
+    gsl_matrix_memcpy(&dest->transform.matrix, &src->transform.matrix);
+    gsl_vector_memcpy(&dest->offset.vector, &src->offset.vector);
 }
+
+
+/* returns b . a where a is a vector and b is a calibration transform. Result in vector c*/
+void apply_calibration(const gsl_vector *a, const calibration *b, gsl_vector *c) {
+    GSL_VECTOR_DECLARE(temp,3);
+    gsl_vector_memcpy(&temp, a);
+    gsl_vector_add(&temp, &b->offset.vector);
+    gsl_blas_dgemv(CblasNoTrans, 1.0, &b->transform.matrix, &temp, 0, c);
+}
+
+
 /* take magnetism and acceleration vectors in device coordinates
    and return devices orientation as a rotation matrix */
 void maths_get_orientation_as_matrix(const gsl_vector *magnetism,
@@ -225,13 +215,9 @@ static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *ce
     sqrtm(&temp2_submat.matrix, results);
 }
 
-void calibrate(const gsl_matrix *data, const int len, matrixx result) {
-    int i,j;
-    matrixx ellipsoid;
+void calibrate(const gsl_matrix *data, const int len, calibration *result) {
     GSL_MATRIX_DECLARE(a4, 4, 4);
-    GSL_MATRIX_DECLARE(transform, 3, 3);
     GSL_VECTOR_DECLARE(params, 9);
-    GSL_VECTOR_DECLARE(centre, 3);
 
     GSL_MATRIX_RESIZE(lsq_input, len, 9);
     GSL_VECTOR_RESIZE(lsq_output, len);
@@ -240,20 +226,8 @@ void calibrate(const gsl_matrix *data, const int len, matrixx result) {
     gsl_vector_set_all(&lsq_output,1.0);
     solve_least_squares(&lsq_input, &lsq_output, 9, &params);
     make_ellipsoid_matrix(&a4, &params);
-    get_centre_coords(&a4, &centre);
-    convert_ellipsoid_to_transform(&a4, &centre, &transform);
-    //prepare output
-    memcpy(result, identity, sizeof(identity));
-    result[0][3] = -1.0*gsl_vector_get(&centre, 0);
-    result[1][3] = -1.0*gsl_vector_get(&centre, 1);
-    result[2][3] = -1.0*gsl_vector_get(&centre, 2);
-    //result[0:3,0:3] = a3
-    for (i=0; i<3; i++) {
-        for (j=0; j<3; j++) {
-            ellipsoid[i][j] = gsl_matrix_get(&transform, i, j);
-        }
-        ellipsoid[i][3] = 0.0;
-    }
-    matrix_multiply(result, ellipsoid);
+    get_centre_coords(&a4, &result->offset.vector);
+    convert_ellipsoid_to_transform(&a4, &result->offset.vector, &result->transform.matrix);
+    gsl_vector_scale(&result->offset.vector,-1);
 }
 

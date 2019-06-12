@@ -8,6 +8,8 @@
 #include "mcc_generated_files/rtcc.h"
 #include "utils.h"
 #include "exception.h"
+#include <gsl/gsl_vector.h>
+#include "gsl_static.h"
 
 #define MPU_ADDRESS 0x68
 #define MPU_COMMAND(command,data) write_i2c_data2(MPU_ADDRESS,command,data)
@@ -181,10 +183,16 @@ void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors) {
 }
 
 void sensors_uncalibrated_to_cooked(struct COOKED_SENSORS *cooked){
-    struct COOKED_SENSORS temp_cooked;
-    memcpy(&temp_cooked, cooked, sizeof(temp_cooked));
-    apply_matrix(temp_cooked.accel, config.calib.accel, cooked->accel);
-    apply_matrix(temp_cooked.mag, config.calib.mag, cooked->mag);
+    GSL_VECTOR_DECLARE(temp_accel,3);
+    GSL_VECTOR_DECLARE(temp_mag,3);
+    calibration mag_cal = calibration_from_doubles(config.calib.mag);
+    calibration grav_cal = calibration_from_doubles(config.calib.accel);
+    gsl_vector_view accel = gsl_vector_view_array(cooked->accel, 3);
+    gsl_vector_view mag = gsl_vector_view_array(cooked->mag, 3);
+    gsl_vector_memcpy(&temp_accel, &accel.vector);
+    gsl_vector_memcpy(&temp_mag, &mag.vector);
+    apply_calibration(&temp_accel, &grav_cal, &accel.vector);
+    apply_calibration(&temp_mag, &mag_cal, &mag.vector);
 }
 
 

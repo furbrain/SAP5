@@ -15,10 +15,10 @@ struct RAW_SENSORS {
 };
 
 struct COOKED_SENSORS {
-    vectorr accel;    //measured in g
+    double accel[3];    //measured in g
     double temp;        //measured in degs C
-    vectorr gyro;     //measured in degress per second
-    vectorr mag;      //measured in uT
+    double gyro[3];     //measured in degress per second
+    double mag[3];      //measured in uT
 };
 
 void sensors_init();

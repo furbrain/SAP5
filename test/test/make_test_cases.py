@@ -196,8 +196,16 @@ def make_convert_to_device_fixtures(samples):
         vector = np.random.random((3,))
         res = quaternion.rotate_vectors(orientation, vector)
         print '{',bracketiser(vector), ',', bracketiser(list(reversed(-1*res[0:2]))),'},'
-    
+        
+def make_apply_calibration_fixtures(samples):
+    for i in range(samples):
+        src = get_random_vector()[:3]
+        trans = get_random_matrix()[:3,:3]
+        offset = get_random_vector()[:3]
+        result = np.dot(trans,src+offset)
+        print '{' + ','.join(bracketiser(x) for x in (src, trans, offset, result)) + '},'
 
 np.set_printoptions(suppress=True, precision=4)
 np.random.seed(10)
-make_convert_to_device_fixtures(20)
+make_apply_calibration_fixtures(20)
+#make_convert_to_device_fixtures(20)

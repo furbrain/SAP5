@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <gsl/gsl_sort_vector.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_vector.h>
 #include "display.h"
 #include "font.h"
 #include "sensors.h"
@@ -97,20 +99,18 @@ void calibrate_axes(int dummy) {
 }
 
 
-double check_calibration(const gsl_matrix *data, int len, matrixx calibration) {
-    vectorr vector, v_result;
+double check_calibration(const gsl_matrix *data, int len, calibration *cal) {
+    GSL_VECTOR_DECLARE(result,3);
     int k;
     double magnitude;
-    double max_error=0;
+    double error=0;
     for (k=0; k<len; k++) {
-        vector[0] = gsl_matrix_get(data,k,0);
-        vector[1] = gsl_matrix_get(data,k,1);
-        vector[2] = gsl_matrix_get(data,k,2);
-        apply_matrix(vector, calibration, v_result);
-        magnitude = v_result[0]*v_result[0] + v_result[1]*v_result[1] + v_result[2]*v_result[2];
-        max_error += fabs(magnitude-1.0);
+        gsl_vector_const_view row = gsl_matrix_const_row(data, k);
+        apply_calibration(&row.vector, cal, &result);
+        magnitude = gsl_blas_dnrm2(&result);
+        error += fabs(magnitude-1.0);
     }
-    return (max_error/len)*100;
+    return (error/len)*100;
 }
 
 double get_gyro_offset(int axis) {
@@ -178,7 +178,8 @@ int collect_data_around_axis(gsl_matrix *mag_data, gsl_matrix *grav_data, int of
 
 void calibrate_sensors(int32_t a) {
     char text[30];
-    matrixx accel_mat, mag_mat;
+    CALIBRATION_DECLARE(grav_cal);
+    CALIBRATION_DECLARE(mag_cal);
     int z_axis_count, y_axis_count, data_length;
     double grav_error, mag_error;
 /* Brief summary of plan:
@@ -220,14 +221,14 @@ void calibrate_sensors(int32_t a) {
     // calibrate magnetometer
     write_data(leg_store.raw, &mag_readings_data, CALIBRATION_SAMPLES*3*4);
     write_data(&leg_store.raw[0x800], &grav_readings_data, CALIBRATION_SAMPLES*3*4);
-    calibrate(&mag_readings, data_length, mag_mat);
-    mag_error = check_calibration(&mag_readings, data_length, mag_mat);
+    calibrate(&mag_readings, data_length, &mag_cal);
+    mag_error = check_calibration(&mag_readings, data_length, &mag_cal);
     sprintf(text, "Mag Err:  %.2f%%", mag_error);
     display_write_multiline(2,text, true);
     wdt_clear();
     // calibrate accelerometer
-    calibrate(&grav_readings, data_length, accel_mat);
-    grav_error = check_calibration(&grav_readings, data_length, accel_mat);
+    calibrate(&grav_readings, data_length, &grav_cal);
+    grav_error = check_calibration(&grav_readings, data_length, &grav_cal);
     sprintf(text, "Grav Err: %.2f%%", grav_error);
     display_write_multiline(4,text, true);
     delay_ms_safe(4000);
@@ -237,8 +238,10 @@ void calibrate_sensors(int32_t a) {
         display_write_multiline(2, "Poor calibration\nNot saved", true);
     } else {
         display_write_multiline(2, "Calibration Good\nSaved.", true);
-        memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
-        memcpy(config.calib.mag, mag_mat, sizeof(matrixx));
+        calibration conf_grav = calibration_from_doubles(config.calib.accel);
+        calibration conf_mag = calibration_from_doubles(config.calib.mag);
+        calibration_memcpy(&conf_grav, &grav_cal);
+        calibration_memcpy(&conf_mag, &mag_cal);
         wdt_clear();
         config_save();
     }

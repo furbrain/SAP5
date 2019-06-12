@@ -41,8 +41,8 @@ struct __attribute__((aligned(8))) CONFIG {
         
     } axes;
     struct {
-        matrixx accel;
-        matrixx mag;
+        double accel[12];
+        double mag[12];
         double laser_offset;
     } calib;
     uint8_t display_style;

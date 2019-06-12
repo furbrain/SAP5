@@ -4,6 +4,8 @@
 #include "memory.h"
 #include "mem_locations.h"
 #include "exception.h"
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
 
 #include "config.h"
 
@@ -13,8 +15,8 @@ const
 struct CONFIG default_config = {
         {{4, 0, 5}, {0, 4, 5}},                   //axis orientation
         { //calib section
-            {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //accel matrix
-            {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //mag matrix
+            {1,0,0, 0,1,0, 0,0,1, 0,0,0}, //accel matrix
+            {1,0,0, 0,1,0, 0,0,1, 0,0,0}, //mag matrix
             0.090                              //laser offset
         },
         POLAR,                               //Polar display style
