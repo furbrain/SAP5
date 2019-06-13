@@ -49,6 +49,12 @@ void normalise(gsl_vector *vector);
  * len is the number of data points */
 void find_plane(gsl_matrix *input, gsl_vector *result);
 
+/* take the vector describing a plane and produce a rotation that will rotate that
+ * plane to be perpindicular to y-axis. Requires the original vector to be close to
+ * the y-axis*/
+void plane_to_rotation(const gsl_vector *plane, gsl_matrix *rotation);
+
+
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
 void calibrate(const gsl_matrix *data, int len, calibration *result);

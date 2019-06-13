@@ -243,6 +243,48 @@ void test_find_plane2() {
     TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(mag_expected, result_data, 3, "mag");
 }
 
+void test_plane_to_rotation() {
+    char text[20];
+    double source[20][3]  = {
+       {-0.1905,-0.9759,-0.1063} ,
+       {-0.0994,0.9936,0.0532} ,
+       {0.1099,0.9939,-0.0006} ,
+       {0.104,-0.9873,0.1198} ,
+       {-0.1639,-0.9778,0.1302} ,
+       {-0.1804,0.9809,0.0729} ,
+       {0.0049,-0.9804,0.1971} ,
+       {-0.045,0.9912,0.1246} ,
+       {-0.0832,-0.9926,-0.0883} ,
+       {0.0857,-0.9824,-0.1657} ,
+       {0.1426,0.9896,0.0168} ,
+       {-0.0696,0.9963,-0.0505} ,
+       {-0.0264,-0.9994,0.0233} ,
+       {-0.0053,0.9989,0.0471} ,
+       {-0.0404,0.9974,0.0601} ,
+       {-0.0087,0.9925,0.1218} ,
+       {-0.0722,-0.9841,-0.1623} ,
+       {0.0796,0.9835,-0.1626} ,
+       {0.1311,-0.9796,0.1525} ,
+       {-0.0505,0.9824,-0.18}        
+    };
+    int i;
+    GSL_MATRIX_DECLARE(rotation,3,3);
+    GSL_VECTOR_DECLARE(result,3);
+    double target[3] = {0,1,0};
+    for (i=0; i< 20; i++) {
+        gsl_vector_view source_v = gsl_vector_view_array(source[i],3);
+        plane_to_rotation(&source_v.vector,&rotation);
+        if (gsl_vector_get(&source_v.vector,1)<0) {
+            gsl_vector_scale(&source_v.vector, -1);
+        }
+        gsl_blas_dgemv(CblasNoTrans, 1.0, &rotation, &source_v.vector, 0, &result);
+        snprintf(text,20,"Iteration %d", i);
+        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.000001, 0, gsl_vector_get(&result, 0), text);
+        TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(1, gsl_vector_get(&result, 1), text);
+        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.000001, 0, gsl_vector_get(&result, 2), text);
+    }
+}
+
 void test_sqrtm() {
     char text[80];
     struct test_field {

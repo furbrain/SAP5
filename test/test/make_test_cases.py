@@ -204,8 +204,18 @@ def make_apply_calibration_fixtures(samples):
         offset = get_random_vector()[:3]
         result = np.dot(trans,src+offset)
         print '{' + ','.join(bracketiser(x) for x in (src, trans, offset, result)) + '},'
+        
+def make_plane_to_rotation_fixtures(samples):
+    for i in range(samples):
+        orientation  = np.quaternion(1,0,0,0)
+        orientation *= np.exp(quaternion.x * np.random.uniform(-0.1,0.1))
+        orientation *= np.exp(quaternion.z * np.random.uniform(-0.1,0.1)) 
+        z = quaternion.rotate_vectors(orientation,[0,1,0])
+        if random.choice([True,False]):
+            z *= -1
+        print bracketiser(z),','
 
 np.set_printoptions(suppress=True, precision=4)
 np.random.seed(10)
-make_apply_calibration_fixtures(20)
-#make_convert_to_device_fixtures(20)
+
+make_plane_to_rotation_fixtures(20)
