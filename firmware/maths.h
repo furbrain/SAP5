@@ -60,8 +60,18 @@ void plane_to_rotation(const gsl_vector *plane, gsl_matrix *rotation);
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
-void calibrate(const gsl_matrix *data, int len, calibration *result);
+/* find the calibration matrix that makes data best fit into a rotated ellipsoid*/
+void fit_ellipsoid(const gsl_matrix *data, int len, calibration *result);
 
+
+/* given a pre-existing calibration, find the rotation in x and z axes that makes the data given
+ * all subtend the same angle form the y-axis ie aligns it with the laser pointer*/
 void align_laser(const gsl_matrix *data, calibration *cal);
+
+
+/* given a pre-existing set of data, find the rotation in th y-axis that makes the 
+ * calculated magnetic dip have least variance*/
+double sync_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
+                    const gsl_matrix *grav_data, calibration *grav_cal);
 
 #endif

@@ -8,6 +8,8 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_blas.h>
+#include <gsl/gsl_min.h>
+#include <gsl/gsl_statistics.h>
 #include "gsl_static.h"
 #include "maths.h"
 #include "display.h"
@@ -88,6 +90,17 @@ void maths_get_orientation_as_vector(const gsl_vector *magnetism,
     gsl_vector_memcpy(orientation, &answer.vector);
 }
 
+void maths_get_orientation_of_multiple_vectors(const gsl_matrix *magnetism,
+        const gsl_matrix *acceleration,
+        gsl_matrix *orientation) {
+    int i;
+    for (i=0; i< magnetism->size1; ++i) {
+        gsl_vector_const_view mag_row = gsl_matrix_const_row(magnetism, i);
+        gsl_vector_const_view grav_row = gsl_matrix_const_row(acceleration, i);
+        gsl_vector_view out_row = gsl_matrix_row(orientation, i);
+        maths_get_orientation_as_vector(&mag_row.vector, &grav_row.vector, &out_row.vector);
+    }    
+}
 
 
 void normalise(gsl_vector *vector) {
@@ -252,7 +265,7 @@ static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *ce
     sqrtm(&temp2_submat.matrix, results);
 }
 
-void calibrate(const gsl_matrix *data, const int len, calibration *result) {
+void fit_ellipsoid(const gsl_matrix *data, const int len, calibration *result) {
     GSL_MATRIX_DECLARE(a4, 4, 4);
     GSL_VECTOR_DECLARE(params, 9);
 
@@ -284,5 +297,77 @@ void align_laser(const gsl_matrix *data, calibration *cal) {
     plane_to_rotation(&plane, &rotation);
     gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &rotation, &cal->transform.matrix, 0, &temp);
     gsl_matrix_memcpy(&cal->transform.matrix, &temp);
+}
+
+struct sync_params {
+    const gsl_matrix *mag;
+    const gsl_matrix *grav;
+    bool display;
+};
+
+
+double sync_sensor_value(double x, void *params) {
+    GSL_VECTOR_DECLARE(angles, CALIBRATION_SAMPLES);
+    GSL_VECTOR_DECLARE(mag, 3);
+    GSL_VECTOR_DECLARE(grav, 3);    
+    struct sync_params *p = (struct sync_params*) params;
+    GSL_VECTOR_RESIZE(angles, p->mag->size1);
+    int i;
+    double f;
+    double c = cos(x);
+    double s = sin(x);
+    for (i=0; i< angles.size; ++i) {
+        gsl_matrix_get_row(&mag, p->mag, i);
+        gsl_matrix_get_row(&grav, p->grav, i);
+        gsl_vector_scale(&mag, 1/gsl_blas_dnrm2(&mag));
+        gsl_vector_scale(&grav, 1/gsl_blas_dnrm2(&grav));
+        gsl_linalg_givens_gv(&mag, 0, 2, c, s);
+        gsl_blas_ddot(&mag, &grav, &f);
+        gsl_vector_set(&angles, i, f);
+        if (p->display) {
+            printf("Angle %d: %f\n", i, f);
+        }
+    }
+    return gsl_stats_sd(angles.data, angles.stride, angles.size);
+}
+
+double sync_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
+                    const gsl_matrix *grav_data, calibration *grav_cal) {
+    GSL_MATRIX_DECLARE(fixed_mag, CALIBRATION_SAMPLES, 3);
+    GSL_MATRIX_DECLARE(fixed_grav, CALIBRATION_SAMPLES, 3);
+    GSL_MATRIX_RESIZE(fixed_mag, mag_data->size1, 3);
+    GSL_MATRIX_RESIZE(fixed_grav, grav_data->size1, 3);
+
+    struct sync_params params = {&fixed_mag, &fixed_grav, true};
+    
+    gsl_min_fminimizer *minimizer =  gsl_min_fminimizer_alloc(gsl_min_fminimizer_goldensection);
+    gsl_function F;
+    int iter = 0;
+    int status;
+    double a, b, result;
+    /* correct current data*/
+    apply_calibration_to_matrix(mag_data, mag_cal, &fixed_mag);
+    apply_calibration_to_matrix(grav_data, grav_cal, &fixed_grav);
+    F.function = sync_sensor_value;
+    F.params = &params;
+    printf("value at 0: %f", sync_sensor_value(0,&params));
+    params.display = false;
+    gsl_min_fminimizer_set(minimizer, &F, 0, -1, 1);
+    do {
+        iter++;
+        status = gsl_min_fminimizer_iterate(minimizer);
+        a = gsl_min_fminimizer_f_lower(minimizer);
+        b = gsl_min_fminimizer_f_upper(minimizer);
+
+        printf("Iteration %d: %f, %f\n", iter, a, b);
+        a = gsl_min_fminimizer_x_lower(minimizer);
+        b = gsl_min_fminimizer_x_upper(minimizer);
+
+        status = gsl_min_test_interval (a, b, 0.0001, 0.0);
+        //printf("Iteration %d: %f, %f", iter, a, b);
+    } while (status == GSL_CONTINUE && iter < 100);
+    result = gsl_min_fminimizer_x_minimum(minimizer);
+    gsl_min_fminimizer_free(minimizer);
+    return result*180/M_PI;
 }
 

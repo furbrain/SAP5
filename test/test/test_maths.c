@@ -234,7 +234,7 @@ void test_find_plane2() {
     int i;
     //calibrate and adjust planar shots...
     gsl_matrix_view mag_view = gsl_matrix_view_array(mag_sample_data,16,3);
-    calibrate(&mag_view.matrix, 16, &cal);
+    fit_ellipsoid(&mag_view.matrix, 16, &cal);
     for (i=0; i<8; ++i) {
         gsl_vector_view src = gsl_matrix_row(&mag_view.matrix,i+8);
         gsl_vector_view dest = gsl_matrix_row(&calibrated,i);
@@ -314,7 +314,7 @@ void test_sqrtm() {
     }
 }
 
-void test_calibrate() {
+void test_fit_ellipsoid() {
     CEXCEPTION_T e;
     const char *file;
     const char *reason;
@@ -329,7 +329,7 @@ void test_calibrate() {
     TEST_IGNORE_MESSAGE("This fails on simulator due to bugs in the sim :(");
     #endif
     Try {
-    calibrate(&cal1_m.matrix, 16, &result);
+        fit_ellipsoid(&cal1_m.matrix, 16, &result);
     }
     Catch(e) {
         exception_get_details(&reason, &file, &line);
@@ -350,13 +350,38 @@ void test_calibrate() {
     }
 }
 
+void test_sync_sensors() {
+    CEXCEPTION_T e;
+    const char *file;
+    const char *reason;
+    int line;
+    gsl_matrix_const_view mag_data = gsl_matrix_const_view_array(mag_sample_data, 16, 3);
+    gsl_matrix_const_view grav_data = gsl_matrix_const_view_array(grav_sample_data, 16, 3);
+    gsl_matrix_const_view mag_spins = gsl_matrix_const_submatrix(&mag_data.matrix,8,0,8,3);
+    gsl_matrix_const_view grav_spins = gsl_matrix_const_submatrix(&grav_data.matrix,8,0,8,3);
+    
+    CALIBRATION_DECLARE(mag_cal);
+    CALIBRATION_DECLARE(grav_cal);
+    
+    double result;
+    
+    fit_ellipsoid(&mag_data.matrix, 16, &mag_cal);
+    fit_ellipsoid(&grav_data.matrix, 16, &grav_cal);
+    align_laser(&mag_spins.matrix, &mag_cal);
+    align_laser(&grav_spins.matrix, &grav_cal);
+
+    result = sync_sensors(&mag_data.matrix, &mag_cal, 
+                          &grav_data.matrix, &grav_cal);
+    TEST_ASSERT_DOUBLE_WITHIN(0.02, 0.6803, result);
+}
+
 void run_all_calibration_on_data(const gsl_matrix *data, gsl_matrix *output) {
     GSL_VECTOR_DECLARE(result, 3);
     CALIBRATION_DECLARE(cal);
     int i;
     //calibrate and adjust planar shots...
     gsl_matrix_const_view spins = gsl_matrix_const_submatrix(data,8,0,8,3);
-    calibrate(data, 16, &cal);
+    fit_ellipsoid(data, 16, &cal);
     align_laser(&spins.matrix, &cal);
     apply_calibration_to_matrix(data, &cal, output);
 }
