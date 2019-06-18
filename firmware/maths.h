@@ -28,6 +28,9 @@ void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c);
 /* returns b . a where a is a vector and b is a calibration transform. Result in vector c*/
 void apply_calibration(const gsl_vector *a, const calibration *b, gsl_vector *c);
 
+/* applies calibration cal to input, stores result in output*/
+void apply_calibration_to_matrix(const gsl_matrix *input, const calibration *cal, gsl_matrix *output);
+
 
 /* take magnetism and acceleration vectors in device coordinates
    and return devices orientation in world coordinates */
@@ -58,4 +61,7 @@ void plane_to_rotation(const gsl_vector *plane, gsl_matrix *rotation);
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
 void calibrate(const gsl_matrix *data, int len, calibration *result);
+
+void align_laser(const gsl_matrix *data, calibration *cal);
+
 #endif

@@ -52,6 +52,15 @@ void apply_calibration(const gsl_vector *a, const calibration *b, gsl_vector *c)
     gsl_blas_dgemv(CblasNoTrans, 1.0, &b->transform.matrix, &temp, 0, c);
 }
 
+void apply_calibration_to_matrix(const gsl_matrix *input, const calibration *cal, gsl_matrix *output) {
+    int i;
+    for (i=0; i< input->size1; ++i) {
+        gsl_vector_const_view in_row = gsl_matrix_const_row(input, i);
+        gsl_vector_view out_row = gsl_matrix_row(output, i);
+        apply_calibration(&in_row.vector, cal, &out_row.vector);
+    }
+}
+
 
 /* take magnetism and acceleration vectors in device coordinates
    and return devices orientation as a rotation matrix */
@@ -261,5 +270,23 @@ void calibrate(const gsl_matrix *data, const int len, calibration *result) {
     get_centre_coords(&a4, &result->offset.vector);
     convert_ellipsoid_to_transform(&a4, &result->offset.vector, &result->transform.matrix);
     gsl_vector_scale(&result->offset.vector,-1);
+}
+
+void align_laser(const gsl_matrix *data, calibration *cal) {
+    GSL_VECTOR_DECLARE(plane, 3);
+    GSL_MATRIX_DECLARE(rotation, 3, 3);
+    GSL_MATRIX_DECLARE(temp, 3, 3);
+    GSL_MATRIX_DECLARE(fixed_data, CALIBRATION_SAMPLES, 3);
+    GSL_MATRIX_RESIZE(fixed_data, data->size1, 3);
+    apply_calibration_to_matrix(data, cal, &fixed_data);
+    find_plane(&fixed_data, &plane);
+    if (gsl_vector_get(&plane,1) < 0) {
+        gsl_vector_scale(&plane, -1);
+    }
+    printf("laser alginment: ");
+    gsl_vector_fprintf(stdout, &plane, "%f");
+    plane_to_rotation(&plane, &rotation);
+    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &rotation, &cal->transform.matrix, 0, &temp);
+    gsl_matrix_memcpy(&cal->transform.matrix, &temp);
 }
 

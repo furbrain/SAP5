@@ -4,12 +4,15 @@
 #include <string.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_blas.h>
+#include <gsl/gsl_statistics.h>
 #include <xc.h>
 #include "test_maths_fixtures.inc"
 #include "exception.h"
 #include "eigen3x3.h"
 #include "gsl_static.h"
 #include "mag_sample_data.inc"
+
+#define DEGREES_PER_RADIAN 57.296
 
 void suiteSetUp(void) {
     exception_init();
@@ -344,5 +347,51 @@ void test_calibrate() {
         //printf("mag: %f\n", fabs(1.0-magnitude));
         //snprintf(text, 80, "Data: %d", k);
         TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.04, 1.0, magnitude, text);
+    }
+}
+
+void run_all_calibration_on_data(const gsl_matrix *data, gsl_matrix *output) {
+    GSL_VECTOR_DECLARE(result, 3);
+    CALIBRATION_DECLARE(cal);
+    int i;
+    //calibrate and adjust planar shots...
+    gsl_matrix_const_view spins = gsl_matrix_const_submatrix(data,8,0,8,3);
+    calibrate(data, 16, &cal);
+    align_laser(&spins.matrix, &cal);
+    apply_calibration_to_matrix(data, &cal, output);
+}
+
+void test_all_calibration() {
+    GSL_MATRIX_DECLARE(mag_results, 16, 3);
+    GSL_MATRIX_DECLARE(grav_results, 16, 3);
+    GSL_MATRIX_DECLARE(orientation, 8, 3);
+    gsl_matrix_view mag_view = gsl_matrix_view_array(mag_sample_data,16,3);
+    gsl_matrix_view grav_view = gsl_matrix_view_array(grav_sample_data,16,3);
+    int i;
+    run_all_calibration_on_data(&mag_view.matrix, &mag_results);
+    run_all_calibration_on_data(&grav_view.matrix, &grav_results);
+    for (i=0; i<8; i++) {
+        gsl_vector_view mag_row = gsl_matrix_row(&mag_results, i+8);
+        gsl_vector_view grav_row = gsl_matrix_row(&grav_results, i+8);
+        gsl_vector_view orient_row = gsl_matrix_row(&orientation, i);
+        maths_get_orientation_as_vector(&mag_row.vector,
+                                        &grav_row.vector,
+                                        &orient_row.vector);
+        double x = gsl_vector_get(&orient_row.vector, 0);
+        double y = gsl_vector_get(&orient_row.vector, 1);
+        double z = gsl_vector_get(&orient_row.vector, 2);
+        double compass = atan2(x, y) * DEGREES_PER_RADIAN;
+        if (compass < 0) compass +=360;
+        double extension =sqrt((x*x)+(y*y)); 
+        printf("Orientation: %d\t%f\t%+f\n", 
+                i, 
+                compass, 
+                atan2(z, extension) * DEGREES_PER_RADIAN);
+    }
+    printf("Total Cal:\n");
+    for (i=0; i<3; i++) {
+        gsl_vector_view column = gsl_matrix_column(&orientation, i);
+        double error = gsl_stats_absdev(column.vector.data, column.vector.stride, 8);
+        printf("Stdev: %d, %f\n", i, error * DEGREES_PER_RADIAN);
     }
 }
