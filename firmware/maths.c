@@ -118,32 +118,28 @@ void find_plane(gsl_matrix *input, gsl_vector *result) {
  * plane to be perpindicular to y-axis. Requires the original vector to be close to
  * the y-axis*/
 void plane_to_rotation(const gsl_vector *plane, gsl_matrix *rotation) {
-    GSL_MATRIX_DECLARE(rot_x, 3, 3);
-    GSL_MATRIX_DECLARE(rot_z, 3, 3);
     GSL_VECTOR_DECLARE(plane_copy, 3);
-    gsl_vector_view x_col_rotz = gsl_matrix_column(&rot_z, 0);
-    gsl_vector_view y_col_rotz = gsl_matrix_column(&rot_z, 1);
-    gsl_vector_view y_col_rotx = gsl_matrix_column(&rot_x, 1);
-    gsl_vector_view z_col_rotx = gsl_matrix_column(&rot_x, 2);
     double c, s;
-    gsl_matrix_set_identity(&rot_z);
-    gsl_matrix_set_identity(&rot_x);
+    int i;
     gsl_vector_memcpy(&plane_copy, plane);
     if (gsl_vector_get(plane,1)<0) {
         gsl_vector_scale(&plane_copy, -1);
     };
+    gsl_matrix_set_identity(rotation);
     // do z rotation
-    gsl_linalg_givens(gsl_vector_get(plane, 1), gsl_vector_get(plane, 0), &c, &s);
-    gsl_linalg_givens_gv(&y_col_rotz.vector, 1, 0, c, s);
-    gsl_linalg_givens_gv(&x_col_rotz.vector, 1, 0, c, s);
+    gsl_linalg_givens(gsl_vector_get(&plane_copy, 1), gsl_vector_get(&plane_copy, 0), &c, &s);
+    for (i=0; i<3; i++) {
+        gsl_vector_view column = gsl_matrix_column(rotation, i);
+        gsl_linalg_givens_gv(&column.vector, 1, 0, c, s);
+    }
     gsl_linalg_givens_gv(&plane_copy, 1, 0, c, s);
     
     // do x rotation
     gsl_linalg_givens(gsl_vector_get(&plane_copy, 1), gsl_vector_get(&plane_copy, 2), &c, &s);
-    gsl_linalg_givens_gv(&y_col_rotx.vector, 1, 2, c, s);
-    gsl_linalg_givens_gv(&z_col_rotx.vector, 1, 2, c, s);
-    
-    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &rot_x, &rot_z, 0, rotation);
+    for (i=0; i<3; i++) {
+        gsl_vector_view column = gsl_matrix_column(rotation, i);
+        gsl_linalg_givens_gv(&column.vector, 1, 2, c, s);
+    }
 }
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result) {
