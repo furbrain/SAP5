@@ -302,7 +302,6 @@ void align_laser(const gsl_matrix *data, calibration *cal) {
 struct sync_params {
     const gsl_matrix *mag;
     const gsl_matrix *grav;
-    bool display;
 };
 
 
@@ -324,9 +323,6 @@ double sync_sensor_value(double x, void *params) {
         gsl_linalg_givens_gv(&mag, 0, 2, c, s);
         gsl_blas_ddot(&mag, &grav, &f);
         gsl_vector_set(&angles, i, f);
-        if (p->display) {
-            printf("Angle %d: %f\n", i, f);
-        }
     }
     return gsl_stats_sd(angles.data, angles.stride, angles.size);
 }
@@ -345,29 +341,29 @@ double sync_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
     int iter = 0;
     int status;
     double a, b, result;
+    double c, s;
     /* correct current data*/
     apply_calibration_to_matrix(mag_data, mag_cal, &fixed_mag);
     apply_calibration_to_matrix(grav_data, grav_cal, &fixed_grav);
     F.function = sync_sensor_value;
     F.params = &params;
-    printf("value at 0: %f", sync_sensor_value(0,&params));
-    params.display = false;
     gsl_min_fminimizer_set(minimizer, &F, 0, -1, 1);
     do {
         iter++;
         status = gsl_min_fminimizer_iterate(minimizer);
-        a = gsl_min_fminimizer_f_lower(minimizer);
-        b = gsl_min_fminimizer_f_upper(minimizer);
-
-        printf("Iteration %d: %f, %f\n", iter, a, b);
         a = gsl_min_fminimizer_x_lower(minimizer);
         b = gsl_min_fminimizer_x_upper(minimizer);
-
         status = gsl_min_test_interval (a, b, 0.0001, 0.0);
-        //printf("Iteration %d: %f, %f", iter, a, b);
     } while (status == GSL_CONTINUE && iter < 100);
     result = gsl_min_fminimizer_x_minimum(minimizer);
+    c = cos(result);
+    s = sin(result);
+    for (iter=0; iter < 3; iter++) {
+        gsl_vector_view column = gsl_matrix_column(&mag_cal->transform.matrix, iter);
+        gsl_linalg_givens_gv(&column.vector,0,2,c,s);
+    }
     gsl_min_fminimizer_free(minimizer);
+    
     return result*180/M_PI;
 }
 

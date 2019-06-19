@@ -375,29 +375,19 @@ void test_sync_sensors() {
     TEST_ASSERT_DOUBLE_WITHIN(0.02, 0.6803, result);
 }
 
-void run_all_calibration_on_data(const gsl_matrix *data, gsl_matrix *output) {
-    GSL_VECTOR_DECLARE(result, 3);
-    CALIBRATION_DECLARE(cal);
-    int i;
+void run_all_calibration_on_data(const gsl_matrix *data, calibration *cal) {
     //calibrate and adjust planar shots...
     gsl_matrix_const_view spins = gsl_matrix_const_submatrix(data,8,0,8,3);
-    fit_ellipsoid(data, 16, &cal);
-    align_laser(&spins.matrix, &cal);
-    apply_calibration_to_matrix(data, &cal, output);
+    fit_ellipsoid(data, 16, cal);
+    align_laser(&spins.matrix, cal);
 }
 
-void test_all_calibration() {
-    GSL_MATRIX_DECLARE(mag_results, 16, 3);
-    GSL_MATRIX_DECLARE(grav_results, 16, 3);
+void print_accuracy(const gsl_matrix *mag, const gsl_matrix *grav) {
     GSL_MATRIX_DECLARE(orientation, 8, 3);
-    gsl_matrix_view mag_view = gsl_matrix_view_array(mag_sample_data,16,3);
-    gsl_matrix_view grav_view = gsl_matrix_view_array(grav_sample_data,16,3);
     int i;
-    run_all_calibration_on_data(&mag_view.matrix, &mag_results);
-    run_all_calibration_on_data(&grav_view.matrix, &grav_results);
     for (i=0; i<8; i++) {
-        gsl_vector_view mag_row = gsl_matrix_row(&mag_results, i+8);
-        gsl_vector_view grav_row = gsl_matrix_row(&grav_results, i+8);
+        gsl_vector_const_view mag_row = gsl_matrix_const_row(mag, i+8);
+        gsl_vector_const_view grav_row = gsl_matrix_const_row(grav, i+8);
         gsl_vector_view orient_row = gsl_matrix_row(&orientation, i);
         maths_get_orientation_as_vector(&mag_row.vector,
                                         &grav_row.vector,
@@ -419,4 +409,31 @@ void test_all_calibration() {
         double error = gsl_stats_absdev(column.vector.data, column.vector.stride, 8);
         printf("Stdev: %d, %f\n", i, error * DEGREES_PER_RADIAN);
     }
+    
+}
+
+void test_all_calibration() {
+    CALIBRATION_DECLARE(mag_cal);
+    CALIBRATION_DECLARE(grav_cal);
+    GSL_MATRIX_DECLARE(mag_results, 16, 3);
+    GSL_MATRIX_DECLARE(grav_results, 16, 3);
+
+    gsl_matrix_view mag_view = gsl_matrix_view_array(mag_sample_data,16,3);
+    gsl_matrix_view grav_view = gsl_matrix_view_array(grav_sample_data,16,3);
+
+    printf("Before calibration");
+    print_accuracy(&mag_view.matrix, &grav_view.matrix);
+
+    printf("Before syncing\n");
+    run_all_calibration_on_data(&mag_view.matrix, &mag_cal);
+    run_all_calibration_on_data(&grav_view.matrix, &grav_cal);
+    apply_calibration_to_matrix(&mag_view.matrix, &mag_cal, &mag_results);
+    apply_calibration_to_matrix(&grav_view.matrix, &grav_cal, &grav_results);
+    print_accuracy(&mag_results, &grav_results);
+
+    printf("After syncing\n");
+    sync_sensors(&mag_view.matrix, &mag_cal, &grav_view.matrix, &grav_cal);
+    apply_calibration_to_matrix(&mag_view.matrix, &mag_cal, &mag_results);
+    apply_calibration_to_matrix(&grav_view.matrix, &grav_cal, &grav_results);
+    print_accuracy(&mag_results, &grav_results);
 }
