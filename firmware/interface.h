@@ -19,9 +19,11 @@ enum INPUT {
 
 
 extern struct menu main_menu;
-
-enum INPUT get_input();
 extern volatile enum INPUT last_click;
+
+void interface_init();
+enum INPUT get_input();
 void show_menu(struct menu *menu);
 void show_status();
+void timeout_reset();
 #endif

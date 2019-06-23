@@ -1,6 +1,7 @@
 #define USE_AND_OR
 #include "config.h"
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -24,7 +25,7 @@
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
 
-volatile enum INPUT last_click = NONE;
+volatile enum INPUT last_click;
 
 
 
@@ -71,8 +72,7 @@ DECLARE_MENU(settings_menu, {    /* settings menu */
 DECLARE_MENU(calibration_menu, {
     /* calibrate menu */
     {"Sensors", Action, {calibrate_sensors}, 0},
-    //{"Laser",Action,laser_cal, 0},
-    //{"Align",Action,align_cal, 0},
+    {"Laser",Action, {calibrate_laser}, 0},
     {"Axes", Action, {calibrate_axes}, 0},
     {"Back", Back, {NULL}, 0},
 });
@@ -90,7 +90,12 @@ DECLARE_MENU(main_menu, {
 /* Timer 2 is our input poller counter */
 /* timer 3 is click length counter */
 /* timer 2 delay: 2ms  = */
-uint32_t last_activity_counter = 0;
+uint32_t last_activity_counter;
+
+void interface_init() {
+    last_activity_counter = 0;
+    last_click = NONE;
+}
 
 /* change notification interrupt, called every 2ms*/
 /* 0 = button pressed, 1 is released*/
@@ -100,16 +105,16 @@ void TMR2_CallBack(void) {
     last_activity_counter++;
     
     state = ((state << 1) | SWITCH_GetValue()) & 0xffff;
-    if (state == 0xf000) {
+    if (state == 0x8000) {
         /* we have just pressed the button and held it for 12 T2 cycles*/
-        if (last_activity_counter < 200) {
-            /* it's been less than 0.4s since the last press finished */
+        if (last_activity_counter < 100) {
+            /* it's been less than 0.2s since the last press finished */
             last_click = DOUBLE_CLICK;
             ignore_release = true;
         }
         last_activity_counter=0;
     }
-    if (state == 0x0fff) {
+    if (state == 0x7fff) {
         /* we have just released the button*/
         last_activity_counter = 0;
         if (!ignore_release) {
@@ -128,6 +133,10 @@ void TMR2_CallBack(void) {
     if (last_activity_counter>(config.timeout*500)) {
         utils_turn_off(0);
     }
+}
+
+void timeout_reset() {
+    last_activity_counter = 0;
 }
 
 void swipe_text(const char *text, bool left) {
@@ -160,7 +169,7 @@ enum INPUT get_input() {
     struct COOKED_SENSORS sensors;
     enum INPUT temp;
 
-    sensors_read_cooked(&sensors);
+    sensors_read_cooked(&sensors, 3);
     /* look for "flip" movements */
     //debug("f%.2g",sensors.gyro[1]);
     if (sensors.gyro[1] < -30.0) {

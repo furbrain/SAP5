@@ -9,6 +9,7 @@
 #include "laser.h"
 #include "exception.h"
 #include "config.h"
+#include "interface.h"
 //FIXME
 #include "beep.h"
 #define TXT_LENGTH 50
@@ -52,6 +53,7 @@ void initialise() {
     delay_ms_safe(100);
     display_init();
     sensors_init();
+    interface_init();
     beep_initialise();
     wdt_clear();
     display_clear_screen(true);    
