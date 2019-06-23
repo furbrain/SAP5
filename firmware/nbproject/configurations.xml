@@ -130,6 +130,7 @@
       <itemPath>../test/test/test_selector.c</itemPath>
       <itemPath>../test/test/test_datetime.c</itemPath>
       <itemPath>../test/test/test_beep.c</itemPath>
+      <itemPath>../test/test/test_calibrate.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

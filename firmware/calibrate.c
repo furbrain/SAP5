@@ -272,5 +272,24 @@ void calibrate_sensors(int32_t dummy) {
 }
 
 void calibrate_laser(int32_t dummy) {
+    GSL_VECTOR_DECLARE(samples, 10);
+    int i;
+    double distance, error, offset;
+    char text[20];
+    display_write_multiline(0,"Place a target 1m\nfrom the rearmost\npoint of the\ndevice", true);
+    delay_ms_safe(4000);
+    for (i=0; i<samples.size; ++i) {
+        distance = laser_read(LASER_SLOW, 4000);
+        gsl_vector_set(&samples, i, distance);
+        beep_beep();
+    }
+    distance = gsl_stats_mean(samples.data, samples.stride, samples.size);
+    error = gsl_stats_sd(samples.data, samples.stride, samples.size);
+    offset = 1.000 - distance;
+    config.calib.laser_offset = offset;
+    sprintf(text, "Offset: %.3f\nError: %.3f\nConfig saved", offset, error);
+    display_clear_screen(true);
+    display_write_multiline(0, text, true);
+    config_save();
 }
 

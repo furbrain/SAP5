@@ -60,7 +60,7 @@ void laser_off() {
 }
 
 
-double laser_read(enum LASER_SPEED speed, int timeout) {
+double laser_read_raw(enum LASER_SPEED speed, int timeout) {
     laser_start(speed);
     while (!laser_result_ready() && timeout>0) {
         delay_ms_safe(5);
@@ -72,3 +72,6 @@ double laser_read(enum LASER_SPEED speed, int timeout) {
     return laser_get_result()+config.calib.laser_offset;
 }
 
+double laser_read(enum LASER_SPEED speed, int timeout) {
+    return laser_read_raw(speed, timeout)+config.calib.laser_offset;
+}

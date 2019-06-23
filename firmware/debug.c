@@ -103,7 +103,7 @@ void show_sensors(int32_t a) {
             default:
                 break;
         }
-        sensors_read_uncalibrated(&sensors);
+        sensors_read_uncalibrated(&sensors, SAMPLES_PER_READING);
         display_clear_screen(false);
         display_write_text(0, 0, "      Mag   Grav", &small_font, false, false);
         for(i=0; i<3; i++) {
@@ -111,7 +111,7 @@ void show_sensors(int32_t a) {
             display_write_text(2+2*i, 0, text, &small_font, false, false);
         }        
         display_show_buffer();
-        delay_ms_safe(500);
+        delay_ms_safe(100);
     }
 }
 
@@ -129,7 +129,7 @@ void show_details(int32_t a) {
             default:
                 break;
         }
-        sensors_read_uncalibrated(&sensors);
+        sensors_read_uncalibrated(&sensors, 3);
         voltage = battery_get_voltage();
         display_clear_screen(false);
         struct tm dt;
