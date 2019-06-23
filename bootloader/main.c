@@ -173,9 +173,9 @@ void low_power_oscillator_initialise(void) {
     OSCCONCLR = _OSCCON_NOSC_MASK | _OSCCON_CLKLOCK_MASK | _OSCCON_OSWEN_MASK;
     // CF No Clock Failure; FRCDIV FRC/1; SLPEN Device will enter Idle mode when a WAIT instruction is issued; NOSC SPLL; SOSCEN enabled; CLKLOCK Clock and PLL selections are locked; OSWEN Oscillator switch initiate; 
 #ifdef EXTERNAL_CLOCK
-    OSCCON = (0x082 | _OSCCON_OSWEN_MASK);
+    OSCCON = (0x002 | _OSCCON_OSWEN_MASK);
 #else
-    OSCCON = (0x080 | _OSCCON_OSWEN_MASK);
+    OSCCON = (0x000 | _OSCCON_OSWEN_MASK);
 #endif    
     SYSTEM_RegLock();
     // ON disabled; DIVSWEN disabled; RSLP disabled; ROSEL SYSCLK; OE disabled; SIDL disabled; RODIV 0; 
@@ -190,7 +190,7 @@ void initialise(void) {
     enable_modules();
     PIN_MANAGER_Initialize();
     INTERRUPT_Initialize();
-    OSCILLATOR_Initialize();
+    low_power_oscillator_initialise();
     //I2C1_Initialize();
     //USBDeviceInit();
     //UART1_Initialize();
