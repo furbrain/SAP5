@@ -54,8 +54,14 @@ Firmware Tasks:
             - long click anywhere takes a new readings
             - double click anywhere turns off
 . fix calibration routine for accelerometer - I think just needs fitting to a sphere
+. Doh! - this is because all fo the readings on a horizontal surface are the same!
+. Need to test on an inclined or vertical surface...
+
 . also do stop start calibration - so more accurate readings, but fewer of them.
 . 1.5s to move, measure over 500ms intervals            
+
+. add header/footer to measure screen
+. do a nice shiny pixmap for the measure screen...
 
 PC software
 . note needs freetype-py and sparse_list

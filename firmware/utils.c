@@ -3,12 +3,15 @@
 #include "mcc_generated_files/tmr1.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/interrupt_manager.h"
+#include "mcc_generated_files/pin_manager.h"
 #include "utils.h"
 #include "app_type.h"
 #ifndef BOOTLOADER
 #include "exception.h"
+#include "beep.h"
 #else
 #define THROW_WITH_REASON(reason, code) {}
+#define beep_finish() {}
 #endif
 
 void delay_ms(int count) {
@@ -48,12 +51,13 @@ void wdt_clear(void){
 }
 
 
-void sys_reset(int32_t a){
+void sys_reset(){
     /* The following reset procedure is from the Family Reference Manual,
 	 * Chapter 7, "Resets," under "Software Resets." */
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
     int x;
 #pragma GCC diagnostic pop
+    INTERRUPT_GlobalDisable();
 	/* Unlock sequence */
 	SYSKEY = 0x00000000;
 	SYSKEY = 0xaa996655;
@@ -66,6 +70,17 @@ void sys_reset(int32_t a){
 	/* Required NOP instructions */
 	asm("nop\n nop\n nop\n nop\n");
 }
+
+void utils_turn_off(int32_t a) {
+    //turn off peripherals
+    beep_finish();
+    PERIPH_EN_SetLow();
+    while (!SWITCH_GetValue()) {
+        delay_ms_safe(10);
+    }
+    sys_reset();
+}
+
 
 int utils_flash_memory (void *dest, const void *data, enum FLASH_OP op) {
     // Fill out relevant registers

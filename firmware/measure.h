@@ -1,8 +1,9 @@
 #ifndef MEASURE_H
 #define MEASURE_H
 /* take one or more measurements and store them */
-void measure(int32_t a);
-
+#include <stdbool.h>
+void measure();
+extern bool measure_requested;
 /* expose functions for testing purpose */
 #ifdef TEST
 #include <gsl/gsl_vector.h>

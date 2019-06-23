@@ -512,7 +512,7 @@ unsigned int UART1_TransmitBufferSizeGet(void);
 
 /**
   @Summary
-    Clears the transmit buffer
+    Clears the receive buffer
 
   @Description
     This routine clears the receive buffer.

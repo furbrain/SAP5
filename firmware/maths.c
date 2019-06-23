@@ -8,6 +8,8 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_blas.h>
+#include <gsl/gsl_min.h>
+#include <gsl/gsl_statistics.h>
 #include "gsl_static.h"
 #include "maths.h"
 #include "display.h"
@@ -19,13 +21,6 @@ GSL_MATRIX_DECLARE(lsq_input, CALIBRATION_SAMPLES, 9);
 GSL_VECTOR_DECLARE(lsq_output, CALIBRATION_SAMPLES);
 
 
-const matrixx identity = {
-    {1.0, 0, 0, 0},
-    {0, 1.0, 0, 0},
-    {0, 0, 1.0, 0}
-};
-
-
 void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c) {
     int i, j, k;
     for (i=0; i<3; i++) {
@@ -35,34 +30,40 @@ void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c) {
     }
 }
 
-/* returns b . a where a is a vector and b is a matrix. Result in vector C, where A and C are pointers to double[3]
- * and B is a pointer to double[16] */
-void apply_matrix(const vectorr a, matrixx b, vectorr c) {
+/* create a calibration structure from a data array*/
+calibration calibration_from_doubles(double *data) {
+    calibration c;
+    c.transform = gsl_matrix_view_array(data,3,3);
+    c.offset = gsl_vector_view_array(&data[9],3);
+    return c;
+}
+
+
+/* copy data from src calibration to dest*/
+void calibration_memcpy(calibration *dest, const calibration *src) {
+    gsl_matrix_memcpy(&dest->transform.matrix, &src->transform.matrix);
+    gsl_vector_memcpy(&dest->offset.vector, &src->offset.vector);
+}
+
+
+/* returns b . a where a is a vector and b is a calibration transform. Result in vector c*/
+void apply_calibration(const gsl_vector *a, const calibration *b, gsl_vector *c) {
+    GSL_VECTOR_DECLARE(temp,3);
+    gsl_vector_memcpy(&temp, a);
+    gsl_vector_add(&temp, &b->offset.vector);
+    gsl_blas_dgemv(CblasNoTrans, 1.0, &b->transform.matrix, &temp, 0, c);
+}
+
+void apply_calibration_to_matrix(const gsl_matrix *input, const calibration *cal, gsl_matrix *output) {
     int i;
-    int j;
-    for (i=0; i<3; i++){
-        c[i] = 0;
-        for(j=0; j<3; j++) {
-            c[i] += a[j]* b[i][j];
-        }
-        c[i] += b[i][3];
+    for (i=0; i< input->size1; ++i) {
+        gsl_vector_const_view in_row = gsl_matrix_const_row(input, i);
+        gsl_vector_view out_row = gsl_matrix_row(output, i);
+        apply_calibration(&in_row.vector, cal, &out_row.vector);
     }
 }
 
-void matrix_multiply(matrixx calibration, matrixx delta) {
-    int i,j,k;
-    matrixx cal_copy;
-    memcpy(cal_copy, calibration, sizeof(matrixx));
-    for (i=0; i<3; i++) {
-        for (j=0; j<4; j++) {
-            calibration[i][j] = 0;
-            for (k=0; k<3; k++) {
-                calibration[i][j] += delta[i][k]* cal_copy[k][j];
-            }
-            calibration[i][j] += delta[i][3] * (j==3 ? 1 : 0);
-        }
-    }
-}
+
 /* take magnetism and acceleration vectors in device coordinates
    and return devices orientation as a rotation matrix */
 void maths_get_orientation_as_matrix(const gsl_vector *magnetism,
@@ -89,6 +90,17 @@ void maths_get_orientation_as_vector(const gsl_vector *magnetism,
     gsl_vector_memcpy(orientation, &answer.vector);
 }
 
+void maths_get_orientation_of_multiple_vectors(const gsl_matrix *magnetism,
+        const gsl_matrix *acceleration,
+        gsl_matrix *orientation) {
+    int i;
+    for (i=0; i< magnetism->size1; ++i) {
+        gsl_vector_const_view mag_row = gsl_matrix_const_row(magnetism, i);
+        gsl_vector_const_view grav_row = gsl_matrix_const_row(acceleration, i);
+        gsl_vector_view out_row = gsl_matrix_row(orientation, i);
+        maths_get_orientation_as_vector(&mag_row.vector, &grav_row.vector, &out_row.vector);
+    }    
+}
 
 
 void normalise(gsl_vector *vector) {
@@ -104,15 +116,43 @@ static void solve_least_squares(gsl_matrix *input, gsl_vector *output, int num_p
 }
 
 
-void find_plane(double *data_array, int len, gsl_vector *result) {
+void find_plane(gsl_matrix *input, gsl_vector *result) {
+    int len = input->size1;
     GSL_VECTOR_RESIZE(lsq_output, len);
-    gsl_matrix_view input = gsl_matrix_view_array(data_array, len, 3);
     //initialise variables
     gsl_vector_set_all(&lsq_output, 1.0);
     //calculate plane
-    solve_least_squares(&input.matrix, &lsq_output, 3, result);
+    solve_least_squares(input, &lsq_output, 3, result);
     //process results
     normalise(result);
+}
+
+/* take the vector describing a plane and produce a rotation that will rotate that
+ * plane to be perpindicular to y-axis. Requires the original vector to be close to
+ * the y-axis*/
+void plane_to_rotation(const gsl_vector *plane, gsl_matrix *rotation) {
+    GSL_VECTOR_DECLARE(plane_copy, 3);
+    double c, s;
+    int i;
+    gsl_vector_memcpy(&plane_copy, plane);
+    if (gsl_vector_get(plane,1)<0) {
+        gsl_vector_scale(&plane_copy, -1);
+    };
+    gsl_matrix_set_identity(rotation);
+    // do z rotation
+    gsl_linalg_givens(gsl_vector_get(&plane_copy, 1), gsl_vector_get(&plane_copy, 0), &c, &s);
+    for (i=0; i<3; i++) {
+        gsl_vector_view column = gsl_matrix_column(rotation, i);
+        gsl_linalg_givens_gv(&column.vector, 1, 0, c, s);
+    }
+    gsl_linalg_givens_gv(&plane_copy, 1, 0, c, s);
+    
+    // do x rotation
+    gsl_linalg_givens(gsl_vector_get(&plane_copy, 1), gsl_vector_get(&plane_copy, 2), &c, &s);
+    for (i=0; i<3; i++) {
+        gsl_vector_view column = gsl_matrix_column(rotation, i);
+        gsl_linalg_givens_gv(&column.vector, 1, 2, c, s);
+    }
 }
 
 void sqrtm(gsl_matrix *a, gsl_matrix *result) {
@@ -139,9 +179,9 @@ void sqrtm(gsl_matrix *a, gsl_matrix *result) {
     
 }
 
-static void prepare_input_matrix(gsl_matrix *input, const double *data_array, int len) {
+static void prepare_input_matrix(gsl_matrix *input, const gsl_matrix *original_data, int len) {
     //setup GSL variables and aliases...
-    gsl_matrix_const_view data = gsl_matrix_const_view_array(data_array, len, 3);
+    gsl_matrix_const_view data = gsl_matrix_const_submatrix(original_data, 0, 0, len, 3);
     gsl_vector_const_view x = gsl_matrix_const_column(&data.matrix, 0);
     gsl_vector_const_view y = gsl_matrix_const_column(&data.matrix, 1);
     gsl_vector_const_view z = gsl_matrix_const_column(&data.matrix, 2);
@@ -219,42 +259,109 @@ static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *ce
 
     gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, &T, ellipsoid, 0.0, &temp1);
     gsl_blas_dgemm(CblasNoTrans, CblasTrans, 1.0, &temp1, &T, 0.0, &temp2);
-    gsl_matrix_scale(&temp2_submat.matrix,-1.0*gsl_matrix_get(&temp2,3,3));
+    gsl_matrix_scale(&temp2_submat.matrix,-1.0 / gsl_matrix_get(&temp2,3,3));
     
     //return sqrt(temp2)
     sqrtm(&temp2_submat.matrix, results);
 }
 
-void calibrate(const double *data_array, const int len, matrixx result) {
-    int i,j;
-    matrixx ellipsoid;
+void fit_ellipsoid(const gsl_matrix *data, const int len, calibration *result) {
     GSL_MATRIX_DECLARE(a4, 4, 4);
-    GSL_MATRIX_DECLARE(transform, 3, 3);
     GSL_VECTOR_DECLARE(params, 9);
-    GSL_VECTOR_DECLARE(centre, 3);
 
     GSL_MATRIX_RESIZE(lsq_input, len, 9);
     GSL_VECTOR_RESIZE(lsq_output, len);
 
-    prepare_input_matrix(&lsq_input, data_array, len);
+    prepare_input_matrix(&lsq_input, data, len);
     gsl_vector_set_all(&lsq_output,1.0);
     solve_least_squares(&lsq_input, &lsq_output, 9, &params);
     make_ellipsoid_matrix(&a4, &params);
-    get_centre_coords(&a4, &centre);
-    convert_ellipsoid_to_transform(&a4, &centre, &transform);
+    get_centre_coords(&a4, &result->offset.vector);
+    convert_ellipsoid_to_transform(&a4, &result->offset.vector, &result->transform.matrix);
+    gsl_vector_scale(&result->offset.vector,-1);
+}
 
-    //prepare output
-    memcpy(result, identity, sizeof(identity));
-    result[0][3] = -1.0*gsl_vector_get(&centre, 0);
-    result[1][3] = -1.0*gsl_vector_get(&centre, 1);
-    result[2][3] = -1.0*gsl_vector_get(&centre, 2);
-    //result[0:3,0:3] = a3
-    for (i=0; i<3; i++) {
-        for (j=0; j<3; j++) {
-            ellipsoid[i][j] = gsl_matrix_get(&transform, i, j);
-        }
-        ellipsoid[i][3] = 0.0;
+void align_laser(const gsl_matrix *data, calibration *cal) {
+    GSL_VECTOR_DECLARE(plane, 3);
+    GSL_MATRIX_DECLARE(rotation, 3, 3);
+    GSL_MATRIX_DECLARE(temp, 3, 3);
+    GSL_MATRIX_DECLARE(fixed_data, CALIBRATION_SAMPLES, 3);
+    GSL_MATRIX_RESIZE(fixed_data, data->size1, 3);
+    apply_calibration_to_matrix(data, cal, &fixed_data);
+    find_plane(&fixed_data, &plane);
+    if (gsl_vector_get(&plane,1) < 0) {
+        gsl_vector_scale(&plane, -1);
     }
-    matrix_multiply(result, ellipsoid);
+    plane_to_rotation(&plane, &rotation);
+    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &rotation, &cal->transform.matrix, 0, &temp);
+    gsl_matrix_memcpy(&cal->transform.matrix, &temp);
+}
+
+struct sync_params {
+    const gsl_matrix *mag;
+    const gsl_matrix *grav;
+};
+
+
+double sync_sensor_value(double x, void *params) {
+    GSL_VECTOR_DECLARE(angles, CALIBRATION_SAMPLES);
+    GSL_VECTOR_DECLARE(mag, 3);
+    GSL_VECTOR_DECLARE(grav, 3);    
+    struct sync_params *p = (struct sync_params*) params;
+    GSL_VECTOR_RESIZE(angles, p->mag->size1);
+    int i;
+    double f;
+    double c = cos(x);
+    double s = sin(x);
+    for (i=0; i< angles.size; ++i) {
+        gsl_matrix_get_row(&mag, p->mag, i);
+        gsl_matrix_get_row(&grav, p->grav, i);
+        gsl_vector_scale(&mag, 1/gsl_blas_dnrm2(&mag));
+        gsl_vector_scale(&grav, 1/gsl_blas_dnrm2(&grav));
+        gsl_linalg_givens_gv(&mag, 0, 2, c, s);
+        gsl_blas_ddot(&mag, &grav, &f);
+        gsl_vector_set(&angles, i, f);
+    }
+    return gsl_stats_sd(angles.data, angles.stride, angles.size);
+}
+
+double sync_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
+                    const gsl_matrix *grav_data, calibration *grav_cal) {
+    GSL_MATRIX_DECLARE(fixed_mag, CALIBRATION_SAMPLES, 3);
+    GSL_MATRIX_DECLARE(fixed_grav, CALIBRATION_SAMPLES, 3);
+    GSL_MATRIX_RESIZE(fixed_mag, mag_data->size1, 3);
+    GSL_MATRIX_RESIZE(fixed_grav, grav_data->size1, 3);
+
+    struct sync_params params = {&fixed_mag, &fixed_grav};
+    
+    gsl_min_fminimizer *minimizer =  gsl_min_fminimizer_alloc(gsl_min_fminimizer_goldensection);
+    gsl_function F;
+    int iter = 0;
+    int status;
+    double a, b, result;
+    double c, s;
+    /* correct current data*/
+    apply_calibration_to_matrix(mag_data, mag_cal, &fixed_mag);
+    apply_calibration_to_matrix(grav_data, grav_cal, &fixed_grav);
+    F.function = sync_sensor_value;
+    F.params = &params;
+    gsl_min_fminimizer_set(minimizer, &F, 0, -1, 1);
+    do {
+        iter++;
+        status = gsl_min_fminimizer_iterate(minimizer);
+        a = gsl_min_fminimizer_x_lower(minimizer);
+        b = gsl_min_fminimizer_x_upper(minimizer);
+        status = gsl_min_test_interval (a, b, 0.0001, 0.0);
+    } while (status == GSL_CONTINUE && iter < 100);
+    result = gsl_min_fminimizer_x_minimum(minimizer);
+    c = cos(result);
+    s = sin(result);
+    for (iter=0; iter < 3; iter++) {
+        gsl_vector_view column = gsl_matrix_column(&mag_cal->transform.matrix, iter);
+        gsl_linalg_givens_gv(&column.vector,0,2,c,s);
+    }
+    gsl_min_fminimizer_free(minimizer);
+    
+    return result*180/M_PI;
 }
 

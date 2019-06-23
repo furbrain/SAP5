@@ -69,7 +69,7 @@
 #pragma config WINDIS = OFF    // Windowed Watchdog Timer Disable bit->Watchdog timer is in non-window mode
 #pragma config RWDTPS = PS4096    // Run Mode Watchdog Timer Postscale Selection bits->1:4096
 #pragma config RCLKSEL = LPRC    // Run Mode Watchdog Timer Clock Source Selection bits->Clock source is LPRC (same as for sleep mode)
-#pragma config FWDTEN = OFF    // Watchdog Timer Enable bit->WDT is disabled
+#pragma config FWDTEN = ON    // Watchdog Timer Enable bit->WDT is enabled
 
 // FOSCSEL
 #pragma config FNOSC = FRCDIV    // Oscillator Selection bits->Fast RC oscillator (FRC) with divide-by-N
@@ -89,12 +89,14 @@
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    OSCILLATOR_Initialize();
     INTERRUPT_Initialize();
+    OSCILLATOR_Initialize();
+    UART2_Initialize();
     I2C1_Initialize();
     UART1_Initialize();
     ADC1_Initialize();
     TMR2_Initialize();
+    RTCC_Initialize();
     TMR1_Initialize();
     INTERRUPT_GlobalEnable();
 }

@@ -11,14 +11,14 @@
 void test_laser_on_true(void) {
     UART1_ReceiveBufferClear_Expect();
     UART1_Write_Expect('O');
-    laser_on(true);
+    laser_on();
     
 }
 
 void test_laser_on_false(void) {
     UART1_ReceiveBufferClear_Expect();
     UART1_Write_Expect('C');
-    laser_on(false);
+    laser_off();
 }
 
 void test_laser_start_fast(void) {

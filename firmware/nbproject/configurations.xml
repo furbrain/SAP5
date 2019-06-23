@@ -17,6 +17,7 @@
         <itemPath>mcc_generated_files/uart1.h</itemPath>
         <itemPath>mcc_generated_files/tmr1.h</itemPath>
         <itemPath>mcc_generated_files/tmr2.h</itemPath>
+        <itemPath>mcc_generated_files/uart2.h</itemPath>
       </logicalFolder>
       <itemPath>display.h</itemPath>
       <itemPath>font.h</itemPath>
@@ -70,6 +71,7 @@
         <itemPath>mcc_generated_files/uart1.c</itemPath>
         <itemPath>mcc_generated_files/tmr1.c</itemPath>
         <itemPath>mcc_generated_files/tmr2.c</itemPath>
+        <itemPath>mcc_generated_files/uart2.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>display.c</itemPath>
@@ -128,10 +130,12 @@
       <itemPath>../test/test/test_selector.c</itemPath>
       <itemPath>../test/test/test_datetime.c</itemPath>
       <itemPath>../test/test/test_beep.c</itemPath>
+      <itemPath>../test/test/test_calibrate.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
     <Elem>.</Elem>
+    <Elem>../bootloader</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

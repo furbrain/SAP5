@@ -49,16 +49,18 @@ void laser_start(enum LASER_SPEED speed) {
     }
 }
 
-void laser_on(bool enable) {
+void laser_on() {
     UART1_ReceiveBufferClear();
-    if (enable)
-        UART1_Write('O');
-    else
-        UART1_Write('C');
-
+    UART1_Write('O');
 }
 
-double laser_read(enum LASER_SPEED speed, int timeout) {
+void laser_off() {
+    UART1_ReceiveBufferClear();
+    UART1_Write('C');
+}
+
+
+double laser_read_raw(enum LASER_SPEED speed, int timeout) {
     laser_start(speed);
     while (!laser_result_ready() && timeout>0) {
         delay_ms_safe(5);
@@ -70,3 +72,6 @@ double laser_read(enum LASER_SPEED speed, int timeout) {
     return laser_get_result()+config.calib.laser_offset;
 }
 
+double laser_read(enum LASER_SPEED speed, int timeout) {
+    return laser_read_raw(speed, timeout)+config.calib.laser_offset;
+}

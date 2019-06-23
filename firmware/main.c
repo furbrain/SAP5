@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "mcc_generated_files/mcc.h"
+#include "measure.h"
 #include "utils.h"
 #include "display.h"
 #include "sensors.h"
 #include "survey.h"
-#include "interface.h"
 #include "laser.h"
 #include "exception.h"
 #include "config.h"
+#include "interface.h"
 //FIXME
-#include "debug.h"
 #include "beep.h"
 #define TXT_LENGTH 50
 
@@ -20,8 +20,11 @@ void display_error(CEXCEPTION_T e) {
     const char *reason;
     const char *file;
     int line;
-    display_on(true);
-    laser_on(false);
+    PERIPH_EN_SetHigh();
+    delay_ms_safe(100);
+    display_init();
+    display_on();
+    laser_off();
     display_clear_screen(true);
     error = exception_get_string(e);
     exception_get_details(&reason, &file, &line);
@@ -38,9 +41,7 @@ void display_error(CEXCEPTION_T e) {
     delay_ms_safe(5000);
 }
 
-int main(void)
-{
-    CEXCEPTION_T e;
+void initialise() {
     wdt_clear();
     RTCC_TimeReset(true);
     SYSTEM_Initialize();
@@ -52,21 +53,29 @@ int main(void)
     delay_ms_safe(100);
     display_init();
     sensors_init();
+    interface_init();
     beep_initialise();
     wdt_clear();
-    display_clear_screen(true);
-    delay_ms_safe(10);
+    display_clear_screen(true);    
+}
+
+int main(void)
+{
+    int err_count = 0;
+    CEXCEPTION_T e;
+    initialise();
     beep_happy();
-    while (1)
+    while (err_count < 3)
     {
         Try {
-            //show_sensors(0);
-            show_menu(&main_menu);
-            wdt_clear();
+            measure();
         }
         Catch(e) {
+            err_count++;
             display_error(e);
+            beep_sad();
         }
     }
+    utils_turn_off(0);
     return 0;
 }

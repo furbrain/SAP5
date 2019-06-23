@@ -1,48 +1,6 @@
-/*
- * M-Stack USB Bootloader
- *
- *  M-Stack is free software: you can redistribute it and/or modify it under
- *  the terms of the GNU Lesser General Public License as published by the
- *  Free Software Foundation, version 3; or the Apache License, version 2.0
- *  as published by the Apache Software Foundation.  If you have purchased a
- *  commercial license for this software from Signal 11 Software, your
- *  commerical license superceeds the information in this header.
- *
- *  M-Stack is distributed in the hope that it will be useful, but WITHOUT
- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
- *  License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this software.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  You should have received a copy of the Apache License, verion 2.0 along
- *  with this software.  If not, see <http://www.apache.org/licenses/>.
- *
- * Alan Ott
- * Signal 11 Software
- * 2016-03-31
- */
-
 #include <xc.h>
 #include <string.h>
 #include <stdbool.h>
-
-
-/* Variables from linker script.
- *
- * The way to pass values from the linker script to the program is to create
- * variables in the linker script and extern them in the program.  The only
- * catch is that assignment operations in the linker script only set
- * variable _addresses_, and not variable values.  Thus to get the data in
- * the program, you need to take the _address_ of the variables created by
- * the linker script (and ignore their actual values).  This may seem hacky,
- * but the GNU LD manual cites it as the recommended way to do it.  See
- * section 3.5.5 "Source Code Reference."
- *
- * It's also worth noting that addresses in the Linker Script are virtual,
- * and what we want in most cases in a bootloader are physical addresses.
- */
 
 #include "mcc_generated_files/mcc.h"
 #include "app_type.h"
@@ -53,11 +11,16 @@
 #include "display.h"
 #include "usb_callbacks.h"
 #include "utils.h"
+#include "memory.h"
 #include "mcc_generated_files/usb/usb_hal_pic32mm.h"
 
 #define DISPLAY_ADDRESS 0x3C
 
-
+#ifdef EXTERNAL_CLOCK
+CONST_STORE int HARDWARE_VERSION PLACE_DATA_AT(HARDWARE_VERSION_LOCATION) = 0x01;
+#else
+CONST_STORE int HARDWARE_VERSION PLACE_DATA_AT(HARDWARE_VERSION_LOCATION) = 0x00;
+#endif
 
 static int8_t write_display(uint8_t page, uint8_t column, uint8_t* buffer, uint16_t len) {
     write_i2c_data1(DISPLAY_ADDRESS,0xB0+page);
@@ -98,29 +61,7 @@ void display_show_bat(int charge) {
 	render_data_to_page(1,104,bat_status,24);
 }
 
-void wdt_enable(void) {
-    WDTCONbits.ON = 1;
-}
-
-void wdt_disable(void) {
-    WDTCONbits.ON = 0;
-}
-
-
-void sleep(void) {
-    TRISA = 0;
-    TRISB = 0;
-    TRISC = 0;
-    TRISCbits.TRISC9 = 1;
-    TRISBbits.TRISB6 = 1;
-    LATA = 0;
-    LATB = 0;
-    LATC = 0;
-    INTCONbits.MVEC = 1;
-    IPC2bits.CNBIP = 7;
-    IPC2bits.CNBIS = 0;
-    IPC2bits.CNCIP = 7;
-    IPC2bits.CNCIS = 0;
+void disable_modules(void) {
     SYSTEM_RegUnlock();
     PMDCONbits.PMDLOCK = 0;
     PMD1 = 0xffffffff;
@@ -134,10 +75,10 @@ void sleep(void) {
     PWRCONbits.VREGS = 0;
     PWRCONbits.RETEN = 1;    
     OSCCONbits.SLPEN = 1;
-    SYSTEM_RegLock();
-    __builtin_enable_interrupts();
-    asm("wait");
-    asm("nop;nop;nop;nop;");
+    SYSTEM_RegLock();    
+}
+
+void enable_modules(void) {
     SYSTEM_RegUnlock();
     PMDCONbits.PMDLOCK = 0;
     PMD1 = 0x0;
@@ -149,6 +90,28 @@ void sleep(void) {
     PMD7 = 0x0;
     PMDCONbits.PMDLOCK = 1;
     SYSTEM_RegLock();
+}
+
+void sleep(void) {
+    TRISA = 0;
+    TRISB = 0;
+    TRISC = 0;
+    TRISAbits.TRISA4 = 1;
+    TRISCbits.TRISC9 = 1;
+    TRISBbits.TRISB6 = 1;
+    LATA = 0;
+    LATB = 0;
+    LATC = 0;
+    INTCONbits.MVEC = 1;
+    IPC2bits.CNBIP = 7;
+    IPC2bits.CNBIS = 0;
+    IPC2bits.CNCIP = 7;
+    IPC2bits.CNCIS = 0;
+    disable_modules();
+    __builtin_enable_interrupts();
+    asm("wait");
+    asm("nop;nop;nop;nop;");
+    enable_modules();
 }
 
 void JumpToApp(void)
@@ -196,17 +159,58 @@ void run_usb(void) {
     JumpToApp();
 }
 
-int main(void)
-{
+void low_power_oscillator_initialise(void) {
+    SYSTEM_RegUnlock();
+    // ORPOL disabled; SIDL disabled; SRC USB; TUN Center frequency; POL disabled; ON disabled; 
+    OSCTUN = 0x1000;
+    // PLLODIV 1:4; PLLMULT 12x; PLLICLK FRC; 
+    SPLLCON = 0x2050080;
+    // WDTO disabled; GNMI disabled; CF disabled; WDTS disabled; NMICNT 0; LVD disabled; SWNMI disabled; 
+    RNMICON = 0x0;
+    // SBOREN disabled; VREGS disabled; RETEN disabled; 
+    PWRCON = 0x0;
+    //Clear NOSC,CLKLOCK and OSWEN bits
+    OSCCONCLR = _OSCCON_NOSC_MASK | _OSCCON_CLKLOCK_MASK | _OSCCON_OSWEN_MASK;
+    // CF No Clock Failure; FRCDIV FRC/1; SLPEN Device will enter Idle mode when a WAIT instruction is issued; NOSC SPLL; SOSCEN enabled; CLKLOCK Clock and PLL selections are locked; OSWEN Oscillator switch initiate; 
+#ifdef EXTERNAL_CLOCK
+    OSCCON = (0x002 | _OSCCON_OSWEN_MASK);
+#else
+    OSCCON = (0x000 | _OSCCON_OSWEN_MASK);
+#endif    
+    SYSTEM_RegLock();
+    // ON disabled; DIVSWEN disabled; RSLP disabled; ROSEL SYSCLK; OE disabled; SIDL disabled; RODIV 0; 
+    REFO1CON = 0x0;
+    // ROTRIM 0; 
+    REFO1TRIM = 0x0;
+
+}
+
+void initialise(void) {
     RCON = 0x0;
+    enable_modules();
     PIN_MANAGER_Initialize();
+    INTERRUPT_Initialize();
+    low_power_oscillator_initialise();
+    //I2C1_Initialize();
+    //USBDeviceInit();
+    //UART1_Initialize();
+    //ADC1_Initialize();
+    TMR2_Initialize();
+    TMR1_Initialize();
     RTCC_TimeReset(true);
     RTCC_Initialize();
+    //USBDeviceAttach();
+    INTERRUPT_GlobalEnable();
     PERIPH_EN_SetLow();
-    wdt_enable();
+    
+}
+
+int main(void)
+{
+    initialise();
+    delay_ms_safe(20);
     while(1) {
-        PIN_MANAGER_Initialize();
-        PERIPH_EN_SetLow();
+        enable_modules();
         if (PORTBbits.RB6) {
             /* USB connected */
             PERIPH_EN_SetHigh();
@@ -218,7 +222,8 @@ int main(void)
             JumpToApp();
         }
         delay_ms_safe(40);
-        wdt_disable();
+        PIN_MANAGER_Initialize();
+        PERIPH_EN_SetLow();
         sleep();
         sys_reset(0);
     }

@@ -8,6 +8,15 @@
 #include "mcc_generated_files/rtcc.h"
 #include "utils.h"
 #include "exception.h"
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_sort_vector.h>
+#include <gsl/gsl_statistics.h>
+#include "gsl_static.h"
+
+GSL_MATRIX_DECLARE(temp_mag_readings, SAMPLES_PER_READING, 3);
+GSL_MATRIX_DECLARE(temp_grav_readings, SAMPLES_PER_READING, 3);
+
 
 #define MPU_ADDRESS 0x68
 #define MPU_COMMAND(command,data) write_i2c_data2(MPU_ADDRESS,command,data)
@@ -174,24 +183,63 @@ void sensors_raw_to_uncalibrated(struct COOKED_SENSORS *cooked, struct RAW_SENSO
 }
 
 
-void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors) {
+void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors, int count) {
     struct RAW_SENSORS raw_sensors;
-    sensors_read_raw (&raw_sensors);
-	sensors_raw_to_uncalibrated(sensors, &raw_sensors);    
+    gsl_vector_view mag_sensors = gsl_vector_view_array(sensors->mag,3);
+    gsl_vector_view grav_sensors = gsl_vector_view_array(sensors->accel,3);
+    gsl_vector_view samples;
+    GSL_MATRIX_RESIZE(temp_mag_readings, count , 3);
+    GSL_MATRIX_RESIZE(temp_grav_readings, count , 3);
+    int i;
+    double average;
+    for (i=0; i<count; ++i) {
+        sensors_read_raw (&raw_sensors);
+        sensors_raw_to_uncalibrated(sensors, &raw_sensors);
+        gsl_matrix_set_row(&temp_mag_readings, i, &mag_sensors.vector);
+        gsl_matrix_set_row(&temp_grav_readings, i, &grav_sensors.vector);
+        delay_ms_safe(10);
+    }
+#if 0
+    /* use median*/
+    for (i=0; i<3; ++i){
+        samples = gsl_matrix_column(&temp_mag_readings,i);
+        gsl_sort_vector(&samples.vector);
+        samples = gsl_matrix_column(&temp_grav_readings,i);
+        gsl_sort_vector(&samples.vector);
+    }
+    gsl_matrix_get_row(&mag_sensors.vector, &temp_mag_readings, count/2);
+    gsl_matrix_get_row(&grav_sensors.vector, &temp_grav_readings, count/2);
+#else
+    /* use mean */
+    for (i=0; i<3; ++i) {
+        samples = gsl_matrix_column(&temp_mag_readings,i);
+        average = gsl_stats_mean(samples.vector.data, samples.vector.stride, samples.vector.size);
+        sensors->mag[i] = average;
+        samples = gsl_matrix_column(&temp_grav_readings,i);
+        average = gsl_stats_mean(samples.vector.data, samples.vector.stride, samples.vector.size);
+        sensors->accel[i] = average;
+    }
+#endif 
 }
 
 void sensors_uncalibrated_to_cooked(struct COOKED_SENSORS *cooked){
-    struct COOKED_SENSORS temp_cooked;
-    memcpy(&temp_cooked, cooked, sizeof(temp_cooked));
-    apply_matrix(temp_cooked.accel, config.calib.accel, cooked->accel);
-    apply_matrix(temp_cooked.mag, config.calib.mag, cooked->mag);
+    GSL_VECTOR_DECLARE(temp_accel,3);
+    GSL_VECTOR_DECLARE(temp_mag,3);
+    calibration mag_cal = calibration_from_doubles(config.calib.mag);
+    calibration grav_cal = calibration_from_doubles(config.calib.accel);
+    gsl_vector_view accel = gsl_vector_view_array(cooked->accel, 3);
+    gsl_vector_view mag = gsl_vector_view_array(cooked->mag, 3);
+    gsl_vector_memcpy(&temp_accel, &accel.vector);
+    gsl_vector_memcpy(&temp_mag, &mag.vector);
+    apply_calibration(&temp_accel, &grav_cal, &accel.vector);
+    apply_calibration(&temp_mag, &mag_cal, &mag.vector);
 }
 
 
 
 
-void sensors_read_cooked(struct COOKED_SENSORS *sensors) {
-    sensors_read_uncalibrated(sensors);
+void sensors_read_cooked(struct COOKED_SENSORS *sensors, int count) {
+    sensors_read_uncalibrated(sensors, count);
     sensors_uncalibrated_to_cooked(sensors);
 }
 

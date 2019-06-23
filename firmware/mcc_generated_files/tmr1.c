@@ -86,12 +86,12 @@ static TMR_OBJ tmr1_obj;
 void TMR1_Initialize (void)
 {
     uint32_t tcon_value = 0x00000000;
-    //  TCKPS 1:8; TWDIS disabled; TCS PBCLK; TECS SOSC; SIDL disabled; TSYNC disabled; TWIP disabled; TGATE disabled; ON enabled; 
-    T1CON = 0x8010;   
-    tcon_value = 0x8010;  // Temporary storage of value
+    //  TCKPS 1:8; TWDIS disabled; TCS External; TECS LPRC; SIDL disabled; TSYNC disabled; TWIP disabled; TGATE disabled; ON enabled; 
+    T1CON = 0x8212;   
+    tcon_value = 0x8212;  // Temporary storage of value
     T1CONCLR = _T1CON_ON_MASK;  // disable Timer, before loading the period/counter value
-    // Period = 0.001 s; Frequency = 24000000 Hz; PR1 3000; 
-    PR1 = 0xBB8 ;
+    // Period = 0.001 s; Frequency = 32000 Hz; PR1 4; 
+    PR1 = 0x4 ;
 
     T1CON = tcon_value;//restore the TCON value
     tmr1_obj.timerElapsed = false;

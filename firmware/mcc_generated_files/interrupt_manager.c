@@ -60,6 +60,21 @@ void INTERRUPT_Initialize (void)
         IPC16bits.I2C1MIP = 1;
     //    Sub Priority: 0
         IPC16bits.I2C1MIS = 0;
+    //    UERI: UART 2 Error
+    //    Priority: 1
+        IPC14bits.U2EIP = 1;
+    //    Sub Priority: 0
+        IPC14bits.U2EIS = 0;
+    //    UTXI: UART 2 Transmission
+    //    Priority: 1
+        IPC14bits.U2TXIP = 1;
+    //    Sub Priority: 0
+        IPC14bits.U2TXIS = 0;
+    //    URXI: UART 2 Reception
+    //    Priority: 1
+        IPC14bits.U2RXIP = 1;
+    //    Sub Priority: 0
+        IPC14bits.U2RXIS = 0;
     //    CNBI: PORT B Change Notification
     //    Priority: 7
         IPC2bits.CNBIP = 7;

@@ -32,7 +32,7 @@ time_t utils_get_time();
 
 void wdt_clear(void);
 
-void sys_reset(int32_t a);
+void utils_turn_off(int32_t a);
 
 int utils_flash_memory (void *dest, const void *data, enum FLASH_OP op);
 

@@ -41,13 +41,14 @@ struct __attribute__((aligned(8))) CONFIG {
         
     } axes;
     struct {
-        matrixx accel;
-        matrixx mag;
+        double accel[12];
+        double mag[12];
         double laser_offset;
     } calib;
     uint8_t display_style;
     uint8_t length_units;
     uint16_t timeout;
+    bool bt_present;
 };
 
 /* Note it is important to keep this as a union to ensure that no other data/ program 

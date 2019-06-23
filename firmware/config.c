@@ -4,6 +4,8 @@
 #include "memory.h"
 #include "mem_locations.h"
 #include "exception.h"
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
 
 #include "config.h"
 
@@ -11,15 +13,16 @@ union CONFIG_STORE config_store PLACE_DATA_AT(APP_CONFIG_LOCATION) = {.raw = {[0
 
 const 
 struct CONFIG default_config = {
-        {{4, 3, 2}, {0, 1, 2}},                   //axis orientation
+        {{4, 0, 5}, {0, 4, 5}},                   //axis orientation
         { //calib section
-            {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //accel matrix
-            {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //mag matrix
+            {1,0,0, 0,1,0, 0,0,1, 0,0,0}, //accel matrix
+            {1,0,0, 0,1,0, 0,0,1, 0,0,0}, //mag matrix
             0.090                              //laser offset
         },
         POLAR,                               //Polar display style
         METRIC,                              //metric units
-        30                                  //2 min timeout
+        120,                                  //2 minute timeout
+        false								 //no bluetooth module
     };
 
 struct CONFIG config;

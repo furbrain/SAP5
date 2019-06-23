@@ -61,14 +61,14 @@ void PIN_MANAGER_Initialize(void)
      * Setting the Output Latch SFR(s)
      ***************************************************************************/
     LATA = 0x0000;
-    LATB = 0x4000;
+    LATB = 0x4002;
     LATC = 0x0000;
 
     /****************************************************************************
      * Setting the GPIO Direction SFR(s)
      ***************************************************************************/
     TRISA = 0x001F;
-    TRISB = 0xBF7F;
+    TRISB = 0xBF7D;
     TRISC = 0x0200;
 
     /****************************************************************************
@@ -94,6 +94,19 @@ void PIN_MANAGER_Initialize(void)
     ANSELA = 0x000F;
     ANSELB = 0x201C;
 
+    /****************************************************************************
+     * Set the PPS
+     ***************************************************************************/
+    SYSTEM_RegUnlock(); // unlock PPS
+    RPCONbits.IOLOCK = 0;
+
+    RPINR9bits.U2RXR = 0x0006;   //RB0->UART2:U2RX;
+    RPOR1bits.RP7R = 0x0004;   //RB1->UART2:U2TX;
+
+    RPCONbits.IOLOCK = 1; // lock   PPS
+	
+    SYSTEM_RegLock(); 
+    
 
     /****************************************************************************
      * Interrupt On Change for group CNCONB - config

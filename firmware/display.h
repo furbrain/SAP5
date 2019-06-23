@@ -13,7 +13,9 @@ void display_init();
 
 void display_close();
 
-void display_on(bool enable);
+void display_on();
+
+void display_off();
 
 void display_clear_page(uint8_t page, bool immediate);
 

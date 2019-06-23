@@ -16,6 +16,8 @@
 #include "leg.h"
 #include "gsl_static.h"
 #include "exception.h"
+#include "beep.h"
+#include "images.h"
 
 #define FEET_PER_METRE 3.281
 #define DEGREES_PER_RADIAN 57.296
@@ -29,66 +31,26 @@
 
 GSL_VECTOR_DECLARE(measure_orientation, 3);
 
-static bool measure_exit;
+bool measure_requested = false;
 
 DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
 
 void get_reading(gsl_vector *orientation){
-    GSL_VECTOR_DECLARE(magnetism, 3);
-    GSL_VECTOR_DECLARE(acceleration, 3);
 	struct COOKED_SENSORS sensors;
 	double distance;
     gsl_vector_view sensors_magnetism = gsl_vector_view_array(sensors.mag, 3);    
     gsl_vector_view sensors_acceleration = gsl_vector_view_array(sensors.accel, 3);    
-	int i;
 
-	display_on(false);
-	laser_on(true);
+	display_off();
+	laser_on();
 	delay_ms_safe(20);
-	gsl_vector_set_zero(&magnetism);
-	gsl_vector_set_zero(&acceleration);
-	for(i=0; i < NUM_SENSOR_READINGS; ++i) {
-		delay_ms_safe(10);
-        sensors_read_cooked(&sensors);
-        gsl_vector_add(&magnetism, &sensors_magnetism.vector);
-        gsl_vector_add(&acceleration, &sensors_acceleration.vector);
-    }
-    gsl_vector_scale(&magnetism, 1.0/NUM_SENSOR_READINGS);
-    gsl_vector_scale(&acceleration, 1.0/NUM_SENSOR_READINGS);
+    sensors_read_cooked(&sensors, SAMPLES_PER_READING);
+    maths_get_orientation_as_vector(&sensors_magnetism.vector, &sensors_acceleration.vector, orientation);
     distance = laser_read(LASER_MEDIUM, 1000);
-    maths_get_orientation_as_vector(&magnetism, &acceleration, orientation);
     gsl_vector_scale(orientation, distance);
-    display_on(true);
-    laser_on(false);
-}
-
-static
-void do_exit(int32_t a) {
-    measure_exit = true;
-}
-
-TESTABLE_STATIC
-void measure_get_reading(gsl_vector *orientation) {
-    display_clear_screen(true);
-    display_write_text(2, 0, "---*", &large_font,false, true);
-    laser_on(true);
-    while (true) {
- 		switch(get_input()) {
-			case SINGLE_CLICK:
-			case LONG_CLICK:
-				/* take measurement */
-				get_reading(orientation);
-				return;
-				break;
-			case DOUBLE_CLICK:
-			    do_exit(0);
-				return;
-				break;
-	        default:
-                delay_ms_safe(10); 
-        }
-    }
+    display_on();
+    laser_off();
 }
 
 /* calculate extension from current readings */
@@ -125,16 +87,16 @@ void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     calculate_bearings(orientation, &compass, &inclination);
 
     sprintf(text, "%05.1f%c", compass * degree_scale, angle_symbol);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 
     sprintf(text, "%+.1f%c", inclination * degree_scale, angle_symbol);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 
     sprintf(text, "Dist  %.2f%c", get_distance(orientation) * length_scale, length_unit);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 
     sprintf(text, "Ext  %.2f%c", get_extension(orientation) * length_scale, length_unit);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 }
 
 /* add a set of cartesian entries to a menu */
@@ -147,10 +109,10 @@ void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     int i;
     for (i=0; i<3; i++) {
         sprintf(text, format[i], gsl_vector_get(orientation, i) * length_scale, length_unit);
-        menu_append_info(menu, text);
+        menu_append_submenu(menu, text, &main_menu);
     }
     sprintf(text, "Ext  %.2f%c", get_extension(orientation) * length_scale, length_unit);
-    menu_append_info(menu, text);
+    menu_append_submenu(menu, text, &main_menu);
 }
 
 
@@ -194,37 +156,98 @@ void measure_show_reading(gsl_vector *orientation) {
     setup_storage_menu();
     menu_append_submenu(&measure_menu, "Store", &storage_menu);
     menu_append_exit(&measure_menu, "Discard");
-    menu_append_action(&measure_menu, "Main   menu", do_exit, 0);
+    menu_append_submenu(&measure_menu, "Main   menu", &main_menu);
     // run menus
     show_menu(&measure_menu);
 }
 
 
 
-void measure(int32_t a) {
+//void measure(int32_t a) {
+//    CEXCEPTION_T e;
+//    measure_exit = false;
+//    while (true) {
+//        Try {
+//            measure_get_reading(&measure_orientation);
+//        }
+//        Catch (e) {
+//            if (e==ERROR_LASER_READ_FAILED) {
+//                display_on(true);
+//                laser_on(false);
+//                display_clear_screen(true);
+//                display_write_text(0, 0, "Laser read", &large_font, false, true);
+//                display_write_text(4, 0, "failed", &large_font, false, true);
+//                delay_ms_safe(3000);
+//                continue;
+//            } else {
+//                Throw(e);
+//            }
+//        }
+//        if (measure_exit) break;
+//        measure_show_reading(&measure_orientation);
+//        if (measure_exit) break;
+//    }        
+//    laser_on(false);
+//    display_on(true);
+//}
+
+void do_reading() {
     CEXCEPTION_T e;
-    measure_exit = false;
+    Try {
+        get_reading(&measure_orientation);
+        beep_beep();
+    }
+    Catch (e) {
+        if (e==ERROR_LASER_READ_FAILED) {
+            display_on(true);
+            laser_on(false);
+            display_clear_screen(true);
+            display_write_text(0, 0, "Laser read", &large_font, false, true);
+            display_write_text(4, 0, "failed", &large_font, false, true);
+            beep_sad();
+            delay_ms_safe(1000);
+            return;
+        } else {
+            Throw(e);
+        }
+    }
+    measure_show_reading(&measure_orientation);    
+}
+
+void ready_to_measure() {
+    display_on();
+    display_clear_screen(true);
+    display_rle_image(image_laser2);
+    laser_on();    
+}
+
+void measure() {
+    ready_to_measure();
     while (true) {
-        Try {
-            measure_get_reading(&measure_orientation);
+        wdt_clear();
+        show_status();
+        if (measure_requested) {
+            measure_requested = false;
+            delay_ms_safe(2000);
+            do_reading();
+            ready_to_measure();
+            continue;
         }
-        Catch (e) {
-            if (e==ERROR_LASER_READ_FAILED) {
-                display_on(true);
-                laser_on(false);
-                display_clear_screen(true);
-                display_write_text(0, 0, "Laser read", &large_font, false, true);
-                display_write_text(4, 0, "failed", &large_font, false, true);
-                delay_ms_safe(3000);
-                continue;
-            } else {
-                Throw(e);
-            }
+        switch (get_input()) {
+            case SINGLE_CLICK:
+                show_menu(&main_menu);
+                ready_to_measure();
+                break;
+            case LONG_CLICK:
+                do_reading();
+                ready_to_measure();
+                break;
+            case DOUBLE_CLICK:
+                utils_turn_off(0);
+                break;
+            default:
+                break;
         }
-        if (measure_exit) break;
-        measure_show_reading(&measure_orientation);
-        if (measure_exit) break;
-    }        
-    laser_on(false);
-    display_on(true);
+        delay_ms_safe(10);
+    }
 }

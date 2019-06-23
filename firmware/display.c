@@ -51,13 +51,14 @@ void display_close() {
 	send1(0xAE);
 }
 
-void display_on(bool enable){
-	if (enable) {
-		send1(0xAF); 
-	} else {
-		send1 (0xAE);
-	}
+void display_on(){
+    send1(0xAF); 
 }
+
+void display_off() {
+    send1 (0xAE);
+}
+
 
 void set_page(int page) {
 	send1(page+0xB0);
@@ -179,7 +180,7 @@ void display_rle_image(const char* image) {
 	int page = 0;
 	int row = 0;
 	int image_counter,real_page;
-	int row_counter = 0;
+	int column = 0;
 	int colour = 1;
 	while (page<8) {
 		image_counter = *image;
@@ -188,13 +189,13 @@ void display_rle_image(const char* image) {
 		while (image_counter--) {
 			real_page = (page+top_page)%8;
 			if (colour) {
-				buffer[real_page][row_counter] |= 1<<row;
+				buffer[real_page][column] |= 1<<row;
 			} else {
-				buffer[real_page][row_counter] &= ~(1<<row);
+				buffer[real_page][column] &= ~(1<<row);
 			}
-			row_counter++;
-			if (row_counter>=128) {
-				row_counter = 0;
+			column++;
+			if (column>=128) {
+				column = 0;
 				row++;
 				colour = 1;
 				if (row>=8) {

@@ -1,10 +1,12 @@
 #define USE_AND_OR
 #include "config.h"
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "battery.h"
 #include "interface.h"
 #include "sensors.h"
 #include "display.h"
@@ -17,22 +19,15 @@
 #include "visualise.h"
 #include "datetime.h"
 #include "beep.h"
+#include "laser.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
 
-volatile enum INPUT last_click = NONE;
+volatile enum INPUT last_click;
 
 
-void turn_off(int32_t a) {
-    //turn off peripherals
-    PERIPH_EN_SetLow();
-    while (!SWITCH_GetValue()) {
-        delay_ms_safe(10);
-    }
-    sys_reset(a);
-}
 
 
 DECLARE_MENU(timeout_menu, {
@@ -77,52 +72,71 @@ DECLARE_MENU(settings_menu, {    /* settings menu */
 DECLARE_MENU(calibration_menu, {
     /* calibrate menu */
     {"Sensors", Action, {calibrate_sensors}, 0},
-    //{"Laser",Action,laser_cal, 0},
-    //{"Align",Action,align_cal, 0},
+    {"Laser", Action, {calibrate_laser}, 0},
     {"Axes", Action, {calibrate_axes}, 0},
     {"Back", Back, {NULL}, 0},
 });
 
 DECLARE_MENU(main_menu, {
-    {"Measure", Action, {measure}, 0},
+    {"Measure", Exit, {NULL}, 0},
     {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},
     {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
     {"Visualise", Action, {visualise_show_menu}, 0},
     {"Debug  >", SubMenu, .submenu = &debug_menu, 0},
-    {"Off", Action, {turn_off}, 0}
+    {"Off", Action, {utils_turn_off}, 0}
 });
 
 /* set up timer interrupts etc */
 /* Timer 2 is our input poller counter */
 /* timer 3 is click length counter */
 /* timer 2 delay: 2ms  = */
-uint32_t last_activity_counter = 0;
+uint32_t last_activity_counter;
+
+void interface_init() {
+    last_activity_counter = 0;
+    last_click = NONE;
+}
 
 /* change notification interrupt, called every 2ms*/
+/* 0 = button pressed, 1 is released*/
 void TMR2_CallBack(void) {
     static uint16_t state = 0x0001;
+    static bool ignore_release = true;
     last_activity_counter++;
-    state = ((state << 1) | SWITCH_GetValue()) & 0x0fff;
-    if (state == (SWITCH_ACTIVE_HIGH ? 0x07ff : 0x0800)) {
-        /* we have just transitioned to a '1' and held it for 11 T2 cycles*/
-        if (last_activity_counter > 200) {
-            /* it's been more than a quarter second since the last press started */
-            last_click = SINGLE_CLICK;
-        } else {
+    
+    state = ((state << 1) | SWITCH_GetValue()) & 0xffff;
+    if (state == 0x8000) {
+        /* we have just pressed the button and held it for 12 T2 cycles*/
+        if (last_activity_counter < 100) {
+            /* it's been less than 0.2s since the last press finished */
             last_click = DOUBLE_CLICK;
+            ignore_release = true;
         }
         last_activity_counter=0;
     }
-    if (state == (SWITCH_ACTIVE_HIGH ? 0x0800 : 0x07ff)) {
-        /* we have just transitiioned to a '0' and held it for 11 T2 cycles */
-        if (last_activity_counter > 1000) {
-            last_click = LONG_CLICK;
+    if (state == 0x7fff) {
+        /* we have just released the button*/
+        last_activity_counter = 0;
+        if (!ignore_release) {
+            last_click = SINGLE_CLICK;
         }
-        last_activity_counter=0;
+        ignore_release = false;
+    }
+    if (state == 0x0000) {
+        if (last_activity_counter > 750) {
+            if (!ignore_release) {
+                last_click = LONG_CLICK;
+                ignore_release=true;
+            }
+        }        
     }
     if (last_activity_counter>(config.timeout*500)) {
-        sys_reset(0);
+        utils_turn_off(0);
     }
+}
+
+void timeout_reset() {
+    last_activity_counter = 0;
 }
 
 void swipe_text(const char *text, bool left) {
@@ -155,7 +169,7 @@ enum INPUT get_input() {
     struct COOKED_SENSORS sensors;
     enum INPUT temp;
 
-    sensors_read_cooked(&sensors);
+    sensors_read_cooked(&sensors, 3);
     /* look for "flip" movements */
     //debug("f%.2g",sensors.gyro[1]);
     if (sensors.gyro[1] < -30.0) {
@@ -185,7 +199,6 @@ enum INPUT get_input() {
         temp = last_click;
         last_click = NONE;
         INTERRUPT_GlobalEnable();
-        last_activity_counter = 0;
         return temp;
     }
     //nothing else found - so return NONE
@@ -201,17 +214,16 @@ unsigned char reverse(unsigned char b) {
 }
 
 void show_status() {
+    const int FOOTER_LENGTH = 16;
     char header[17];
     char footer[17] = "                "; //16 spaces
-#define FOOTER_LENGTH 16
     int x;
     struct tm dt;
     /* batt icon 50% charge: 0x1f,0x20,0x2f*9,0x20*9,0x20,0x1f,0x04,0x03 */
     /* reverse bit order for second line */
     unsigned char bat_status[24];
     int charge;
-    //charge = battery_get_units();
-    charge = 15;
+    charge = battery_get_units();
     if (!day) {
         bat_status[0] = 0xf8;
         bat_status[1] = 0x04;
@@ -252,6 +264,7 @@ void show_status() {
 }
 
 void show_menu(struct menu *menu) {
+    laser_off();
     menu_initialise(menu);
     scroll_text(menu_get_text(menu), true);
     while (true) {
@@ -284,8 +297,13 @@ void show_menu(struct menu *menu) {
                     case Info: //do nothing on click if INFO item.
                         break;
                 }
+                break;
             case DOUBLE_CLICK:
-                //hibernate();
+                utils_turn_off(0);
+                break;
+            case LONG_CLICK:
+                measure_requested=true;
+                return;
                 break;
             default:
                 break;

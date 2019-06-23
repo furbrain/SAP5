@@ -3,6 +3,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_statistics.h>
 #include "display.h"
 #include "font.h"
 #include "sensors.h"
@@ -11,9 +14,12 @@
 #include "calibrate.h"
 #include "utils.h"
 #include "laser.h"
+#include "gsl_static.h"
+#include "beep.h"
+#include "interface.h"
 
-static double mag_readings[CALIBRATION_SAMPLES*3]; //3 sets of readings...
-static double grav_readings[CALIBRATION_SAMPLES*3];
+GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES, 3);
+GSL_MATRIX_DECLARE(grav_readings, CALIBRATION_SAMPLES, 3);
 
 static
 int get_greatest_axis(struct RAW_SENSORS *raw) {
@@ -63,7 +69,7 @@ bool check_sane_axes(void) {
     return true;
 }
 
-void calibrate_axes(int dummy) {
+void calibrate_axes(int32_t dummy) {
     int i;
     char text[18];
     const char *instructions[] = {
@@ -92,116 +98,205 @@ void calibrate_axes(int dummy) {
 }
 
 
-double check_calibration(double *data, int len, matrixx calibration) {
-    vectorr vector, v_result;
+double check_calibration(const gsl_matrix *data, int len, calibration *cal) {
+    GSL_VECTOR_DECLARE(result,3);
     int k;
     double magnitude;
-    double max_error=0;
+    double error=0;
     for (k=0; k<len; k++) {
-        vector[0] = data[k*3];
-        vector[1] = data[k*3+1];
-        vector[2] = data[k*3+2];
-        apply_matrix(vector, calibration, v_result);
-        magnitude = v_result[0]*v_result[0] + v_result[1]*v_result[1] + v_result[2]*v_result[2];
-        max_error += fabs(magnitude-1.0);
+        gsl_vector_const_view row = gsl_matrix_const_row(data, k);
+        apply_calibration(&row.vector, cal, &result);
+        magnitude = gsl_blas_dnrm2(&result);
+        error += fabs(magnitude-1.0);
     }
-    return (max_error/len)*100;
+    return (error/len)*100;
 }
 
-double get_gyro_offset(int axis) {
+double check_accuracy(const gsl_matrix *mag, const calibration *mag_cal,
+                      const gsl_matrix *grav, const calibration *grav_cal) {
+    GSL_VECTOR_DECLARE(mag_row, 3);
+    GSL_VECTOR_DECLARE(grav_row, 3);
+    GSL_VECTOR_DECLARE(result, 3);
+    GSL_MATRIX_DECLARE(orientation, 8, 3);
     int i;
-    double gyro_offset = 0.0;
-    struct COOKED_SENSORS sensors;
-    for (i=0; i<10; i++) {
-        sensors_read_uncalibrated(&sensors);
-        gyro_offset += sensors.gyro[2];
-        wdt_clear();
+    /* create matrix with vectors of orientation*/
+    for (i=0; i<8; i++) {
+        gsl_vector_const_view mag_temp = gsl_matrix_const_row(mag, i);
+        gsl_vector_const_view grav_temp = gsl_matrix_const_row(grav, i);
+        apply_calibration(&mag_temp.vector, mag_cal, &mag_row);
+        apply_calibration(&grav_temp.vector, grav_cal, &grav_row);
+        gsl_vector_view orient_row = gsl_matrix_row(&orientation, i);
+        maths_get_orientation_as_vector(&mag_row,
+                                        &grav_row,
+                                        &orient_row.vector);
     }
-    gyro_offset /= 10.0;
-    return gyro_offset;
+    /* calculate absolute deviation for each axis*/
+    for (i=0; i<3; i++) {
+        gsl_vector_view column = gsl_matrix_column(&orientation, i);
+        gsl_vector_set(&result, i, gsl_stats_absdev(column.vector.data, 
+                                                    column.vector.stride,
+                                                    column.vector.size));
+    }
+    
+    return gsl_blas_dnrm2(&result) * 180.0 / M_PI;
 }
 
-int collect_data_around_axis(int axis, double gyro_offset, double *mag_data, double *grav_data) {
+int collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset) {
     struct COOKED_SENSORS sensors;
-    double gyro=0;
-    int i, j;
-    i = 0;
-    do {
-        do {
-            sensors_read_uncalibrated(&sensors);
-            gyro += ((sensors.gyro[axis]-gyro_offset)*20)/1000;
-            delay_ms_safe(20);
-        } while (fabs(gyro)<(i*3));
-        for (j=0; j<3; j++) {
-           mag_data[i*3+j] = sensors.mag[j];
-           grav_data[i*3+j] = sensors.accel[j];
-        }
-        i++;
-    } while ((fabs(gyro)<400) && i < (CALIBRATION_SAMPLES/2));
-    return i;
+    gsl_vector_view mag_sensors = gsl_vector_view_array(sensors.mag,3);
+    gsl_vector_view grav_sensors = gsl_vector_view_array(sensors.accel,3);
+    int i;
+    for (i=0; i< 8; i++) {
+        //delay to let user move to position
+        delay_ms_safe(5000);
+        //read in samples
+        sensors_read_uncalibrated(&sensors, SAMPLES_PER_READING);
+        gsl_matrix_set_row(mag_data, i+offset, &mag_sensors.vector);
+        gsl_matrix_set_row(grav_data, i+offset, &grav_sensors.vector);
+        //beep to let user know to move to next position.
+        laser_off();
+        delay_ms_safe(300);
+        beep_beep();
+        laser_on();
+        timeout_reset();
+    }
+    beep_happy();
+    return 8;
 }
+//    do {
+//        do {
+//            sensors_read_uncalibrated(&sensors);
+//            gyro += ((sensors.gyro[axis]-gyro_offset)*20)/1000;
+//            delay_ms_safe(20);
+//        } while (fabs(gyro)<(i*3));
+//        for (j=0; j<3; j++) {
+//           mag_data[i*3+j] = sensors.mag[j];
+//           grav_data[i*3+j] = sensors.accel[j];
+//        }
+//        i++;
+//    } while ((fabs(gyro)<400) && i < (CALIBRATION_SAMPLES/2));
 
-void calibrate_sensors(int32_t a) {
-    char text[30];
-    matrixx accel_mat, mag_mat;
-    double gyro_offset = 0;
-    int z_axis_count, y_axis_count, offset, data_length;
-    double error;
+int get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
 /* Brief summary of plan:
  * First place the device flat on the ground and leave alone
  * This allows us to calibrate zero-offsets for gyros*/
+    int z_axis_count, y_axis_count;
     display_clear_screen(true);
     display_write_multiline(0, "Place device on a\nlevel surface\nand leave alone", true);
     delay_ms_safe(2000);
-    gyro_offset = get_gyro_offset(2);
     display_clear_screen(true);
-    display_write_multiline(0, "Rotate clockwise\n360' while\nleaving display\nfacing up", true);
+    display_write_multiline(0, "After each beep\nrotate by ~45'\nleaving display\nfacing up", true);
     delay_ms_safe(1500);
-    /* Now rotate around z-axis and read in ~CALIBRATION_SAMPLES/2 readings */
-    laser_on(true);
-    display_on(false);
-    z_axis_count = collect_data_around_axis(2, gyro_offset, mag_readings, grav_readings);
+    beep_beep();
+    laser_on();
+    display_off();
+    z_axis_count = collect_data(mag, grav, 0);
     wdt_clear();
     
     /* now read data on y-axis */
-    display_on(true);
+    display_on();
     display_clear_screen(true);
     display_write_multiline(0, "Point laser at\nfixed target", true);
     delay_ms_safe(2000);
-    gyro_offset = get_gyro_offset(1);
     display_clear_screen(true);
-    display_write_multiline(0, "Rotate device\n360' while\nleaving laser\non target", true);
+    display_write_multiline(0, "After each beep\nrotate by ~45'\nleaving laser\non target", true);
     delay_ms_safe(1500);
-    offset = z_axis_count*3;
-    display_on(false);
-    laser_on(true);
-    y_axis_count = collect_data_around_axis(1, gyro_offset, mag_readings+offset, grav_readings+offset);
-    data_length = z_axis_count + y_axis_count;
+    display_off();
+    laser_on();
+    y_axis_count = collect_data(mag, grav, z_axis_count);
     wdt_clear();
-    laser_on(false);
-    display_on(true);
+    laser_off();
+    display_on();
     display_clear_screen(true);
-    display_write_multiline(0, "Processing", true);
-    // calibrate magnetometer
-    calibrate(mag_readings, data_length, mag_mat);
-    error = check_calibration(mag_readings, data_length, mag_mat);
-    sprintf(text, "Mag Err:  %.2f%%", error);
-    display_write_multiline(2,text, true);
-    wdt_clear();
-    // calibrate accelerometer
-    calibrate(grav_readings, data_length, accel_mat);
-    error = check_calibration(grav_readings, data_length, accel_mat);
-    sprintf(text, "Grav Err: %.2f%%", error);
-    display_write_multiline(4,text, true);
-    memcpy(config.calib.accel, accel_mat, sizeof(matrixx));
-    memcpy(config.calib.mag, mag_mat, sizeof(matrixx));
-    wdt_clear();
-    config_save();
-    display_write_multiline(6, "Done", true);
-    delay_ms_safe(4000);
-    
+    return z_axis_count + y_axis_count;
 }
 
-void laser_cal() {
+void calibrate_sensors(int32_t dummy) {
+    char text[30];
+    CALIBRATION_DECLARE(grav_cal);
+    CALIBRATION_DECLARE(mag_cal);
+    gsl_matrix_const_view mag_spins = gsl_matrix_const_submatrix(&mag_readings, 8, 0, 8, 3);
+    gsl_matrix_const_view grav_spins = gsl_matrix_const_submatrix(&grav_readings, 8, 0, 8, 3);
+    int data_length;
+    double grav_error, mag_error, accuracy;
+    data_length = get_calibration_data(&mag_readings, &grav_readings);
+    display_write_multiline(0, "Processing", true);
+    delay_ms_safe(2000);
+    // FIXME store data
+    erase_page(leg_store.raw);
+    erase_page(&leg_store.raw[0x800]);
+    write_data(leg_store.raw, &mag_readings_data, CALIBRATION_SAMPLES*3*4);
+    write_data(&leg_store.raw[0x800], &grav_readings_data, CALIBRATION_SAMPLES*3*4);
+    
+    //do calibration
+    
+    fit_ellipsoid(&mag_readings, data_length, &mag_cal);
+    fit_ellipsoid(&grav_readings, data_length, &grav_cal);
+    align_laser(&mag_spins.matrix, &mag_cal);
+    align_laser(&grav_spins.matrix, &grav_cal);
+    sync_sensors(&mag_readings, &mag_cal, &grav_readings, &grav_cal);
+    
+    // show mag error
+    mag_error = check_calibration(&mag_readings, data_length, &mag_cal);
+    sprintf(text, "Mag Err:  %.2f%%", mag_error);
+    display_write_multiline(2,text, true);
+    
+    //show grav error
+    grav_error = check_calibration(&grav_readings, data_length, &grav_cal);
+    sprintf(text, "Grav Err: %.2f%%", grav_error);
+    display_write_multiline(4,text, true);
+    
+    //show accuracy
+    accuracy = check_accuracy(&mag_spins.matrix, &mag_cal,
+                              &grav_spins.matrix, &grav_cal);
+    sprintf(text, "Accuracy: %.2f`", accuracy);
+    display_write_multiline(4,text, true);
+    delay_ms_safe(4000);
+    
+    //check satisfactory calibration
+    display_clear_screen(true);
+    if (isnan(grav_error) || isnan(mag_error) || isnan(accuracy)) {
+        display_write_multiline(2, "Calibration failed\nNot Saved", true);
+    } else if ((grav_error > 5.0) || (mag_error > 5.0) || (accuracy > 1.2)) {
+        display_write_multiline(2, "Poor calibration\nNot saved", true);
+    } else {
+        display_write_multiline(2, "Calibration Good\nSaved.", true);
+        calibration conf_grav = calibration_from_doubles(config.calib.accel);
+        calibration conf_mag = calibration_from_doubles(config.calib.mag);
+        calibration_memcpy(&conf_grav, &grav_cal);
+        calibration_memcpy(&conf_mag, &mag_cal);
+        wdt_clear();
+        config_save();
+    }
+    delay_ms_safe(4000);    
+}
+
+void calibrate_laser(int32_t dummy) {
+    GSL_VECTOR_DECLARE(samples, 10);
+    int i;
+    double distance, error, offset;
+    char text[80];
+    display_write_multiline(0,"Place a target 1m\nfrom the rearmost\npoint of the\ndevice", true);
+    laser_on();
+    delay_ms_safe(4000);
+    for (i=0; i<samples.size; ++i) {
+        laser_on();
+        delay_ms_safe(100);
+        distance = laser_read(LASER_MEDIUM, 4000);
+        gsl_vector_set(&samples, i, distance);
+        beep_beep();
+    }
+    laser_off();
+    distance = gsl_stats_mean(samples.data, samples.stride, samples.size);
+    error = gsl_stats_sd(samples.data, samples.stride, samples.size);
+    offset = 1.000 - distance;
+    config.calib.laser_offset = offset;
+    sprintf(text, "Offset: %.3f\nError: %.3f\nConfig saved", offset, error);
+    display_clear_screen(true);
+    display_write_multiline(0, text, true);
+    delay_ms_safe(2000);
+    config_save();
+    display_write_multiline(6, "Saved", true);
+    delay_ms_safe(1000);
 }
 
