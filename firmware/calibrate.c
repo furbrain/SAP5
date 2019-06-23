@@ -275,14 +275,18 @@ void calibrate_laser(int32_t dummy) {
     GSL_VECTOR_DECLARE(samples, 10);
     int i;
     double distance, error, offset;
-    char text[20];
+    char text[80];
     display_write_multiline(0,"Place a target 1m\nfrom the rearmost\npoint of the\ndevice", true);
+    laser_on();
     delay_ms_safe(4000);
     for (i=0; i<samples.size; ++i) {
-        distance = laser_read(LASER_SLOW, 4000);
+        laser_on();
+        delay_ms_safe(100);
+        distance = laser_read(LASER_MEDIUM, 4000);
         gsl_vector_set(&samples, i, distance);
         beep_beep();
     }
+    laser_off();
     distance = gsl_stats_mean(samples.data, samples.stride, samples.size);
     error = gsl_stats_sd(samples.data, samples.stride, samples.size);
     offset = 1.000 - distance;
@@ -290,6 +294,9 @@ void calibrate_laser(int32_t dummy) {
     sprintf(text, "Offset: %.3f\nError: %.3f\nConfig saved", offset, error);
     display_clear_screen(true);
     display_write_multiline(0, text, true);
+    delay_ms_safe(2000);
     config_save();
+    display_write_multiline(6, "Saved", true);
+    delay_ms_safe(1000);
 }
 
