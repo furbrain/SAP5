@@ -292,8 +292,6 @@ void align_laser(const gsl_matrix *data, calibration *cal) {
     if (gsl_vector_get(&plane,1) < 0) {
         gsl_vector_scale(&plane, -1);
     }
-    printf("laser alginment: ");
-    gsl_vector_fprintf(stdout, &plane, "%f");
     plane_to_rotation(&plane, &rotation);
     gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &rotation, &cal->transform.matrix, 0, &temp);
     gsl_matrix_memcpy(&cal->transform.matrix, &temp);
@@ -334,7 +332,7 @@ double sync_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
     GSL_MATRIX_RESIZE(fixed_mag, mag_data->size1, 3);
     GSL_MATRIX_RESIZE(fixed_grav, grav_data->size1, 3);
 
-    struct sync_params params = {&fixed_mag, &fixed_grav, true};
+    struct sync_params params = {&fixed_mag, &fixed_grav};
     
     gsl_min_fminimizer *minimizer =  gsl_min_fminimizer_alloc(gsl_min_fminimizer_goldensection);
     gsl_function F;

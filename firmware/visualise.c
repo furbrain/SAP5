@@ -111,7 +111,7 @@ void visualise_survey(uint16_t survey){
 	        default:
                 delay_ms_safe(10); 
         }
-        sensors_read_cooked(&sensors);
+        sensors_read_cooked(&sensors, SAMPLES_PER_READING);
         maths_get_orientation_as_matrix(&magnetism.vector, &acceleration.vector, &orientation);
         display_cave(&cave, &orientation);
     }

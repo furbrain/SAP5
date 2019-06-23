@@ -37,29 +37,17 @@ DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
 
 void get_reading(gsl_vector *orientation){
-    GSL_VECTOR_DECLARE(magnetism, 3);
-    GSL_VECTOR_DECLARE(acceleration, 3);
 	struct COOKED_SENSORS sensors;
 	double distance;
     gsl_vector_view sensors_magnetism = gsl_vector_view_array(sensors.mag, 3);    
     gsl_vector_view sensors_acceleration = gsl_vector_view_array(sensors.accel, 3);    
-	int i;
 
 	display_off();
 	laser_on();
 	delay_ms_safe(20);
-	gsl_vector_set_zero(&magnetism);
-	gsl_vector_set_zero(&acceleration);
-	for(i=0; i < NUM_SENSOR_READINGS; ++i) {
-		delay_ms_safe(10);
-        sensors_read_cooked(&sensors);
-        gsl_vector_add(&magnetism, &sensors_magnetism.vector);
-        gsl_vector_add(&acceleration, &sensors_acceleration.vector);
-    }
-    gsl_vector_scale(&magnetism, 1.0/NUM_SENSOR_READINGS);
-    gsl_vector_scale(&acceleration, 1.0/NUM_SENSOR_READINGS);
+    sensors_read_cooked(&sensors, SAMPLES_PER_READING);
+    maths_get_orientation_as_vector(&sensors_magnetism.vector, &sensors_acceleration.vector, orientation);
     distance = laser_read(LASER_MEDIUM, 1000);
-    maths_get_orientation_as_vector(&magnetism, &acceleration, orientation);
     gsl_vector_scale(orientation, distance);
     display_on();
     laser_off();
@@ -207,6 +195,7 @@ void do_reading() {
     CEXCEPTION_T e;
     Try {
         get_reading(&measure_orientation);
+        beep_beep();
     }
     Catch (e) {
         if (e==ERROR_LASER_READ_FAILED) {
@@ -215,7 +204,8 @@ void do_reading() {
             display_clear_screen(true);
             display_write_text(0, 0, "Laser read", &large_font, false, true);
             display_write_text(4, 0, "failed", &large_font, false, true);
-            delay_ms_safe(3000);
+            beep_sad();
+            delay_ms_safe(1000);
             return;
         } else {
             Throw(e);
