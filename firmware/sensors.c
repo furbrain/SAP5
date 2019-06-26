@@ -243,9 +243,10 @@ void sensors_read_cooked(struct COOKED_SENSORS *sensors, int count) {
     sensors_uncalibrated_to_cooked(sensors);
 }
 
-
-
-
-
-
-
+void sensors_get_orientation(gsl_vector *orientation, int count) {
+    struct COOKED_SENSORS sensors;
+    gsl_vector_view mag = gsl_vector_view_array(sensors.mag, 3);
+    gsl_vector_view grav = gsl_vector_view_array(sensors.accel, 3);
+    sensors_read_cooked(&sensors, count);
+    maths_get_orientation_as_vector(&mag.vector, &grav.vector, orientation);
+}

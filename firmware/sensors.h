@@ -35,4 +35,6 @@ void sensors_read_cooked(struct COOKED_SENSORS *sensors, int count);
 
 void sensors_uncalibrated_to_cooked(struct COOKED_SENSORS *sensors);
 
+void sensors_get_orientation(gsl_vector *orientation, int count);
+
 #endif

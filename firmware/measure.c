@@ -36,17 +36,14 @@ bool measure_requested = false;
 DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
 
+TESTABLE_STATIC
 void get_reading(gsl_vector *orientation){
-	struct COOKED_SENSORS sensors;
 	double distance;
-    gsl_vector_view sensors_magnetism = gsl_vector_view_array(sensors.mag, 3);    
-    gsl_vector_view sensors_acceleration = gsl_vector_view_array(sensors.accel, 3);    
 
 	display_off();
 	laser_on();
 	delay_ms_safe(20);
-    sensors_read_cooked(&sensors, SAMPLES_PER_READING);
-    maths_get_orientation_as_vector(&sensors_magnetism.vector, &sensors_acceleration.vector, orientation);
+    sensors_get_orientation(orientation, SAMPLES_PER_READING);
     distance = laser_read(LASER_MEDIUM, 1000);
     gsl_vector_scale(orientation, distance);
     display_on();
@@ -68,8 +65,7 @@ double get_distance(gsl_vector *orientation) {
 
 
 /* calculate compass and inclination from an orientation */
-TESTABLE_STATIC
-void calculate_bearings(gsl_vector *orientation, double *compass, double *inclination){
+void measure_calculate_bearings(gsl_vector *orientation, double *compass, double *inclination){
     *compass = atan2(gsl_vector_get(orientation, 0), gsl_vector_get(orientation, 1)) * DEGREES_PER_RADIAN;
 	if (*compass<0) *compass+=360;
 	*inclination = atan2(gsl_vector_get(orientation, 2), get_extension(orientation))*DEGREES_PER_RADIAN;
@@ -84,7 +80,7 @@ void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
     char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
     char angle_symbol = (config.display_style==GRAD) ? GRAD_SYMBOL : DEGREE_SYMBOL;
     char text[30];
-    calculate_bearings(orientation, &compass, &inclination);
+    measure_calculate_bearings(orientation, &compass, &inclination);
 
     sprintf(text, "%05.1f%c", compass * degree_scale, angle_symbol);
     menu_append_submenu(menu, text, &main_menu);
