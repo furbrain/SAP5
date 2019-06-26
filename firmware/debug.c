@@ -11,10 +11,12 @@
 #include "exception.h"
 #include "battery.h"
 #include "utils.h"
+#include "gsl_static.h"
 #include "mcc_generated_files/mcc.h"
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/tmr1.h"
 #include "mcc_generated_files/tmr2.h"
+#include "measure.h"
 
 void SetPlainFRC(void) {
     SYSTEM_RegUnlock();
@@ -122,10 +124,10 @@ void show_details(int32_t a) {
     while (true) {
         switch (get_input()) {
             case SINGLE_CLICK:
-            case DOUBLE_CLICK:
-            case LONG_CLICK:
                 return;
                 break;
+            case LONG_CLICK:
+            case DOUBLE_CLICK:
             default:
                 break;
         }
@@ -146,6 +148,28 @@ void show_details(int32_t a) {
         delay_ms_safe(500);
     }
 }
+
+void show_bearings(int32_t a) {
+    char stext[80];
+    GSL_VECTOR_DECLARE(orientation, 3);
+    double compass, inclination;
+    while (true) {
+        switch (get_input()) {
+            case SINGLE_CLICK:
+            case DOUBLE_CLICK:
+            case LONG_CLICK:
+                return;
+                break;
+            default:
+                break;
+        }
+        sensors_get_orientation(&orientation, SAMPLES_PER_READING);
+        measure_calculate_bearings(&orientation, &compass, &inclination);
+        sprintf(stext,"Compass: %5.1f`\n  Clino: %+.1f`", compass, inclination);
+        display_write_multiline(2, stext, true);
+    }
+}
+
 
 void throw_error(int32_t a) {
     THROW_WITH_REASON("Just a random reason to get cross", ERROR_UNSPECIFIED);
@@ -168,6 +192,7 @@ void div_by_zero(int32_t a) {
 DECLARE_MENU(debug_menu, {
     {"Sleep", Action, {do_sleep}, 0},
     {"Sensors", Action, {show_sensors}, 0},
+    {"Bearings", Action, {show_bearings}, 0},
     {"Readings", Action, {show_details}, 0},
     {"Throw", Action, {throw_error}, 0},
     {"Freeze", Action, {freeze_error}, 0},
