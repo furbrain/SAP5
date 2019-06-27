@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include <time.h>
 #include <xc.h>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_blas.h>
 
 #include "mcc_generated_files/rtcc.h"
 #include "debug.h"
@@ -91,7 +93,7 @@ void do_sleep(int32_t a) {
     config.length_units=IMPERIAL;
 }
 
-void show_sensors(int32_t a) {
+void show_raw_sensors(int32_t a) {
     struct COOKED_SENSORS sensors;
     int i;
     char text[20];
@@ -110,6 +112,41 @@ void show_sensors(int32_t a) {
         display_write_text(0, 0, "      Mag   Grav", &small_font, false, false);
         for(i=0; i<3; i++) {
             sprintf(text,"%c: %6.2f %6.2f", 'X'+i, sensors.mag[i], sensors.accel[i]);
+            display_write_text(2+2*i, 0, text, &small_font, false, false);
+        }        
+        display_show_buffer();
+        delay_ms_safe(100);
+    }
+}
+
+void show_calibrated_sensors(int32_t a) {
+    struct COOKED_SENSORS sensors;
+    gsl_vector_view mag = gsl_vector_view_array(sensors.mag, 3);
+    gsl_vector_view grav = gsl_vector_view_array(sensors.accel, 3);
+    int i;
+    char text[20];
+    double M, g;
+    while (true) {
+        switch (get_input()) {
+            case SINGLE_CLICK:
+            case DOUBLE_CLICK:
+            case LONG_CLICK:
+                return;
+                break;
+            default:
+                break;
+        }
+        sensors_read_cooked(&sensors, SAMPLES_PER_READING);
+        display_clear_screen(false);
+        M = gsl_blas_dnrm2(&mag.vector);
+        M /= config.calib.mag[0];
+        g /= config.calib.accel[0];
+        g = gsl_blas_dnrm2(&grav.vector);
+        display_write_text(0, 0, "      Mag   Grav", &small_font, false, false);
+        sprintf(text, "M/g:%6.2f %6.2f", M, g);
+        display_write_text(0,0, text, &small_font, false, false);
+        for(i=0; i<3; i++) {
+            sprintf(text,"%c:  %6.2f %6.2f", 'X'+i, sensors.mag[i], sensors.accel[i]);
             display_write_text(2+2*i, 0, text, &small_font, false, false);
         }        
         display_show_buffer();
@@ -190,11 +227,12 @@ void div_by_zero(int32_t a) {
 
 
 DECLARE_MENU(debug_menu, {
-    {"Sleep", Action, {do_sleep}, 0},
-    {"Sensors", Action, {show_sensors}, 0},
+//    {"Sleep", Action, {do_sleep}, 0},
+    {"Raw", Action, {show_raw_sensors}, 0},
+    {"Calibrated", Action, {show_calibrated_sensors}, 0},
     {"Bearings", Action, {show_bearings}, 0},
-    {"Readings", Action, {show_details}, 0},
-    {"Throw", Action, {throw_error}, 0},
-    {"Freeze", Action, {freeze_error}, 0},
-    {"DivByZero", Action, {div_by_zero}, 0}            
+    {"Misc", Action, {show_details}, 0},
+//    {"Throw", Action, {throw_error}, 0},
+//    {"Freeze", Action, {freeze_error}, 0},
+//    {"DivByZero", Action, {div_by_zero}, 0}            
 });
