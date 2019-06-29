@@ -13,6 +13,30 @@
 #define PAGE_SIZE 0x0800
 #define ROW_SIZE 0x0100
 #define DWORD_SIZE 0x0008
+
+/**
+  @Summary
+    Clear any error flags
+
+  @Description
+    Resets the error bits in the flash controller
+     
+  @Param
+    No params
+
+  @ThrowsO
+    Throws ERROR_FLASH_STORE_FAILED if there is a problem
+
+*/
+void memory_clear_errors() {
+    unsigned int res;
+    res = utils_flash_memory(NULL, NULL, FLASH_CLEAR_ERROR);
+    if (res) {
+        THROW_WITH_REASON("Clear errors failed", ERROR_FLASH_STORE_FAILED);
+    }    
+}
+
+
 /**
   @Summary
     Erase a page of memory

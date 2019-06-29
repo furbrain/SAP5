@@ -10,6 +10,7 @@
 #include "exception.h"
 #include "config.h"
 #include "interface.h"
+#include "memory.h"
 //FIXME
 #include "beep.h"
 #include "battery.h"
@@ -49,6 +50,7 @@ void initialise() {
     beep_initialise();
     PERIPH_EN_SetHigh();
     exception_init();
+    memory_clear_errors();
     TMR2_Start();
     config_load();
     survey_current_init();

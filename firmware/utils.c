@@ -95,6 +95,7 @@ int utils_flash_memory (void *dest, const void *data, enum FLASH_OP op) {
             NVMSRCADDR = (uint32_t)data;
             break;
         case FLASH_ERASE_CHIP:
+        case FLASH_CLEAR_ERROR:
             break;
         default:
             THROW_WITH_REASON("Invalid flash operation",ERROR_FLASH_STORE_FAILED);

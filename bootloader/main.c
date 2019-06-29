@@ -132,6 +132,7 @@ void run_usb(void) {
     
 	enum BAT_STATUS bat_status;
     SYSTEM_Initialize();
+    memory_clear_errors();
 	/* setup ports */	
 /* enable peripherals */
     PERIPH_EN_SetHigh();

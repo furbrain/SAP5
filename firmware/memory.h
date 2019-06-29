@@ -16,6 +16,22 @@
 #endif
 /**
   @Summary
+    Clear any error flags
+
+  @Description
+    Resets the error bits in the flash controller
+     
+  @Param
+    No params
+
+  @Throws
+    Throws ERROR_FLASH_STORE_FAILED if there is a problem
+
+*/
+void memory_clear_errors();
+
+/**
+  @Summary
     Erase a page of memory
 
   @Description
