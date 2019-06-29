@@ -6,4 +6,5 @@ extern struct menu debug_menu;
 void show_sensors(int32_t a);
 void show_bearings(int32_t a);
 void show_details(int32_t a);
+void test_battery(int32_t a);
 #endif

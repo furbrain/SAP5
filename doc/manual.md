@@ -161,6 +161,16 @@ of squeezing it too tightly!
 ### Off
 Turns the device off
 
+## Battery Life
+The main draw on the battery is the laser pointer. From a full charge
+the device will remain on continuously for about 2½ hours, assuming 15 seconds to read out the compass and clino, 3s
+of laser usage to identify the target station and 3s of reading. You should get approx 300 sets of readings,
+but your actual results will vary depending on how long you keep the laser on for and
+the ambient temperature.
+
+When the battery is getting low you will first get a warning when the device turns on. When the battery is
+critically low, the device will not turn on and just make an "error" noise.
+
 ## Known Issues
 
 * The device is sensitive to pressure on the top surface. You can see the effect

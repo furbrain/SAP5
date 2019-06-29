@@ -19,6 +19,10 @@
 #include "mcc_generated_files/tmr1.h"
 #include "mcc_generated_files/tmr2.h"
 #include "measure.h"
+#include "laser.h"
+#include "leg.h"
+#include "beep.h"
+#include "memory.h"
 
 void SetPlainFRC(void) {
     SYSTEM_RegUnlock();
@@ -225,6 +229,54 @@ void div_by_zero(int32_t a) {
     i0 = i1/i0;
 }
 
+void test_battery(int32_t a) {
+    GSL_VECTOR_DECLARE(orientation, 3);
+    char text[80];
+    struct voltage_record {
+        int count;
+        double voltage;
+    };
+    struct voltage_record record[32];
+    int i;
+    double voltage;
+    CEXCEPTION_T e;
+    display_clear_screen(true);
+    memory_erase_page(leg_store.raw);
+    memory_erase_page(&leg_store.raw[0x800]);
+    memory_erase_page(&leg_store.raw[0x1000]);
+    i = 0;
+    do  {
+        delay_ms_safe(15000);
+        sensors_get_orientation(&orientation, SAMPLES_PER_READING);
+        laser_on();
+        Try {
+            delay_ms_safe(2000);
+            laser_read(LASER_MEDIUM, 3000);
+        } Catch (e) {
+            beep_sad();
+        }
+        laser_off();
+        voltage = battery_get_voltage();
+        record[i%32].voltage = voltage;
+        record[i%32].count = i;
+        sprintf(text, "Filler text here\nVoltage: %4.2f\n  Count: %d\nFiller text here", record[i%32].voltage, record[i%32].count);
+        beep_beep();
+        i++;
+        if (i%32 == 0) {
+            memory_write_data(&leg_store.raw[(i-32)*8], &record[0], 0x100);
+        }
+        PERIPH_EN_SetLow();
+        delay_ms_safe(2000); //restart peripherals
+        PERIPH_EN_SetHigh();
+        delay_ms_safe(500);
+        display_init();
+        sensors_init();
+        display_clear_screen(true);    
+        display_write_multiline(0, text, true);
+    } while (voltage > 3.4);
+    utils_turn_off(0);
+}
+
 
 DECLARE_MENU(debug_menu, {
 //    {"Sleep", Action, {do_sleep}, 0},
@@ -232,6 +284,7 @@ DECLARE_MENU(debug_menu, {
     {"Calibrated", Action, {show_calibrated_sensors}, 0},
     {"Bearings", Action, {show_bearings}, 0},
     {"Misc", Action, {show_details}, 0},
+    {"Battery", Action, {test_battery}, 0},
 //    {"Throw", Action, {throw_error}, 0},
 //    {"Freeze", Action, {freeze_error}, 0},
 //    {"DivByZero", Action, {div_by_zero}, 0}            

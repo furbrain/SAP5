@@ -12,6 +12,7 @@
 #include "interface.h"
 //FIXME
 #include "beep.h"
+#include "battery.h"
 #define TXT_LENGTH 50
 
 void display_error(CEXCEPTION_T e) {
@@ -45,18 +46,29 @@ void initialise() {
     wdt_clear();
     RTCC_TimeReset(true);
     SYSTEM_Initialize();
+    beep_initialise();
     PERIPH_EN_SetHigh();
     exception_init();
     TMR2_Start();
     config_load();
     survey_current_init();
-    delay_ms_safe(100);
+    delay_ms_safe(300);
+    if (battery_get_voltage()<3.4) {
+        beep_sad();
+        utils_turn_off(0);
+    }
     display_init();
     sensors_init();
     interface_init();
-    beep_initialise();
     wdt_clear();
-    display_clear_screen(true);    
+    display_clear_screen(true);
+    if (battery_get_voltage() < 3.5) {
+        display_write_text(0,0,"Low", &large_font, false, true);
+        display_write_text(4,0,"Battery", &large_font, false, true);
+        beep_sad();
+        delay_ms_safe(1000);
+        display_clear_screen(true);
+    }
 }
 
 int main(void)
