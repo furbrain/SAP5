@@ -69,14 +69,6 @@ DECLARE_MENU(settings_menu, {    /* settings menu */
     {"Back", Back, {NULL}, 0},
 });
 
-DECLARE_MENU(calibration_menu, {
-    /* calibrate menu */
-    {"Sensors", Action, {calibrate_sensors}, 0},
-    {"Laser", Action, {calibrate_laser}, 0},
-    {"Axes", Action, {calibrate_axes}, 0},
-    {"Back", Back, {NULL}, 0},
-});
-
 DECLARE_MENU(main_menu, {
     {"Measure", Exit, {NULL}, 0},
     {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},

@@ -21,6 +21,16 @@
 GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES, 3);
 GSL_MATRIX_DECLARE(grav_readings, CALIBRATION_SAMPLES, 3);
 
+DECLARE_MENU(calibration_menu, {
+    /* calibrate menu */
+    {"Sensors", Action, {calibrate_sensors}, 0},
+    {"Laser", Action, {calibrate_laser}, 0},
+    {"Axes", Action, {calibrate_axes}, 0},
+    {"Back", Back, {NULL}, 0},
+});
+
+
+
 static
 int get_greatest_axis(struct RAW_SENSORS *raw) {
     int max_abs = 0;
