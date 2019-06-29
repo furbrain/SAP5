@@ -37,5 +37,5 @@ if __name__ == "__main__":
 			break
 		conf = Config.from_buffer(text)	
 		i += 1
-	print i
-	print conf
+		print conf
+
