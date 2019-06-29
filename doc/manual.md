@@ -7,11 +7,15 @@ variety of beeping noises.
 ## General Usage
 
 
-To turn on:
+**To turn on:**<br>
 Press the button
 
-To turn off:
+**To turn off:**<br>
 Press the button twice in quick succession
+
+**To navigate in menus:**<br>
+Tilt the device briefly towards you - this will move on to the 
+next menu item. Clicking the button will select that menu item
 
 __DO NOT SQUEEZE THE DEVICE:__ this can cause errors, especially during calibration. Gently hold it
 by the edges. Squeezing the top and bottom surfaces can move internal components and significantly affect accuracy
