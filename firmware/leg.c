@@ -55,10 +55,10 @@ void leg_save(struct LEG *leg) {
     }
     boundary = leg_spans_boundary(ptr);
     if (boundary) {
-        erase_page(boundary);
+        memory_erase_page(boundary);
     }
     Try {
-        write_data(ptr, leg, sizeof(struct LEG));
+        memory_write_data(ptr, leg, sizeof(struct LEG));
     }
     Catch (e) {
         if (e==ERROR_FLASH_STORE_FAILED) 

@@ -76,7 +76,7 @@ static void clear_flash()
 	int8_t res;
 
 	while (prog_addr < USER_REGION_TOP) {
-		erase_page((void*)prog_addr);
+		memory_erase_page((void*)prog_addr);
 		if (res < 0)
 			return;
 
@@ -91,7 +91,7 @@ static void write_flash_row()
 	if (write_length < BUFFER_LENGTH)
 		memset(prog_buf + write_length, 0xff,
 		       BUFFER_LENGTH - write_length);
-	write_row((void *)write_address, prog_buf);
+	memory_write_row((void *)write_address, prog_buf);
 }
 
 

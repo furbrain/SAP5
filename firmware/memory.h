@@ -31,7 +31,7 @@
     Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-void erase_page(const void *ptr);
+void memory_erase_page(const void *ptr);
 
 /**
   @Summary
@@ -48,7 +48,7 @@ void erase_page(const void *ptr);
     Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-void erase_memory();
+void memory_erase_all();
 
 /**
   @Summary
@@ -65,7 +65,7 @@ void erase_memory();
     Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-void write_row(const void *ptr, const void* src);
+void memory_write_row(const void *ptr, const void* src);
 
 /**
   @Summary
@@ -101,5 +101,5 @@ void write_dword(const void *ptr, const void* src);
     Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-void write_data(const void *ptr,  const void *src, int length);
+void memory_write_data(const void *ptr,  const void *src, int length);
 

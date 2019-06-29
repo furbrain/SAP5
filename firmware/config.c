@@ -36,10 +36,10 @@ void config_save(void){
         ptr ++;
     }
     if (ptr >= overflow) {
-        erase_page(config_store.raw);
+        memory_erase_page(config_store.raw);
         ptr  = &config_store.configs[0];
     }
-    write_data(ptr, &config, sizeof(config));
+    memory_write_data(ptr, &config, sizeof(config));
 }
 
 bool config_ptr_is_valid(const struct CONFIG *conf) {

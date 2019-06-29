@@ -31,7 +31,7 @@
     erasing
 
 */
-void erase_page(const void *ptr) {
+void memory_erase_page(const void *ptr) {
     unsigned int res;
     size_t page;
     page = (size_t)KVA_TO_PA(ptr);
@@ -59,7 +59,7 @@ void erase_page(const void *ptr) {
     returns 0 on success, -2 if an error on erase
 
 */
-void erase_memory() {
+void memory_erase_all() {
     unsigned int res;
     res = utils_flash_memory(NULL, NULL, FLASH_ERASE_CHIP);
     if (res) {
@@ -83,7 +83,7 @@ void erase_memory() {
     fails
 
 */
-void write_row(const void *ptr, const void* src) {
+void memory_write_row(const void *ptr, const void* src) {
     unsigned int res;
     size_t row;
     row = (size_t)KVA_TO_PA(ptr);
@@ -113,7 +113,7 @@ void write_row(const void *ptr, const void* src) {
     fails
 
 */
-void write_dword(const void *ptr, const void* src){
+void memory_write_dword(const void *ptr, const void* src){
     unsigned int res;
     size_t dword;
     // Load data into NVMDATA register
@@ -127,7 +127,7 @@ void write_dword(const void *ptr, const void* src){
     }
 }
 
-void write_data(const void *ptr,  const void *src, int length){
+void memory_write_data(const void *ptr,  const void *src, int length){
     if ((size_t)ptr % 8)
         THROW_WITH_REASON("Write address not on doubleword boundary", ERROR_FLASH_STORE_FAILED);
     if (length % 8)
@@ -137,12 +137,12 @@ void write_data(const void *ptr,  const void *src, int length){
 #pragma GCC diagnostic ignored "-Wpointer-arith"    
     while (length > 0) {
         if ((((size_t)ptr % ROW_SIZE) ==0) && (length >= ROW_SIZE)) {
-            write_row(ptr, src);
+            memory_write_row(ptr, src);
             ptr += ROW_SIZE;
             src += ROW_SIZE;
             length -= ROW_SIZE;            
         } else {
-            write_dword(ptr, src);
+            memory_write_dword(ptr, src);
             ptr += DWORD_SIZE;
             src += DWORD_SIZE;
             length -= DWORD_SIZE;
