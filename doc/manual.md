@@ -4,6 +4,9 @@
 The Shetland Attack Pony (SAP) now has an integrated laser range finder, and comes with a OLED display and a wide
 variety of beeping noises.
 
+[Demo video on YouTube](http://www.youtube.com/watch?v=q_M8_QxNhjs)
+
+
 ## General Usage
 
 
