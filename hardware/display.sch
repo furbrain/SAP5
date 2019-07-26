@@ -6,7 +6,7 @@ device=CONNECTOR_4
 T 74300 47900 5 10 1 1 0 0 1
 refdes=DISPLAY1
 T 74300 46500 5 10 0 0 0 0 1
-footprint=oled
+footprint=oled2
 }
 C 76900 47300 1 0 0 generic-power.sym
 {
