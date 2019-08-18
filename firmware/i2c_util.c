@@ -1,6 +1,7 @@
-#include "mcc_generated_files/mcc.h"
+#include "mcc_generated_files/i2c1.h"
 #include "i2c_util.h"
 #include "utils.h"
+
 
 #include <string.h>
 

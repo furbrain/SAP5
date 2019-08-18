@@ -1,0 +1,4 @@
+#!/bin/bash
+export CEEDLING_MAIN_PROJECT_FILE=project-desksim.yml
+
+ruby vendor/ceedling/bin/ceedling $* CEEDLING_MAIN_PROJECT_FILE=project-desksim.yml
