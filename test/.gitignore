@@ -2,3 +2,4 @@ build
 build-native
 build-real
 build-sim
+build-desksim
