@@ -2,45 +2,12 @@
 #include "beep.h"
 #include "utils.h"
 
-/* initialise beeping circuitry...*/
-void beep_initialise(void){
-    // ON disabled; MOD 16-Bit Single Edge, Toggle; ALTSYNC disabled; SIDL disabled; OPS Each Time Base Period Match; CCPSLP disabled; TMRSYNC disabled; RTRGEN disabled; CCSEL disabled; ONESHOT disabled; TRIGEN disabled; T32 16 Bit; SYNC None; OPSSRC Timer Interrupt Event; TMRPS 1:4; CLKSEL SYSCLK; 
-    CCP2CON1 = 0x43;
-    //OCCEN enabled; OCDEN enabled; ASDGM disabled; OCEEN disabled; ICGSM Level-Sensitive mode; OCFEN disabled; ICS ICM2; SSDG disabled; AUXOUT Disabled; ASDG None; OCAEN disabled; OCBEN disabled; OENSYNC disabled; PWMRSEN disabled; 
-    CCP2CON2 = 0xC000000;
-    //DT 0; OETRIG disabled; OSCNT None; POLACE disabled; POLBDF disabled; PSSBDF Inactive; OUTM Half bridge output; PSSACE Inactive; 
-    CCP2CON3 = 0x20A0000;
-    //SCEVT disabled; TRSET disabled; ICOV disabled; ASEVT disabled; ICGARM disabled; RBWIP disabled; TRCLR disabled; RAWIP disabled; TMRHWIP disabled; TMRLWIP disabled; PRLWIP disabled; 
-    CCP2STAT = 0x0;
-    TRISBCLR = 0x03;
-}
-
 /*just a beepy beep*/
 void beep_beep(void) {
-#ifdef BOOTLOADER
-    CCP2PR = 30000;
-    CCP2RA = 30000;
-    CCP2CON1bits.ON = 1;
-    delay_ms_safe(20);
-    CCP2CON1bits.ON = 0;
-#else
     beep(1000,20);
-#endif
 }
 
 #ifndef BOOTLOADER
-/* make a happy sounding beep - CEGC*/
-/* beep at freq for duration milliseconds*/
-void beep(double freq, int duration) {
-    uint32_t priVal;
-    priVal = (BEEP_FREQ/ (freq*2));
-    //priVal = (2 * 0x10000 * freq) / BEEP_FREQ;
-    CCP2PR = priVal;
-    CCP2RA = priVal;
-    CCP2CON1bits.ON = 1;
-    delay_ms_safe(duration);
-    CCP2CON1bits.ON = 0;
-}
 
 void beep_happy(void) {
     beep(523.251, 30); //C

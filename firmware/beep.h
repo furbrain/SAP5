@@ -5,17 +5,10 @@
 #define BEEP_FREQ (24000000 / 4)
 
 
-
-/* initialise beeping circuitry...*/
-void beep_initialise(void);
-
-/*just a beepy beep*/
+/* make a beepy beep */
 void beep_beep(void);
 
 #ifndef BOOTLOADER
-/* beep at freq for duration milliseconds*/
-void beep(double freq, int duration);
-
 /* make a happy sounding beep - CEGC*/
 void beep_happy(void);
 

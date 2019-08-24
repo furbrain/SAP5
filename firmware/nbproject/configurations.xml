@@ -49,6 +49,7 @@
       <itemPath>selector.h</itemPath>
       <itemPath>datetime.h</itemPath>
       <itemPath>beep.h</itemPath>
+      <itemPath>input.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -100,6 +101,7 @@
       <itemPath>selector.c</itemPath>
       <itemPath>datetime.c</itemPath>
       <itemPath>beep.c</itemPath>
+      <itemPath>input.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -16,7 +16,8 @@
 #include "laser.h"
 #include "gsl_static.h"
 #include "beep.h"
-#include "interface.h"
+#include "input.h"
+#include "menu.h"
 
 GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES, 3);
 GSL_MATRIX_DECLARE(grav_readings, CALIBRATION_SAMPLES, 3);

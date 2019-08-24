@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include "selector.h"
 #include "display.h"
-#include "interface.h"
+#include "input.h"
 #include "utils.h"
 
 const uint8_t up_marker[15] = {0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,

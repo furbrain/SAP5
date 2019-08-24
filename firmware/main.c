@@ -10,6 +10,7 @@
 #include "exception.h"
 #include "config.h"
 #include "interface.h"
+#include "input.h"
 #include "memory.h"
 //FIXME
 #include "beep.h"
@@ -61,7 +62,7 @@ void initialise() {
     }
     display_init();
     sensors_init();
-    interface_init();
+    input_init();
     wdt_clear();
     display_clear_screen(true);
     if (battery_get_voltage() < 3.5) {

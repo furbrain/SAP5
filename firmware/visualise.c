@@ -5,7 +5,7 @@
 #include "display.h"
 #include "gsl_static.h"
 #include "maths.h"
-#include "interface.h"
+#include "input.h"
 #include "sensors.h"
 #include "survey.h"
 

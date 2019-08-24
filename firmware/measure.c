@@ -6,6 +6,7 @@
 #include <gsl/gsl_blas.h>
 #include "measure.h"
 #include "interface.h"
+#include "input.h"
 #include "display.h"
 #include "sensors.h"
 #include "maths.h"

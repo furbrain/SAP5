@@ -6,7 +6,7 @@
 
 #include "mcc_generated_files/rtcc.h"
 #include "debug.h"
-#include "interface.h"
+#include "input.h"
 #include "sensors.h"
 #include "display.h"
 #include "font.h"
@@ -284,7 +284,7 @@ DECLARE_MENU(debug_menu, {
     {"Calibrated", Action, {show_calibrated_sensors}, 0},
     {"Bearings", Action, {show_bearings}, 0},
     {"Misc", Action, {show_details}, 0},
-    {"Battery", Action, {test_battery}, 0},
+//    {"Battery", Action, {test_battery}, 0},
 //    {"Throw", Action, {throw_error}, 0},
 //    {"Freeze", Action, {freeze_error}, 0},
 //    {"DivByZero", Action, {div_by_zero}, 0}            

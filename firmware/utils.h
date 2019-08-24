@@ -22,6 +22,13 @@ enum FLASH_OP {
     if (strlen(src) > count-1) Throw(ERROR_STRING_TOO_BIG);\
     strcpy(dest,src);
 
+#ifndef BOOTLOADER
+/* initialise beeping circuitry...*/
+void beep_initialise(void);
+
+/* beep at freq for duration milliseconds*/
+void beep(double freq, int duration);
+#endif
 
 void delay_ms(int count);
 
