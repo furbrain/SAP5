@@ -8,14 +8,14 @@
 #include "mock_memory.h"
 #include "mock_display.h"
 
-void test_laser_on_true(void) {
+void test_laser_on(void) {
     UART1_ReceiveBufferClear_Expect();
     UART1_Write_Expect('O');
     laser_on();
     
 }
 
-void test_laser_on_false(void) {
+void test_laser_off(void) {
     UART1_ReceiveBufferClear_Expect();
     UART1_Write_Expect('C');
     laser_off();
