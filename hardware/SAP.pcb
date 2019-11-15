@@ -1126,7 +1126,7 @@ Element["" "0402" "C16" "0.1uF" 31.4698mm 32.2400mm -1.1998mm 0.7101mm 2 100 ""]
 
 	)
 
-Element["found,selected" "QFN24G-0.4-3X3MMB" "U7" "unknown" 32.0200mm 29.3000mm 4.3500mm -0.8400mm 3 100 ""]
+Element["found" "QFN24G-0.4-3X3MMB" "U7" "unknown" 32.0200mm 29.3000mm 4.3500mm -0.8400mm 3 100 ""]
 (
 	Pad[39.37mil -66.92mil 39.37mil -58.07mil 7.87mil 20.00mil 13.90mil "1" "1" "square"]
 	Pad[23.62mil -66.92mil 23.62mil -51.18mil 7.87mil 20.00mil 15.87mil "2" "2" "square"]
@@ -1199,16 +1199,16 @@ Element["" "OV7604" "U10" "unknown" 15.3500mm 13.2400mm 0.0802mm 1.6100mm 0 100 
 
 	)
 
-Element["" "oled2" "DISPLAY1" "unknown" 21.8000mm 18.7900mm 0.0000 0.0000 3 100 ""]
+Element["lock" "oled2" "DISPLAY1" "unknown" 21.8000mm 18.7900mm 13.8600mm -2.6700mm 3 100 ""]
 (
-	Pin[13.5000mm -15.3000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole"]
-	Pin[13.5000mm 15.3000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole"]
-	Pin[-13.5000mm -15.3000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole"]
-	Pin[-13.5000mm 15.3000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole"]
-	Pin[15.0000mm -3.8000mm 60.00mil 30.00mil 66.00mil 38.00mil "1" "1" "square,thermal(4X)"]
-	Pin[15.0000mm -1.2600mm 60.00mil 30.00mil 66.00mil 38.00mil "2" "2" ""]
-	Pin[15.0000mm 1.2800mm 60.00mil 30.00mil 66.00mil 38.00mil "3" "3" ""]
-	Pin[15.0000mm 3.8200mm 60.00mil 30.00mil 66.00mil 38.00mil "4" "4" ""]
+	Pin[13.5000mm -15.3000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,lock"]
+	Pin[13.5000mm 15.3000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,lock"]
+	Pin[-13.5000mm -15.3000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,lock"]
+	Pin[-13.5000mm 15.3000mm 3.5000mm 0.5000mm 3.5000mm 3.0000mm "" "" "hole,lock"]
+	Pin[15.0000mm -3.8000mm 60.00mil 30.00mil 66.00mil 38.00mil "1" "1" "square,lock,thermal(4X)"]
+	Pin[15.0000mm -1.2600mm 60.00mil 30.00mil 66.00mil 38.00mil "2" "2" "lock"]
+	Pin[15.0000mm 1.2800mm 60.00mil 30.00mil 66.00mil 38.00mil "3" "3" "lock"]
+	Pin[15.0000mm 3.8200mm 60.00mil 30.00mil 66.00mil 38.00mil "4" "4" "lock"]
 	ElementLine [16.8000mm -17.8000mm 16.8000mm 17.7000mm 10.00mil]
 	ElementLine [-16.9000mm 17.7000mm 16.8000mm 17.7000mm 10.00mil]
 	ElementLine [-16.9000mm -17.8000mm -16.9000mm 17.7000mm 10.00mil]
@@ -1226,7 +1226,7 @@ Element["" "oled2" "DISPLAY1" "unknown" 21.8000mm 18.7900mm 0.0000 0.0000 3 100 
 
 	)
 
-Element["found,selected" "CUI_UJ2-MIBH-4-SMT-TR-67" "J4" "unknown" 21.7799mm 38.6800mm -6.4419mm -2.7473mm 0 100 "selected"]
+Element["found" "CUI_UJ2-MIBH-4-SMT-TR-67" "J4" "unknown" 21.7799mm 38.6800mm -6.4419mm -2.7473mm 0 100 ""]
 (
 	Pin[-100.39mil -165.35mil 1.5000mm 20.00mil 43.43mil 1.1000mm "S1" "S1" "edge2"]
 	Pin[-98.42mil -2.0000mm 43.30mil 20.00mil 51.30mil 43.30mil "GND" "Hole" "hole,edge2"]
