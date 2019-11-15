@@ -1,0 +1,11 @@
+laser holder needs to be about 0.5-1mm wider
+
+battery holder needs to be about 1mm higher
+
+mount holes need to be about 1mm wider
+
+think about how to make speaker hole better
+
+usb re-enforcer needs to be a separate part
+
+consider dropping pcb
