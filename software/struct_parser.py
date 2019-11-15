@@ -66,6 +66,34 @@ class StructParser:
                 text += getattr(self, key).as_str(indent+1)
         return text
         
+    def as_dict(self):
+        result = {}
+        for key, value in self.FMT:
+            if isinstance(value, six.string_types):
+                result[key] = getattr(self, key)
+            else:
+                result[key] = getattr(self, key).as_dict()
+        return result
+    
+    @classmethod            
+    def from_dict(cls, dct, fmt=None):
+        obj = cls()
+        if fmt is None:
+            fmt = cls.FMT
+        else:
+            obj.FMT = fmt
+        keys = [x[0] for x in fmt]
+        if sorted(dct.keys()) != sorted(keys):
+            raise ValueError("Dict does not contain correct keys")
+        for key, value in fmt:
+            if isinstance(value, six.string_types):
+                setattr(obj, key, dct[key])
+            else:
+                subobj = StructParser.from_dict(dct[key], value)
+                setattr(obj, key, subobj)
+        return obj
+                
+        
     def __repr__(self):
         return self.as_str()
                 
