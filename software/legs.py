@@ -1,6 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
-import scipy.stats
 import os
 import collections
 import datetime
@@ -50,4 +49,4 @@ def read_legs():
 if __name__ == "__main__":
     surveys = get_surveys(read_legs())
     for s in surveys.values():
-        print "{survey}: {time} {station_count} {leg_count}".format(**s)
+        print("{survey}: {time} {station_count} {leg_count}".format(**s))

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from struct_parser import StructParser
 class Config(StructParser):
 
@@ -38,4 +38,4 @@ if __name__ == "__main__":
 		    break
 	    conf = Config.from_buffer(text)	
 	    i += 1
-	    print conf
+	    print(conf)

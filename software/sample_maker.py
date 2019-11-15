@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import re
 import datetime
 import sys
@@ -32,6 +32,6 @@ for survey, fname in enumerate(sys.argv[1:]):
             dy = math.cos(compass*tau)*ext
             dx = math.sin(compass*tau)*ext
             tm = time.mktime(dt.timetuple())
-            print tm, survey, frm, to, dx, dy, dz
+            print(tm, survey, frm, to, dx, dy, dz)
             dt += datetime.timedelta(seconds=random.randint(0,300))
             output.write(struct.pack("IHBB3f0q",tm, survey, int(frm), int(to), dx, dy, dz))

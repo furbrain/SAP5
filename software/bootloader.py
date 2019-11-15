@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys
 import re
@@ -10,6 +10,7 @@ import time
 import array
 
 import sparse_list
+from functools import reduce
 # plans...
 # load in hex file - possibly munged to separate out the flash bits etc...
 # probably best do this directly, and load into program, flash and config mems.
@@ -56,7 +57,7 @@ class HexFile:
             if (s[0] == ":"):
                 #good - it starts sensibly...
                 bytes = s.strip()[1:].decode("hex")
-                numbers = map(ord,bytes)
+                numbers = list(map(ord,bytes))
                 reclen = numbers[0]
                 offset = numbers[1]*256 + numbers[2]
                 rectype = numbers[3]
@@ -122,7 +123,7 @@ class Programmer:
             address = address & 0xFFFF
         buf = self.handle.controlMsg(usb.ENDPOINT_IN | usb.TYPE_VENDOR | usb.RECIP_OTHER,command,size,value=address,index=index,timeout=timeout)
         if len(buf) != size and not allow_fewer:
-            print len(buf)
+            print(len(buf))
             raise ProgrammerError("Error reading data : only got %d bytes, expecting %d" % (len(buf),size))
         return buf
 
@@ -180,8 +181,8 @@ class Programmer:
                         pic_data = self.read_data(REQUEST_DATA,i,self.bytes_per_row)
                         break
                     except IOError as e:
-                    	print e
-                        print "Glitch in communications. Trying again"
+                        print(e)
+                        print("Glitch in communications. Trying again")
                         self.handle.reset()
                         count -= 1
                 for j in range(self.bytes_per_row):
@@ -217,19 +218,17 @@ class Programmer:
         return self.write_data(WRITE_DISPLAY,address=column,index=page,data=data)
         
     def read_datetime(self):
-    
-    	tm = struct.unpack("i",struct.pack("4B",*self.read_data(READ_DATETIME,0,4)))
-        print tm
+        tm = struct.unpack("i",struct.pack("4B",*self.read_data(READ_DATETIME,0,4)))
+        print(tm)
         dt = datetime.datetime.fromtimestamp(tm[0])
-        print dt
+        print(dt)
         return dt
         
     def write_datetime(self,dt):
-    	tm = time.mktime(dt.utctimetuple())
+        tm = time.mktime(dt.utctimetuple())
         return self.write_data(WRITE_DATETIME,0,struct.pack("i",tm))
         
     def read_uart(self):
-        
         return ''.join(chr(x) for x in self.read_data(READ_UART, 0, 16, allow_fewer=True))
     
     def write_uart(self, text):
@@ -240,4 +239,4 @@ if __name__=="__main__":
     p = Programmer()
     p.write_uart("O")
     time.sleep(0.3)
-    print p.read_uart()
+    print(p.read_uart())

@@ -1,17 +1,17 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import time
 import freetype
 import pprint
 import string
-from itertools import izip_longest
+from itertools import zip_longest
 DEBUG = False
 
 def chunk(data,chunk_size,padding):
-    return list(izip_longest(*[iter(data)]*chunk_size,fillvalue = padding))
+    return list(zip_longest(*[iter(data)]*chunk_size,fillvalue = padding))
 
 def transpose_bytes(data):
     if len(data)!=8:
-        print "not enough/too many bytes"
+        print("not enough/too many bytes")
         return
     result = [0]*8
     for i in range(8):
@@ -23,13 +23,13 @@ def transpose_bytes(data):
 if DEBUG:
     def sleep(duration):
         if duration==0:
-            print "Sleeping for 0 seconds"
+            print("Sleeping for 0 seconds")
         elif duration<0.000001:
-            print "Sleeping for %g nanoseconds" % (duration/0.000000001)
+            print("Sleeping for %g nanoseconds" % (duration/0.000000001))
         elif duration<0.001:
-            print "Sleeping for %g microseconds" % (duration/0.000001)
+            print("Sleeping for %g microseconds" % (duration/0.000001))
         elif duration<1:
-            print "Sleeping for %g milliseconds" % (duration/0.001)
+            print("Sleeping for %g milliseconds" % (duration/0.001))
     time.sleep = sleep
 
         
@@ -103,13 +103,13 @@ class Display(object):
         if 0 <= column < 132:
             self.cur_column = column
         else:
-            print "invalid column"
+            print("invalid column")
         
     def set_page(self,page):
         if 0 <= page < 8: 
             self.cur_page = page
         else:
-            print "invalid page!"
+            print("invalid page!")
             
     def flip(self,flip = None):
         #get all data first
