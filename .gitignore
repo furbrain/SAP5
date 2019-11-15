@@ -29,6 +29,7 @@
 /firmware/dist/default/
 /firmware/build/default/
 /firmware/disassembly/
+/firmware/infer-out/
 MPLABXLog*
 *#
 /bootloader/dist/default/
