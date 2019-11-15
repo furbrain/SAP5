@@ -37,3 +37,5 @@ MPLABXLog*
 /test/experiments/
 /bootloader/build/internal_clock/
 /bootloader/dist/internal_clock/
+/bootloader/build/external_clock/
+/bootloader/dist/external_clock/

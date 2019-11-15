@@ -12,6 +12,23 @@
             <asminc-extensions/>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>usb</sourceRootElem>
+                <sourceRootElem>mcc_generated_files</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>internal_clock</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>external_clock</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
         </data>
     </configuration>
 </project>
