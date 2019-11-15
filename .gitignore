@@ -2,6 +2,7 @@
 *.PDF
 *~
 *.fcstd1
+*.FCStd1
 *.save
 *.net
 *.cmd
