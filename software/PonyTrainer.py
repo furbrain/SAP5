@@ -8,17 +8,63 @@ import importer
 import svxtextctrl
 from svxview import SVXView
 from svxdocument import SVXDocument
+from functools import partial
 
 class ActualMainFrame(gui.PonyFrame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.create_pane(pane=self.notebook_first_pane)
+        
+    def create_pane(self, pane=None, ctrl = None, focus=True):
+        if pane is None:
+            new_page = True
+            pane = wx.Panel(self.notebook, wx.ID_ANY)
+        else:
+            new_page = False
+        if ctrl is None:
+            ctrl = svxtextctrl.SVXTextCtrl(pane)
+        else:
+            ctrl.Reparent(pane)
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer.Add(ctrl, 1, wx.EXPAND, 0)
+        pane.SetSizer(sizer)
+        pane.ctrl = ctrl
+        ctrl.Bind(wx.stc.EVT_STC_SAVEPOINTREACHED, lambda x: self.set_pane_title(pane, ctrl))
+        ctrl.Bind(wx.stc.EVT_STC_SAVEPOINTLEFT, lambda x: self.set_pane_title(pane, ctrl))
+        if new_page:
+            self.notebook.AddPage(pane, ctrl.GetTitle())
+        if focus:
+            index = self.notebook.FindPage(pane)
+            self.notebook.SetSelection(index)
+        return pane
+        
+    def remove_first_pane_if_not_altered(self):
+        ctrl = self.notebook_first_pane.ctrl
+        if not ctrl.named and not ctrl.IsModified():
+            index = self.notebook.FindPage(self.notebook_first_pane)
+            if index != wx.NOT_FOUND:
+                self.notebook.RemovePage(index)
+        
+    def get_active_ctrl(self):
+        index = self.notebook.GetSelection()
+        pane = self.notebook.GetPage(index)
+        return pane.ctrl
+        
+    def set_pane_title(self, pane, ctrl):
+        index = self.notebook.FindPage(pane)
+        self.notebook.SetPageText(index, ctrl.GetTitle())
+
     def Import(self, event):
         dlg = importer.ActualImportDialog(self, None)
         if dlg.ShowModal()==wx.ID_OK:
             texts = dlg.get_texts(None)
             for title, text in texts:
-                doc = self._docManager.CreateDocument("",flags=DOC_NEW)
-                doc.SetTitle(title)
-                doc.SetText(text)
-                doc.GetFirstView().GetFrame().SetTitle(title)
+                ctrl = svxtextctrl.SVXTextCtrl(self, text = text, filename = title)
+                self.create_pane(ctrl=ctrl)
+                ctrl.named = False
+            if len(texts):
+                self.remove_first_pane_if_not_altered()
+
         
     def Quit(self, event):
         self.Close()
@@ -29,12 +75,83 @@ class ActualMainFrame(gui.PonyFrame):
     
     def About(self, event):
         gui.AboutDialog(self).ShowModal()
+
+    def OnNew(self, event):  # wxGlade: PonyFrame.<event_handler>
+        self.create_pane()
+
+    def OnOpen(self, event):  # wxGlade: PonyFrame.<event_handler>
+        with wx.FileDialog(self, "Open SVX file", wildcard="Survex files (*.svx)|*.svx",
+                               style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return     # the user changed their mind
+
+                # Proceed loading the file chosen by the user
+                pathname = fileDialog.GetPath()
+                ctrl = svxtextctrl.SVXTextCtrl(self, filename=pathname)
+                try:
+                    ctrl.LoadFile(pathname)
+                except IOError:
+                    wx.LogError("Cannot open file '%s'." % newfile)
+                else:
+                    self.create_pane(ctrl=ctrl)
+                    self.remove_first_pane_if_not_altered()
+
+    def OnRevert(self, event):  # wxGlade: PonyFrame.<event_handler>
+        print("Event handler 'OnRevert' not implemented!")
+        event.Skip()
+
+    def OnSave(self, event):  # wxGlade: PonyFrame.<event_handler>
+        ctrl = self.get_active_ctrl()
+        if not ctrl.named:
+            self.OnSaveAs(event)
+        else:
+            ctrl.SaveFile(ctrl.filename)
+                    
+    def OnSaveAs(self, event):  # wxGlade: PonyFrame.<event_handler>
+        ctrl = self.get_active_ctrl()
+        with wx.FileDialog(self, "Save XYZ file", wildcard="XYZ files (*.xyz)|*.xyz",
+                       style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return     # the user changed their mind
+
+        # save the current contents in the file
+            pathname = fileDialog.GetPath()
+        try:
+            ctrl.SaveFile(pathname)
+        except IOError:
+            wx.LogError("Cannot save current data in file '%s'." % pathname)
+        else:
+            ctrl.filename = pathname
+            ctrl.named = True
+            
+
+    def OnClose(self, event):  # wxGlade: PonyFrame.<event_handler>
+        print("Event handler 'OnClose' not implemented!")
+        event.Skip()
+
+    def OnCut(self, event):  # wxGlade: PonyFrame.<event_handler>
+        ctrl = self.get_active_ctrl()
+        ctrl.Cut()
+
+    def OnCopy(self, event):  # wxGlade: PonyFrame.<event_handler>
+        ctrl = self.get_active_ctrl()
+        ctrl.Copy()
+
+    def OnPaste(self, event):  # wxGlade: PonyFrame.<event_handler>
+        ctrl = self.get_active_ctrl()
+        ctrl.Paste()
+
+    def DeviceUploadFirmware(self, event):  # wxGlade: PonyFrame.<event_handler>
+        print("Event handler 'DeviceUploadFirmware' not implemented!")
+        event.Skip()
+
+    def ShowManual(self, event):  # wxGlade: PonyFrame.<event_handler>
+        print("Event handler 'ShowManual' not implemented!")
+        event.Skip()
                         
 PonyTrainer = wx.App(False)
-docmanager = DocManager()
-template = DocTemplate(docmanager, "Survex files", "*.svx", "", "svx", "Svx Doc", "Svx View", SVXDocument, SVXView)
-docmanager.AssociateTemplate(template)
-frame = ActualMainFrame(docmanager, None, wx.ID_ANY, "")
+frame = ActualMainFrame(None, wx.ID_ANY, "PonyTrainer")
 PonyTrainer.SetTopWindow(frame)
 frame.Show()
 PonyTrainer.MainLoop()        

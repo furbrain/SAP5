@@ -41,7 +41,7 @@ class Leg(StructParser):
 
 def read_legs():
     if "PONY_DEBUG" in os.environ:
-        with open("test_legs.dat") as f:
+        with open("test_legs.dat", "rb") as f:
             data = f.read()
             return Leg.read_array(data)
 

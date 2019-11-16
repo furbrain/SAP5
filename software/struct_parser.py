@@ -1,5 +1,6 @@
 import six
 import struct
+import array
 
 class StructParser:
     ALIGNMENT = 1

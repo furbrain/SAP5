@@ -1,6 +1,7 @@
 import wx
 import wx.stc
 import re
+import os
 
 COMMAND_STYLE=10
 VARIABLE_STYLE=11
@@ -47,6 +48,7 @@ class SVXTextCtrl(wx.stc.StyledTextCtrl):
         self.filename = filename
         self.SetLexer(wx.stc.STC_LEX_CONTAINER)
         self.Bind(wx.stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded)
+        
         self.StyleSetFont(wx.stc.STC_STYLE_DEFAULT, wx.Font(14, wx.MODERN,
 wx.NORMAL, wx.NORMAL))
         self.StyleClearAll() 
@@ -57,13 +59,27 @@ wx.NORMAL, wx.NORMAL))
         self.StyleSetItalic(COMMENT_STYLE, True)
         self.StyleSetForeground(COMMENT_STYLE, cdb.Find("Grey"))
         self.StyleSetBackground(ERROR_STYLE, cdb.Find("Red"))
+        self.named = bool(filename)
+        
+    def GetTitle(self):
+        if self.named:
+            fname = os.path.basename(self.filename)
+        else:
+            if self.filename:
+                fname = self.filename
+            else:
+                fname = "Untitled"
+        if self.IsModified():
+            return "*" + fname
+        else:
+            return fname
         
     def OnStyleNeeded(self, event):
         line_start = self.LineFromPosition(self.GetEndStyled())
         line_end = self.LineFromPosition(event.GetPosition())
         for line in range(line_start, line_end+1):
             self.style_line(line)
-            
+
     def style_line(self, line):
         start_pos = self.GetLineEndPosition(line-1)+1
         text = self.GetLine(line)
