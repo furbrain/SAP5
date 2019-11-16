@@ -234,9 +234,15 @@ class Programmer:
     def write_uart(self, text):
         return self.write_data(WRITE_UART, 0, [ord(x) for x in text])
         
+    def get_name(self):
+        adjectives = ['Angry', 'Bored', 'Curious', 'Devious', 'Excited', 'Fierce', 'Grumpy', 'Hungry', 'Idle', 'Jealous']
+        animals = ['Antelope', 'Badger', 'Cheetah', 'Dolphin', 'Eagle', 'Fox', 'Gorilla', 'Hamster', 'Iguana', 'Jaguar']
+        data = self.read_program(0xBFC41840,20)
+        hashed_data = (reduce(operator.xor, data) * 57) % 100
+        name = "%s %s" % (adjectives[hashed_data // 10], animals[hashed_data % 10])
+        return name
 
 if __name__=="__main__":
     p = Programmer()
-    p.write_uart("O")
-    time.sleep(0.3)
-    print(p.read_uart())
+    print(p.get_name())
+
