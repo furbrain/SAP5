@@ -144,20 +144,20 @@ wx.NORMAL, wx.NORMAL))
             return False
       
     def CanClose(self):
+        if not self.IsModified(): return True
         if self.filename:
             name = os.path.basename(self.filename)
         else:
             name = "Untitled"
-        if self.IsModified():
-            result =  wx.MessageBox("%s is not saved. Save now?" % name,
-                                    "Close file", 
-                                    wx.YES_NO | wx.CANCEL | wx.CANCEL_DEFAULT)
-            if result==wx.YES:
-                if self.OnSave():
-                    return True
-                else:
-                    return False
-            elif result==wx.NO:
+        result =  wx.MessageBox("%s is not saved. Save now?" % name,
+                                "Close file", 
+                                wx.YES_NO | wx.CANCEL | wx.CANCEL_DEFAULT)
+        if result==wx.YES:
+            if self.OnSave():
                 return True
-            elif result==wx.CANCEL:
+            else:
                 return False
+        elif result==wx.NO:
+            return True
+        elif result==wx.CANCEL:
+            return False
