@@ -117,7 +117,7 @@ wx.NORMAL, wx.NORMAL))
         if not self.named:
             return self.OnSaveAs()
         else:
-            if not self.SaveFile(ctrl.filename):
+            if not self.SaveFile(self.filename):
                 wx.MessageDialog(self, "Failed to save file:\n%s" % e).ShowModal()
                 return False
         return True

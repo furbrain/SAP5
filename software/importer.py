@@ -44,12 +44,10 @@ class ActualImportDialog(gui.ImportDialog):
         angle = self.angles.GetSelection()
         units = self.units.GetSelection()
         if angle==0:
-            ##FIXME## get angle type from pony
             pass
         else:
             self.config.display_style = angle - 1
         if units==0:
-            ##FIXME## get unit type from pony
             pass
         else:
             self.config.length_units = units - 1
@@ -64,15 +62,17 @@ class ActualImportDialog(gui.ImportDialog):
     def get_units(self):
         result = ""
         if self.config.length_units==0: 
-            result += "*units length metres\n"
+            result += "*units length metres"
         else:
-            result += "*units length feet\n"
+            result += "*units length feet"
         if self.config.display_style==1:
-            result += "*units compass grads\n"
-            result += "*units clino grads"
-        else:                    
-            result += "*units compass degrees\n"
-            result += "*units clino degrees"
+            result += "\n*units compass grads"
+            result += "\n*units clino grads"
+        elif self.config.display_style==0:                    
+            result += "\n*units compass degrees"
+            result += "\n*units clino degrees"
+        else:
+            pass #cartesian
         return result    
     
     def get_data_format(self):

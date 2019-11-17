@@ -102,7 +102,6 @@ class StructParser:
     def read_array(cls, data):
         offset = 0
         obj_size = cls.get_len()
-        print(len(data), obj_size)
         arr = []
         try:
             while True:

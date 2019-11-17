@@ -139,12 +139,11 @@ class ActualMainFrame(gui.PonyFrame):
         if not ctrl.named: return
         if ctrl.IsModified():
             message = "Revert changes to %s" % os.path.basename(ctrl.filename)
-            with wx.MessageDialog(self, "Revert changes to %s?", "Revert File", wx.YES_NO) as dlg:
-                if dlg.ShowModal() == wx.YES:
-                    try:
-                        ctrl.LoadFile(ctrl.filename)
-                    except IOError as e:
-                        wx.MessageDialog(self, "Failed to load file:\n%s" % e).ShowModal()
+            if wx.MessageBox(message, "Revert File", wx.YES_NO) == wx.YES:
+                try:
+                    ctrl.LoadFile(ctrl.filename)
+                except IOError as e:
+                    wx.MessageDialog(self, "Failed to load file:\n%s" % e).ShowModal()
 
     def OnSave(self, event):  # wxGlade: PonyFrame.<event_handler>
         ctrl = self.get_active_ctrl()
@@ -198,7 +197,15 @@ class ActualMainFrame(gui.PonyFrame):
                 wx.MessageBox("Programming complete")
             except bootloader.ProgrammerError as e:
                 wx.MessageBox("Firmware update failed\n%s" % e, "Error")
-
+                
+    def DeviceSetClock(self, event):
+        if self.bootloader is None:
+            self.no_pony_error()
+            return
+        dt = datetime.datetime.now()
+        self.bootloader.write_datetime(dt)
+        wx.MessageBox("%s Clock set to %s" % (self.bootloader.get_name(),dt.strftime("%Y-%m-%d %H:%M")))
+        
     def ShowManual(self, event):  # wxGlade: PonyFrame.<event_handler>
         path = os.path.abspath(sys.argv[0])
         directory = os.path.dirname(path)
