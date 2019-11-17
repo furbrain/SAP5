@@ -1,4 +1,4 @@
 update time on pony if within 15 mins of computer time on connection
 get config change etc working
-sort manual out
+sort manual out DONE
 get windows install working

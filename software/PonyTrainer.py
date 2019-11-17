@@ -3,7 +3,9 @@
 import wx
 import wx.stc
 import os
+import sys
 import datetime
+import webbrowser
 
 import gui
 import importer
@@ -143,8 +145,6 @@ class ActualMainFrame(gui.PonyFrame):
                         ctrl.LoadFile(ctrl.filename)
                     except IOError as e:
                         wx.MessageDialog(self, "Failed to load file:\n%s" % e).ShowModal()
-        print("Event handler 'OnRevert' not implemented!")
-        event.Skip()
 
     def OnSave(self, event):  # wxGlade: PonyFrame.<event_handler>
         ctrl = self.get_active_ctrl()
@@ -189,20 +189,21 @@ class ActualMainFrame(gui.PonyFrame):
         else:
             offset = self.bootloader.user_range[0]
             maximum = self.bootloader.user_range[1]-offset
-            with wx.ProgressDialog("Updating Firmware", "Writing...", maximum) as dlg:
-                self.bootloader.write_program(hexfile, set_progress=lambda x: dlg.Update(x-offset))
-                dlg.Update(0,"Verifying...")
-                self.bootloader.verify_program(hexfile,set_progress=lambda x: dlg.Update(x-offset))
-                self.bootloader.write_datetime(datetime.datetime.now())
-            wx.MessageBox("Programming complete")
-
-            
-        print("Event handler 'DeviceUploadFirmware' not implemented!")
-        event.Skip()
+            try:
+                with wx.ProgressDialog("Updating Firmware", "Writing...", maximum) as dlg:
+                    self.bootloader.write_program(hexfile, set_progress=lambda x: dlg.Update(x-offset))
+                    dlg.Update(0,"Verifying...")
+                    self.bootloader.verify_program(hexfile,set_progress=lambda x: dlg.Update(x-offset))
+                    self.bootloader.write_datetime(datetime.datetime.now())
+                wx.MessageBox("Programming complete")
+            except bootloader.ProgrammerError as e:
+                wx.MessageBox("Firmware update failed\n%s" % e, "Error")
 
     def ShowManual(self, event):  # wxGlade: PonyFrame.<event_handler>
-        print("Event handler 'ShowManual' not implemented!")
-        event.Skip()
+        path = os.path.abspath(sys.argv[0])
+        directory = os.path.dirname(path)
+        manual = os.path.join(directory,'manual.pdf')
+        webbrowser.open(manual)
                         
 PonyTrainer = wx.App(False)
 frame = ActualMainFrame(None, wx.ID_ANY, "PonyTrainer")
