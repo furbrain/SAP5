@@ -2,18 +2,23 @@
 # -*- coding: UTF-8 -*-
 import wx
 import wx.stc
-from wx.lib.docview import DocManager, DocTemplate, DOC_NEW
+import os
+
 import gui
 import importer
 import svxtextctrl
-from svxview import SVXView
-from svxdocument import SVXDocument
+import bootloader
 from functools import partial
 
 class ActualMainFrame(gui.PonyFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_pane(pane=self.notebook_first_pane)
+        self.bootloader = None
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.check_bootloader, self.timer)
+        self.timer.Start(1000)
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
         
     def create_pane(self, pane=None, ctrl = None, focus=True):
         if pane is None:
@@ -53,20 +58,47 @@ class ActualMainFrame(gui.PonyFrame):
     def set_pane_title(self, pane, ctrl):
         index = self.notebook.FindPage(pane)
         self.notebook.SetPageText(index, ctrl.GetTitle())
-
+        
+    def check_bootloader(self, event):
+        if self.bootloader is None:
+            try:
+                self.bootloader = bootloader.Programmer()
+            except bootloader.ProgrammerError:
+                pass
+            else:
+                self.frame_statusbar.SetStatusText("Connected to " + self.bootloader.get_name(), 0)
+        else:
+            try:
+                self.bootloader.read_program(0x9d000000,1)
+            except IOError:
+                self.bootloader = None
+                self.frame_statusbar.SetStatusText("Disconnected", 0)
+                
     def Import(self, event):
-        dlg = importer.ActualImportDialog(self, None)
-        if dlg.ShowModal()==wx.ID_OK:
-            texts = dlg.get_texts(None)
-            for title, text in texts:
-                ctrl = svxtextctrl.SVXTextCtrl(self, text = text, filename = title)
-                self.create_pane(ctrl=ctrl)
-                ctrl.named = False
-            if len(texts):
-                self.remove_first_pane_if_not_altered()
+        if self.bootloader is None:
+            msg = wx.MessageDialog(self, "No Pony attached").ShowModal()
+        else:
+            dlg = importer.ActualImportDialog(self, self.bootloader)
+            if dlg.ShowModal()==wx.ID_OK:
+                texts = dlg.get_texts(None)
+                for title, text in texts:
+                    ctrl = svxtextctrl.SVXTextCtrl(self, text = text, filename = title)
+                    self.create_pane(ctrl=ctrl)
+                    ctrl.named = False
+                if len(texts):
+                    self.remove_first_pane_if_not_altered()
 
         
-    def Quit(self, event):
+    def OnClose(self, event):
+        if event.CanVeto():
+            for i in range(self.notebook.GetPageCount()):
+                pane = self.notebook.GetPage(i)
+                if not pane.ctrl.CanClose():
+                    event.Veto()
+                    return
+        self.Destroy()
+        
+    def OnQuit(self, event):
         self.Close()
     
     def DeviceSettings(self, event):
@@ -92,43 +124,37 @@ class ActualMainFrame(gui.PonyFrame):
                 try:
                     ctrl.LoadFile(pathname)
                 except IOError:
-                    wx.LogError("Cannot open file '%s'." % newfile)
+                    wx.MessageDialog(self, "Failed to load file:\n%s" % e).ShowModal()
                 else:
                     self.create_pane(ctrl=ctrl)
                     self.remove_first_pane_if_not_altered()
 
     def OnRevert(self, event):  # wxGlade: PonyFrame.<event_handler>
+        ctrl = self.get_active_ctrl()
+        if not ctrl.named: return
+        if ctrl.IsModified():
+            message = "Revert changes to %s" % os.path.basename(ctrl.filename)
+            with wx.MessageDialog(self, "Revert changes to %s?", "Revert File", wx.YES_NO) as dlg:
+                if dlg.ShowModal() == wx.YES:
+                    try:
+                        ctrl.LoadFile(ctrl.filename)
+                    except IOError as e:
+                        wx.MessageDialog(self, "Failed to load file:\n%s" % e).ShowModal()
         print("Event handler 'OnRevert' not implemented!")
         event.Skip()
 
     def OnSave(self, event):  # wxGlade: PonyFrame.<event_handler>
         ctrl = self.get_active_ctrl()
-        if not ctrl.named:
-            self.OnSaveAs(event)
-        else:
-            ctrl.SaveFile(ctrl.filename)
+        ctrl.OnSave()
                     
     def OnSaveAs(self, event):  # wxGlade: PonyFrame.<event_handler>
         ctrl = self.get_active_ctrl()
-        with wx.FileDialog(self, "Save XYZ file", wildcard="XYZ files (*.xyz)|*.xyz",
-                       style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
-            if fileDialog.ShowModal() == wx.ID_CANCEL:
-                return     # the user changed their mind
+        ctrl.OnSaveAs()
 
-        # save the current contents in the file
-            pathname = fileDialog.GetPath()
-        try:
-            ctrl.SaveFile(pathname)
-        except IOError:
-            wx.LogError("Cannot save current data in file '%s'." % pathname)
-        else:
-            ctrl.filename = pathname
-            ctrl.named = True
-            
-
-    def OnClose(self, event):  # wxGlade: PonyFrame.<event_handler>
-        print("Event handler 'OnClose' not implemented!")
-        event.Skip()
+    def OnClosePane(self, event):  # wxGlade: PonyFrame.<event_handler>
+        ctrl = self.get_active_ctrl()
+        if ctrl.CanClose():
+            self.notebook.DeletePage(self.notebook.GetSelection())
 
     def OnCut(self, event):  # wxGlade: PonyFrame.<event_handler>
         ctrl = self.get_active_ctrl()

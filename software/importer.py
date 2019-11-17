@@ -10,16 +10,27 @@ FEET_PER_METRE = 3.281
 DEGREES_PER_RADIAN = 57.296
 GRADS_PER_DEGREE = 1.111111111
 
+TEMPLATE = """\
+*begin ;put a name for your survey here
+{date}
+{instrument}
+*team "Lord Stormageddon" Pony ;put the surveyors names here 
+*team "Doctor Evil" Notes
+{units}
+{data_format}
+{data}
+*end ;put the same name here as after begin
+"""
 
 class ActualImportDialog(gui.ImportDialog):
     def __init__(self, parent, bootloader):
         gui.ImportDialog.__init__(self, parent)
-        self.bootloader = bootloader
         ###FIXME### get config details from pony
-        self.config = config.Config.create_empty()
-        self.surveys = legs.get_surveys(legs.read_legs())
+        self.bootloader = bootloader
+        self.config = config.get_config(bootloader)
+        self.surveys = legs.get_all_surveys(bootloader)
         for idx, s in enumerate(self.surveys.values()):
-            self.survey_list.Append([s['time'].strftime("%Y.%m.%d %H:%M"), s['station_count'], s['leg_count']])
+            self.survey_list.Append([s['time'].strftime("%Y-%m-%d %Hh%M"), s['station_count'], s['leg_count']])
             self.survey_list.SetItemData(idx, s['survey'])
         self.survey_list.SortItems(self.sort_list)
         self.survey_list.SetColumnWidth(0,-1)
@@ -45,8 +56,11 @@ class ActualImportDialog(gui.ImportDialog):
             
         
     def get_date_string(self, survey):
-            return "*date {time:%Y.%m.%d}\n".format(**survey)
-        
+            return "*date {time:%Y.%m.%d}".format(**survey)
+            
+    def get_instrument(self):
+            return '*instrument Pony "%s"' % self.bootloader.get_name()
+            
     def get_units(self):
         result = ""
         if self.config.length_units==0: 
@@ -55,17 +69,20 @@ class ActualImportDialog(gui.ImportDialog):
             result += "*units length feet\n"
         if self.config.display_style==1:
             result += "*units compass grads\n"
-            result += "*units clino grads\n"
+            result += "*units clino grads"
         else:                    
             result += "*units compass degrees\n"
-            result += "*units clino degrees\n"
+            result += "*units clino degrees"
         return result    
     
     def get_data_format(self):
         if self.config.display_style==2: #cartesian!
-            return "*data cartesian from to easting northing vertical\n"
+            result =  "*data cartesian from to easting northing vertical\n\n"
+            result += ";from\tto\teasting\tnorthng\tvertical"
         else:
-            return "*data normal from to tape compass clino\n"
+            result =  "*data normal from to tape compass clino\n\n"
+            result += ";from\tto\ttape\tcompass\tclino"
+        return result
 
     def get_leg_entry(self, leg):
         frm = leg.frm
@@ -75,7 +92,7 @@ class ActualImportDialog(gui.ImportDialog):
         else:
             deltas = leg.delta[:]
         if self.config.display_style==2: #cartesian
-            return  "{frm} {to} {delta[0]:.2f} {delta[1]:.2f} {delta[2]:.2f}\n".format(frm=frm, to=to, delta=deltas)
+            return  "{frm}\t{to}\t{delta[0]:.2f}\t{delta[1]:.2f}\t{delta[2]:.2f}\n".format(frm=frm, to=to, delta=deltas)
         compass = math.atan2(deltas[0], deltas[1]) * DEGREES_PER_RADIAN
         if compass<0:
             compass += 360
@@ -85,18 +102,23 @@ class ActualImportDialog(gui.ImportDialog):
         if self.config.display_style==1: #grads
             compass *= GRADS_PER_DEGREE
             clino *= GRADS_PER_DEGREE
-        return  "{frm} {to} {tape:.2f} {compass:.1f} {clino:.1f}\n".format(frm=frm, to=to, tape=tape, compass=compass, clino=clino)
+        return  "{frm}\t{to}\t{tape:.2f}\t{compass:.1f}\t{clino:.1f}\n".format(frm=frm, to=to, tape=tape, compass=compass, clino=clino)
             
         
     def get_text(self, survey, template):
-        text = "*begin XXX\n"
-        text += self.get_date_string(survey)
-        text += self.get_units()
-        text += self.get_data_format()
+        text = {
+            'date' : self.get_date_string(survey),
+            'instrument' : self.get_instrument(),
+            'units' : self.get_units(),
+            'data_format' : self.get_data_format(),
+        }
+        data = ""
         for leg in survey['legs']:
-            text += self.get_leg_entry(leg)
-        text += "*end XXX\n"
-        return (str(survey['time']),text)
+            data += self.get_leg_entry(leg)
+        text['data'] = data
+        result = template.format(**text)
+        time = survey['time'].strftime("%Y-%m-%d %Hh%M")
+        return (time, result)
         
     def get_texts(self, template):
         texts = []
@@ -105,7 +127,7 @@ class ActualImportDialog(gui.ImportDialog):
         while True:
             item = self.survey_list.GetNextSelected(item)
             if item==-1: break
-            texts.append(self.get_text(self.surveys[self.survey_list.GetItemData(item)], template))
+            texts.append(self.get_text(self.surveys[self.survey_list.GetItemData(item)], TEMPLATE))
         return texts
     
     def is_edit(self):

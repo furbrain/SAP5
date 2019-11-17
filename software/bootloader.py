@@ -52,39 +52,38 @@ class HexFile:
     def __init__(self,fname):
         self.program = sparse_list.SparseList(0x100000000)
         page = 0;
-        f = file(fname,"rU")
-        for s in f:
-            if (s[0] == ":"):
-                #good - it starts sensibly...
-                bytes = s.strip()[1:].decode("hex")
-                numbers = list(map(ord,bytes))
-                reclen = numbers[0]
-                offset = numbers[1]*256 + numbers[2]
-                rectype = numbers[3]
-                data = numbers[4:-1]
-                checksum = reduce(operator.add,numbers) & 0xff
-                if ((checksum != 0) or (reclen != len(data))):
-                    raise HexFileError("Bad checksum")
-            else:
-                raise HexFileError("Bad format")
-            #so far, so good. Now to slot the data in...
-            if (rectype not in (0,1,4)):
-                # rectype not known. Fall over
-                raise HexFileError("Unknown record format")
-            if (rectype == 0):
-                self.program[page+offset:page+offset+reclen] = data
-            if (rectype == 1):
-                #end of file
-                return None
-            if (rectype == 4):
-                if offset != 0:
-                    #really should be zero...
+        with open(fname, "rU") as f:
+            for s in f:
+                if (s[0] == ":"):
+                    #good - it starts sensibly...
+                    numbers = bytearray.fromhex(s.strip()[1:])
+                    reclen = numbers[0]
+                    offset = numbers[1]*256 + numbers[2]
+                    rectype = numbers[3]
+                    data = numbers[4:-1]
+                    checksum = reduce(operator.add,numbers) & 0xff
+                    if ((checksum != 0) or (reclen != len(data))):
+                        raise HexFileError("Bad checksum")
+                else:
                     raise HexFileError("Bad format")
-                if reclen != 2:
-                    #incorrect length
-                    raise HexFileError("Bad format")
-                page = data[0]*0x1000000 + data[1]*0x10000
-                page  = page | 0x80000000
+                #so far, so good. Now to slot the data in...
+                if (rectype not in (0,1,4)):
+                    # rectype not known. Fall over
+                    raise HexFileError("Unknown record format")
+                if (rectype == 0):
+                    self.program[page+offset:page+offset+reclen] = data
+                if (rectype == 1):
+                    #end of file
+                    return None
+                if (rectype == 4):
+                    if offset != 0:
+                        #really should be zero...
+                        raise HexFileError("Bad format")
+                    if reclen != 2:
+                        #incorrect length
+                        raise HexFileError("Bad format")
+                    page = data[0]*0x1000000 + data[1]*0x10000
+                    page  = page | 0x80000000
                     
     def __len__(self):
         return len(self.program.elements)
@@ -225,7 +224,8 @@ class Programmer:
         return dt
         
     def write_datetime(self,dt):
-        tm = time.mktime(dt.utctimetuple())
+        tm = int(time.mktime(dt.utctimetuple()))
+        print(tm)
         return self.write_data(WRITE_DATETIME,0,struct.pack("i",tm))
         
     def read_uart(self):

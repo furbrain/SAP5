@@ -1,16 +1,7 @@
 #!/usr/bin/python3
-import numpy as np
-import os
-import collections
 import datetime
 
 from struct_parser import StructParser
-import bootloader
-
-def normalise(vectors):
-    return vectors/np.linalg.norm(vectors, axis=0)
-    
-    
 
 def get_surveys(leg_list):
     surveys = {}
@@ -39,14 +30,19 @@ class Leg(StructParser):
     def is_valid(self):
         return self.time != 0xffffffff
 
-def read_legs():
-    if "PONY_DEBUG" in os.environ:
-        with open("test_legs.dat", "rb") as f:
-            data = f.read()
-            return Leg.read_array(data)
+def read_legs(bootloader):
+    APP_LEG_LOCATION = 0x9D009800
+    APP_LEG_SIZE = 0x00002800
+    data = bootloader.read_program(APP_LEG_LOCATION, APP_LEG_SIZE)
+    legs = Leg.read_array(data)
+    return legs
 
-
-if __name__ == "__main__":
-    surveys = get_surveys(read_legs())
-    for s in surveys.values():
-        print("{survey}: {time} {station_count} {leg_count}".format(**s))
+def get_all_surveys(bootloader):        
+    legs = read_legs(bootloader)
+    surveys = get_surveys(legs)
+    return surveys
+    
+if __name__=="__main__":
+    import bootloader
+    b = bootloader.Programmer()
+    print(read_legs(b))

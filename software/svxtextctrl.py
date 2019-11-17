@@ -112,3 +112,52 @@ wx.NORMAL, wx.NORMAL))
                     self.StartStyling(i + start_pos, 255)
                     self.SetStyling(len(text) - i, COMMENT_STYLE)
                     break
+
+    def OnSave(self):  # wxGlade: PonyFrame.<event_handler>
+        if not self.named:
+            return self.OnSaveAs()
+        else:
+            if not self.SaveFile(ctrl.filename):
+                wx.MessageDialog(self, "Failed to save file:\n%s" % e).ShowModal()
+                return False
+        return True
+
+    def OnSaveAs(self):  # wxGlade: PonyFrame.<event_handler>
+        if self.filename:
+            fname_suggestion = self.filename
+        else:
+            fname_suggestion = 'untitled.svx'
+        with wx.FileDialog(self, "Save SVX file", wildcard="Survex files (*.svx)|*.svx",
+                       style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
+                       defaultFile=fname_suggestion) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return False
+
+        # save the current contents in the file
+            pathname = fileDialog.GetPath()
+        if self.SaveFile(pathname):
+            self.filename = pathname
+            self.named = True
+            return True
+        else:
+            wx.MessageDialog(self, "Failed to save file:\n%s" % e).ShowModal()
+            return False
+      
+    def CanClose(self):
+        if self.filename:
+            name = os.path.basename(self.filename)
+        else:
+            name = "Untitled"
+        if self.IsModified():
+            result =  wx.MessageBox("%s is not saved. Save now?" % name,
+                                    "Close file", 
+                                    wx.YES_NO | wx.CANCEL | wx.CANCEL_DEFAULT)
+            if result==wx.YES:
+                if self.OnSave():
+                    return True
+                else:
+                    return False
+            elif result==wx.NO:
+                return True
+            elif result==wx.CANCEL:
+                return False
