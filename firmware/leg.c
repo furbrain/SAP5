@@ -12,7 +12,7 @@ union LEG_STORE leg_store PLACE_DATA_AT(APP_LEG_LOCATION) = {.raw = {[0 ... APP_
 
 char leg_stations_description[20];
 
-struct LEG leg_create(time_t tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vector *delta) {
+struct LEG leg_create(int tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vector *delta) {
     struct LEG leg;
     int i;
     leg.tm = tm;

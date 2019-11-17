@@ -116,7 +116,12 @@ void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
 static
 void store_leg(int32_t code) {
     struct LEG leg;
-    leg = leg_create(utils_get_time(), survey_current.number, 0, 0, &measure_orientation);
+    int the_time;
+    the_time = utils_get_time();
+    if (the_time<0) {
+        THROW_WITH_REASON("Bad code",ERROR_UNSPECIFIED);
+    }
+    leg = leg_create(the_time, survey_current.number, 0, 0, &measure_orientation);
     leg_stations_decode(code, &leg.from, &leg.to);
     leg_save(&leg);
     survey_add_leg(&survey_current, &leg);

@@ -13,7 +13,7 @@
 
 
 struct __attribute__((aligned(8))) LEG {
-    time_t tm; // time of reading
+    int tm; // time of reading
     uint16_t survey; //survey number
     uint8_t from; //origin station
     uint8_t to; //destination station
@@ -33,7 +33,7 @@ extern union LEG_STORE leg_store;
 
 
 /* create a leg */
-struct LEG leg_create(time_t tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vector *delta);
+struct LEG leg_create(int tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vector *delta);
 
 /* save a leg */
 void leg_save(struct LEG *leg);

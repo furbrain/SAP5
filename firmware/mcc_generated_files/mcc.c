@@ -96,7 +96,7 @@ void SYSTEM_Initialize(void)
     UART1_Initialize();
     ADC1_Initialize();
     TMR2_Initialize();
-    RTCC_Initialize();
+    //RTCC_Initialize();
     TMR1_Initialize();
     INTERRUPT_GlobalEnable();
 }

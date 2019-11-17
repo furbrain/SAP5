@@ -1,5 +1,4 @@
 #include <xc.h>
-#include <time.h>
 #include "mcc_generated_files/tmr1.h"
 #include "mcc_generated_files/rtcc.h"
 #include "mcc_generated_files/interrupt_manager.h"
@@ -66,11 +65,11 @@ void delay_ms_safe(int count) {
     wdt_clear();
 }
 
+uint8_t get_time_buffer[0x40];
 /* get current time in time_t format */
-time_t utils_get_time() {
-    struct tm temp_time;
-    RTCC_TimeGet(&temp_time);
-    return mktime(&temp_time);
+int32_t utils_get_time() {
+    RTCC_TimeGet((struct tm*)&get_time_buffer);
+    return (int32_t)mktime((struct tm*)&get_time_buffer);
 }
 
 
