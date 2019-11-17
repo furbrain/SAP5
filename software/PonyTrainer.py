@@ -3,6 +3,7 @@
 import wx
 import wx.stc
 import os
+import datetime
 
 import gui
 import importer
@@ -73,21 +74,23 @@ class ActualMainFrame(gui.PonyFrame):
             except IOError:
                 self.bootloader = None
                 self.frame_statusbar.SetStatusText("Disconnected", 0)
+               
+    def no_pony_error(self):
+        msg = wx.MessageDialog(self, "No Pony attached").ShowModal()
                 
     def Import(self, event):
         if self.bootloader is None:
-            msg = wx.MessageDialog(self, "No Pony attached").ShowModal()
-        else:
-            dlg = importer.ActualImportDialog(self, self.bootloader)
-            if dlg.ShowModal()==wx.ID_OK:
-                texts = dlg.get_texts(None)
-                for title, text in texts:
-                    ctrl = svxtextctrl.SVXTextCtrl(self, text = text, filename = title)
-                    self.create_pane(ctrl=ctrl)
-                    ctrl.named = False
-                if len(texts):
-                    self.remove_first_pane_if_not_altered()
-
+            self.no_pony_error()
+            return
+        dlg = importer.ActualImportDialog(self, self.bootloader)
+        if dlg.ShowModal()==wx.ID_OK:
+            texts = dlg.get_texts(None)
+            for title, text in texts:
+                ctrl = svxtextctrl.SVXTextCtrl(self, text = text, filename = title)
+                self.create_pane(ctrl=ctrl)
+                ctrl.named = False
+            if len(texts):
+                self.remove_first_pane_if_not_altered()
         
     def OnClose(self, event):
         if event.CanVeto():
@@ -169,6 +172,31 @@ class ActualMainFrame(gui.PonyFrame):
         ctrl.Paste()
 
     def DeviceUploadFirmware(self, event):  # wxGlade: PonyFrame.<event_handler>
+        if self.bootloader is None:
+            self.no_pony_error()
+            return
+        with wx.FileDialog(self, "Open HEX file", wildcard="Hex files (*.hex)|*.hex",
+                               style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as dlg:
+            if dlg.ShowModal() == wx.ID_CANCEL:
+                return
+            path = dlg.GetPath()
+        try:
+            hexfile  = bootloader.HexFile(path)
+        except IOError as e:
+            wx.MessageBox("Could not open Hex File\n%s" % e)
+        except bootloader.HexFileError as e:
+            wx.MessageBox("Invalid Hex File\n%s" % e)
+        else:
+            offset = self.bootloader.user_range[0]
+            maximum = self.bootloader.user_range[1]-offset
+            with wx.ProgressDialog("Updating Firmware", "Writing...", maximum) as dlg:
+                self.bootloader.write_program(hexfile, set_progress=lambda x: dlg.Update(x-offset))
+                dlg.Update(0,"Verifying...")
+                self.bootloader.verify_program(hexfile,set_progress=lambda x: dlg.Update(x-offset))
+                self.bootloader.write_datetime(datetime.datetime.now())
+            wx.MessageBox("Programming complete")
+
+            
         print("Event handler 'DeviceUploadFirmware' not implemented!")
         event.Skip()
 
