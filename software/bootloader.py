@@ -122,7 +122,6 @@ class Programmer:
             address = address & 0xFFFF
         buf = self.handle.controlMsg(usb.ENDPOINT_IN | usb.TYPE_VENDOR | usb.RECIP_OTHER,command,size,value=address,index=index,timeout=timeout)
         if len(buf) != size and not allow_fewer:
-            print(len(buf))
             raise ProgrammerError("Error reading data : only got %d bytes, expecting %d" % (len(buf),size))
         return buf
 
@@ -145,8 +144,6 @@ class Programmer:
             #check to see if there is any data...
             subset = hexfile.program[i:i+self.bytes_per_row]
             if subset.count(None) < self.bytes_per_row:
-                sys.stdout.write(".")
-                sys.stdout.flush()
                 clean_list(subset)
                 self.write_data(SEND_DATA,i,subset)
            	
@@ -173,15 +170,11 @@ class Programmer:
             if subset.count(None) < self.bytes_per_row:
                 clean_list(subset)
                 count = 3
-                sys.stdout.write(".")
-                sys.stdout.flush()
                 while count>0:
                     try:
                         pic_data = self.read_data(REQUEST_DATA,i,self.bytes_per_row)
                         break
                     except IOError as e:
-                        print(e)
-                        print("Glitch in communications. Trying again")
                         self.handle.reset()
                         count -= 1
                 for j in range(self.bytes_per_row):
@@ -218,14 +211,11 @@ class Programmer:
         
     def read_datetime(self):
         tm = struct.unpack("i",struct.pack("4B",*self.read_data(READ_DATETIME,0,4)))
-        print(tm)
         dt = datetime.datetime.fromtimestamp(tm[0])
-        print(dt)
         return dt
         
     def write_datetime(self,dt):
         tm = int(time.mktime(dt.utctimetuple()))
-        print(tm)
         return self.write_data(WRITE_DATETIME,0,struct.pack("i",tm))
         
     def read_uart(self):
