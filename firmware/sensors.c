@@ -16,8 +16,10 @@
 
 GSL_MATRIX_DECLARE(temp_mag_readings, SAMPLES_PER_READING, 3);
 GSL_MATRIX_DECLARE(temp_grav_readings, SAMPLES_PER_READING, 3);
+#define HAS_MPU9250 defined(XPRJ_5_0) || defined(XPRJ_5_1)
+#define HAS_BM1422 defined(XPRJ_5_1) || defined(XPRJ_5_2)
 
-
+#if HAS_MPU9250
 #define MPU_ADDRESS 0x68
 #define MPU_COMMAND(command,data) write_i2c_data2(MPU_ADDRESS,command,data)
 
@@ -34,7 +36,7 @@ GSL_MATRIX_DECLARE(temp_grav_readings, SAMPLES_PER_READING, 3);
 #define EXT_SYNC_SET 0
 #define GYRO_FULL_SCALE 250                   // pick from 250,500,1000,2000 degree/second
 #define ACCEL_FULL_SCALE 2                     // pick from 2,4,8,16g
-#define MAG_FULL_SCALE 4912                    // 4912 uT full-scale magnetic range
+#define MAG_FULL_SCALE 4800                    // 4912 uT full-scale magnetic range
 #define ACCEL_HPF 0                            // high pass filter. 0 is inactive. 
                                                // 1:5Hz, 2:2.5Hz, 3:1.25Hz, 5:0.68Hz, 
                                                // 6: differential from previous reading
@@ -63,13 +65,21 @@ GSL_MATRIX_DECLARE(temp_grav_readings, SAMPLES_PER_READING, 3);
 #define SLV1_DO    0x11
 #define I2C_MST_DELAY_CTRL    0x83
 #define I2C_MST_DELAY    0x00
+#endif
 
+#if HAS_BM1422
+#define BM1422_ADDRESS 0x0e
+#define BM1422_COMMAND(command,data) write_i2c_data2(BM1422_ADDRESS,command,data)
+#undef MAG_FULL_SCALE
+#define MAG_FULL_SCALE 1376
+#endif
 
 
 void sensors_init() {
     //reset FIFO, I2C, signal conditioning...
     uint8_t temp;
     wdt_clear();
+#if HAS_MPU9250
     MPU_COMMAND(0x6A,0);
     MPU_COMMAND(0x6A,7);
 
@@ -133,6 +143,15 @@ void sensors_init() {
     MPU_COMMAND(0x6A, USER_CTRL);
     MPU_COMMAND(0x6B, PWR_MGMT_1);
     wdt_clear();
+#endif
+    
+#if HAS_BM1422
+    BM1422_COMMAND(0x1B, 0xC8); //14bits, 100Hz read rate, continuous mode
+    BM1422_COMMAND(0x5C, 0x00);
+    BM1422_COMMAND(0x5D, 0x00); //clear reset status
+    BM1422_COMMAND(0x1C, 0x00); //do not use Data ready pin
+    BM1422_COMMAND(0x1D, 0x40); //set it going
+#endif
 }
 
 
@@ -143,12 +162,31 @@ void byte_swap(uint16_t *word){
 
 void sensors_read_raw(struct RAW_SENSORS *sensors){
     int i;
+#if defined(XPRJ_5_0)
     if (read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, sizeof(*sensors))) {
         THROW_WITH_REASON("I2C communication failed", ERROR_MAGNETOMETER_FAILED);
     }
     for(i=0; i< 10; ++i) {
         byte_swap(&((uint16_t*)sensors)[i]);
     }
+#elif defined(XPRJ_5_1)
+    if (read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, 14)) {
+        THROW_WITH_REASON("MPU9250 communication failed", ERROR_MAGNETOMETER_FAILED);
+    }
+    for(i=0; i< 7; ++i) {
+        byte_swap(&((uint16_t*)sensors)[i]);
+    }    
+#endif
+#if HAS_BM1422
+    if (read_i2c_data(BM1422_ADDRESS, 0x10, (uint8_t *)sensors->mag, 6)) {
+        //THROW_WITH_REASON("BM1422 communication failed", ERROR_MAGNETOMETER_FAILED);
+    }
+    
+#endif    
+
+#if defined(XPRJ_5_2)
+#error "Sensor read code for 5.2 not implemented"
+#endif
 }
 
 void sensors_raw_adjust_axes(struct RAW_SENSORS *sensors){
@@ -177,7 +215,7 @@ void sensors_raw_to_uncalibrated(struct COOKED_SENSORS *cooked, struct RAW_SENSO
     for (i=0; i<3; i++) {
         cooked->accel[i] = (raw->accel[i]/32768.0) * ACCEL_FULL_SCALE;
         cooked->gyro[i] = (raw->gyro[i]/32768.0) * GYRO_FULL_SCALE;
-        cooked->mag[i] = (raw->mag[i]/32768.0) * MAG_FULL_SCALE/2;
+        cooked->mag[i] = (raw->mag[i]/32768.0) * MAG_FULL_SCALE;
     }
     cooked->temp = (raw->temp/333.87)+21.0;
 }
