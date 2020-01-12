@@ -11,12 +11,17 @@ import gui
 import importer
 import svxtextctrl
 import bootloader
+import config
+import calibration
+import json
+import struct_parser
 from functools import partial
+
 
 class ActualMainFrame(gui.PonyFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.create_pane(pane=self.notebook_first_pane)
+        self.notebook.DeleteAllPages()
         self.bootloader = None
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.check_bootloader, self.timer)
@@ -45,13 +50,6 @@ class ActualMainFrame(gui.PonyFrame):
             index = self.notebook.FindPage(pane)
             self.notebook.SetSelection(index)
         return pane
-        
-    def remove_first_pane_if_not_altered(self):
-        ctrl = self.notebook_first_pane.ctrl
-        if not ctrl.named and not ctrl.IsModified():
-            index = self.notebook.FindPage(self.notebook_first_pane)
-            if index != wx.NOT_FOUND:
-                self.notebook.RemovePage(index)
         
     def get_active_ctrl(self):
         index = self.notebook.GetSelection()
@@ -91,8 +89,6 @@ class ActualMainFrame(gui.PonyFrame):
                 ctrl = svxtextctrl.SVXTextCtrl(self, text = text, filename = title)
                 self.create_pane(ctrl=ctrl)
                 ctrl.named = False
-            if len(texts):
-                self.remove_first_pane_if_not_altered()
         
     def OnClose(self, event):
         if event.CanVeto():
@@ -149,7 +145,6 @@ class ActualMainFrame(gui.PonyFrame):
                     wx.MessageDialog(self, "Failed to load file:\n%s" % e).ShowModal()
                 else:
                     self.create_pane(ctrl=ctrl)
-                    self.remove_first_pane_if_not_altered()
 
     def OnRevert(self, event):  # wxGlade: PonyFrame.<event_handler>
         ctrl = self.get_active_ctrl()
@@ -222,11 +217,15 @@ class ActualMainFrame(gui.PonyFrame):
         dt = datetime.datetime.now()
         self.bootloader.write_datetime(dt)
         wx.MessageBox("%s Clock set to %s" % (self.bootloader.get_name(),dt.strftime("%Y-%m-%d %H:%M")))
+
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(base_path, relative_path)
+
         
     def ShowManual(self, event):  # wxGlade: PonyFrame.<event_handler>
-        path = os.path.abspath(sys.argv[0])
-        directory = os.path.dirname(path)
-        manual = os.path.join(directory,'manual.pdf')
+        manual = self.resource_path('manual.pdf')
         webbrowser.open(manual)
                         
 PonyTrainer = wx.App(False)

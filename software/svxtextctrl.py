@@ -59,6 +59,7 @@ wx.NORMAL, wx.NORMAL))
         self.StyleSetItalic(COMMENT_STYLE, True)
         self.StyleSetForeground(COMMENT_STYLE, cdb.Find("Grey"))
         self.StyleSetBackground(ERROR_STYLE, cdb.Find("Red"))
+        self.SetScrollWidth(600)
         self.named = bool(filename)
         
     def GetTitle(self):

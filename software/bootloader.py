@@ -4,10 +4,14 @@ import sys
 import re
 import operator
 import usb
+import usb.backend.libusb1
+import usb.core
 import struct
 import datetime
 import time
 import array
+import platform
+import os
 
 import sparse_list
 from functools import reduce
@@ -97,30 +101,41 @@ class Programmer:
         self.configuration = configuration
         self.interface = interface
         self.connect()
+
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(base_path, relative_path)
+
         
     def connect(self):
-        for bus in usb.busses():
-            for dev in bus.devices:
-                if (dev.idVendor == self.vID) & (dev.idProduct == self.pID):
-                    handle = dev.open()
-                    handle.setConfiguration(self.configuration)
-                    #handle.claimInterface(interface)
-                    self.handle = handle
-                    chip_info = self.read_data(GET_CHIP_INFO,0,20)
-                    chip_info = struct.pack('20B',*chip_info)
-                    chip_data = struct.unpack('4I2B2x',chip_info)
-                    self.user_range = chip_data[0:2]
-                    self.config_range = [x & 0x1f000000 for x in chip_data[2:4]]
-                    self.bytes_per_row = chip_data[4]*chip_data[5]
-                    return None
-        raise ProgrammerError("Bootloader not found")
+        if platform.system()=="Windows": 
+            lib_location = self.resource_path('libusb-1.0.dll')
+            backend = usb.backend.libusb1.get_backend(find_library=lambda x: lib_location)
+            usb.core.find(backend=backend)
+        dev = usb.core.find(idVendor=self.vID, idProduct=self.pID)
+        if dev is None:
+            raise ProgrammerError("Bootloader not found")
+        dev.set_configuration()
+        #handle.claimInterface(interface)
+        self.dev = dev
+        chip_info = self.read_data(GET_CHIP_INFO,0,20)
+        chip_info = struct.pack('20B',*chip_info)
+        chip_data = struct.unpack('4I2B2x',chip_info)
+        self.user_range = chip_data[0:2]
+        self.config_range = [x & 0x1f000000 for x in chip_data[2:4]]
+        self.bytes_per_row = chip_data[4]*chip_data[5]
         
     def read_data(self,command,address,size,timeout=10000, allow_fewer=False):
         index=0
         if address > 0xFFFF:
             index = address >> 16
             address = address & 0xFFFF
-        buf = self.handle.controlMsg(usb.ENDPOINT_IN | usb.TYPE_VENDOR | usb.RECIP_OTHER,command,size,value=address,index=index,timeout=timeout)
+        buf = self.dev.ctrl_transfer(usb.ENDPOINT_IN | usb.TYPE_VENDOR | usb.RECIP_OTHER, command, 
+                                     data_or_wLength=size,
+                                     wValue=address, 
+                                     wIndex=index,
+                                     timeout=timeout)
         if len(buf) != size and not allow_fewer:
             raise ProgrammerError("Error reading data : only got %d bytes, expecting %d" % (len(buf),size))
         return buf
@@ -130,7 +145,12 @@ class Programmer:
         if address > 0xFFFF:
             index = address >> 16
             address = address & 0xFFFF
-        r = self.handle.controlMsg(usb.ENDPOINT_OUT | usb.TYPE_VENDOR | usb.RECIP_OTHER,command,data,value=address,index=index,timeout=timeout)
+        r = self.dev.ctrl_transfer(usb.ENDPOINT_OUT | usb.TYPE_VENDOR | usb.RECIP_OTHER,
+                                   command,
+                                   data_or_wLength=data,
+                                   wValue=address,
+                                   wIndex=index,
+                                   timeout=timeout)
         if r != len(data):
             raise ProgrammerError("Error writing data")
         return r
