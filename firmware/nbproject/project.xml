@@ -11,16 +11,22 @@
             <header-extensions>h</header-extensions>
             <asminc-extensions/>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
-            <make-dep-projects>
-                <make-dep-project>/home/phil/MPLABXProjects/gsl.X</make-dep-project>
-            </make-dep-projects>
+            <make-dep-projects/>
             <sourceRootList>
                 <sourceRootElem>.</sourceRootElem>
                 <sourceRootElem>../bootloader</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>default</name>
+                    <name>5_0</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>5_1</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>5_2</name>
                     <type>2</type>
                 </confElem>
             </confList>
