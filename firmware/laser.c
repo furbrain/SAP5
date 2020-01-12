@@ -69,7 +69,7 @@ double laser_read_raw(enum LASER_SPEED speed, int timeout) {
     if (timeout<=0){
         THROW_WITH_REASON("Timed out", ERROR_LASER_READ_FAILED);
     }
-    return laser_get_result()+config.calib.laser_offset;
+    return laser_get_result();
 }
 
 double laser_read(enum LASER_SPEED speed, int timeout) {
