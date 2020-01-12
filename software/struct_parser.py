@@ -1,6 +1,7 @@
 import six
 import struct
 import array
+import json
 
 class StructParser:
     ALIGNMENT = 1
@@ -111,4 +112,12 @@ class StructParser:
         except struct.error:
             pass
         return arr
+        
+class StructEncoder(json.JSONEncoder):
+    def default(self, o):
+        try:
+            return o.as_dict()
+        except:
+            pass
+        return super().default(o)
         

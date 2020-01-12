@@ -1,9 +1,9 @@
 #ifndef CALIBRATE_H
 #define CALIBRATE_H
 
-#define CALIBRATION_SUB_SAMPLES 50
-#define CALIBRATION_POSITIONS_PER_AXIS 8
-#define CALIBRATION_SAMPLES (CALIBRATION_POSITIONS_PER_AXIS * 2)
+#define CAL_AXIS_COUNT 4
+#define CAL_TARGET_COUNT 8
+#define CALIBRATION_SAMPLES (CAL_AXIS_COUNT*2 + CAL_TARGET_COUNT)
 extern struct menu calibration_menu;
 
 void calibrate_axes(int32_t dummy);

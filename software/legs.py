@@ -31,7 +31,7 @@ class Leg(StructParser):
         return self.time != 0xffffffff
 
 def read_legs(bootloader):
-    APP_LEG_LOCATION = 0x9D009800
+    APP_LEG_LOCATION = 0x9D00A000
     APP_LEG_SIZE = 0x00002800
     data = bootloader.read_program(APP_LEG_LOCATION, APP_LEG_SIZE)
     legs = Leg.read_array(data)

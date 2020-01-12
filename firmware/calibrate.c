@@ -21,6 +21,9 @@
 
 GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES, 3);
 GSL_MATRIX_DECLARE(grav_readings, CALIBRATION_SAMPLES, 3);
+double mag_cal_store[0x400/sizeof(double)] PLACE_DATA_AT(APP_CAL_LOCATION) = {0};
+double grav_cal_store[0x400/sizeof(double)] PLACE_DATA_AT(APP_CAL_LOCATION+0x400) = {0};
+
 
 DECLARE_MENU(calibration_menu, {
     /* calibrate menu */
@@ -29,7 +32,6 @@ DECLARE_MENU(calibration_menu, {
     {"Axes", Action, {calibrate_axes}, 0},
     {"Back", Back, {NULL}, 0},
 });
-
 
 
 static
@@ -186,17 +188,17 @@ int get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     display_write_multiline(0, "Place device on\n"
                                "inclined surface\n"
                                "After each beep\n"
-                               "rotate by ~90'", true);
+                               "rotate by ~45'", true);
     delay_ms_safe(2000);
-    collect_data(mag, grav, 0, 4);
+    collect_data(mag, grav, 0, CAL_AXIS_COUNT);
     
     /* now read data on x-axis*/
     display_write_multiline(0, "Place device flat\n"
                                "After each beep\n"
                                "rotate end over\n"
-                               "end by ~90'", true);
+                               "end by ~45'", true);
     delay_ms_safe(2000);
-    collect_data(mag, grav, 4, 4);
+    collect_data(mag, grav, CAL_AXIS_COUNT, CAL_AXIS_COUNT);
     
     /* now read data on y-axis */
     display_write_multiline(0, "Point laser at\nfixed target", true);
@@ -207,7 +209,7 @@ int get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
                                "leaving laser\n"
                                "on target", true);
     delay_ms_safe(1500);
-    collect_data(mag, grav, 8, 8);
+    collect_data(mag, grav, CAL_AXIS_COUNT*2, CAL_TARGET_COUNT);
     return 16;
 }
 
@@ -215,8 +217,12 @@ void calibrate_sensors(int32_t dummy) {
     char text[30];
     CALIBRATION_DECLARE(grav_cal);
     CALIBRATION_DECLARE(mag_cal);
-    gsl_matrix_const_view mag_spins = gsl_matrix_const_submatrix(&mag_readings, 8, 0, 8, 3);
-    gsl_matrix_const_view grav_spins = gsl_matrix_const_submatrix(&grav_readings, 8, 0, 8, 3);
+    gsl_matrix_const_view mag_spins = gsl_matrix_const_submatrix(&mag_readings, 
+            CAL_AXIS_COUNT*2, 0, 
+            CAL_TARGET_COUNT, 3);
+    gsl_matrix_const_view grav_spins = gsl_matrix_const_submatrix(&grav_readings, 
+            CAL_AXIS_COUNT*2, 0, 
+            CAL_TARGET_COUNT, 3);
     int data_length;
     double grav_error, mag_error, accuracy;
     /* get data */
@@ -263,6 +269,11 @@ void calibrate_sensors(int32_t dummy) {
         wdt_clear();
         config_save();
     }
+    //save calibration data
+    memory_erase_page(mag_cal_store);
+    memory_write_data(mag_cal_store, mag_readings_data, sizeof(mag_readings_data));
+    memory_write_data(grav_cal_store, 
+                      grav_readings_data, sizeof(grav_readings_data));
     delay_ms_safe(4000);    
 }
 
@@ -280,7 +291,7 @@ void calibrate_laser(int32_t dummy) {
     for (i=0; i<samples.size; ++i) {
         laser_on();
         delay_ms_safe(100);
-        distance = laser_read(LASER_MEDIUM, 4000);
+        distance = laser_read_raw(LASER_MEDIUM, 4000);
         gsl_vector_set(&samples, i, distance);
         beep_beep();
     }

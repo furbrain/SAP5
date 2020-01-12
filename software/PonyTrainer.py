@@ -109,7 +109,24 @@ class ActualMainFrame(gui.PonyFrame):
     def DeviceSettings(self, event):
         dlg = gui.DeviceSettingsDialog(self)
         dlg.ShowModal()
-    
+        
+    def DeviceGetCalibration(self, event):
+        if self.bootloader is None:
+            self.no_pony_error()
+            return
+        data = {'name': self.bootloader.get_name(),
+                'shots': calibration.read_cal(self.bootloader),
+                'conf': config.get_config(self.bootloader)}
+        with wx.FileDialog(self, "Save Calibration", wildcard="Calibration file (*.cal)|*.cal",
+                               style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            try:
+                with open(fileDialog.GetPath(),"w") as f:
+                     json.dump(data,f,cls=struct_parser.StructEncoder)
+            except IOError:                 
+                wx.MessageDialog(self, "Failed to save file:\n%s" % e).ShowModal()
+                
     def About(self, event):
         gui.AboutDialog(self).ShowModal()
 
