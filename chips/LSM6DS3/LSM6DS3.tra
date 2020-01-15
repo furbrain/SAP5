@@ -1,0 +1,62 @@
+# This is the template file for creating symbols with tragesym						
+# every line starting with '#' is a comment line.						
+# save it as text file with tab separated cells and start tragesym						
+						
+[options]						
+# wordswap swaps labels if the pin is on the right side an looks like this:						
+"#   ""PB1 (CLK)"". That's useful for micro controller port labels"						
+# rotate_labels rotates the pintext of top and bottom pins						
+#   this is useful for large symbols like FPGAs with more than 100 pins						
+# sort_labels will sort the pins by it's labels						
+#   useful for address ports, busses, ...						
+wordswap	yes					
+rotate_labels	yes					
+sort_labels	no					
+generate_pinseq	yes					
+sym_width	2800
+pinwidthvertical	400					
+pinwidthhorizontal	400					
+						
+[geda_attr]						
+# name will be printed in the top of the symbol						
+# if you have a device with slots, you'll have to use slot= and slotdef=						
+# use comment= if there are special information you want to add						
+version	20200120 1					
+name	LSM6DS3					
+device	LSM6DS3					
+refdes	U?					
+footprint	LGA14
+description	6 axis accelerometer and gyroscope
+author	Phil Underwood					
+numslots	0					
+dist-license	GPL2					
+use-license	GPL2					
+						
+[pins]						
+# tabseparated list of pin descriptions						
+#						
+# pinnr is the physical number of the pin						
+# seq is the pinseq= attribute, leave it blank if it doesn't matter						
+# type can be (in, out, io, oc, oe, pas, tp, tri, clk, pwr)						
+# style can be (line,dot,clk,dotclk,spacer,none). none if only want to add a net						
+# posit. can be (l,r,t,b) or empty for nets.						
+# net specifies the name of the net. Vcc or GND for example.						
+# label represents the pinlabel.						
+#	"negation lines can be added with ""\_"" example: \_enable\_ "					
+#	"if you want to write a ""\"" use ""\\"" as escape sequence"					
+#						
+#pinnr	seq	type	style	posit.	net	label
+1		in	line	l		SD0
+2		io	line	l		SDx
+3		io	line	l		SCx
+4		out	line	l		INT1
+5		pwr	line	b		Vddio
+6		pwr	line	b		GND
+7		pwr	line	b		GND
+11		pas	line	r		NC
+10		pas	line	r		NC
+9		out	line	r		int2
+8		pwr	line	r		Vdd
+14		io	line	t		SDA
+13		io	line	t		SCL
+12		in	line	t		CS
