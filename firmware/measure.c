@@ -45,7 +45,7 @@ void get_reading(gsl_vector *orientation){
 	laser_on();
 	delay_ms_safe(20);
     sensors_get_orientation(orientation, SAMPLES_PER_READING);
-    distance = laser_read(LASER_MEDIUM, 1000);
+    distance = laser_read(LASER_MEDIUM, 3000);
     gsl_vector_scale(orientation, distance);
     display_on();
     laser_off();
@@ -206,6 +206,15 @@ void do_reading() {
             display_clear_screen(true);
             display_write_text(0, 0, "Laser read", &large_font, false, true);
             display_write_text(4, 0, "failed", &large_font, false, true);
+            beep_sad();
+            delay_ms_safe(1000);
+            return;
+        } else if (e==ERROR_LASER_TIMEOUT) {
+            display_on(true);
+            laser_on(false);
+            display_clear_screen(true);
+            display_write_text(0, 0, "Laser read", &large_font, false, true);
+            display_write_text(4, 0, "timed out", &large_font, false, true);
             beep_sad();
             delay_ms_safe(1000);
             return;

@@ -11,9 +11,7 @@
 TESTABLE_STATIC
 bool laser_result_ready(void) {
     if ((32-UART1_ReceiveBufferSizeGet())>=11) {
-        if (UART1_Peek(4)=='.') {
-            return true;
-        }
+        return true;
     }
     return false;
 }
@@ -67,7 +65,7 @@ double laser_read_raw(enum LASER_SPEED speed, int timeout) {
         timeout -= 5;
     }
     if (timeout<=0){
-        THROW_WITH_REASON("Timed out", ERROR_LASER_READ_FAILED);
+        THROW_WITH_REASON("Timed out", ERROR_LASER_TIMEOUT);
     }
     return laser_get_result();
 }

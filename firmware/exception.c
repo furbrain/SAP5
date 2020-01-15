@@ -10,6 +10,7 @@ const char exception_strings[][20] = {
     "Mem store failed",
     "Survey not found",
     "Laser read failed",
+    "Laser timed out",
     "No survey data",
     "Survey too big",
     "Survey is disjoint",
