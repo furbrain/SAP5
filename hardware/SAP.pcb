@@ -1,7 +1,7 @@
 # release: pcb 4.0.2
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
-FileVersion[20091103]
+FileVersion[20100606]
 
 PCB["SAP" 46.0000mm 40.0000mm]
 
@@ -1160,7 +1160,7 @@ Element["lock" "oled2" "DISPLAY1" "unknown" 21.8000mm 18.7900mm 13.8600mm -2.670
 
 	)
 
-Element["found,selected" "CUI_UJ2-MIBH-4-SMT-TR-67" "J4" "unknown" 21.7799mm 38.6800mm -6.4419mm -2.7473mm 0 100 ""]
+Element["found" "CUI_UJ2-MIBH-4-SMT-TR-67" "J4" "unknown" 21.7799mm 38.6800mm -6.4419mm -2.7473mm 0 100 ""]
 (
 	Pin[-100.39mil -165.35mil 1.5000mm 20.00mil 43.43mil 1.1000mm "S1" "S1" "edge2"]
 	Pin[-98.42mil -2.0000mm 43.30mil 20.00mil 51.30mil 43.30mil "GND" "Hole" "hole,edge2"]
@@ -1743,7 +1743,11 @@ Layer(5 "bottom ground" "copper")
 	Line[30.0600mm 34.5300mm 29.9800mm 34.4500mm 25.00mil 20.00mil "clearline"]
 	Polygon("clearpoly")
 	(
-		[0.0000 38.5100mm] [42.5100mm 38.5100mm] [42.5100mm 0.0000] [0.0000 0.0000] 
+		[0.0000 38.5100mm] [0.0000 0.0000] [42.5100mm 0.0000] [42.5100mm 38.5100mm] 
+		Hole (
+			[29.8400mm 32.3100mm] [29.8400mm 30.1900mm] [27.7400mm 30.1900mm] [27.7400mm 32.2900mm] [29.8000mm 32.2900mm] 
+			[29.8000mm 32.3100mm] 
+		)
 	)
 )
 Layer(6 "bottom signal" "copper")

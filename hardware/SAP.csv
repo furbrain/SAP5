@@ -1,0 +1,19 @@
+Designator,"MPN/Seeed SKU",Qty,Link
+B1,320110026,1,https://statics3.seeedstudio.com/images/opl/datasheet/3410050P1.pdf
+"C1, C2, C4, C21, C23, C26, C27",302010024,7,https://statics3.seeedstudio.com/images/opl/datasheet/302010024.pdf
+"C3, C22",302010103,2,https://statics3.seeedstudio.com/images/opl/datasheet/302010103.pdf
+"C11, C12, C14, C15, C19, C20",302010146,6,https://statics3.seeedstudio.com/images/opl/datasheet/302010146.pdf
+"C24, C25",302010146,2,
+J4,UJ2-MIBH-4-SMT-TR-67,1,https://www.digikey.com.cn/product-detail/zh/cui-inc-/UJ2-MIBH-4-SMT-TR-67/102-4970-1-ND/9564435?keywords=UJ2-MIBH-4-SMT-TR-67
+"R1, R10, R12",301010004,3,https://statics3.seeedstudio.com/images/opl/datasheet/301010004.pdf
+"R2, R11",301010006,2,https://statics3.seeedstudio.com/images/opl/datasheet/301010006.pdf
+"R3, R4, R5",301010009,3,https://statics3.seeedstudio.com/images/opl/datasheet/301010009.pdf
+R7,301010466,1,https://statics3.seeedstudio.com/images/opl/datasheet/301010466.pdf
+"R8, R9",301010039,2,https://statics3.seeedstudio.com/images/opl/datasheet/301010039.pdf
+U1.,PIC32MM0256GPM028-I/SS,1,https://www.digikey.com.cn/product-detail/zh/microchip-technology/PIC32MM0256GPM028-I-SS/PIC32MM0256GPM028-I-SS-ND/7354783
+U6.,XC6215B302MR-G,1,http://www.mouser.cn/ProductDetail/Torex-Semiconductor/XC6215B302MR-G?qs=%2fha2pyFaduj5jEqTMDHvlIU6P%2fuJHBxwW1mTWrfdgcVEpUQHJxbrgg%3d%3d
+U8.,MC78LC30NTRG,1,https://www.digikey.com.cn/product-detail/zh/on-semiconductor/MC78LC30NTRG/MC78LC30NTRGOSCT-ND/1967131?keywords=MC78LC30NTRG
+U9.,MAX1555EZK+T,1,https://www.digikey.com.cn/product-detail/zh/maxim-integrated/MAX1555EZK-T/MAX1555EZK-TCT-ND/2699449?keywords=MAX1555
+U10.,OV-7604-C7-32.768kHz-20PPM-TA-QC,1,https://www.mouser.cn/ProductDetail/Micro-Crystal/OV-7604-C7-32768kHz-20PPM-TA-QC?qs=%2Fha2pyFadui5nM1LR74MaQyantWB6cvMAQwpOQLafbvKlOhU%2FJVJnR496m5AhgzkANJ%252B%252BNKZeA0%3D
+U11,BM1422AGMV-ZE2,1,
+U12,LSM6DS3TR,1,
