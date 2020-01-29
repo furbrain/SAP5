@@ -120,4 +120,38 @@ int8_t read_i2c_data(uint8_t address, uint8_t command, uint8_t *data, uint8_t le
             return 0;
     return -1;
 }
+
+bool check_i2c_address(uint8_t address) {
+    I2C1_MESSAGE_STATUS status = I2C1_MESSAGE_PENDING;
+    int timeout = I2C_TIMEOUT;
+    uint8_t dummy;
+    while(status != I2C1_MESSAGE_FAIL) {
+        I2C1_MasterRead(&dummy, 1, address, &status);
+        while(status == I2C1_MESSAGE_PENDING)
+        {
+            delay_ms(1);
+            if (timeout <= 0)
+                break;
+            else
+                timeout--;
+        } 
+        if ((timeout <= 0) || (status == I2C1_MESSAGE_COMPLETE))
+            break;
+    }
+    if (status == I2C1_MESSAGE_COMPLETE) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void write_i2c_multi(uint8_t address, const i2c_multi_commands *commands, uint8_t length) {
+    wdt_clear();
+    while (length--) {
+        write_i2c_data2(address, commands->reg, commands->value);
+        commands++;
+    }
+    wdt_clear();
+}
+
 #endif

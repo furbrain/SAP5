@@ -13,145 +13,104 @@
 #include <gsl/gsl_sort_vector.h>
 #include <gsl/gsl_statistics.h>
 #include "gsl_static.h"
+#include "version.h"
 
 GSL_MATRIX_DECLARE(temp_mag_readings, SAMPLES_PER_READING, 3);
 GSL_MATRIX_DECLARE(temp_grav_readings, SAMPLES_PER_READING, 3);
-#define HAS_MPU9250 defined(XPRJ_5_0) || defined(XPRJ_5_1)
-#define HAS_BM1422 defined(XPRJ_5_1) || defined(XPRJ_5_2)
 
-#if HAS_MPU9250
-#define MPU_ADDRESS 0x68
-#define MPU_COMMAND(command,data) write_i2c_data2(MPU_ADDRESS,command,data)
+#define length(a) sizeof(a)/sizeof(a[0])
+#define send_multi(addr, commands) write_i2c_multi(addr, commands, length(commands))
 
-/* MPU configuration macros */
-#define DLPF_CFG 2                             //set 84HZ low pass filter
-#define SAMPLE_RATE 100
-#if DLPF_CFG==7 || DLPF_CFG==0
-    #define CLOCK 8000
-#else
-    #define CLOCK 1000
-#endif        
-#define SMPLRT_DIV  (CLOCK/SAMPLE_RATE)-1
-#define FIFO_LOCK    0x40                      //extra bytes will not be written to FIFO when full (0x00 to continue writing)
-#define EXT_SYNC_SET 0
-#define GYRO_FULL_SCALE 250                   // pick from 250,500,1000,2000 degree/second
-#define ACCEL_FULL_SCALE 2                     // pick from 2,4,8,16g
-#define MAG_FULL_SCALE 4800                    // 4912 uT full-scale magnetic range
-#define ACCEL_HPF 0                            // high pass filter. 0 is inactive. 
-                                               // 1:5Hz, 2:2.5Hz, 3:1.25Hz, 5:0.68Hz, 
-                                               // 6: differential from previous reading
-#define FIFO_SENSORS    0x79                   // 0x80    temp sensor
-                                               // 0x40,0x20,0x10    gyros xyz respectively
-                                               // 0x08    accelerometer
-                                               // 0x04,0x02,x01    slaves 2,1,0 respectively
-                                 
-#define INT_CFG    0x30                        //active high(0), push-pull(0), latched(1),cleared on any read(1),
-                                               //FSYNC interrupt disables(00),i2c bypass disabled(0), clock output disabled(0)
-#define INT_EN     0x00                        //Interrupt high on data ready (0x10 for interrupt on fifo overflow)
-                                            
-                                               
-#define USER_CTRL    0x67                      //enable FIFO and I2C and also reset it
-        
-#define PWR_MGMT_1    0x0                      //PLL with X-axis gyro as clock. 0x08 disables temp sensor
-        
-//I2C stuff
-#define I2C_MST_CTRL    0x40
-#define SLV0_ADDR    0x8C
-#define SLV0_REG    0x03
-#define SLV0_CTRL    0xD7
-#define SLV1_ADDR    0x0C
-#define SLV1_REG    0x0A
-#define SLV1_CTRL    0x81
-#define SLV1_DO    0x11
-#define I2C_MST_DELAY_CTRL    0x83
-#define I2C_MST_DELAY    0x00
-#endif
+#define MPU9250_ADDRESS 0x68
+#define MPU9250_GYRO_FULL_SCALE 250
+#define MPU9250_ACCEL_FULL_SCALE 2 
+#define MPU9250_MAG_FULL_SCALE 4800
+const uint8_t MPU9250_ACCEL_AXES[] = {4,0,5};
+const uint8_t MPU9250_MAG_AXES[] = {0,4,5};
+const uint8_t BM1422_MAG_AXES[] = {4,3,5};
 
-#if HAS_BM1422
+const uint8_t *default_accel_axes;
+const uint8_t *default_mag_axes;
+
+
 #define BM1422_ADDRESS 0x0e
-#define BM1422_COMMAND(command,data) write_i2c_data2(BM1422_ADDRESS,command,data)
-#undef MAG_FULL_SCALE
-#define MAG_FULL_SCALE 1376
-#endif
+#define BM1422_MAG_FULL_SCALE 1376
+
+float ACCEL_FULL_SCALE, MAG_FULL_SCALE, GYRO_FULL_SCALE;
+
+const i2c_multi_commands MPU9250_init_commands[] = {
+    {0x6A, 0},
+    {0x6A,7},
+
+    {0x19,9}, //gives sample rate of 100Hz
+    {0x1A,0x42}, //FIFO Lockes, gyro 84Hz low-pass filter, no external sync
+    {0x1B, 0}, //Gyro full scale 250 deg/s
+    {0x1C, 0}, //Accel ful scale +/-2g
+	{0x1D, 2}, //Accel 99Hz low-pass filter
+    //set fifo enablement
+	{0x37, 0x0}, //disable interrupt pin
+	{0x38, 0}, //disable interrupt pin
+    {0x23, 0x78}, //gyro+accel only
+};
+
+const i2c_multi_commands AK8963_commands[] = {
+
+        //put i2c control stuff here
+    {0x24, 0x40}, //I2C_MST_CTRL
+    {0x25, 0x8C}, //SLV0_ADDR
+    {0x26, 0x03}, //SLV0_REG
+    {0x27, 0xD7}, //SLV0_CTRL
+    {0x28, 0x0C}, //SLV1_ADDR
+    {0x29, 0x0A}, //SLV1_REG
+    {0x2A, 0x81}, //SLV1_CTRL
+    {0x64, 0x11}, //SLV1_DO
+    {0x34, 0x00}, //I2C_MST_DELAY
+    {0x67, 0x83}, //I2C_MST_DELAY_CTRL  
+    {0x23, 0x79}, //FIFO sensors - gyro, accel and i2c slave 0                    
+};
+
+const i2c_multi_commands MPU9250_reset_commands[] = {
+    {0x6A, 0x67}, //USER_CTRL
+    {0x6B, 0}, //PWR_MGMT_1    
+};
+
+const i2c_multi_commands BM1422_init_commands[] = {
+    {0x1B, 0xC8}, //14bits, 100Hz read rate, continuous mode
+    {0x5C, 0x00},
+    {0x5D, 0x00}, //clear reset status
+    {0x1C, 0x00}, //do not use Data ready pin
+    {0x40, 0x10}, //average 16 readings together
+    {0x1D, 0x40}, //set it going    
+};
 
 
 void sensors_init() {
-    //reset FIFO, I2C, signal conditioning...
-    uint8_t temp;
-    wdt_clear();
-#if HAS_MPU9250
-    MPU_COMMAND(0x6A,0);
-    MPU_COMMAND(0x6A,7);
-
-    MPU_COMMAND(0x19,(uint8_t)(SMPLRT_DIV));
-    MPU_COMMAND(0x1A,FIFO_LOCK | DLPF_CFG | (EXT_SYNC_SET*8));
-    switch (GYRO_FULL_SCALE){
-        case 250:
-            temp=0;
+    switch (version_hardware) {
+        case VERSION_ALPHA:
+            send_multi(MPU9250_ADDRESS, MPU9250_init_commands);
+            send_multi(MPU9250_ADDRESS, AK8963_commands);
+            send_multi(MPU9250_ADDRESS, MPU9250_reset_commands);
+            ACCEL_FULL_SCALE = MPU9250_ACCEL_FULL_SCALE;
+            GYRO_FULL_SCALE = MPU9250_GYRO_FULL_SCALE;
+            MAG_FULL_SCALE = MPU9250_MAG_FULL_SCALE;
+            default_accel_axes = MPU9250_ACCEL_AXES;
+            default_mag_axes = MPU9250_MAG_AXES;
             break;
-        case 500:
-            temp=1;
+        case VERSION_BETA:
+            send_multi(MPU9250_ADDRESS, MPU9250_init_commands);
+            send_multi(MPU9250_ADDRESS, MPU9250_reset_commands);
+            send_multi(BM1422_ADDRESS, BM1422_init_commands);
+            ACCEL_FULL_SCALE = MPU9250_ACCEL_FULL_SCALE;
+            GYRO_FULL_SCALE = MPU9250_GYRO_FULL_SCALE;
+            MAG_FULL_SCALE = BM1422_MAG_FULL_SCALE;
+            default_accel_axes = MPU9250_ACCEL_AXES;
+            default_mag_axes = BM1422_MAG_AXES;
             break;
-        case 1000:
-            temp=2;
+        case VERSION_V1:
             break;
-        case 2000:
         default:
-            temp=3;
-            
-            break;
-        }
-    wdt_clear();
-    MPU_COMMAND(0x1B,temp<<3);
-    //set accel full scale and high_pass_filter
-    switch (ACCEL_FULL_SCALE){
-        case 2:
-            temp=0;
-            break;
-        case 4:
-            temp=8;
-            break;
-        case 8:
-            temp=16;
-            break;
-        case 16:
-        default:
-            temp=24;
-            break;
-        }
-    MPU_COMMAND(0x1C,temp);
-	MPU_COMMAND(0x1D,DLPF_CFG);
-    //set fifo enablement
-    MPU_COMMAND(0x23, FIFO_SENSORS);            
-        
-        //put i2c control stuff here
-    MPU_COMMAND(0x24, I2C_MST_CTRL);
-    MPU_COMMAND(0x25, SLV0_ADDR);
-    MPU_COMMAND(0x26, SLV0_REG);
-    MPU_COMMAND(0x27, SLV0_CTRL);
-    wdt_clear();
-    MPU_COMMAND(0x28, SLV1_ADDR);
-    MPU_COMMAND(0x29, SLV1_REG);
-    MPU_COMMAND(0x2A, SLV1_CTRL);
-    MPU_COMMAND(0x64, SLV1_DO);
-    MPU_COMMAND(0x34, I2C_MST_DELAY);
-    MPU_COMMAND(0x67, I2C_MST_DELAY_CTRL);
-	MPU_COMMAND(0x37, INT_CFG);
-	MPU_COMMAND(0x38, INT_EN);
-    wdt_clear();
-    //enable fifo
-    MPU_COMMAND(0x6A, USER_CTRL);
-    MPU_COMMAND(0x6B, PWR_MGMT_1);
-    wdt_clear();
-#endif
-    
-#if HAS_BM1422
-    BM1422_COMMAND(0x1B, 0xC8); //14bits, 100Hz read rate, continuous mode
-    BM1422_COMMAND(0x5C, 0x00);
-    BM1422_COMMAND(0x5D, 0x00); //clear reset status
-    BM1422_COMMAND(0x1C, 0x00); //do not use Data ready pin
-    BM1422_COMMAND(0x1D, 0x40); //set it going
-#endif
+            break;          
+    }
 }
 
 
@@ -162,46 +121,55 @@ void byte_swap(uint16_t *word){
 
 void sensors_read_raw(struct RAW_SENSORS *sensors){
     int i;
-#if defined(XPRJ_5_0)
-    if (read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, sizeof(*sensors))) {
-        THROW_WITH_REASON("I2C communication failed", ERROR_MAGNETOMETER_FAILED);
+    switch (version_hardware) {
+        case VERSION_ALPHA:
+            if (read_i2c_data(MPU9250_ADDRESS, 0x3B, (uint8_t *)sensors, sizeof(*sensors))) {
+                THROW_WITH_REASON("I2C communication failed", ERROR_MAGNETOMETER_FAILED);
+            }
+            for(i=0; i< 10; ++i) {
+                byte_swap(&((uint16_t*)sensors)[i]);
+            }
+            break;
+        case VERSION_BETA:
+            if (read_i2c_data(MPU9250_ADDRESS, 0x3B, (uint8_t *)sensors, 14)) {
+                THROW_WITH_REASON("MPU9250 communication failed", ERROR_MAGNETOMETER_FAILED);
+            }
+            for(i=0; i< 7; ++i) {
+                byte_swap(&((uint16_t*)sensors)[i]);
+            }
+            if (read_i2c_data(BM1422_ADDRESS, 0x10, (uint8_t *)sensors->mag, 6)) {
+                THROW_WITH_REASON("BM1422 communication failed", ERROR_MAGNETOMETER_FAILED);
+            }
+            break;
+        default:
+            THROW_WITH_REASON("Bad Hardware", ERROR_HARDWARE_NOT_IDENTIFIED);
+            break;
     }
-    for(i=0; i< 10; ++i) {
-        byte_swap(&((uint16_t*)sensors)[i]);
-    }
-#elif defined(XPRJ_5_1)
-    if (read_i2c_data(MPU_ADDRESS, 0x3B, (uint8_t *)sensors, 14)) {
-        THROW_WITH_REASON("MPU9250 communication failed", ERROR_MAGNETOMETER_FAILED);
-    }
-    for(i=0; i< 7; ++i) {
-        byte_swap(&((uint16_t*)sensors)[i]);
-    }    
-#endif
-#if HAS_BM1422
-    if (read_i2c_data(BM1422_ADDRESS, 0x10, (uint8_t *)sensors->mag, 6)) {
-        //THROW_WITH_REASON("BM1422 communication failed", ERROR_MAGNETOMETER_FAILED);
-    }
-    
-#endif    
-
-#if defined(XPRJ_5_2)
-#error "Sensor read code for 5.2 not implemented"
-#endif
 }
 
 void sensors_raw_adjust_axes(struct RAW_SENSORS *sensors){
     struct RAW_SENSORS temp_sensors;
+    const uint8_t *accel;
+    const uint8_t *mag;
     int i;
     int sign;
     int axis;
+    if (config.axes.accel[0]>5) {
+        //axes not been defined
+        accel = default_accel_axes;
+        mag = default_mag_axes;
+    } else {
+        accel = config.axes.accel;
+        mag = config.axes.mag;
+    }
     memcpy(&temp_sensors, sensors, sizeof(temp_sensors));
     for (i=0;i<3; i++) {
-        sign = config.axes.accel[i]>=3 ? -1 : 1;
-        axis = config.axes.accel[i] % 3;
+        sign = accel[i]>=3 ? -1 : 1;
+        axis = accel[i] % 3;
         sensors->accel[i] = temp_sensors.accel[axis] * sign;
         sensors->gyro[i] = temp_sensors.gyro[axis] * sign;
-        sign = config.axes.mag[i]>=3 ? -1 : 1;
-        axis = config.axes.mag[i] % 3;
+        sign = mag[i]>=3 ? -1 : 1;
+        axis = mag[i] % 3;
         sensors->mag[i] = temp_sensors.mag[axis] * sign;
     }
 }

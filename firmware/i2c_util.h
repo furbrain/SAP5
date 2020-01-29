@@ -8,6 +8,11 @@
 #define I2C_FAST 37
 #define I2C_STANDARD 200
 
+typedef struct {
+    uint8_t reg;
+    uint8_t value;    
+} i2c_multi_commands;
+
 void i2c_init();
 
 int8_t write_i2c_block(uint8_t address, uint8_t *data, uint8_t length);
@@ -28,6 +33,10 @@ int8_t write_i2c_data1(uint8_t address, uint8_t command);
 int8_t read_i2c_data(uint8_t address, uint8_t command, uint8_t *data, uint8_t length);
 
 int8_t write_eeprom_data(uint16_t address, const uint8_t *data, uint8_t length);
+
+bool check_i2c_address(uint8_t address);
+
+void write_i2c_multi(uint8_t address, const i2c_multi_commands *commands, uint8_t length);
 
 #endif
 #endif

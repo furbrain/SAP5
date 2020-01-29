@@ -13,11 +13,7 @@ union CONFIG_STORE config_store PLACE_DATA_AT(APP_CONFIG_LOCATION) = {.raw = {[0
 
 const 
 struct CONFIG default_config = {
-#ifdef XPRJ_5_0
-        {{4, 0, 5}, {0, 4, 5}},                   //axis orientation
-#else
-        {{4, 0, 5}, {4, 3, 5}},
-#endif
+    {{9,9,9}, {9,9,9}}, //use default axes for hardware
         { //calib section
             {1,0,0, 0,1,0, 0,0,1, 0,0,0}, //accel matrix
             {1,0,0, 0,1,0, 0,0,1, 0,0,0}, //mag matrix

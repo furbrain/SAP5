@@ -15,6 +15,7 @@
 //FIXME
 #include "beep.h"
 #include "battery.h"
+#include "version.h"
 #define TXT_LENGTH 50
 
 void display_error(CEXCEPTION_T e) {
@@ -60,6 +61,7 @@ void initialise() {
         beep_sad();
         utils_turn_off(0);
     }
+    find_version();
     display_init();
     sensors_init();
     input_init();
