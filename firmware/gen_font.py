@@ -10,7 +10,7 @@ def chunk(data,chunk_size,padding):
 
 def transpose_bytes(data):
     if len(data)!=8:
-        print "not enough/too many bytes"
+        print("not enough/too many bytes")
         return
     result = [0]*8
     for i in range(8):
@@ -42,8 +42,9 @@ class Glyph(object):
 
 def get_font_data(face,name,advance):
     all_glyphs = dict((x,Glyph(x,face)) for x in string.printable)
-    all_glyphs['`'] = Glyph(chr(0xB0),face)
-    all_glyphs['>'] = Glyph(chr(0xBB),face)
+    all_glyphs['`'] = Glyph('°',face)
+    all_glyphs['>'] = Glyph('»',face)
+    all_glyphs['<'] = Glyph('μ',face)
     bitmap_index = 0
     bitmaps = ""
     indices = ""
@@ -75,7 +76,7 @@ const struct FONT ${name}_font = {$advance,$max_pages,$max_width,${name}_indices
     
     
 if __name__=="__main__":
-    big_face = freetype.Face('/usr/share/fonts/truetype/droid/DroidSans.ttf')
+    big_face = freetype.Face('DroidSans.ttf')
     big_face.set_char_size(26*64)
     little_face = freetype.Face('/usr/share/fonts/X11/misc/ter-u16n_unicode.pcf.gz')
     little_face.set_char_size(little_face.available_sizes[0].size)
