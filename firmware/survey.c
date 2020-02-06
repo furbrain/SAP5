@@ -30,7 +30,7 @@ void survey_populate(struct SURVEY *survey, int number) {
     const struct LEG *leg = NULL;
     survey->number = number;
     survey->max_station = 0;
-    while(leg = leg_enumerate(leg)) {
+    while((leg = leg_enumerate(leg)) != NULL) {
         if (leg->survey==number) {
             survey_add_leg(survey, leg);
         }

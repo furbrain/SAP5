@@ -104,20 +104,19 @@ const struct LEG *leg_find(int survey, int index) {
 
 /*find most recent_leg*/
 const struct LEG *leg_find_last(void) {
-    int i;
     time_t last_tm = LONG_MIN;
     int16_t last_survey = 0;
     const struct LEG *leg  = NULL;
     const struct LEG *last_leg = NULL;
     // find last survey
-    while (leg=leg_enumerate(leg)) {
+    while ((leg=leg_enumerate(leg)) != NULL) {
         if (leg->survey > last_survey) {
             last_survey = leg->survey;
         }
     }
     //now find latest_time in last survey
     leg = NULL;
-    while (leg=leg_enumerate(leg)) {
+    while ((leg=leg_enumerate(leg)) != NULL) {
         if (leg->survey == last_survey) {
             if (leg->tm > last_tm) {
                 last_leg = leg;
