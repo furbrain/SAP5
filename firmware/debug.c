@@ -258,6 +258,37 @@ void show_version(int32_t a) {
     }
 }
 
+void show_magnetism(int32_t a) {
+    struct COOKED_SENSORS sensors;
+    gsl_vector_view mag = gsl_vector_view_array(sensors.mag, 3);
+    gsl_vector_view grav = gsl_vector_view_array(sensors.accel, 3);
+    char text[40];
+    double M, g, dot, theta;
+    while (true) {
+        switch (get_input()) {
+            case SINGLE_CLICK:
+            case DOUBLE_CLICK:
+            case LONG_CLICK:
+                return;
+                break;
+            default:
+                break;
+        }
+        sensors_read_cooked(&sensors, SAMPLES_PER_READING);
+        M = gsl_blas_dnrm2(&mag.vector);
+        g = gsl_blas_dnrm2(&grav.vector);
+        gsl_blas_ddot(&mag.vector, &grav.vector, &dot);
+        theta = acos(dot / M * g) * 360.0 / M_PI;
+        M /= config.calib.mag[0];
+        sprintf(text, "Field: %6.2f<T\nDip:   %5.1f`", M, theta);
+        display_clear_screen(false);
+        display_write_multiline(2, text, false);
+        display_show_buffer();
+        delay_ms_safe(100);
+    }    
+}
+
+
 void throw_error(int32_t a) {
     THROW_WITH_REASON("Just a random reason to get cross", ERROR_UNSPECIFIED);
 }
@@ -329,6 +360,7 @@ DECLARE_MENU(debug_menu, {
     {"Raw", Action, {show_raw_sensors}, 0},
     {"Calibrated", Action, {show_calibrated_sensors}, 0},
     {"Bearings", Action, {show_bearings}, 0},
+    {"Magnetism", Action, {show_magnetism}, 0},
     {"Misc", Action, {show_details}, 0},
     {"Version", Action, {show_version}, 0},
 //    {"Battery", Action, {test_battery}, 0},
