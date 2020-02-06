@@ -285,3 +285,64 @@ void test_stations_encode_decode(void) {
         TEST_ASSERT_EQUAL(to, rto); 
     }
 }
+
+void test_leg_is_splay(void) {
+    struct test_field{
+        struct LEG leg;
+        bool result;
+    };
+    
+    struct test_field test_cases[] = {
+        {{13, 2, LEG_SPLAY, 2, {1.0, 2.0, 3.0}},true},
+        {{14, 2, 4, LEG_SPLAY,  {1.0, 2.0, 3.0}},true},
+        {{15, 1, 1, 2, {1.0, 2.0, 3.0}},false}
+    };
+    int i;
+    for (i=0; i<3; i++) {
+        TEST_ASSERT_EQUAL(test_cases[i].result,leg_is_splay(&test_cases[i].leg));
+    }
+}
+
+void test_leg_first_normal(void) {
+    leg_store.legs[0] = test_leg;
+    TEST_ASSERT_EQUAL_PTR(&leg_store.legs[0], leg_first());
+}
+
+void test_leg_first_first_not_valid(void) {
+    leg_store.legs[0x20] = test_leg;
+    TEST_ASSERT_EQUAL_PTR(&leg_store.legs[0x20], leg_first());
+
+}
+
+void test_leg_first_none_valid(void) {
+    TEST_ASSERT_EQUAL_PTR(NULL, leg_first());
+}
+
+void test_leg_enumerate_first(void) {
+    leg_store.legs[0] = test_leg;
+    leg_store.legs[3] = test_leg;
+    const struct LEG *leg = NULL;
+    TEST_ASSERT_EQUAL_PTR(&leg_store.legs[0], leg_enumerate(leg));
+}
+
+
+void test_leg_enumerate_normal(void) {
+    leg_store.legs[2] = test_leg;
+    leg_store.legs[3] = test_leg;
+    const struct LEG *leg = &leg_store.legs[2];
+    TEST_ASSERT_EQUAL_PTR(&leg_store.legs[3], leg_enumerate(leg));
+}
+
+void test_leg_enumerate_skipped(void) {
+    leg_store.legs[2] = test_leg;
+    leg_store.legs[6] = test_leg;
+    const struct LEG *leg = &leg_store.legs[2];
+    TEST_ASSERT_EQUAL_PTR(&leg_store.legs[6], leg_enumerate(leg));
+}
+
+void test_leg_enumerate_none(void) {
+    leg_store.legs[2] = test_leg;
+    leg_store.legs[3] = test_leg;
+    const struct LEG *leg = &leg_store.legs[3];
+    TEST_ASSERT_EQUAL_PTR(NULL, leg_enumerate(leg));
+}

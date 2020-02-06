@@ -46,9 +46,6 @@ void *leg_spans_boundary(const struct LEG *leg);
 /* find a leg */
 const struct LEG *leg_find(int survey, int index);
 
-/* find the maximum station within a survey and also the time of the first leg, and the direction of the last leg */
-void leg_get_survey_details(int survey, int *max_station, time_t *first_leg, bool *last_leg_forward);
-
 /*find most recent_leg*/
 const struct LEG *leg_find_last(void);
 
@@ -61,5 +58,12 @@ int32_t leg_stations_encode(uint8_t from, uint8_t to);
 /* reverse encoding as done by above function */
 void leg_stations_decode(int32_t, uint8_t *from, uint8_t *to);
 
+/* return true if one station in leg is a splay */
+bool leg_is_splay(const struct LEG *leg);
 
+/* return the first valid leg in storage */
+const struct LEG *leg_first(void);
+
+/* get the first leg if passed NULL, or next valid leg in storage, return NULL if no more valid legs */
+const struct LEG *leg_enumerate(const struct LEG *leg);
 #endif // _LEG_H

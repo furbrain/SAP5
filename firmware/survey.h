@@ -29,4 +29,4 @@ void survey_populate(struct SURVEY *survey, int number);
 void survey_start_new();
 
 /* update a survey with details of a leg*/
-void survey_add_leg(struct SURVEY *survey, struct LEG *leg);
+void survey_add_leg(struct SURVEY *survey, const struct LEG *leg);

@@ -102,56 +102,23 @@ const struct LEG *leg_find(int survey, int index) {
     return NULL;
 }
 
-/* find the maximum station within a survey and also the time of the first leg */
-void leg_get_survey_details(int survey, int *max_station, time_t *first_leg, bool *last_leg_forward) {
-    int max_st = INT_MIN;
-    bool forward = false;
-    time_t first_tm = LONG_MAX;
-    int i;
-    const struct LEG *leg;
-    for (i=0; i< MAX_LEG_COUNT; i++) {
-        leg = &leg_store.legs[i % MAX_LEG_COUNT];
-        if (_is_valid(leg) && (leg->survey == survey)) {
-            if (leg->tm < first_tm) {
-                first_tm = leg->tm;
-            }
-            if (leg->from > max_st) {
-                max_st = leg->from;
-                forward = (leg->to > leg->from);
-            }
-            if (leg->to > max_st) {
-                max_st = leg->to;
-                forward = (leg->to > leg->from);
-            }
-        }
-    }
-    if (max_st == INT_MIN && first_tm==LONG_MAX) 
-        THROW_WITH_REASON("No legs found for survey", ERROR_SURVEY_NOT_FOUND);
-    *max_station = max_st;
-    *first_leg = first_tm;
-    *last_leg_forward = forward;
-}
-
 /*find most recent_leg*/
 const struct LEG *leg_find_last(void) {
     int i;
     time_t last_tm = LONG_MIN;
     int16_t last_survey = 0;
-    const struct LEG *leg;
+    const struct LEG *leg  = NULL;
     const struct LEG *last_leg = NULL;
     // find last survey
-    for (i=0; i< MAX_LEG_COUNT; i++) {
-        leg = &leg_store.legs[i];
-        if (_is_valid(leg)) {
-            if (leg->survey > last_survey) {
-                last_survey = leg->survey;
-            }
+    while (leg=leg_enumerate(leg)) {
+        if (leg->survey > last_survey) {
+            last_survey = leg->survey;
         }
     }
     //now find latest_time in last survey
-    for (i=0; i< MAX_LEG_COUNT; i++) {
-        leg = &leg_store.legs[i];
-        if (_is_valid(leg) && (leg->survey == last_survey)) {
+    leg = NULL;
+    while (leg=leg_enumerate(leg)) {
+        if (leg->survey == last_survey) {
             if (leg->tm > last_tm) {
                 last_leg = leg;
                 last_tm = leg->tm;
@@ -202,5 +169,33 @@ void leg_stations_decode(int32_t code, uint8_t *from, uint8_t *to) {
     encoder.code = code;
     *from = encoder.from;
     *to = encoder.to;
+}
+
+/* return true if one station in leg is a splay */
+bool leg_is_splay(const struct LEG *leg) {
+    if (leg->from==LEG_SPLAY) return true;
+    if (leg->to==LEG_SPLAY) return true;
+    return false;
+    
+}
+
+/* return the first valid leg in storage */
+const struct LEG *leg_first(void) {
+    const struct LEG *leg = &leg_store.legs[0];
+    do {
+        if (_is_valid(leg)) return leg;
+        leg++;
+    } while (leg < &leg_store.legs[MAX_LEG_COUNT]);
+    //not found any valid legs
+    return NULL;
+}
+
+/* get the next valid leg in storage , or return NULL if no more valid legs */
+const struct LEG *leg_enumerate(const struct LEG *leg) {
+    if (leg==NULL) return leg_first();
+    while (++leg < &leg_store.legs[MAX_LEG_COUNT]) {
+        if (_is_valid(leg)) return leg;
+    }
+    return NULL;
 }
 
