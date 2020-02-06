@@ -3,10 +3,38 @@
 #include "version.h"
 #include "i2c_util.h"
 #include "exception.h"
- enum HARDWARE_VERSION version_hardware;
+#include "mem_locations.h"
+#include "memory.h"
+enum HARDWARE_VERSION version_hardware;
+
+struct SOFTWARE_VERSION version_software PLACE_DATA_AT(VERSION_LOCATION) = {
+    .version = {
+        .major = VERSION_MAJOR,
+        .minor = VERSION_MINOR,
+        .revision = VERSION_REVISION,
+    },
+    .config = {
+        .location = APP_CONFIG_LOCATION,
+        .size = APP_CONFIG_SIZE,
+        .version = VERSION_CONFIG,
+    },
+    .legs = {
+        .location = APP_LEG_LOCATION,
+        .size = APP_LEG_SIZE,
+        .version = VERSION_LEG,
+    },
+    .calibration = {
+        .location = APP_CALIBRATION_LOCATION,
+        .size = APP_CALIBRATION_SIZE,
+        .version = VERSION_CALIBRATION,
+    }
+};
 
 void find_version(void) {
     //look for lsm6ds3 - this implies V1
+    version_hardware = version_software.version.major;
+    //just have to reference this somewhere to make sure is stored
+    //FIXME remove when we have the debug versions menu available
     if (check_i2c_address(0x6b)) {
         version_hardware = VERSION_V1;
         return;

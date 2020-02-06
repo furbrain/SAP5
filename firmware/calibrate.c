@@ -21,8 +21,8 @@
 
 GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES, 3);
 GSL_MATRIX_DECLARE(grav_readings, CALIBRATION_SAMPLES, 3);
-double mag_cal_store[0x400/sizeof(double)] PLACE_DATA_AT(APP_CAL_LOCATION) = {0};
-double grav_cal_store[0x400/sizeof(double)] PLACE_DATA_AT(APP_CAL_LOCATION+0x400) = {0};
+double mag_cal_store[0x400/sizeof(double)] PLACE_DATA_AT(APP_CALIBRATION_LOCATION) = {0};
+double grav_cal_store[0x400/sizeof(double)] PLACE_DATA_AT(APP_CALIBRATION_LOCATION+0x400) = {0};
 
 
 DECLARE_MENU(calibration_menu, {
