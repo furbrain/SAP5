@@ -8,6 +8,10 @@
 #include "mock_memory.h"
 #include "mock_display.h"
 
+void setUp(void) {
+    delay_ms_safe_Ignore();
+}
+
 void test_laser_on(void) {
     UART1_ReceiveBufferClear_Expect();
     UART1_Write_Expect('O');
@@ -39,13 +43,9 @@ void test_laser_start_slow(void) {
     laser_start(LASER_SLOW);
 }
 void test_laser_result_ready(void) {
-    UART1_ReceiveBufferSizeGet_ExpectAndReturn(22);
+    UART1_ReceiveBufferSizeGet_ExpectAndReturn(29);
     TEST_ASSERT_FALSE(laser_result_ready());
     UART1_ReceiveBufferSizeGet_ExpectAndReturn(18);
-    UART1_Peek_ExpectAndReturn(4,'f');
-    TEST_ASSERT_FALSE(laser_result_ready());
-    UART1_ReceiveBufferSizeGet_ExpectAndReturn(10);
-    UART1_Peek_ExpectAndReturn(4,'.');
     TEST_ASSERT_TRUE(laser_result_ready());
 }
 
@@ -67,12 +67,10 @@ void test_laser_read_normal(void) {
     config.calib.laser_offset = 0.09;
     UART1_ReceiveBufferClear_Expect();
     UART1_Write_Expect('D');
-    delay_ms_safe_Ignore();
-    UART1_ReceiveBufferSizeGet_ExpectAndReturn(22);
-    UART1_ReceiveBufferSizeGet_ExpectAndReturn(22);
-    UART1_ReceiveBufferSizeGet_ExpectAndReturn(22);
+    UART1_ReceiveBufferSizeGet_ExpectAndReturn(29);
+    UART1_ReceiveBufferSizeGet_ExpectAndReturn(29);
+    UART1_ReceiveBufferSizeGet_ExpectAndReturn(29);
     UART1_ReceiveBufferSizeGet_ExpectAndReturn(10);
-    UART1_Peek_ExpectAndReturn(4,'.');
     UART1_ReadBuffer_ExpectAndReturn(NULL,15,9);
     UART1_ReadBuffer_IgnoreArg_buffer();
     UART1_ReadBuffer_ReturnArrayThruPtr_buffer(": 3.127m", 9);
@@ -82,7 +80,22 @@ void test_laser_read_normal(void) {
 void test_laser_read_timeout(void) {
     UART1_ReceiveBufferClear_Expect();
     UART1_Write_Expect('D');
-    UART1_ReceiveBufferSizeGet_IgnoreAndReturn(22);
-    delay_ms_safe_Ignore();
+    UART1_ReceiveBufferSizeGet_IgnoreAndReturn(29);
+    TEST_ASSERT_THROWS(laser_read(LASER_MEDIUM,1000), ERROR_LASER_TIMEOUT);
+}
+
+void test_laser_read_fails(void) {
+    config.calib.laser_offset = 0.09;
+    UART1_ReceiveBufferClear_Expect();
+    UART1_Write_Expect('D');
+    UART1_ReceiveBufferSizeGet_ExpectAndReturn(32);
+    UART1_ReceiveBufferSizeGet_ExpectAndReturn(32);
+    UART1_ReceiveBufferSizeGet_ExpectAndReturn(32);
+    UART1_ReceiveBufferSizeGet_ExpectAndReturn(26);
+    UART1_ReadBuffer_ExpectAndReturn(NULL,15,6);
+    UART1_ReadBuffer_IgnoreArg_buffer();
+    UART1_ReadBuffer_ReturnArrayThruPtr_buffer(": Err", 6);
     TEST_ASSERT_THROWS(laser_read(LASER_MEDIUM,1000), ERROR_LASER_READ_FAILED);
 }
+
+

@@ -24,21 +24,27 @@ struct LEG test_leg_array[6] = {
     {12, 3, 2, 3, {1.0, 2.0, 3.0}},
 };
 
-void write_data_replacement(const void* ptr, const void* src, int length, int num_calls) {
+void memory_write_data_replacement(const void* ptr, const void* src, int length, int num_calls) {
     int i;
-    if ((size_t)ptr % 8)
+    if ((size_t)ptr % 8) {
+        //printf("boundary error");
         THROW_WITH_REASON("Destination ptr not on dword boundary", ERROR_FLASH_STORE_FAILED);
-    if (((uint8_t*)ptr < leg_store.raw) || (((uint8_t*)ptr)+length > leg_store.raw+APP_LEG_SIZE)) 
+    }
+    if (((uint8_t*)ptr < leg_store.raw) || (((uint8_t*)ptr)+length > leg_store.raw+APP_LEG_SIZE)) {
+        //printf("out of range");
         THROW_WITH_REASON("Destination memory out of range", ERROR_FLASH_STORE_FAILED);
+    }
     for (i=0; i<length; i++) {
         if (*((uint8_t*)ptr+i) != 0xff) {
+            //printf("memory not cleared");
             THROW_WITH_REASON("Memory not been cleared for write", ERROR_FLASH_STORE_FAILED);
         }
     }
+    //printf("write: %hx\n", (uint16_t)ptr);
     memcpy((void *)ptr, src, length);
 }
 
-void erase_page_replacement(const void *ptr, int num_calls) {
+void memory_erase_page_replacement(const void *ptr, int num_calls) {
     if ((size_t)ptr % 0x800) 
         THROW_WITH_REASON("Erase page not on page boundary", ERROR_FLASH_STORE_FAILED);
     memset((void*)ptr, 0xff, 0x800);
@@ -47,7 +53,7 @@ void erase_page_replacement(const void *ptr, int num_calls) {
 
 void setUp(void)
 {
-    erase_page_StubWithCallback(erase_page_replacement);
+    memory_erase_page_StubWithCallback(memory_erase_page_replacement);
     memset(leg_store.raw, 0xff, APP_LEG_SIZE);
 }
 
@@ -71,7 +77,7 @@ void test_leg_create(void) {
 
 void add_test_legs(void) {
     int i;
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(memory_write_data_replacement);
     for (i=0; i<6; i++) {
         leg_save(&test_leg_array[i]);
     }
@@ -142,34 +148,41 @@ void test_leg_find_last_if_no_legs(void) {
 
 
 void test_leg_spans_boundary(void) {
+    void *leg_start = &leg_store;
+    void *leg_end = &leg_store.legs[MAX_LEG_COUNT];
     struct test_field {
         void  *result;
         struct LEG *leg;
     };
-    struct test_field test_cases[6] = {
+    struct test_field test_cases[11] = {
         {NULL, NULL},
-        {(void*)0xA0002000, (struct LEG*)0xA0002000},
-        {NULL, (struct LEG*)0xA0002004},
-        {NULL, (struct LEG*)(0xA0002000 - sizeof(struct LEG))},
-        {(void*)0xA0002000, (struct LEG*)(0xA0002000-2)},
-        {(void*)0xA0002800, (struct LEG*)(0xA00027FF)}
+        {leg_start, leg_start},
+        {NULL, leg_start+0x04},
+        {NULL, leg_start+0x800},
+        {NULL, leg_end-0x02},
+        {NULL, leg_end},
+        {leg_start+0x800, leg_start+0x7E0},
+        {leg_start+0x800, leg_start+0x7FE},
+        {leg_start+0x1000, leg_start+0xFE0},
+        {leg_start+0x1000, leg_start+0xFFE},
+        {(void*)0x9D002800, (struct LEG*)(0x9D0027FF)}
     };
     int i;
-    for (i=0; i<6; i++) {
+    for (i=0; i<11; i++) {
         TEST_ASSERT_EQUAL_PTR(test_cases[i].result, leg_spans_boundary(test_cases[i].leg));
     }
 }
 
 
 void test_leg_save_single(void) {
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(memory_write_data_replacement);
     leg_save(&test_leg);
     TEST_ASSERT_EQUAL_MEMORY(&test_leg, &leg_store.legs[0], sizeof(test_leg));
     TEST_ASSERT_EQUAL_UINT32(0xffffffff, leg_store.legs[1].tm);
 }
 
 void test_leg_save_double(void) {
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(memory_write_data_replacement);
     leg_save(&test_leg);
     leg_save(&test_leg);
     TEST_ASSERT_EQUAL_MEMORY(&test_leg, &leg_store.legs[1], sizeof(test_leg));
@@ -179,7 +192,7 @@ void test_leg_save_double(void) {
 void test_leg_save_overflow(void) {
     int counter;
     struct LEG new_leg;
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(memory_write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     counter = APP_LEG_SIZE/sizeof(new_leg);
     while(counter--) {
@@ -193,7 +206,7 @@ void test_leg_save_overflow(void) {
 
 void test_leg_save_with_tm_lsb_is_0xff(void) {
     struct LEG new_leg;
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(memory_write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     new_leg.tm = 0xff;
     leg_save(&new_leg);
@@ -208,11 +221,11 @@ void test_leg_save_page_overflow(void) {
     int counter;
     struct LEG new_leg;
     int index = 0x800/sizeof(new_leg);
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(memory_write_data_replacement);
     memcpy(&new_leg,&test_leg,sizeof(new_leg));
     // fill whole leg space
     counter = 0;
-    while(counter < MAX_LEG_COUNT) {
+    while(counter < APP_LEG_SIZE/sizeof(new_leg)) {
         leg_save(&new_leg);
         new_leg.tm++;
         counter++;
@@ -229,9 +242,9 @@ void test_leg_save_page_overflow(void) {
 }
 
 void test_leg_save_fails(void) {
-    write_data_ExpectAndThrow(NULL, NULL, sizeof(struct LEG), ERROR_FLASH_STORE_FAILED);
-    write_data_IgnoreArg_ptr();
-    write_data_IgnoreArg_src();
+    memory_write_data_ExpectAndThrow(NULL, NULL, sizeof(struct LEG), ERROR_FLASH_STORE_FAILED);
+    memory_write_data_IgnoreArg_ptr();
+    memory_write_data_IgnoreArg_src();
     TEST_ASSERT_THROWS(leg_save(&test_leg), ERROR_FLASH_STORE_FAILED);
 }
 

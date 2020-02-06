@@ -14,6 +14,8 @@
 #else
 #define CONST_STORE
 #endif
+
+
 /**
   @Summary
     Clear any error flags
@@ -98,7 +100,7 @@ void memory_write_row(const void *ptr, const void* src);
     Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-void write_dword(const void *ptr, const void* src);
+void memory_write_dword(const void *ptr, const void* src);
 
 /**
   @Summary

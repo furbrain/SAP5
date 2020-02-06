@@ -3,6 +3,7 @@
 #include "mock_display.h"
 #include "mock_interface.h"
 #include "mock_utils.h"
+#include "mock_input.h"
 #include "font.h"
 
 struct SELECTOR_CHOICES choices = {

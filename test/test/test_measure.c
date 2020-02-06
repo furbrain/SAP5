@@ -13,6 +13,9 @@
 #include "mock_maths.h"
 #include "mock_interface.h"
 #include "mock_memory.h"
+#include "mock_beep.h"
+#include "mock_input.h"
+#include "images.h"
 #include "survey.h"
 #include "leg.h"
 #include "config.h"
@@ -102,7 +105,7 @@ void test_calculate_bearings(void) {
     gsl_vector_view orientation;
     for (i=0; i<7; i++) {
         orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
-        calculate_bearings(&orientation.vector, &compass, &inclination);
+        measure_calculate_bearings(&orientation.vector, &compass, &inclination);
         TEST_ASSERT_EQUAL_DOUBLE(test_cases[i].compass, compass);
         TEST_ASSERT_EQUAL_DOUBLE(test_cases[i].inclination, inclination);
     }

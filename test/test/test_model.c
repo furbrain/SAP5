@@ -47,7 +47,7 @@ void erase_page_replacement(const void *ptr, int num_calls) {
 
 void add_test_legs(void) {
     int i;
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(write_data_replacement);
     for (i=0; i<test_leg_count; i++) {
         leg_save(&test_leg_array[i]);
     }
@@ -55,7 +55,7 @@ void add_test_legs(void) {
 
 void setUp(void)
 {
-    erase_page_StubWithCallback(erase_page_replacement);
+    memory_erase_page_StubWithCallback(erase_page_replacement);
     memset(leg_store.raw, 0xff, APP_LEG_SIZE);
     reset_lists();
     add_test_legs();

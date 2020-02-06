@@ -12,8 +12,8 @@ extern const struct CONFIG default_config;
 struct CONFIG test_config = {
     {{1,0,2},{0,1,5}},                   //axis orientation
     { //calib section
-        {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //accel matrix
-        {{1.0,0,0,0},{0,1.0,0,0},{0,0,1.0,0}}, //mag matrix
+        {1.0,0,0,0,0,1.0,0,0,0,0,1.0,0}, //accel matrix
+        {1.0,0,0,0,0,1.0,0,0,0,0,1.0,0}, //mag matrix
         0.090                              //laser offset
     },
     IMPERIAL,                               //Polar display style
@@ -46,7 +46,7 @@ void erase_page_replacement(const void *ptr, int num_calls) {
 
 void setUp(void)
 {
-    erase_page_StubWithCallback(erase_page_replacement);
+    memory_erase_page_StubWithCallback(erase_page_replacement);
     memset(&config_store.raw, 0xff, APP_CONFIG_SIZE);
     TEST_ASSERT_EACH_EQUAL_UINT32(0xffffffff, &config_store.raw[0], 0x200);
 }
@@ -58,14 +58,14 @@ void tearDown(void)
 void test_weird_memory(void) {
     //CEXCEPTION_T e;
     struct CONFIG new_config;
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(write_data_replacement);
     new_config = test_config;
     config_save();
     TEST_ASSERT_EQUAL_MEMORY(&test_config, &new_config, sizeof(new_config));
 }
 
 void test_config_save_single(void) {
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(write_data_replacement);
     config = test_config;
     config_save();
     TEST_ASSERT_EQUAL_MEMORY(&test_config, &config_store.configs[0], sizeof(test_config));
@@ -73,7 +73,7 @@ void test_config_save_single(void) {
 }
 
 void test_config_save_double(void) {
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(write_data_replacement);
     config = test_config;
     config_save();
     config_save();
@@ -84,7 +84,7 @@ void test_config_save_double(void) {
 void test_config_save_overflow(void) {
     int counter;
     struct CONFIG new_config;
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(write_data_replacement);
     counter = MAX_CONFIG_COUNT;
     new_config = test_config;
     config = test_config;
@@ -105,7 +105,7 @@ void test_config_read_with_no_data(void) {
 }    
 
 void test_write_and_read_first_config(void) {
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(write_data_replacement);
     config = test_config;
     config_save();
     config = default_config;
@@ -116,7 +116,7 @@ void test_write_and_read_first_config(void) {
 
 void test_write_and_read_second_config(void) {
     struct CONFIG new_config;
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(write_data_replacement);
     new_config = test_config;
     new_config.axes.accel[0]=5;
     config = test_config;
@@ -131,7 +131,7 @@ void test_write_and_read_second_config(void) {
 void test_read_last_config(void) {
     int counter;
     struct CONFIG new_config;
-    write_data_StubWithCallback(write_data_replacement);
+    memory_write_data_StubWithCallback(write_data_replacement);
     counter = MAX_CONFIG_COUNT-1;
     new_config = test_config;
     new_config.axes.accel[0]=5;

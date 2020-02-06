@@ -21,6 +21,7 @@
 #include "mock_laser.h"
 #include "mock_memory.h"
 #include "mock_beep.h"
+#include "mock_input.h"
 
 
 #define DEGREES_PER_RADIAN 57.296
@@ -51,7 +52,9 @@ void setUp(void) {
     display_on_Ignore();
     display_off_Ignore();
     sensors_read_uncalibrated_StubWithCallback(sensors_read);
-    write_data_Ignore();
+    memory_write_data_Ignore();
+    memory_erase_page_Ignore();
+    timeout_reset_Ignore();
 }
 
 void test_calibrate_sensors(void) {

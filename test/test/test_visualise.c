@@ -10,6 +10,7 @@
 #include "mock_sensors.h"
 #include "mock_maths.h"
 #include "mock_utils.h"
+#include "mock_input.h"
 #include "survey.h"
 
 double station_array[][3] = {

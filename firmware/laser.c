@@ -10,7 +10,8 @@
 
 TESTABLE_STATIC
 bool laser_result_ready(void) {
-    if ((32-UART1_ReceiveBufferSizeGet())>=11) {
+    if ((32-UART1_ReceiveBufferSizeGet())>=6) {
+        delay_ms_safe(100); //wait to load rest of buffer
         return true;
     }
     return false;

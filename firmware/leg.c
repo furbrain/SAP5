@@ -28,14 +28,18 @@ struct LEG leg_create(int tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vec
  * otherwise return null */
 
 void *leg_spans_boundary(const struct LEG *leg) {
-    size_t addr = (size_t)(leg+1);
+    size_t addr = (size_t)(leg);
     size_t overlap = addr % 0x800;
-    if (overlap==0) return NULL;
-    if (overlap <= sizeof(struct LEG)) {
-        return (void *)(addr - overlap);
-    } else {    
+    if (addr == (size_t)&leg_store)
+        return (void*)leg;
+    if (overlap < (0x800 - sizeof(struct LEG))) {
         return NULL;
     }
+    addr = addr + 0x800 - overlap;
+    if (addr >= (size_t)&leg_store.legs[MAX_LEG_COUNT]) {
+        return NULL;
+    }
+    return (void*)addr;
 }
 
 static inline bool _is_valid(const struct LEG *leg) {
