@@ -24,8 +24,8 @@ extern "C" {
 
 enum HARDWARE_VERSION {
     VERSION_ALPHA,
-    VERSION_BETA,
-    VERSION_V1,
+    VERSION_V1_0,
+    VERSION_V1_1,
     VERSION_UNDEFINED = 0xff
 };    
     

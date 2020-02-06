@@ -32,15 +32,12 @@ struct SOFTWARE_VERSION version_software PLACE_DATA_AT(VERSION_LOCATION) = {
 
 void find_version(void) {
     //look for lsm6ds3 - this implies V1
-    version_hardware = version_software.version.major;
-    //just have to reference this somewhere to make sure is stored
-    //FIXME remove when we have the debug versions menu available
     if (check_i2c_address(0x6b)) {
-        version_hardware = VERSION_V1;
+        version_hardware = VERSION_V1_1;
         return;
     }
     if (check_i2c_address(0x0e)) {
-        version_hardware = VERSION_BETA;
+        version_hardware = VERSION_V1_0;
         return;
     }
     if (check_i2c_address(0x68)) {

@@ -70,7 +70,7 @@ DECLARE_MENU(main_menu, {
     {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},
     {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
     {"Visualise", Action, {visualise_show_menu}, 0},
-    {"Debug  >", SubMenu, .submenu = &debug_menu, 0},
+    {"Info  >", SubMenu, .submenu = &debug_menu, 0},
     {"Off", Action, {utils_turn_off}, 0}
 });
 

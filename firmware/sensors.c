@@ -96,7 +96,7 @@ void sensors_init() {
             default_accel_axes = MPU9250_ACCEL_AXES;
             default_mag_axes = MPU9250_MAG_AXES;
             break;
-        case VERSION_BETA:
+        case VERSION_V1_0:
             send_multi(MPU9250_ADDRESS, MPU9250_init_commands);
             send_multi(MPU9250_ADDRESS, MPU9250_reset_commands);
             send_multi(BM1422_ADDRESS, BM1422_init_commands);
@@ -106,7 +106,7 @@ void sensors_init() {
             default_accel_axes = MPU9250_ACCEL_AXES;
             default_mag_axes = BM1422_MAG_AXES;
             break;
-        case VERSION_V1:
+        case VERSION_V1_1:
             break;
         default:
             break;          
@@ -130,7 +130,7 @@ void sensors_read_raw(struct RAW_SENSORS *sensors){
                 byte_swap(&((uint16_t*)sensors)[i]);
             }
             break;
-        case VERSION_BETA:
+        case VERSION_V1_0:
             if (read_i2c_data(MPU9250_ADDRESS, 0x3B, (uint8_t *)sensors, 14)) {
                 THROW_WITH_REASON("MPU9250 communication failed", ERROR_MAGNETOMETER_FAILED);
             }

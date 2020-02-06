@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <string.h>
 #include <time.h>
 #include <xc.h>
 #include <gsl/gsl_vector.h>
@@ -23,6 +24,7 @@
 #include "leg.h"
 #include "beep.h"
 #include "memory.h"
+#include "version.h"
 
 void SetPlainFRC(void) {
     SYSTEM_RegUnlock();
@@ -211,6 +213,50 @@ void show_bearings(int32_t a) {
     }
 }
 
+void show_version(int32_t a) {
+    char text[20];
+    display_clear_screen(true);
+    display_write_text(0, 0, "Hardware", &small_font, false, false);
+    switch (version_hardware) {
+        case VERSION_ALPHA:
+            strcpy(text, "Alpha");
+            break;
+        case VERSION_V1_0:
+            strcpy(text, "v1.0");
+            break;
+        case VERSION_V1_1:
+            strcpy(text, "v1.1");
+            break;
+        default:
+            strcpy(text, "Unknown");
+            break;
+    }
+    display_write_text(0, 128, text, &small_font, true, false);
+    sprintf(text, "%hhu.%hhu.%hhu",
+            version_software.version.major,
+            version_software.version.minor,
+            version_software.version.revision);
+    display_write_text(2,0,"Firmware", &small_font, false, false);
+    display_write_text(2,128,text, &small_font, true, false);
+    sprintf(text, "Data formats:\n %hhu, %hhu, %hhu", 
+            version_software.config.version,
+            version_software.legs.version,
+            version_software.calibration.version);
+    display_write_multiline(4, text, false);
+    display_show_buffer();
+    while (true) {
+        switch (get_input()) {
+            case SINGLE_CLICK:
+            case DOUBLE_CLICK:
+            case LONG_CLICK:
+                return;
+                break;
+            default:
+                break;
+        }
+        delay_ms_safe(10);
+    }
+}
 
 void throw_error(int32_t a) {
     THROW_WITH_REASON("Just a random reason to get cross", ERROR_UNSPECIFIED);
@@ -284,6 +330,7 @@ DECLARE_MENU(debug_menu, {
     {"Calibrated", Action, {show_calibrated_sensors}, 0},
     {"Bearings", Action, {show_bearings}, 0},
     {"Misc", Action, {show_details}, 0},
+    {"Version", Action, {show_version}, 0},
 //    {"Battery", Action, {test_battery}, 0},
 //    {"Throw", Action, {throw_error}, 0},
 //    {"Freeze", Action, {freeze_error}, 0},
