@@ -12,6 +12,7 @@ struct SOFTWARE_VERSION version_software PLACE_DATA_AT(VERSION_LOCATION) = {
         .major = VERSION_MAJOR,
         .minor = VERSION_MINOR,
         .revision = VERSION_REVISION,
+        .checksum = VERSION_MAJOR ^ VERSION_MINOR ^ VERSION_REVISION ^ 0x55
     },
     .config = {
         .location = APP_CONFIG_LOCATION,

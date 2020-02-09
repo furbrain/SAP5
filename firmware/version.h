@@ -36,6 +36,7 @@ struct SOFTWARE_VERSION {
         uint8_t major;
         uint8_t minor;
         uint8_t revision;
+        uint8_t checksum;
     } version;
     struct {
         uint32_t location;

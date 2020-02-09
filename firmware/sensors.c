@@ -29,10 +29,6 @@ const uint8_t MPU9250_ACCEL_AXES[] = {4,0,5};
 const uint8_t MPU9250_MAG_AXES[] = {0,4,5};
 const uint8_t BM1422_MAG_AXES[] = {4,3,5};
 
-const uint8_t *default_accel_axes;
-const uint8_t *default_mag_axes;
-
-
 #define BM1422_ADDRESS 0x0e
 #define BM1422_MAG_FULL_SCALE 1376
 
@@ -93,8 +89,10 @@ void sensors_init() {
             ACCEL_FULL_SCALE = MPU9250_ACCEL_FULL_SCALE;
             GYRO_FULL_SCALE = MPU9250_GYRO_FULL_SCALE;
             MAG_FULL_SCALE = MPU9250_MAG_FULL_SCALE;
-            default_accel_axes = MPU9250_ACCEL_AXES;
-            default_mag_axes = MPU9250_MAG_AXES;
+            if (config.axes.accel[0]>=5) {
+                memcpy(config.axes.accel, MPU9250_ACCEL_AXES, sizeof(MPU9250_ACCEL_AXES));
+                memcpy(config.axes.mag, MPU9250_MAG_AXES, sizeof(MPU9250_MAG_AXES));
+            }
             break;
         case VERSION_V1_0:
             send_multi(MPU9250_ADDRESS, MPU9250_init_commands);
@@ -103,8 +101,10 @@ void sensors_init() {
             ACCEL_FULL_SCALE = MPU9250_ACCEL_FULL_SCALE;
             GYRO_FULL_SCALE = MPU9250_GYRO_FULL_SCALE;
             MAG_FULL_SCALE = BM1422_MAG_FULL_SCALE;
-            default_accel_axes = MPU9250_ACCEL_AXES;
-            default_mag_axes = BM1422_MAG_AXES;
+            if (config.axes.accel[0]>=5) {
+                memcpy(config.axes.accel, MPU9250_ACCEL_AXES, sizeof(MPU9250_ACCEL_AXES));
+                memcpy(config.axes.mag, BM1422_MAG_AXES, sizeof(BM1422_MAG_AXES));
+            }
             break;
         case VERSION_V1_1:
             break;
@@ -149,27 +149,17 @@ void sensors_read_raw(struct RAW_SENSORS *sensors){
 
 void sensors_raw_adjust_axes(struct RAW_SENSORS *sensors){
     struct RAW_SENSORS temp_sensors;
-    const uint8_t *accel;
-    const uint8_t *mag;
     int i;
     int sign;
     int axis;
-    if (config.axes.accel[0]>5) {
-        //axes not been defined
-        accel = default_accel_axes;
-        mag = default_mag_axes;
-    } else {
-        accel = config.axes.accel;
-        mag = config.axes.mag;
-    }
     memcpy(&temp_sensors, sensors, sizeof(temp_sensors));
     for (i=0;i<3; i++) {
-        sign = accel[i]>=3 ? -1 : 1;
-        axis = accel[i] % 3;
+        sign = config.axes.accel[i]>=3 ? -1 : 1;
+        axis = config.axes.accel[i] % 3;
         sensors->accel[i] = temp_sensors.accel[axis] * sign;
         sensors->gyro[i] = temp_sensors.gyro[axis] * sign;
-        sign = mag[i]>=3 ? -1 : 1;
-        axis = mag[i] % 3;
+        sign = config.axes.mag[i]>=3 ? -1 : 1;
+        axis = config.axes.mag[i] % 3;
         sensors->mag[i] = temp_sensors.mag[axis] * sign;
     }
 }
