@@ -182,13 +182,13 @@ void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int c
     display_clear_screen(true);
 }
 
-int get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
+void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     /* get readings around  z-axis*/
     display_clear_screen(true);
     display_write_multiline(0, "Place device on\n"
                                "inclined surface\n"
                                "After each beep\n"
-                               "rotate by ~45'", true);
+                               "rotate by ~90'", true);
     delay_ms_safe(2000);
     collect_data(mag, grav, 0, CAL_AXIS_COUNT);
     
@@ -196,7 +196,7 @@ int get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     display_write_multiline(0, "Place device flat\n"
                                "After each beep\n"
                                "rotate end over\n"
-                               "end by ~45'", true);
+                               "end by ~90'", true);
     delay_ms_safe(2000);
     collect_data(mag, grav, CAL_AXIS_COUNT, CAL_AXIS_COUNT);
     
@@ -210,7 +210,16 @@ int get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
                                "on target", true);
     delay_ms_safe(1500);
     collect_data(mag, grav, CAL_AXIS_COUNT*2, CAL_TARGET_COUNT);
-    return 16;
+    /* now read data on y-axis */
+    display_write_multiline(0, "Point laser at\nfixed target", true);
+    delay_ms_safe(2000);
+    display_clear_screen(true);
+    display_write_multiline(0, "After each beep\n"
+                               "rotate by ~45'\n"
+                               "leaving laser\n"
+                               "on target", true);
+    delay_ms_safe(1500);
+    collect_data(mag, grav, CAL_AXIS_COUNT*2+CAL_TARGET_COUNT, CAL_TARGET_COUNT);
 }
 
 void calibrate_sensors(int32_t dummy) {
@@ -223,27 +232,26 @@ void calibrate_sensors(int32_t dummy) {
     gsl_matrix_const_view grav_spins = gsl_matrix_const_submatrix(&grav_readings, 
             CAL_AXIS_COUNT*2, 0, 
             CAL_TARGET_COUNT, 3);
-    int data_length;
     double grav_error, mag_error, accuracy;
     /* get data */
-    data_length = get_calibration_data(&mag_readings, &grav_readings);
+    get_calibration_data(&mag_readings, &grav_readings);
     display_write_multiline(0, "Processing", true);
     delay_ms_safe(2000);
     
     //do calibration    
-    fit_ellipsoid(&mag_readings, data_length, &mag_cal);
-    fit_ellipsoid(&grav_readings, data_length, &grav_cal);
+    fit_ellipsoid(&mag_readings, CALIBRATION_SAMPLES, &mag_cal);
+    fit_ellipsoid(&grav_readings, CALIBRATION_SAMPLES, &grav_cal);
     align_laser(&mag_spins.matrix, &mag_cal);
     align_laser(&grav_spins.matrix, &grav_cal);
     sync_sensors(&mag_readings, &mag_cal, &grav_readings, &grav_cal);
     
     // show mag error
-    mag_error = check_calibration(&mag_readings, data_length, &mag_cal);
+    mag_error = check_calibration(&mag_readings, CALIBRATION_SAMPLES, &mag_cal);
     sprintf(text, "Mag Err:  %.2f%%", mag_error);
     display_write_multiline(2,text, true);
     
     //show grav error
-    grav_error = check_calibration(&grav_readings, data_length, &grav_cal);
+    grav_error = check_calibration(&grav_readings, CALIBRATION_SAMPLES, &grav_cal);
     sprintf(text, "Grav Err: %.2f%%", grav_error);
     display_write_multiline(4,text, true);
     

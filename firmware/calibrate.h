@@ -3,7 +3,7 @@
 
 #define CAL_AXIS_COUNT 4
 #define CAL_TARGET_COUNT 8
-#define CALIBRATION_SAMPLES (CAL_AXIS_COUNT*2 + CAL_TARGET_COUNT)
+#define CALIBRATION_SAMPLES (CAL_AXIS_COUNT*2 + CAL_TARGET_COUNT*2)
 extern struct menu calibration_menu;
 
 void calibrate_axes(int32_t dummy);
