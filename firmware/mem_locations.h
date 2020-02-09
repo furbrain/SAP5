@@ -27,7 +27,7 @@
 #define APP_CALIBRATION_SIZE        0x00000800
 
 #define APP_LEG_LOCATION            0x9D00A000
-#define APP_LEG_SIZE                0x00002800
+#define APP_LEG_SIZE                0x00008000
 
 #define VERSION_LOCATION            0x9D008100
 #endif	/* MEM_LOCATIONS_H */
