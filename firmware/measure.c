@@ -9,6 +9,7 @@
 #include "input.h"
 #include "display.h"
 #include "sensors.h"
+#include "selector.h"
 #include "maths.h"
 #include "laser.h"
 #include "menu.h"
@@ -136,6 +137,61 @@ void add_storage_menu_entry(struct menu *menu, uint8_t from, uint8_t to) {
     menu_append_action(menu, text, store_leg, code);
 }
 
+int idx2pos(int i) {
+    return 8 + i*14;
+}
+
+int txt2num(char x) {
+    return x-'0';
+}
+
+void custom_storage(int32_t last) {
+    struct SELECTOR_CHOICES choices = {"0123456789", 0, 10, 0};
+    char text[20] = "";
+    char chosen;
+    int i;
+    int max_tens = last / 10;
+    int max_units = last % 10;
+    int from  = last -1;
+    int to = last;
+    int digit;
+    sprintf(text, "%02d -> %02d", from, to);
+    display_clear_screen(true);
+    for (i=0; i<8; ++i) {
+        selector_write_char(text[i], idx2pos(i));
+    }
+
+    
+    choices.end = max_tens + 1;
+    choices.current = from / 10;
+    chosen = selector_choose(&choices, idx2pos(0));
+    digit = txt2num(chosen);
+    if (digit == max_tens) {
+        choices.end = max_units+1;
+    } else {
+        choices.end = 10;
+    }
+    choices.current = from % 10;
+    from = digit * 10;
+    chosen = selector_choose(&choices, idx2pos(1));
+    from += txt2num(chosen);
+
+    choices.end = max_tens + 1;
+    choices.current = to / 10;
+    chosen = selector_choose(&choices, idx2pos(6));
+    digit = txt2num(chosen);
+    if (digit == max_tens) {
+        choices.end = max_units+1;
+    } else {
+        choices.end = 10;
+    }
+    choices.current = to % 10;
+    to = digit * 10;
+    chosen = selector_choose(&choices, idx2pos(7));
+    to += txt2num(chosen);
+    //FIXME need to do summat with these...
+}
+
 TESTABLE_STATIC
 void setup_storage_menu(void) {
     int last = survey_current.max_station;
@@ -144,6 +200,7 @@ void setup_storage_menu(void) {
     add_storage_menu_entry(&storage_menu, last, LEG_SPLAY);
     add_storage_menu_entry(&storage_menu, last+1, last);
     add_storage_menu_entry(&storage_menu, last+1, LEG_SPLAY);
+    menu_append_action(&storage_menu, "Custom", custom_storage, last+2);
     menu_append_back(&storage_menu, "Back");
 }
 
