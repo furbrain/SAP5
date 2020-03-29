@@ -1,6 +1,7 @@
 #ifndef _MENU_H
 #define _MENU_H
 #include <stdint.h>
+#include <stddef.h>
 
 #define MENU_TEXT_LENGTH 15
 

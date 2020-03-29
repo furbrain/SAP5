@@ -78,4 +78,8 @@ void config_set_day(int32_t on);
 void config_set_timeout(int32_t timeout);
 
 #endif
+#ifdef TEST
+extern const struct CONFIG default_config;
+#endif
+
 #endif
