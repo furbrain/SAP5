@@ -8,7 +8,6 @@
 #define SCROLL_RATE 0
 #define SWIPE_STEP 8
 #define DISPLAY_ADDRESS 0x3c
-#define NUM_PAGES 8
 
 #ifndef BOOTLOADER
 uint8_t buffer[NUM_PAGES][128];
@@ -79,6 +78,7 @@ void display_send_data(const uint8_t *data, uint8_t length) {
 #endif
 	write_i2c_command_block(DISPLAY_ADDRESS,0x40,data,length);
 }
+
 
 void render_data_to_page(uint8_t page, uint8_t column, const uint8_t *data, uint8_t length) {
     page = (page+top_page)%8;
@@ -284,64 +284,42 @@ int render_text_to_page(uint8_t *buffer, int page, int column, const char *text,
 }
 
 /* scroll in a piece of text, finishing at page and column specified*/
-void display_scroll_text(int page, int column, const char *text, const struct FONT *font, bool up) {
-    uint8_t temp_buffer[128];
+void display_scroll_buffer(display_buf_t data, bool up) {
     int i;
     if (up) {
-        i = 0;
-        while ((8-i)>page) {
-            memset(temp_buffer,0,128);
-            if (i < font->max_pages) render_text_to_page(temp_buffer,i,column,text,font);
-            display_scroll_page(temp_buffer,up);
-            i++;
+        for (i=0; i< 8; i++) {
+            display_scroll_page(data[i], up);
         }
     } else {
-        for(i=(font->max_pages-1); i > -1; i--) {
-            memset(temp_buffer,0,128);
-            render_text_to_page(temp_buffer,i,column,text,font);
-            display_scroll_page(temp_buffer,up);
-        }
-        memset(temp_buffer,0,128);
-        for(i=0; i < page; i++) {
-            display_scroll_page(temp_buffer,up);
+        for (i=7; i>=0; i--) {
+            display_scroll_page(data[i], up);
         }
     }
 }
 
-void display_swipe_pages(int start_page, uint8_t *data, int page_count, bool left){
+void display_swipe_pages(int start_page, display_buf_t data, int page_count, bool left){
     int offset;
     int page, real_page;
     uint8_t temp_buffer[128];
-   if (left){
-        for(offset=0;offset<128;offset+=SWIPE_STEP){
-            for(page=0;page<page_count;++page){
-                memset(temp_buffer,0,128);
-                real_page = (start_page+top_page+page) % 8;
-                // copy from current buffer over into temp_buffer, 
+    for(offset=0;offset<128;offset+=SWIPE_STEP){
+        for(page=start_page; page < start_page + page_count; ++page){
+            memset(temp_buffer,0,128);
+            real_page = (top_page+page) % 8;
+            // copy from current buffer over into temp_buffer, 
+           if (left){
                 memcpy(temp_buffer,&buffer[real_page][SWIPE_STEP],128-SWIPE_STEP-offset);
-                memcpy(&temp_buffer[128-SWIPE_STEP-offset],&data[page*128],offset);
-                set_page(real_page);
-                set_column(0);
-                display_send_data(temp_buffer,128);
-            }
-            delay_ms(SCROLL_RATE);
-        }
-    } else {
-        for(offset=0;offset<128;offset+=SWIPE_STEP){
-            for(page=0;page<page_count;++page){
-                memset(temp_buffer,0,128);
-                real_page = (start_page+top_page+page) % 8;
-                // copy from current buffer over into temp_buffer, 
+                memcpy(&temp_buffer[128-SWIPE_STEP-offset],&data[page][0],offset);
+            } else {
                 memcpy(&temp_buffer[SWIPE_STEP],&buffer[real_page][0],128-SWIPE_STEP);
-                memcpy(temp_buffer,&data[page*128+128-SWIPE_STEP-offset],SWIPE_STEP);
-                set_page(real_page);
-                set_column(0);
-                display_send_data(temp_buffer,128);
+                memcpy(temp_buffer,&data[page][128-SWIPE_STEP-offset],SWIPE_STEP);
             }
-            delay_ms(SCROLL_RATE);
+            set_page(real_page);
+            set_column(0);
+            display_send_data(temp_buffer,128);
         }
+        delay_ms(SCROLL_RATE);
     }
-};
+}
 
 void display_flip(bool invert) {
 	if (invert) {

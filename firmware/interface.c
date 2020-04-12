@@ -74,28 +74,39 @@ DECLARE_MENU(main_menu, {
     {"Off", Action, {utils_turn_off}, 0}
 });
 
-void swipe_text(const char *text, bool left) {
-    uint8_t my_buffer[4 * 128];
-    int page;
-    memset(my_buffer, 0, 128 * 4);
-    for (page = 0; page < 4; page++) {
-        //memset(&my_buffer[page*128],0xaa,128);
-        render_text_to_page(&(my_buffer[page * 128]), page, 0, text, &large_font);
+
+int render_menu_entry(struct menu *menu, display_buf_t buf) {
+    int i;
+    const char *text = menu_get_text(menu);
+    if (menu_needs_status(menu)) {
+        for (i=0; i<4; i++) {
+            render_text_to_page(buf[i+2], i, 0, text, &large_font);
+        }
+        show_status(buf);
+        return 2;
+    } else {
+        menu_do_display(menu, buf);
+        return 0;
     }
-    display_swipe_pages(day ? 0 : 2, my_buffer, 4, left);
 }
 
-void scroll_text(const char *text, bool up) {
-    if (!day) {
-        if (up) {
-            display_clear_page(6, true);
-            display_clear_page(7, true);
-        } else {
-            display_clear_page(0, true);
-            display_clear_page(1, true);
-        }
+
+
+void swipe_menu(struct menu *menu, bool left) {
+    display_buf_t buf = {{0}};
+    int count;
+    count = render_menu_entry(menu, buf);
+    if (count==2) {
+        display_swipe_pages(2, buf, 4, left);
+    } else {
+        display_swipe_pages(0, buf, 8, left);
     }
-    display_scroll_text(day ? 0 : 2, 0, text, &large_font, up);
+}
+
+void scroll_menu(struct menu *menu, bool up) {
+    display_buf_t buf = {{0}};
+    render_menu_entry(menu, buf);
+    display_scroll_buffer(buf, up);
 }
 
 
@@ -107,7 +118,7 @@ unsigned char reverse(unsigned char b) {
     return b;
 }
 
-void show_status() {
+void show_status(display_buf_t buf) {
     const int FOOTER_LENGTH = 16;
     char header[17];
     char footer[17] = "                "; //16 spaces
@@ -118,53 +129,54 @@ void show_status() {
     unsigned char bat_status[24];
     int charge;
     charge = battery_get_units();
-    if (!day) {
-        bat_status[0] = 0xf8;
-        bat_status[1] = 0x04;
-        memset(&bat_status[2], 0xf4, charge);
-        memset(&bat_status[2 + charge], 0x04, 19 - charge);
-        bat_status[21] = 0xf8;
-        bat_status[22] = 0x20;
-        bat_status[23] = 0xC0;
-        RTCC_TimeGet(&dt);
-        switch (config.length_units) {
-            case METRIC:
-                memcpy(footer, "Metric", 6);
-                break;
-            case IMPERIAL:
-                memcpy(footer, "Imp.", 4);
-                break;
-        }
-        switch (config.display_style) {
-            case POLAR:
-                memcpy(&footer[FOOTER_LENGTH - 5], "Polar", 5);
-                break;
-            case GRAD:
-                memcpy(&footer[FOOTER_LENGTH - 5], "Grad.", 5);
-                break;
-            case CARTESIAN:
-                memcpy(&footer[FOOTER_LENGTH - 5], "Cart.", 5);
-                break;
-        }
-        snprintf(header, 17, "%02d:%02d        ", dt.tm_hour, dt.tm_min);
-        display_write_text(0, 0, header, &small_font, false, true);
-        display_write_text(6, 0, footer, &small_font, false, true);
-        render_data_to_page(0, 104, bat_status, 24);
-        for (x = 0; x < 24; ++x) {
-            bat_status[x] = reverse(bat_status[x]);
-        }
-        render_data_to_page(1, 104, bat_status, 24);
+    bat_status[0] = 0xf8;
+    bat_status[1] = 0x04;
+    memset(&bat_status[2], 0xf4, charge);
+    memset(&bat_status[2 + charge], 0x04, 19 - charge);
+    bat_status[21] = 0xf8;
+    bat_status[22] = 0x20;
+    bat_status[23] = 0xC0;
+    RTCC_TimeGet(&dt);
+    switch (config.length_units) {
+        case METRIC:
+            memcpy(footer, "Metric", 6);
+            break;
+        case IMPERIAL:
+            memcpy(footer, "Imp.", 4);
+            break;
     }
+    switch (config.display_style) {
+        case POLAR:
+            memcpy(&footer[FOOTER_LENGTH - 5], "Polar", 5);
+            break;
+        case GRAD:
+            memcpy(&footer[FOOTER_LENGTH - 5], "Grad.", 5);
+            break;
+        case CARTESIAN:
+            memcpy(&footer[FOOTER_LENGTH - 5], "Cart.", 5);
+            break;
+    }
+    snprintf(header, 17, "%02d:%02d        ", dt.tm_hour, dt.tm_min);
+    render_text_to_page(buf[0], 0, 0, header, &small_font);
+    render_text_to_page(buf[1], 1, 0, header, &small_font);
+    render_text_to_page(buf[6], 0, 0, footer, &small_font);
+    render_text_to_page(buf[7], 1, 0, footer, &small_font);
+    memcpy(&buf[0][104], bat_status, 24);
+    for (x = 0; x < 24; ++x) {
+        bat_status[x] = reverse(bat_status[x]);
+    }
+    memcpy(&buf[1][104], bat_status, 24);
 }
 
 void show_menu(struct menu *menu) {
     laser_off();
     menu_initialise(menu);
-    scroll_text(menu_get_text(menu), true);
+    scroll_menu(menu, true);
     while (true) {
         wdt_clear();
         delay_ms(50);
-        show_status();
+        show_status(buffer);
+        display_show_buffer();
         switch (get_input()) {
             case FLIP_DOWN:
                 //index = get_previous_menu_item(menu, index);
@@ -172,7 +184,7 @@ void show_menu(struct menu *menu) {
                 break;
             case FLIP_UP:
                 menu_next(menu);
-                scroll_text(menu_get_text(menu), true);
+                scroll_menu(menu, true);
                 break;
                 //case FLIP_RIGHT:
             case SINGLE_CLICK:
@@ -183,10 +195,10 @@ void show_menu(struct menu *menu) {
                         return;
                         break;
                     case Back:
-                        swipe_text(menu_get_text(menu), false);
+                        swipe_menu(menu, false);
                         break;
                     case SubMenu: 
-                        swipe_text(menu_get_text(menu), true);
+                        swipe_menu(menu, true);
                         break;
                     case Info: //do nothing on click if INFO item.
                         break;

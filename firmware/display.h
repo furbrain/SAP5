@@ -7,6 +7,9 @@
 
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
+#define NUM_PAGES 8
+
+typedef uint8_t display_buf_t[NUM_PAGES][128];
 
 void display_init();
 
@@ -36,9 +39,9 @@ int render_text_to_page(uint8_t *buffer, int page, int column, const char *text,
 
 void display_scroll_page(uint8_t *data, bool up);
 
-void display_swipe_pages(int start_page, uint8_t *data, int page_count, bool left);
+void display_swipe_pages(int start_page, display_buf_t data, int page_count, bool left);
 
-void display_scroll_text(int page, int column, const char *text, const struct FONT *font, bool up);
+void display_scroll_buffer(display_buf_t data, bool up);
 
 void display_flip(bool invert);
 
@@ -48,5 +51,6 @@ void display_show_buffer(void);
 void display_setbuffer_xy(int x, int y);
 void display_clearbuffer_xy(int x, int y);
 void display_draw_line(int x0, int y0, int x1, int y1);
+extern display_buf_t buffer;
 #endif
 #endif

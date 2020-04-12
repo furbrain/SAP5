@@ -2,6 +2,7 @@
 #define _MENU_H
 #include <stdint.h>
 #include <stddef.h>
+#include "display.h"
 
 #define MENU_TEXT_LENGTH 15
 
@@ -14,6 +15,7 @@ enum action {
 };
 
 typedef void (*menu_callback)(int);
+typedef void (*menu_display_callback)(display_buf_t);
 
 #define DECLARE_MENU(name, entries...) \
     struct menu_entry name##_entries[] = entries;\
@@ -37,6 +39,7 @@ struct menu_entry{
     enum action type; 
     union {
         menu_callback action; /*action to perform when selected */
+        menu_display_callback display_action; /*function to call to generate display*/
         struct menu *submenu; /*submenu to jump to */
     };
     int32_t argument; /* argument to pass to action (if needed) */
@@ -74,11 +77,21 @@ void menu_next(struct menu *menu);
 /* move the menu to the previous item, wrapping if necessary */
 void menu_prev(struct menu *menu);
 
+/*get current menu entry */
+struct menu_entry* menu_get_entry(struct menu *menu);
+
+
 /* get the menu text, do not alter the returned string, only valid as long as the underlying menu */
 const char* menu_get_text(struct menu *menu);
 
+/* returns true if menu entry needs a status line above and below */
+bool menu_needs_status(struct menu *menu);
+
 /* start using a menu, set current item to first item in top level */
 void menu_initialise(struct menu *menu);
+
+/* run display function*/
+void menu_do_display(struct menu *menu, display_buf_t buf);
 
 /* undertake the action defined by the menu (go to sub-menu, go back up a level or execute function */
 enum action menu_action(struct menu *menu);

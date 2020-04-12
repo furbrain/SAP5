@@ -108,11 +108,36 @@ void menu_next(struct menu *menu) {
 
 /* get the menu text, do not alter the returned string, only valid as long as the underlying menu */
 const char* menu_get_text(struct menu *menu){
-    while (menu->submenu) 
-        menu = menu->submenu;
-    return menu->entries[menu->current_entry].text;
+    return menu_get_entry(menu)->text;
 }
 
+struct menu_entry* menu_get_entry(struct menu *menu) {
+    while (menu->submenu) { 
+        menu = menu->submenu;
+    }
+    return menu->entries + menu->current_entry;
+}
+
+/* returns true if menu entry needs a status line above and below */
+bool menu_needs_status(struct menu *menu) {
+    struct menu_entry *entry = menu_get_entry(menu);
+    switch (entry->type) {
+    case Action:
+    case SubMenu:
+        return false;
+    case Info:
+    case Back:
+    case Exit:
+        if (entry->display_action != NULL) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void menu_do_display(struct menu *menu, display_buf_t buf) {
+    menu_get_entry(menu)->display_action(buf);    
+}
 
 /* undertake the action defined by the menu (go to sub-menu, go back up a level or execute function */
 enum action menu_action(struct menu *menu) {
