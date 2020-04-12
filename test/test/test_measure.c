@@ -7,6 +7,7 @@
 #include "mock_display.h"
 #include "mock_laser.h"
 #include "mock_sensors.h"
+#include "mock_selector.h"
 #include "mock_utils.h"
 #include "menu.h"
 #include "font.h"
@@ -15,6 +16,7 @@
 #include "mock_memory.h"
 #include "mock_beep.h"
 #include "mock_input.h"
+#include "mock_display.h"
 #include "images.h"
 #include "survey.h"
 #include "leg.h"
@@ -26,6 +28,7 @@ DECLARE_MENU(main_menu, {
     {"Back", Back, {NULL}, 0}
 });
 
+display_buf_t buffer;
 
 void setUp(void) {
     config.length_units=METRIC;
@@ -132,8 +135,9 @@ void test_add_polar_entries_to_menu(void) {
     gsl_vector_view orientation;
     for (i=0; i<7; i++) {
         orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
         menu_clear(&test_menu);
-        add_polar_entries_to_menu(&orientation.vector, &test_menu);
+        add_polar_entries_to_menu(&test_menu);
         for (j=0; j<4; j++) {
             TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], menu_get_text(&test_menu));
             menu_next(&test_menu);
@@ -161,8 +165,9 @@ void test_add_polar_entries_to_menu_imperial(void) {
     config.length_units=IMPERIAL;
     for (i=0; i<7; i++) {
         orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
         menu_clear(&test_menu);
-        add_polar_entries_to_menu(&orientation.vector, &test_menu);
+        add_polar_entries_to_menu(&test_menu);
         for (j=0; j<4; j++) {
             TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], menu_get_text(&test_menu));
             menu_next(&test_menu);
@@ -190,8 +195,10 @@ void test_add_gradian_entries_to_menu(void) {
     config.display_style=GRAD;
     for (i=0; i<7; i++) {
         orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
+
         menu_clear(&test_menu);
-        add_polar_entries_to_menu(&orientation.vector, &test_menu);
+        add_polar_entries_to_menu(&test_menu);
         for (j=0; j<4; j++) {
             TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], menu_get_text(&test_menu));
             menu_next(&test_menu);
@@ -220,8 +227,9 @@ void test_add_cartesian_entries_to_menu(void) {
     gsl_vector_view orientation;
     for (i=0; i<7; i++) {
         orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);        
         menu_clear(&test_menu);
-        add_cartesian_entries_to_menu(&orientation.vector, &test_menu);
+        add_cartesian_entries_to_menu(&test_menu);
         for (j=0; j<4; j++) {
             TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], menu_get_text(&test_menu));
             menu_next(&test_menu);
@@ -249,8 +257,9 @@ void test_add_cartesian_entries_to_menu_imperial(void) {
     config.length_units=IMPERIAL;
     for (i=0; i<7; i++) {
         orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
         menu_clear(&test_menu);
-        add_cartesian_entries_to_menu(&orientation.vector, &test_menu);
+        add_cartesian_entries_to_menu(&test_menu);
         for (j=0; j<4; j++) {
             TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], menu_get_text(&test_menu));
             menu_next(&test_menu);

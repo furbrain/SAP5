@@ -21,13 +21,10 @@ double get_extension(gsl_vector *orientation);
 double get_distance(gsl_vector *orientation);
 
 /* add a set of polar entries to a menu */
-void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu);
+void add_polar_entries_to_menu(struct menu *menu);
 
 /* add a set of cartesian entries to a menu */
-void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu);
-
-/* get device orientation as a vecetor*/
-void get_reading(gsl_vector *orientation);
+void add_cartesian_entries_to_menu(struct menu *menu);
 
 #endif
 #endif

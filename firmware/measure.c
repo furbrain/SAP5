@@ -31,26 +31,11 @@
 #define DEGREE_SYMBOL '`'
 #define GRAD_SYMBOL 'g'
 
-GSL_VECTOR_DECLARE(measure_orientation, 3);
-
 bool measure_requested = false;
 
 DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
 
-TESTABLE_STATIC
-void get_reading(gsl_vector *orientation){
-	double distance;
-
-	display_off();
-	laser_on();
-	delay_ms_safe(20);
-    sensors_get_orientation(orientation, SAMPLES_PER_READING);
-    distance = laser_read(LASER_MEDIUM, 3000);
-    gsl_vector_scale(orientation, distance);
-    display_on();
-    laser_off();
-}
 
 /* calculate extension from current readings */
 TESTABLE_STATIC
@@ -75,12 +60,13 @@ void measure_calculate_bearings(gsl_vector *orientation, double *compass, double
 
 /* add a set of polar entries to a menu */
 TESTABLE_STATIC
-void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
+void add_polar_entries_to_menu(struct menu *menu) {
     double compass, inclination;
     double degree_scale = (config.display_style==GRAD) ? GRADS_PER_DEGREE : 1.0;
     double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
     char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
     char angle_symbol = (config.display_style==GRAD) ? GRAD_SYMBOL : DEGREE_SYMBOL;
+    gsl_vector *orientation = sensors_get_last_reading();
     char text[30];
     measure_calculate_bearings(orientation, &compass, &inclination);
 
@@ -99,10 +85,11 @@ void add_polar_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
 
 /* add a set of cartesian entries to a menu */
 TESTABLE_STATIC
-void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
+void add_cartesian_entries_to_menu(struct menu *menu) {
     const char *format[] = {"E: %+.2f%c", "N: %+.2f%c","V: %+.2f%c"};
     double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
     char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
+    gsl_vector *orientation = sensors_get_last_reading();
     char text[30];
     int i;
     for (i=0; i<3; i++) {
@@ -117,12 +104,12 @@ void add_cartesian_entries_to_menu(gsl_vector *orientation, struct menu *menu) {
 static
 void store_leg(int32_t code) {
     struct LEG leg;
-    int the_time;
-    the_time = utils_get_time();
+    int the_time = utils_get_time();
+    gsl_vector* reading = sensors_get_last_reading();
     if (the_time<0) {
         THROW_WITH_REASON("Bad code",ERROR_UNSPECIFIED);
     }
-    leg = leg_create(the_time, survey_current.number, 0, 0, &measure_orientation);
+    leg = leg_create(the_time, survey_current.number, 0, 0, reading);
     leg_stations_decode(code, &leg.from, &leg.to);
     leg_save(&leg);
     survey_add_leg(&survey_current, &leg);
@@ -204,13 +191,13 @@ void setup_storage_menu(void) {
     menu_append_back(&storage_menu, "Back");
 }
 
-void measure_show_reading(gsl_vector *orientation) {
+void measure_show_reading() {
     // set up menus
     menu_clear(&measure_menu);
     if (config.display_style==CARTESIAN) {
-        add_cartesian_entries_to_menu(orientation, &measure_menu);
+        add_cartesian_entries_to_menu(&measure_menu);
     } else {
-        add_polar_entries_to_menu(orientation, &measure_menu);
+        add_polar_entries_to_menu(&measure_menu);
     }
     setup_storage_menu();
     menu_append_submenu(&measure_menu, "Store", &storage_menu);
@@ -220,40 +207,10 @@ void measure_show_reading(gsl_vector *orientation) {
     show_menu(&measure_menu);
 }
 
-
-
-//void measure(int32_t a) {
-//    CEXCEPTION_T e;
-//    measure_exit = false;
-//    while (true) {
-//        Try {
-//            measure_get_reading(&measure_orientation);
-//        }
-//        Catch (e) {
-//            if (e==ERROR_LASER_READ_FAILED) {
-//                display_on(true);
-//                laser_on(false);
-//                display_clear_screen(true);
-//                display_write_text(0, 0, "Laser read", &large_font, false, true);
-//                display_write_text(4, 0, "failed", &large_font, false, true);
-//                delay_ms_safe(3000);
-//                continue;
-//            } else {
-//                Throw(e);
-//            }
-//        }
-//        if (measure_exit) break;
-//        measure_show_reading(&measure_orientation);
-//        if (measure_exit) break;
-//    }        
-//    laser_on(false);
-//    display_on(true);
-//}
-
 void do_reading() {
     CEXCEPTION_T e;
     Try {
-        get_reading(&measure_orientation);
+        sensors_get_reading();
         beep_beep();
     }
     Catch (e) {
@@ -279,7 +236,7 @@ void do_reading() {
             Throw(e);
         }
     }
-    measure_show_reading(&measure_orientation);    
+    measure_show_reading();    
 }
 
 void ready_to_measure() {
@@ -293,7 +250,8 @@ void measure() {
     ready_to_measure();
     while (true) {
         wdt_clear();
-        show_status();
+        show_status(buffer);
+        display_show_buffer();
         if (measure_requested) {
             measure_requested = false;
             delay_ms_safe(2000);

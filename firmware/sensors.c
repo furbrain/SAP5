@@ -14,9 +14,12 @@
 #include <gsl/gsl_statistics.h>
 #include "gsl_static.h"
 #include "version.h"
+#include "laser.h"
 
 GSL_MATRIX_DECLARE(temp_mag_readings, SAMPLES_PER_READING, 3);
 GSL_MATRIX_DECLARE(temp_grav_readings, SAMPLES_PER_READING, 3);
+
+GSL_VECTOR_DECLARE(last_reading, 3);
 
 #define length(a) sizeof(a)/sizeof(a[0])
 #define send_multi(addr, commands) write_i2c_multi(addr, commands, length(commands))
@@ -245,4 +248,20 @@ void sensors_get_orientation(gsl_vector *orientation, int count) {
     gsl_vector_view grav = gsl_vector_view_array(sensors.accel, 3);
     sensors_read_cooked(&sensors, count);
     maths_get_orientation_as_vector(&mag.vector, &grav.vector, orientation);
+}
+
+void sensors_get_reading(){
+	double distance;
+	display_off();
+	laser_on();
+	delay_ms_safe(20);
+    sensors_get_orientation(&last_reading, SAMPLES_PER_READING);
+    distance = laser_read(LASER_MEDIUM, 3000);
+    gsl_vector_scale(&last_reading, distance);
+    display_on();
+    laser_off();
+}
+
+gsl_vector* sensors_get_last_reading() {
+    return &last_reading;
 }
