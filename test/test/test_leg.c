@@ -114,30 +114,6 @@ void test_leg_find_last(void) {
     TEST_ASSERT_EQUAL_PTR_MESSAGE(&leg_store.legs[1], found_leg, "should be last one in survey 3");
 }
 
-void test_leg_get_survey_details(void) {
-    struct test_field {
-        int survey;
-        int max_station;
-        time_t first_time;
-        bool forward;
-    };
-    struct test_field test_cases[3] = {
-        {1, 2, 15, true},
-        {2, 3, 16, true},
-        {3, 4, 12, false}
-    };
-    int i, max_station;
-    time_t first_time;
-    bool forward;
-    add_test_legs();
-    for (i = 0; i<3; i++) {
-        leg_get_survey_details(test_cases[i].survey, &max_station, &first_time, &forward);
-        TEST_ASSERT_EQUAL(test_cases[i].max_station, max_station);   
-        TEST_ASSERT_EQUAL(test_cases[i].first_time, first_time);   
-        TEST_ASSERT_EQUAL(test_cases[i].forward, forward);   
-    }
-    TEST_ASSERT_THROWS(leg_get_survey_details(34, &max_station, &first_time, &forward), ERROR_SURVEY_NOT_FOUND);
-}
 
 void test_leg_find_last_if_no_legs(void) {
     const struct LEG *found_leg;

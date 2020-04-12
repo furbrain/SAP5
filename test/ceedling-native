@@ -1,4 +1,5 @@
 #!/bin/bash
+cd `dirname $0`
 export CEEDLING_MAIN_PROJECT_FILE=project-native.yml
 
 ruby vendor/ceedling/bin/ceedling $* CEEDLING_MAIN_PROJECT_FILE=project-native.yml
