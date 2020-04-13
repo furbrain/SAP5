@@ -46,10 +46,10 @@
       <itemPath>debug.h</itemPath>
       <itemPath>model.h</itemPath>
       <itemPath>visualise.h</itemPath>
-      <itemPath>selector.h</itemPath>
       <itemPath>datetime.h</itemPath>
       <itemPath>beep.h</itemPath>
       <itemPath>input.h</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/ui.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -98,12 +98,12 @@
       <itemPath>debug.c</itemPath>
       <itemPath>model.c</itemPath>
       <itemPath>visualise.c</itemPath>
-      <itemPath>selector.c</itemPath>
       <itemPath>datetime.c</itemPath>
       <itemPath>beep.c</itemPath>
       <itemPath>input.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/version.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/version.h</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/ui.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -131,9 +131,16 @@
       <itemPath>../test/test/test_model.c</itemPath>
       <itemPath>../test/test/test_visualise.c</itemPath>
       <itemPath>../test/test/make_test_cases.py</itemPath>
-      <itemPath>../test/test/test_selector.c</itemPath>
       <itemPath>../test/test/test_datetime.c</itemPath>
       <itemPath>../test/test/test_beep.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/test/test_calibrate.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_beep.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_custom.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_display.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_ui.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/test/test_ui.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_datetime.c</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_measure.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

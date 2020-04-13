@@ -9,7 +9,7 @@
 #include "input.h"
 #include "display.h"
 #include "sensors.h"
-#include "selector.h"
+#include "ui.h"
 #include "maths.h"
 #include "laser.h"
 #include "menu.h"
@@ -120,50 +120,24 @@ int txt2num(char x) {
 }
 
 void custom_storage(int32_t last) {
-    struct SELECTOR_CHOICES choices = {"0123456789", 0, 10, 0};
-    char text[20] = "";
-    char chosen;
-    int i;
-    int max_tens = last / 10;
-    int max_units = last % 10;
     int from  = last -1;
     int to = last;
-    int digit;
-    sprintf(text, "%02d -> %02d", from, to);
-    display_clear_screen(true);
-    for (i=0; i<8; ++i) {
-        selector_write_char(text[i], idx2pos(i));
-    }
-
-    
-    choices.end = max_tens + 1;
-    choices.current = from / 10;
-    chosen = selector_choose(&choices, idx2pos(0));
-    digit = txt2num(chosen);
-    if (digit == max_tens) {
-        choices.end = max_units+1;
-    } else {
-        choices.end = 10;
-    }
-    choices.current = from % 10;
-    from = digit * 10;
-    chosen = selector_choose(&choices, idx2pos(1));
-    from += txt2num(chosen);
-
-    choices.end = max_tens + 1;
-    choices.current = to / 10;
-    chosen = selector_choose(&choices, idx2pos(6));
-    digit = txt2num(chosen);
-    if (digit == max_tens) {
-        choices.end = max_units+1;
-    } else {
-        choices.end = 10;
-    }
-    choices.current = to % 10;
-    to = digit * 10;
-    chosen = selector_choose(&choices, idx2pos(7));
-    to += txt2num(chosen);
-    //FIXME need to do summat with these...
+    struct UI_MULTI_SELECT selector = {
+        .offset = 20,
+        .text = "00 -> 00",
+        .numbers = {
+           //max   min   curr  len pos cb
+            {to,   1,    from,    2,  0,  NULL }, //from
+            {to,   1,    to,    2,  6,  NULL}, //to
+        }
+    };
+    int32_t code;
+    sprintf(selector.text, "%02d -> %02d", from, to);
+    ui_multi_select(&selector);
+    from = selector.numbers[0].current;
+    to = selector.numbers[1].current;
+    code = leg_stations_encode(from, to);
+    leg_create_and_store(code);
 }
 
 TESTABLE_STATIC
