@@ -20,7 +20,7 @@ void utils_turn_off_Stub(int32_t a, int numcalls) {
     THROW_WITH_REASON("Turned off", ERROR_UNSPECIFIED);
 }
 
-void delay_ms_Stub(int count) {
+void delay_ms_Stub(int count, int numcalls) {
     usleep(count * 1000);
 }
 
@@ -30,6 +30,5 @@ void util_setup() {
     delay_ms_safe_StubWithCallback(delay_ms_Stub);
     battery_get_units_IgnoreAndReturn(10);
     RTCC_TimeGet_StubWithCallback(RTCC_TimeGet_Stub);
-    RTCC_TimeSet_Ignore();
     utils_turn_off_StubWithCallback(utils_turn_off_Stub);
 }

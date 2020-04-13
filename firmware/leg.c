@@ -7,21 +7,29 @@
 #include "memory.h"
 #include "utils.h"
 #include "exception.h"
+#include "sensors.h"
+#include "survey.h"
 
 union LEG_STORE leg_store PLACE_DATA_AT(APP_LEG_LOCATION) = {.raw = {[0 ... APP_LEG_SIZE-1]=0xff}};
 
 char leg_stations_description[20];
 
-struct LEG leg_create(int tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vector *delta) {
+void leg_create_and_store(int32_t code) {
     struct LEG leg;
     int i;
-    leg.tm = tm;
-    leg.survey = survey;
-    leg.from = from;
-    leg.to = to;
-    for(i=0; i<3; i++) leg.delta[i] = gsl_vector_get(delta, i);
-    return leg;
-    
+    int the_time = utils_get_time();
+    gsl_vector* reading = sensors_get_last_reading();
+    if (the_time<0) {
+        THROW_WITH_REASON("Bad code",ERROR_UNSPECIFIED);
+    }
+    leg.tm = the_time;
+    leg.survey = survey_current.number;
+    leg_stations_decode(code, &leg.from, &leg.to);
+    for(i=0; i<3; i++) {
+        leg.delta[i] = gsl_vector_get(reading, i);
+    }
+    leg_save(&leg);
+    survey_add_leg(&survey_current, &leg);
 }
 
 /* if leg spans a page boundary, then return the pointer to the start of the page *
@@ -197,4 +205,3 @@ const struct LEG *leg_enumerate(const struct LEG *leg) {
     }
     return NULL;
 }
-

@@ -8,7 +8,7 @@ struct GLYPH_DATA {
     uint16_t index;  
 };
 
-#define get_glyph_data(font,char) &(font->indices[char-32])
+#define get_glyph_data(font,char) &((font)->indices[char-32])
 
 struct FONT {
     uint8_t advance; /* how much padding between characters (0 for monospace fonts) */

@@ -32,8 +32,8 @@ union LEG_STORE {
 extern union LEG_STORE leg_store;
 
 
-/* create a leg */
-struct LEG leg_create(int tm, uint16_t survey, uint8_t from, uint8_t to, gsl_vector *delta);
+/* create and store a leg using most recent readings */
+void leg_create_and_store(int32_t code);
 
 /* save a leg */
 void leg_save(struct LEG *leg);
@@ -66,4 +66,5 @@ const struct LEG *leg_first(void);
 
 /* get the first leg if passed NULL, or next valid leg in storage, return NULL if no more valid legs */
 const struct LEG *leg_enumerate(const struct LEG *leg);
+
 #endif // _LEG_H

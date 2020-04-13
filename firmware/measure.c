@@ -101,19 +101,6 @@ void add_cartesian_entries_to_menu(struct menu *menu) {
 }
 
 
-static
-void store_leg(int32_t code) {
-    struct LEG leg;
-    int the_time = utils_get_time();
-    gsl_vector* reading = sensors_get_last_reading();
-    if (the_time<0) {
-        THROW_WITH_REASON("Bad code",ERROR_UNSPECIFIED);
-    }
-    leg = leg_create(the_time, survey_current.number, 0, 0, reading);
-    leg_stations_decode(code, &leg.from, &leg.to);
-    leg_save(&leg);
-    survey_add_leg(&survey_current, &leg);
-}
 
 static
 void add_storage_menu_entry(struct menu *menu, uint8_t from, uint8_t to) {
@@ -121,7 +108,7 @@ void add_storage_menu_entry(struct menu *menu, uint8_t from, uint8_t to) {
     int32_t code;
     text = leg_stations_to_text(from, to);
     code = leg_stations_encode(from, to);
-    menu_append_action(menu, text, store_leg, code);
+    menu_append_action(menu, text, leg_create_and_store, code);
 }
 
 int idx2pos(int i) {

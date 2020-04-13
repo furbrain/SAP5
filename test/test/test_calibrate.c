@@ -16,6 +16,7 @@
 
 #include "mag_sample_data.inc"
 #include "mock_sensors.h"
+#include "mock_survey.h"
 #include "mock_display.h"
 #include "mock_utils.h"
 #include "mock_laser.h"
@@ -25,6 +26,8 @@
 
 
 #define DEGREES_PER_RADIAN 57.296
+
+struct SURVEY survey_current;
 
 void suiteSetUp(void) {
     exception_init();
