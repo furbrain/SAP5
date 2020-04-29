@@ -211,51 +211,6 @@ void display_rle_image(const char* image) {
 	
 }
 
-
-/* scroll a page of data onto the screen either up or down */
-void display_scroll_page(uint8_t *data,  bool up){
-	int i,j;
-	uint8_t mask;
-	uint8_t temp_buffer[128];
-        //first clear all data
-	memset(temp_buffer,0,128);
-    if (up) {
-        set_page(top_page);
-        set_column(0);
-        display_send_data(temp_buffer,128);
-        // now rotate it
-        for(i=0;i<8;++i) {
-            send1(0x40 | (top_page*NUM_PAGES+i+1) % 64);
-	        set_column(0);
-	        mask = ((1<<(i+1))-1);
-	        for(j=0;j<128;++j){
-		        temp_buffer[j] = data[j] & mask;
-	        }
-	        display_send_data(temp_buffer,128);
-	        delay_ms(SCROLL_RATE);
-        }
-        top_page = (top_page+1) % NUM_PAGES;
-	} else {
-        set_page((top_page+NUM_PAGES-1)%NUM_PAGES);
-        set_column(0);
-        display_send_data(temp_buffer,128);
-        // now rotate it
-	    for(i=0;i<8;++i){
-            send1(0x40 | (top_page*NUM_PAGES-(i+1)) % 64);
-	        set_column(0);
-	        mask = (256-(1<<(NUM_PAGES-i)));
-	        for(j=0;j<128;++j){
-		        temp_buffer[j] = data[j] & mask;
-	        }
-	        display_send_data(temp_buffer,128);
-            delay_ms(SCROLL_RATE);
-	    }
-        top_page = (top_page+NUM_PAGES-1) % NUM_PAGES;
-	    }
-	set_column(0);
-	display_send_data(data,128);
-}
-
 /* render a text string to a buffer */ 
 /* just do one page at a time */
 /* can specify starting column */
@@ -288,14 +243,42 @@ int render_text_to_page(uint8_t *buffer, int page, int column, const char *text,
 
 /* scroll in a piece of text, finishing at page and column specified*/
 void display_scroll_buffer(display_buf_t data, bool up) {
-    int i;
+    int i, j, k;
+    uint8_t mask, inverse_mask;
+    uint8_t temp_buffer[128];
     if (up) {
         for (i=0; i< 8; i++) {
-            display_scroll_page(data[i], up);
+        set_page(i);
+        set_column(0);
+        // now rotate it
+            for(j=0;j<8;++j) {
+                set_column(0);
+                mask = ((1<<(j+1))-1);
+                inverse_mask = ~mask;
+                for(k=0;k<128;++k){
+                    temp_buffer[k] = data[i][k] & mask | display_buffer[i][k] & inverse_mask;
+                }
+                display_send_data(temp_buffer,128);
+                send1(0x40 | (i*8+j+1) % 64);
+                delay_ms(SCROLL_RATE);
+            }
         }
     } else {
         for (i=7; i>=0; i--) {
-            display_scroll_page(data[i], up);
+            set_page(i);
+            set_column(0);
+            // now rotate it
+            for(j=7; j>=0; --j){
+                set_column(0);
+                inverse_mask = ((1<<j)-1);
+                mask = ~inverse_mask;
+                for(k=0; k<128; ++k){
+                    temp_buffer[k] = data[i][k] & mask | display_buffer[i][k] & inverse_mask;
+                }
+                display_send_data(temp_buffer,128);
+                send1(0x40 | (i*8+j) % 64);
+                delay_ms(SCROLL_RATE);
+            }
         }
     }
 }

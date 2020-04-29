@@ -37,8 +37,6 @@ void display_rle_image(const char image[]);
 
 int render_text_to_page(uint8_t *buffer, int page, int column, const char *text, const struct FONT *font);
 
-void display_scroll_page(uint8_t *data, bool up);
-
 void display_swipe_pages(int start_page, display_buf_t data, int page_count, bool left);
 
 void display_scroll_buffer(display_buf_t data, bool up);
