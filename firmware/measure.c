@@ -36,6 +36,8 @@ bool measure_requested = false;
 DECLARE_EMPTY_MENU(measure_menu, 12);
 DECLARE_EMPTY_MENU(storage_menu, 12);
 
+union display_strings texts;
+
 
 /* calculate extension from current readings */
 TESTABLE_STATIC
@@ -50,6 +52,33 @@ double get_distance(gsl_vector *orientation) {
     return gsl_blas_dnrm2(orientation);
 }
 
+TESTABLE_STATIC
+void fill_polar_strings() {
+    double compass, inclination;
+    double degree_scale = (config.display_style==GRAD) ? GRADS_PER_DEGREE : 1.0;
+    double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
+    char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
+    char angle_symbol = (config.display_style==GRAD) ? GRAD_SYMBOL : DEGREE_SYMBOL;
+    gsl_vector *orientation = sensors_get_last_reading();
+    measure_calculate_bearings(orientation, &compass, &inclination);
+
+    sprintf(texts.compass, "%05.1f%c", compass * degree_scale, angle_symbol);
+    sprintf(texts.clino, "%+.1f%c", inclination * degree_scale, angle_symbol);
+    sprintf(texts.distance, "%.2f%c", get_distance(orientation) * length_scale, length_unit);
+    sprintf(texts.extension, "%.2f%c", get_extension(orientation) * length_scale, length_unit);
+}
+
+TESTABLE_STATIC
+void fill_cartesian_strings() {
+    double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
+    char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
+    gsl_vector *orientation = sensors_get_last_reading();
+    int i;
+    for (i=0; i<3; i++) {
+        sprintf(texts.raw_text[i],"%+.2f%c",gsl_vector_get(orientation, i) * length_scale, length_unit);
+    }
+    sprintf(texts.extension2, "%.2f%c", get_extension(orientation) * length_scale, length_unit);
+}
 
 /* calculate compass and inclination from an orientation */
 void measure_calculate_bearings(gsl_vector *orientation, double *compass, double *inclination){
@@ -61,42 +90,30 @@ void measure_calculate_bearings(gsl_vector *orientation, double *compass, double
 /* add a set of polar entries to a menu */
 TESTABLE_STATIC
 void add_polar_entries_to_menu(struct menu *menu) {
-    double compass, inclination;
-    double degree_scale = (config.display_style==GRAD) ? GRADS_PER_DEGREE : 1.0;
-    double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
-    char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
-    char angle_symbol = (config.display_style==GRAD) ? GRAD_SYMBOL : DEGREE_SYMBOL;
-    gsl_vector *orientation = sensors_get_last_reading();
-    char text[30];
-    measure_calculate_bearings(orientation, &compass, &inclination);
+    char text[16];
+    fill_polar_strings();
+    menu_append_submenu(menu, texts.compass, &main_menu);
+    menu_append_submenu(menu, texts.clino, &main_menu);
 
-    sprintf(text, "%05.1f%c", compass * degree_scale, angle_symbol);
+    sprintf(text, "Dist  %s", texts.distance);
     menu_append_submenu(menu, text, &main_menu);
 
-    sprintf(text, "%+.1f%c", inclination * degree_scale, angle_symbol);
-    menu_append_submenu(menu, text, &main_menu);
-
-    sprintf(text, "Dist  %.2f%c", get_distance(orientation) * length_scale, length_unit);
-    menu_append_submenu(menu, text, &main_menu);
-
-    sprintf(text, "Ext  %.2f%c", get_extension(orientation) * length_scale, length_unit);
+    sprintf(text, "Ext  %s", texts.extension);
     menu_append_submenu(menu, text, &main_menu);
 }
 
 /* add a set of cartesian entries to a menu */
 TESTABLE_STATIC
 void add_cartesian_entries_to_menu(struct menu *menu) {
-    const char *format[] = {"E: %+.2f%c", "N: %+.2f%c","V: %+.2f%c"};
-    double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
-    char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
-    gsl_vector *orientation = sensors_get_last_reading();
-    char text[30];
+    const char *format[] = {"E: %s", "N: %s","V: %s"};
+    char text[16];
     int i;
+    fill_cartesian_strings();
     for (i=0; i<3; i++) {
-        sprintf(text, format[i], gsl_vector_get(orientation, i) * length_scale, length_unit);
+        sprintf(text, format[i], texts.raw_text[i]);
         menu_append_submenu(menu, text, &main_menu);
     }
-    sprintf(text, "Ext  %.2f%c", get_extension(orientation) * length_scale, length_unit);
+    sprintf(text, "Ext  %s", texts.extension2);
     menu_append_submenu(menu, text, &main_menu);
 }
 

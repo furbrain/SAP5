@@ -74,6 +74,47 @@
         <itemPath>mcc_generated_files/tmr2.c</itemPath>
         <itemPath>mcc_generated_files/uart2.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="f1" displayName="Test Cmd" projectFiles="true">
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_battery.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_bt.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_calibrate.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_config.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_datetime.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_exception.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_gsl_static.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_laser.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_leg.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_maths.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_measure.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_memory.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_menu.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_model.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_survey.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_ui.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_visualise.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="Test UI" projectFiles="true">
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/adc_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/beep_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/debug_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/i2c_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/input_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_beep.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_custom.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_datetime.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_display.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_input.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_main.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_measure.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_sensors.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_time.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_uart.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_ui.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/time_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/uart_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/util_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/zmqstubs.c</itemPath>
+      </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>display.c</itemPath>
       <itemPath>font.c</itemPath>
@@ -113,39 +154,17 @@
       <itemPath>/home/phil/Projects/SAP5/bootloader/specs.txt</itemPath>
       <itemPath>/home/phil/Projects/SAP5/plan.txt</itemPath>
       <itemPath>/home/phil/Projects/SAP5/production.txt</itemPath>
-      <itemPath>../test/test/test_battery.c</itemPath>
-      <itemPath>../test/test/test_config.c</itemPath>
-      <itemPath>../test/test/test_exception.c</itemPath>
-      <itemPath>../test/test/test_gsl_static.c</itemPath>
-      <itemPath>../test/test/test_leg.c</itemPath>
-      <itemPath>../test/test/test_maths.c</itemPath>
-      <itemPath>../test/test/test_maths_fixtures.inc</itemPath>
-      <itemPath>../test/test/test_measure.c</itemPath>
-      <itemPath>../test/test/test_memory.c</itemPath>
-      <itemPath>../test/test/test_menu.c</itemPath>
-      <itemPath>../test/test/test_survey.c</itemPath>
-      <itemPath>../test/test/test_laser.c</itemPath>
       <itemPath>../test/project-native.yml</itemPath>
       <itemPath>../test/project-real.yml</itemPath>
       <itemPath>../test/project-sim.yml</itemPath>
-      <itemPath>../test/test/test_model.c</itemPath>
-      <itemPath>../test/test/test_visualise.c</itemPath>
       <itemPath>../test/test/make_test_cases.py</itemPath>
-      <itemPath>../test/test/test_datetime.c</itemPath>
-      <itemPath>../test/test/test_beep.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/test/test/test_calibrate.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_beep.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_custom.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_display.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_ui.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/test/test/test_ui.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_datetime.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/test/desksim/test_measure.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
     <Elem>.</Elem>
     <Elem>../bootloader</Elem>
+    <Elem>/home/phil/Projects/SAP5/test/test</Elem>
+    <Elem>/home/phil/Projects/SAP5/test/desksim</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -188,6 +207,154 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <item path="/home/phil/Projects/SAP5/test/desksim/adc_stub.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/beep_stub.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/debug_stub.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/i2c_stub.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/input_stub.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_beep.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_custom.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_datetime.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_display.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_input.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_main.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_measure.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_sensors.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_time.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_uart.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_ui.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/time_stub.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/uart_stub.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/util_stub.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/zmqstubs.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_battery.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_bt.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_calibrate.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_config.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_datetime.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_exception.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_gsl_static.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_laser.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_leg.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_maths.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_measure.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_memory.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_menu.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_model.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_survey.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_ui.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_visualise.c"
+            ex="true"
+            overriding="false">
+      </item>
       <C32>
         <property key="additional-warnings" value="true"/>
         <property key="addresss-attribute-use" value="false"/>

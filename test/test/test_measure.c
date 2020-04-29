@@ -7,7 +7,7 @@
 #include "mock_display.h"
 #include "mock_laser.h"
 #include "mock_sensors.h"
-#include "mock_selector.h"
+#include "mock_ui.h"
 #include "mock_utils.h"
 #include "menu.h"
 #include "font.h"
@@ -33,6 +33,7 @@ display_buf_t buffer;
 void setUp(void) {
     config.length_units=METRIC;
     config.display_style=POLAR;
+    config.compact=false;
 }
 
 void tearDown(void) {
@@ -145,6 +146,32 @@ void test_add_polar_entries_to_menu(void) {
     }  
 }
 
+void test_polar_strings(void) {
+    struct test_field {
+        double deltas[3];
+        char texts[4][15];        
+    };
+    struct test_field test_cases[] = {
+        {{0, 0, 0}, "000.0`", "+0.0`", "0.00m", "0.00m"},
+        {{1, 0, 0}, "090.0`", "+0.0`", "1.00m", "1.00m"},
+        {{0, 1, 0}, "000.0`", "+0.0`", "1.00m", "1.00m"},
+        {{3, 0, 4}, "090.0`", "+53.1`","5.00m", "3.00m"},
+        {{0, -3, 4}, "180.0`", "+53.1`","5.00m", "3.00m"},
+        {{0.3, 0.4, 0.0}, "036.9`", "+0.0`", "0.50m", "0.50m"},
+        {{0.3, -0.4, 1.2}, "143.1`", "+67.4`", "1.30m", "0.50m"}
+    };
+    int i, j;
+    gsl_vector_view orientation;
+    for (i=0; i<7; i++) {
+        orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
+        fill_polar_strings();
+        for (j=0; j<4; j++) {
+            TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], texts.raw_text[j]);
+        }
+    }  
+}
+
 void test_add_polar_entries_to_menu_imperial(void) {
     DECLARE_EMPTY_MENU(test_menu, 4);
     struct test_field {
@@ -175,6 +202,34 @@ void test_add_polar_entries_to_menu_imperial(void) {
     }  
 }
 
+void test_fill_polar_strings_imperial(void) {
+    struct test_field {
+        double deltas[3];
+        char texts[4][15];        
+    };
+    struct test_field test_cases[] = {
+        {{0, 0, 0}, "000.0`", "+0.0`", "0.00'", "0.00'"},
+        {{1, 0, 0}, "090.0`", "+0.0`", "3.28'", "3.28'"},
+        {{0, 1, 0}, "000.0`", "+0.0`", "3.28'", "3.28'"},
+        {{3, 0, 4}, "090.0`", "+53.1`", "16.41'", "9.84'"},
+        {{0, -3, 4}, "180.0`", "+53.1`", "16.41'", "9.84'"},
+        {{0.3, 0.4, 0.0}, "036.9`", "+0.0`", "1.64'", "1.64'"},
+        {{0.3, -0.4, 1.2}, "143.1`", "+67.4`", "4.27'", "1.64'"}
+    };
+    int i, j;
+    gsl_vector_view orientation;
+    config.length_units=IMPERIAL;
+    for (i=0; i<7; i++) {
+        orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
+        fill_polar_strings();
+        for (j=0; j<4; j++) {
+            TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], texts.raw_text[j]);
+        }
+    }  
+}
+
+
 void test_add_gradian_entries_to_menu(void) {
     DECLARE_EMPTY_MENU(test_menu, 4);
     struct test_field {
@@ -202,6 +257,34 @@ void test_add_gradian_entries_to_menu(void) {
         for (j=0; j<4; j++) {
             TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], menu_get_text(&test_menu));
             menu_next(&test_menu);
+        }
+    }  
+}
+
+void test_fill_gradian_strings(void) {
+    DECLARE_EMPTY_MENU(test_menu, 4);
+    struct test_field {
+        double deltas[3];
+        char texts[4][15];        
+    };
+    struct test_field test_cases[] = {
+        {{0, 0, 0}, "000.0g", "+0.0g", "0.00m", "0.00m"},
+        {{1, 0, 0}, "100.0g", "+0.0g", "1.00m", "1.00m"},
+        {{0, 1, 0}, "000.0g", "+0.0g", "1.00m", "1.00m"},
+        {{3, 0, 4}, "100.0g", "+59.0g","5.00m", "3.00m"},
+        {{0, -3, 4}, "200.0g", "+59.0g","5.00m", "3.00m"},
+        {{0.3, 0.4, 0.0}, "041.0g", "+0.0g", "0.50m", "0.50m"},
+        {{0.3, -0.4, 1.2}, "159.0g", "+74.9g", "1.30m", "0.50m"}
+    };
+    int i, j;
+    gsl_vector_view orientation;
+    config.display_style=GRAD;
+    for (i=0; i<7; i++) {
+        orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
+        fill_polar_strings();
+        for (j=0; j<4; j++) {
+            TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], texts.raw_text[j]);
         }
     }  
 }
@@ -237,6 +320,34 @@ void test_add_cartesian_entries_to_menu(void) {
     }  
 }
 
+void test_fill_cartesian_strings(void) {
+    DECLARE_EMPTY_MENU(test_menu, 4);
+    struct test_field {
+        double deltas[3];
+        char texts[4][15];        
+    };
+    struct test_field test_cases[] = {
+        {{0, 0, 0}, "+0.00m", "+0.00m", "+0.00m", "0.00m"},
+        {{1, 0, 0}, "+1.00m", "+0.00m", "+0.00m", "1.00m"},
+        {{0, 1, 0}, "+0.00m", "+1.00m", "+0.00m", "1.00m"},
+        {{3, 0, 4}, "+3.00m", "+0.00m", "+4.00m", "3.00m"},
+        {{0, -3, 4}, "+0.00m", "-3.00m", "+4.00m", "3.00m"},
+        {{0.3, 0.4, 0.0}, "+0.30m", "+0.40m", "+0.00m", "0.50m"},
+        {{0.3, -0.4, 1.2}, "+0.30m", "-0.40m", "+1.20m", "0.50m"}
+    };
+    int i, j;
+    gsl_vector_view orientation;
+    for (i=0; i<7; i++) {
+        orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
+        fill_cartesian_strings();
+        for (j=0; j<4; j++) {
+            TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], texts.raw_text[j]);
+        }
+    }  
+}
+
+
 void test_add_cartesian_entries_to_menu_imperial(void) {
     DECLARE_EMPTY_MENU(test_menu, 4);
     struct test_field {
@@ -267,4 +378,31 @@ void test_add_cartesian_entries_to_menu_imperial(void) {
     }  
 }
     
+void test_fill_cartesian_imperial(void) {
+    DECLARE_EMPTY_MENU(test_menu, 4);
+    struct test_field {
+        double deltas[3];
+        char texts[4][15];        
+    };
+    struct test_field test_cases[] = {
+        {{0, 0, 0}, "+0.00'", "+0.00'", "+0.00'", "0.00'"},
+        {{1, 0, 0}, "+3.28'", "+0.00'", "+0.00'", "3.28'"},
+        {{0, 1, 0}, "+0.00'", "+3.28'", "+0.00'", "3.28'"},
+        {{3, 0, 4}, "+9.84'", "+0.00'", "+13.12'", "9.84'"},
+        {{0, -3, 4}, "+0.00'", "-9.84'", "+13.12'", "9.84'"},
+        {{0.3, 0.4, 0.0}, "+0.98'", "+1.31'", "+0.00'", "1.64'"},
+        {{0.3, -0.4, 1.2}, "+0.98'", "-1.31'", "+3.94'", "1.64'"}
+    };
+    int i, j;
+    gsl_vector_view orientation;
+    config.length_units=IMPERIAL;
+    for (i=0; i<7; i++) {
+        orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
+        fill_cartesian_strings();
+        for (j=0; j<4; j++) {
+            TEST_ASSERT_EQUAL_STRING(test_cases[i].texts[j], texts.raw_text[j]);
+        }
+    }  
+}
     

@@ -34,6 +34,7 @@ enum LENGTH_UNITS {
     IMPERIAL
 };
 
+
 struct __attribute__((aligned(8))) CONFIG {
     struct {
         uint8_t accel[3];
@@ -48,7 +49,8 @@ struct __attribute__((aligned(8))) CONFIG {
     uint8_t display_style;
     uint8_t length_units;
     uint16_t timeout;
-    bool bt_present;
+    unsigned bt_present :1;
+    unsigned compact :1;
 };
 
 /* Note it is important to keep this as a union to ensure that no other data/ program 
