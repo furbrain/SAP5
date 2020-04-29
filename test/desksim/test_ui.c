@@ -44,12 +44,10 @@ void test_simple(void) {
     ui_multi_select(&test);
 };
 
-void test_set_date(void)
-{
-//    datetime_set_date(0);
+void test_choose_single_line(void) {
+    ui_yes_no("Single");
 }
 
-void test_set_time(void)
-{
-//    datetime_set_time(0);
+void test_choose_double_line(void) {
+    ui_yes_no("Double\nLine");
 }

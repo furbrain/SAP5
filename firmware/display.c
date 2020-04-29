@@ -273,11 +273,18 @@ int render_text_to_page(uint8_t *buffer, int page, int column, const char *text,
         while((column<128) && (i < glyph->width)) {
             if (page < glyph->pages) {
                 buffer[column] = font->bitmaps[glyph->index+page*glyph->width+i];
+            } else {
+                buffer[column] = 0;
             }
             column++;
             i++;
         }
-        column+=font->advance;
+        i = 0;
+        while((column<128) && (i < font->advance)) {
+            buffer[column] = 0;
+            column++;
+            i++;
+        }
         text++;
     }
     return column;

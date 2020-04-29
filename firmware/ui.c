@@ -16,6 +16,7 @@ const uint8_t down_marker[15] = {0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff,
 TESTABLE_STATIC
 const uint8_t empty_marker[15] = {0};
 
+static
 const char digits[]="0123456789";
 
 TESTABLE_STATIC
@@ -186,5 +187,47 @@ void ui_multi_select(struct UI_MULTI_SELECT *sel) {
         if (sel->numbers[i].callback) {
             sel->numbers[i].callback(sel);
         }
+    }
+}
+
+static
+void draw_choice(bool choice) {
+    if (choice) {
+        display_write_text(0, 128, ">Y", &large_font, true, false);
+        display_write_text(4, 128, "       N", &large_font, true, false);
+    } else {
+        display_write_text(0, 128, "       Y", &large_font, true, false);
+        display_write_text(4, 128, ">N", &large_font, true, false);
+    }
+}
+
+bool ui_yes_no(const char *text) {
+    char tmp_text[40];
+    bool choice = true;
+    strcpy(tmp_text, text);
+    char *linebreak = strchr(tmp_text, '\n');
+    display_clear_screen(false);
+    if (linebreak) {
+        *linebreak = '\0';
+        display_write_text(0, 0, tmp_text, &large_font, false, false);
+        display_write_text(4, 0, linebreak+1, &large_font, false, false);
+    } else {
+        display_write_text(2, 0, tmp_text, &large_font, false, false);
+    }
+    draw_choice(choice);
+    display_show_buffer();
+    while (true) {
+        switch(get_input()) {
+            case FLIP_DOWN:
+                choice  = !choice;
+                draw_choice(choice);
+                display_show_buffer();
+                break;
+            case SINGLE_CLICK:
+                return choice;
+            default:
+                break;
+        }
+        delay_ms_safe(10);
     }
 }

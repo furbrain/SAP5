@@ -36,6 +36,7 @@ struct UI_MULTI_SELECT {
 };
 
 void ui_multi_select(struct UI_MULTI_SELECT *sel);
+bool ui_yes_no(const char *text);
 
 #ifdef TEST
 void draw_markers(int column);

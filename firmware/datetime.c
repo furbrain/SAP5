@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "datetime.h"
 #include "display.h"
-#include "selector.h"
 #include "mcc_generated_files/rtcc.h"
 #include "ui.h"
 
