@@ -175,7 +175,7 @@ void show_menu(struct menu *menu) {
     while (true) {
         wdt_clear();
         delay_ms(50);
-        show_status(buffer);
+        show_status(display_buffer);
         display_show_buffer();
         switch (get_input()) {
             case FLIP_DOWN:

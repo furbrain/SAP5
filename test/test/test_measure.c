@@ -28,7 +28,7 @@ DECLARE_MENU(main_menu, {
     {"Back", Back, {NULL}, 0}
 });
 
-display_buf_t buffer;
+display_buf_t display_buffer;
 
 void setUp(void) {
     config.length_units=METRIC;

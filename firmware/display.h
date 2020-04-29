@@ -51,6 +51,7 @@ void display_show_buffer(void);
 void display_setbuffer_xy(int x, int y);
 void display_clearbuffer_xy(int x, int y);
 void display_draw_line(int x0, int y0, int x1, int y1);
-extern display_buf_t buffer;
+extern display_buf_t display_buffer;
+extern display_buf_t display_secondary_buffer;
 #endif
 #endif

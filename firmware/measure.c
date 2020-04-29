@@ -228,7 +228,7 @@ void measure() {
     ready_to_measure();
     while (true) {
         wdt_clear();
-        show_status(buffer);
+        show_status(display_buffer);
         display_show_buffer();
         if (measure_requested) {
             measure_requested = false;

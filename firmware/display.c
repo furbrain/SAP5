@@ -10,10 +10,10 @@
 #define DISPLAY_ADDRESS 0x3c
 
 #ifndef BOOTLOADER
-uint8_t buffer[NUM_PAGES][128];
+uint8_t display_buffer[NUM_PAGES][128];
+uint8_t display_secondary_buffer[NUM_PAGES][128];
 #endif
 
-int top_page = 0;
 bool display_inverted = true;
 int cur_column = 0;
 int cur_page = 0;
@@ -73,7 +73,7 @@ void set_column(int column) {
 void display_send_data(const uint8_t *data, uint8_t length) {
 #ifndef BOOTLOADER
 	if (length+cur_column<=128) { 
-		memcpy(&(buffer[cur_page][cur_column]),data,length);
+		memcpy(&(display_buffer[cur_page][cur_column]),data,length);
 	}
 #endif
 	write_i2c_command_block(DISPLAY_ADDRESS,0x40,data,length);
@@ -81,7 +81,6 @@ void display_send_data(const uint8_t *data, uint8_t length) {
 
 
 void render_data_to_page(uint8_t page, uint8_t column, const uint8_t *data, uint8_t length) {
-    page = (page+top_page)%8;
     set_page(page);
     set_column(column);
     display_send_data(data,length);
@@ -89,17 +88,16 @@ void render_data_to_page(uint8_t page, uint8_t column, const uint8_t *data, uint
 
 
 void display_clear_page(uint8_t page, bool immediate) {
-	page = (page+top_page)%8;
 	set_column(0);
 	set_page(page);
 #ifdef BOOTLOADER
-	uint8_t buffer[128];
-	memset(buffer,0,128);
-	write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer,128);
+	uint8_t display_buffer[128];
+	memset(display_buffer,0,128);
+	write_i2c_command_block(DISPLAY_ADDRESS,0x40,display_buffer,128);
 #else
-	memset(buffer[page],0,128);
+	memset(display_buffer[page],0,128);
     if (immediate) {
-        write_i2c_command_block(DISPLAY_ADDRESS,0x40,buffer[page],128);
+        write_i2c_command_block(DISPLAY_ADDRESS,0x40,display_buffer[page],128);
     }
 #endif
 }
@@ -119,7 +117,6 @@ void display_write_text(int page, int column, const char* text, const struct FON
     int i = 0;
     int end_col;
     uint8_t temp_buffer[128];
-    page = (page+top_page)%8;
     while (i<font->max_pages) {
         memset(temp_buffer,0,128);
         if (immediate) set_page(page+i);
@@ -134,9 +131,9 @@ void display_write_text(int page, int column, const char* text, const struct FON
                 display_send_data(temp_buffer,end_col);
             } else {
                 if (end_col > column) {
-                    render_text_to_page(buffer[page+i], i, 0, text, font);
+                    render_text_to_page(display_buffer[page+i], i, 0, text, font);
                 } else {
-                    render_text_to_page(buffer[page+i], i, column-end_col, text, font);                    
+                    render_text_to_page(display_buffer[page+i], i, column-end_col, text, font);                    
                 }
             }
         } else {
@@ -145,7 +142,7 @@ void display_write_text(int page, int column, const char* text, const struct FON
                 set_column(column);
                 display_send_data(&temp_buffer[column],end_col-column);
             } else {
-                render_text_to_page(buffer[page+i],i, column, text, font);
+                render_text_to_page(display_buffer[page+i],i, column, text, font);
             }
             
         }
@@ -179,7 +176,7 @@ void display_write_multiline(int page, const char* text, bool immediate) {
 void display_rle_image(const char* image) {
 	int page = 0;
 	int row = 0;
-	int image_counter,real_page;
+	int image_counter;
 	int column = 0;
 	int colour = 1;
 	while (page<8) {
@@ -187,11 +184,10 @@ void display_rle_image(const char* image) {
 		image++;
 		colour ^= 1;
 		while (image_counter--) {
-			real_page = (page+top_page)%8;
 			if (colour) {
-				buffer[real_page][column] |= 1<<row;
+				display_buffer[page][column] |= 1<<row;
 			} else {
-				buffer[real_page][column] &= ~(1<<row);
+				display_buffer[page][column] &= ~(1<<row);
 			}
 			column++;
 			if (column>=128) {
@@ -209,7 +205,7 @@ void display_rle_image(const char* image) {
 	for (page=0; page<8; ++page) {
 	    set_column(0);
 	    set_page(page);
-	    display_send_data(buffer[page],128);
+	    display_send_data(display_buffer[page],128);
 	}
 
 	
@@ -311,16 +307,15 @@ void display_swipe_pages(int start_page, display_buf_t data, int page_count, boo
     for(offset=0;offset<128;offset+=SWIPE_STEP){
         for(page=start_page; page < start_page + page_count; ++page){
             memset(temp_buffer,0,128);
-            real_page = (top_page+page) % 8;
             // copy from current buffer over into temp_buffer, 
            if (left){
-                memcpy(temp_buffer,&buffer[real_page][SWIPE_STEP],128-SWIPE_STEP-offset);
-                memcpy(&temp_buffer[128-SWIPE_STEP-offset],&data[page][0],offset);
+                memcpy(temp_buffer, &display_buffer[page][SWIPE_STEP], 128-SWIPE_STEP-offset);
+                memcpy(&temp_buffer[128-SWIPE_STEP-offset], &data[page][0], offset);
             } else {
-                memcpy(&temp_buffer[SWIPE_STEP],&buffer[real_page][0],128-SWIPE_STEP);
-                memcpy(temp_buffer,&data[page][128-SWIPE_STEP-offset],SWIPE_STEP);
+                memcpy(&temp_buffer[SWIPE_STEP], &display_buffer[page][0], 128-SWIPE_STEP);
+                memcpy(temp_buffer, &data[page][128-SWIPE_STEP-offset], SWIPE_STEP);
             }
-            set_page(real_page);
+            set_page(page);
             set_column(0);
             display_send_data(temp_buffer,128);
         }
@@ -355,7 +350,7 @@ void display_show_buffer(void) {
 	for (i=0; i<8; ++i) {
 	    set_column(0);
 	    set_page(i);
-	    display_send_data(buffer[i],128);
+	    display_send_data(display_buffer[i],128);
 	}
 }
 
@@ -365,8 +360,8 @@ void display_setbuffer_xy(int x, int y) {
     if (y<0) return;
     if (x>=DISPLAY_WIDTH) return;
     if (y>=DISPLAY_HEIGHT) return;
-	page = ((y/8) + top_page) % 8;
-	buffer[page][x] |= 1 << (y%8);
+	page = (y/8);
+	display_buffer[page][x] |= 1 << (y%8);
 }
 
 void display_clearbuffer_xy(int x, int y) {
@@ -375,8 +370,8 @@ void display_clearbuffer_xy(int x, int y) {
     if (y<0) return;
     if (x>=DISPLAY_WIDTH) return;
     if (y>=DISPLAY_HEIGHT) return;
-	page = ((y/8) + top_page) % 8;
-	buffer[page][x] &= ~(1 << (y%8));	
+	page = (y/8);
+	display_buffer[page][x] &= ~(1 << (y%8));	
 }
 
 void display_draw_line(int x0, int y0, int x1, int y1) {

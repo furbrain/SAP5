@@ -43,7 +43,7 @@
 #include "eigen3x3.h"
 #include "model.h"
 #include "datetime.h"
-#include "selector.h"
+#include "ui.h"
 
 void suiteSetUp(void) {
     zmq_setup();
