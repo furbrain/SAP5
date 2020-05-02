@@ -91,20 +91,20 @@ void calibrate_axes(int32_t dummy) {
         "Please place the\ndisplay flat on\na level surface"
     };
     for (i=2; i>=0; i--) {
-        display_clear_screen(true);
         display_write_multiline(0, instructions[i], true);
         delay_ms_safe(3000);
         set_axis(i);
     }
     if (!check_sane_axes()) {
-        display_clear_screen(true);
         display_write_multiline(0, "Invalid axes\nfound.\nAborting", true);
         return;
     }
+    display_clear(false);
     snprintf(text,18, "%d %d %d", config.axes.accel[0], config.axes.accel[1], config.axes.accel[2]);
-    display_write_text(1,0,text, &small_font, false, true);
+    display_write_text(1,0,text, &small_font, false);
     snprintf(text,18, "%d %d %d", config.axes.mag[0], config.axes.mag[1], config.axes.mag[2]);
-    display_write_text(4,0,text, &small_font, false, true);
+    display_write_text(4,0,text, &small_font, false);
+    display_show_buffer();
     delay_ms_safe(6000);
     config_save();
     
@@ -179,12 +179,11 @@ void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int c
     beep_happy();
     laser_off();
     display_on();
-    display_clear_screen(true);
+    display_clear(true);
 }
 
 void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     /* get readings around  z-axis*/
-    display_clear_screen(true);
     display_write_multiline(0, "Place device on\n"
                                "inclined surface\n"
                                "After each beep\n"
@@ -203,7 +202,6 @@ void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     /* now read data on y-axis */
     display_write_multiline(0, "Point laser at\nfixed target", true);
     delay_ms_safe(2000);
-    display_clear_screen(true);
     display_write_multiline(0, "After each beep\n"
                                "rotate by ~45'\n"
                                "leaving laser\n"
@@ -213,7 +211,6 @@ void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     /* now read data on y-axis */
     display_write_multiline(0, "Point laser at\nfixed target", true);
     delay_ms_safe(2000);
-    display_clear_screen(true);
     display_write_multiline(0, "After each beep\n"
                                "rotate by ~45'\n"
                                "leaving laser\n"
@@ -246,24 +243,27 @@ void calibrate_sensors(int32_t dummy) {
     sync_sensors(&mag_readings, &mag_cal, &grav_readings, &grav_cal);
     
     // show mag error
+    display_clear(true);
     mag_error = check_calibration(&mag_readings, CALIBRATION_SAMPLES, &mag_cal);
     sprintf(text, "Mag Err:  %.2f%%", mag_error);
-    display_write_multiline(2,text, true);
+    display_write_multiline(2,text, false);
+    display_show_buffer();
     
     //show grav error
     grav_error = check_calibration(&grav_readings, CALIBRATION_SAMPLES, &grav_cal);
     sprintf(text, "Grav Err: %.2f%%", grav_error);
-    display_write_multiline(4,text, true);
+    display_write_multiline(4,text, false);
+    display_show_buffer();
     
     //show accuracy
     accuracy = check_accuracy(&mag_spins.matrix, &mag_cal,
                               &grav_spins.matrix, &grav_cal);
     sprintf(text, "Accuracy: %.2f`", accuracy);
-    display_write_multiline(4,text, true);
+    display_write_multiline(4,text, false);
+    display_show_buffer();
     delay_ms_safe(4000);
     
     //check satisfactory calibration
-    display_clear_screen(true);
     if (isnan(grav_error) || isnan(mag_error) || isnan(accuracy)) {
         display_write_multiline(2, "Calibration failed\nNot Saved", true);
     } else if ((grav_error > 5.0) || (mag_error > 5.0) || (accuracy > 1.2)) {
@@ -311,11 +311,13 @@ void calibrate_laser(int32_t dummy) {
     sprintf(text, "Offset: %.3f\n"
                   "Error: %.3f\n"
                   "Config saved", offset, error);
-    display_clear_screen(true);
-    display_write_multiline(0, text, true);
+    display_clear(false);
+    display_write_multiline(0, text, false);
+    display_show_buffer();
     delay_ms_safe(2000);
     config_save();
     display_write_multiline(6, "Saved", true);
+    display_show_buffer();
     delay_ms_safe(1000);
 }
 

@@ -29,19 +29,20 @@ void display_error(CEXCEPTION_T e) {
     display_init();
     display_on();
     laser_off();
-    display_clear_screen(true);
+    display_clear(false);
     error = exception_get_string(e);
     exception_get_details(&reason, &file, &line);
     snprintf(text,18,"Err: %s", error);
-    display_write_multiline(0,text, true);
+    display_write_multiline(0,text, false);
     snprintf(text,18,"%s", reason);
-    display_write_multiline(2,text, true);
+    display_write_multiline(2,text, false);
     if (strlen(reason)>17) {
         snprintf(text,18,"%s", reason+16);
-        display_write_multiline(4,text, true);        
+        display_write_multiline(4,text, false);        
     }
     snprintf(text,18,"%s:%d", file, line);
-    display_write_multiline(6,text, true);
+    display_write_multiline(6,text, false);
+    display_show_buffer();
     delay_ms_safe(5000);
 }
 
@@ -66,13 +67,15 @@ void initialise() {
     sensors_init();
     input_init();
     wdt_clear();
-    display_clear_screen(true);
+    display_clear(true);
     if (battery_get_voltage() < 3.5) {
-        display_write_text(0,0,"Low", &large_font, false, true);
-        display_write_text(4,0,"Battery", &large_font, false, true);
+        display_clear(false);
+        display_write_text(0,0,"Low", &large_font, false);
+        display_write_text(4,0,"Battery", &large_font, false);
+        display_show_buffer();
         beep_sad();
         delay_ms_safe(1000);
-        display_clear_screen(true);
+        display_clear(true);
     }
 }
 

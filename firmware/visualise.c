@@ -77,7 +77,7 @@ void display_cave(const struct MODEL_CAVE *cave,
     int i, x1,x2, y1,y2;
     transform.orientation = orientation;
     get_offset_and_scale(cave, &transform);
-    display_clear_screen(false);
+    display_clear(false);
     for (i=0; i < cave->leg_count; ++i) {
         translate_station(cave->legs[i].from, &transform, &x1, &y1);
         translate_station(cave->legs[i].to,   &transform, &x2, &y2);

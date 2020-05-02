@@ -15,7 +15,7 @@ enum action {
 };
 
 typedef void (*menu_callback)(int);
-typedef void (*menu_display_callback)(display_buf_t);
+typedef void (*menu_display_callback)(void);
 
 #define DECLARE_MENU(name, entries...) \
     struct menu_entry name##_entries[] = entries;\
@@ -91,7 +91,7 @@ bool menu_needs_status(struct menu *menu);
 void menu_initialise(struct menu *menu);
 
 /* run display function*/
-void menu_do_display(struct menu *menu, display_buf_t buf);
+void menu_do_display(struct menu *menu);
 
 /* undertake the action defined by the menu (go to sub-menu, go back up a level or execute function */
 enum action menu_action(struct menu *menu);

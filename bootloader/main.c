@@ -54,11 +54,11 @@ void display_show_bat(int charge) {
 	bat_status[21] = 0xf8;
 	bat_status[22] = 0x20;
 	bat_status[23] = 0xC0;
-	render_data_to_page(0,104,bat_status,24);
+	render_data_to_screen(0,104,bat_status,24);
 	for (i = 0; i< 24; ++i) {
 		bat_status[i] = reverse(bat_status[i]);
 	}
-	render_data_to_page(1,104,bat_status,24);
+	render_data_to_screen(1,104,bat_status,24);
 }
 
 void disable_modules(void) {
@@ -139,7 +139,7 @@ void run_usb(void) {
     TMR2_Start();
     delay_ms(100);
 	display_init();
-	display_clear_screen(true);
+	display_clear(true);
 	delay_ms(3);
 	while (!usb_finished) {
 		bat_status = battery_get_status();

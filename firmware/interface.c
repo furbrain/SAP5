@@ -75,17 +75,16 @@ DECLARE_MENU(main_menu, {
 });
 
 
-int render_menu_entry(struct menu *menu, display_buf_t buf) {
-    int i;
+int render_menu_entry(struct menu *menu) {
     const char *text = menu_get_text(menu);
     if (menu_needs_status(menu)) {
-        for (i=0; i<4; i++) {
-            render_text_to_page(buf[i+2], i, 0, text, &large_font);
-        }
-        show_status(buf);
+        display_clear(false);
+        display_write_text(2, 0, text, &large_font, false);
+        show_status();
         return 2;
     } else {
-        menu_do_display(menu, buf);
+        display_clear(false);
+        menu_do_display(menu);
         return 0;
     }
 }
@@ -93,20 +92,20 @@ int render_menu_entry(struct menu *menu, display_buf_t buf) {
 
 
 void swipe_menu(struct menu *menu, bool left) {
-    display_buf_t buf = {{0}};
     int count;
-    count = render_menu_entry(menu, buf);
+    count = render_menu_entry(menu);
     if (count==2) {
-        display_swipe_pages(2, buf, 4, left);
+        display_swipe_pages(2, 4, left);
+        show_status();
+        display_show_buffer();
     } else {
-        display_swipe_pages(0, buf, 8, left);
+        display_swipe_pages(0, 8, left);
     }
 }
 
 void scroll_menu(struct menu *menu, bool up) {
-    display_buf_t buf = {{0}};
-    render_menu_entry(menu, buf);
-    display_scroll_buffer(buf, up);
+    render_menu_entry(menu);
+    display_scroll_buffer(up);
 }
 
 
@@ -118,7 +117,7 @@ unsigned char reverse(unsigned char b) {
     return b;
 }
 
-void show_status(display_buf_t buf) {
+void show_status() {
     const int FOOTER_LENGTH = 16;
     char header[17];
     char footer[17] = "                "; //16 spaces
@@ -157,15 +156,13 @@ void show_status(display_buf_t buf) {
             break;
     }
     snprintf(header, 17, "%02d:%02d        ", dt.tm_hour, dt.tm_min);
-    render_text_to_page(buf[0], 0, 0, header, &small_font);
-    render_text_to_page(buf[1], 1, 0, header, &small_font);
-    render_text_to_page(buf[6], 0, 0, footer, &small_font);
-    render_text_to_page(buf[7], 1, 0, footer, &small_font);
-    memcpy(&buf[0][104], bat_status, 24);
+    display_write_text(0, 0, header, &small_font, false);
+    display_write_text(6, 0, footer, &small_font, false);
+    display_load_buffer(0, 104, bat_status, 24);
     for (x = 0; x < 24; ++x) {
         bat_status[x] = reverse(bat_status[x]);
     }
-    memcpy(&buf[1][104], bat_status, 24);
+    display_load_buffer(1, 104, bat_status, 24);
 }
 
 void show_menu(struct menu *menu) {
@@ -175,7 +172,11 @@ void show_menu(struct menu *menu) {
     while (true) {
         wdt_clear();
         delay_ms(50);
-        show_status(display_buffer);
+        if (menu_needs_status(menu)) {
+            show_status();
+        } else {
+            menu_do_display(menu);
+        }
         display_show_buffer();
         switch (get_input()) {
             case FLIP_DOWN:

@@ -3,12 +3,12 @@
 #include <stdint.h>
 
 struct GLYPH_DATA {
-    uint8_t  width;
-    uint8_t  pages;
-    uint16_t index;  
+    uint8_t width;
+    uint8_t pages;
+    uint16_t index;
 };
 
-#define get_glyph_data(font,char) &((font)->indices[char-32])
+#define font_get_glyph_data(font,char) &((font)->indices[char-32])
 
 struct FONT {
     uint8_t advance; /* how much padding between characters (0 for monospace fonts) */
@@ -20,6 +20,8 @@ struct FONT {
 /* a list of font datas */
 /* starts at a relative offset of 32 (so first character is space) */
 /* ` (backtick) has been replaced by ° (degree)*/
-extern const struct FONT large_font; 
-extern const struct FONT small_font; 
+extern const struct FONT large_font;
+extern const struct FONT small_font;
+
+int font_get_len(const struct FONT *font, const char *text);
 #endif

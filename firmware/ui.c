@@ -21,29 +21,29 @@ const char digits[]="0123456789";
 
 TESTABLE_STATIC
 void draw_markers(int column) {
-    render_data_to_page(1, column, up_marker,15);
-    render_data_to_page(6, column, down_marker,15);
+    display_load_buffer(1, column, up_marker,15);
+    display_load_buffer(6, column, down_marker,15);
 }
 
 TESTABLE_STATIC
 void erase_markers(int column) {
-    render_data_to_page(1, column, empty_marker,15);
-    render_data_to_page(6, column, empty_marker,15);
+    display_load_buffer(1, column, empty_marker,15);
+    display_load_buffer(6, column, empty_marker,15);
 }
 
 TESTABLE_STATIC
 void erase_character(int column) {
-    render_data_to_page(2, column, empty_marker,14);
-    render_data_to_page(3, column, empty_marker,14);
-    render_data_to_page(4, column, empty_marker,14);
-    render_data_to_page(5, column, empty_marker,14);
+    display_load_buffer(2, column, empty_marker,14);
+    display_load_buffer(3, column, empty_marker,14);
+    display_load_buffer(4, column, empty_marker,14);
+    display_load_buffer(5, column, empty_marker,14);
 }
 
 TESTABLE_STATIC
 void write_char(char c, int pos) {
     char one_char[] = "X";
     one_char[0] = c;
-    display_write_text(2, pos, one_char, &large_font, false, false);
+    display_write_text(2, pos, one_char, &large_font, false);
 }
 
 static
@@ -160,7 +160,7 @@ void calc_offsets(struct UI_MULTI_SELECT *sel) {
             num++;
         } else {
             sel->_offsets[i] = offset;
-            glyph = get_glyph_data(&large_font, sel->text[i]);
+            glyph = font_get_glyph_data(&large_font, sel->text[i]);
             offset += glyph->width;
             offset += large_font.advance;
             i++;
@@ -171,7 +171,7 @@ void calc_offsets(struct UI_MULTI_SELECT *sel) {
 static
 void select_init(struct UI_MULTI_SELECT *sel) {
     int i;    
-    display_clear_screen(false);
+    display_clear(false);
     for (i=0; sel->text[i] != '\0'; i++) {
         write_char(sel->text[i], sel->_offsets[i]);
     }
@@ -193,11 +193,11 @@ void ui_multi_select(struct UI_MULTI_SELECT *sel) {
 static
 void draw_choice(bool choice) {
     if (choice) {
-        display_write_text(0, 128, ">Y", &large_font, true, false);
-        display_write_text(4, 128, "       N", &large_font, true, false);
+        display_write_text(0, 128, ">Y", &large_font, true);
+        display_write_text(4, 128, "       N", &large_font, true);
     } else {
-        display_write_text(0, 128, "       Y", &large_font, true, false);
-        display_write_text(4, 128, ">N", &large_font, true, false);
+        display_write_text(0, 128, "       Y", &large_font, true);
+        display_write_text(4, 128, ">N", &large_font, true);
     }
 }
 
@@ -206,13 +206,13 @@ bool ui_yes_no(const char *text) {
     bool choice = true;
     strcpy(tmp_text, text);
     char *linebreak = strchr(tmp_text, '\n');
-    display_clear_screen(false);
+    display_clear(false);
     if (linebreak) {
         *linebreak = '\0';
-        display_write_text(0, 0, tmp_text, &large_font, false, false);
-        display_write_text(4, 0, linebreak+1, &large_font, false, false);
+        display_write_text(0, 0, tmp_text, &large_font, false);
+        display_write_text(4, 0, linebreak+1, &large_font, false);
     } else {
-        display_write_text(2, 0, tmp_text, &large_font, false, false);
+        display_write_text(2, 0, tmp_text, &large_font, false);
     }
     draw_choice(choice);
     display_show_buffer();
@@ -220,6 +220,7 @@ bool ui_yes_no(const char *text) {
         switch(get_input()) {
             case FLIP_DOWN:
                 choice  = !choice;
+                //display_clear(false);
                 draw_choice(choice);
                 display_show_buffer();
                 break;

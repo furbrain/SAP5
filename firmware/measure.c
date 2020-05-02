@@ -195,18 +195,20 @@ void do_reading() {
         if (e==ERROR_LASER_READ_FAILED) {
             display_on(true);
             laser_on(false);
-            display_clear_screen(true);
-            display_write_text(0, 0, "Laser read", &large_font, false, true);
-            display_write_text(4, 0, "failed", &large_font, false, true);
+            display_clear(false);
+            display_write_text(0, 0, "Laser read", &large_font, false);
+            display_write_text(4, 0, "failed", &large_font, false);
+            display_show_buffer();
             beep_sad();
             delay_ms_safe(1000);
             return;
         } else if (e==ERROR_LASER_TIMEOUT) {
             display_on(true);
             laser_on(false);
-            display_clear_screen(true);
-            display_write_text(0, 0, "Laser read", &large_font, false, true);
-            display_write_text(4, 0, "timed out", &large_font, false, true);
+            display_clear(false);
+            display_write_text(0, 0, "Laser read", &large_font, false);
+            display_write_text(4, 0, "timed out", &large_font, false);
+            display_show_buffer();
             beep_sad();
             delay_ms_safe(1000);
             return;
@@ -219,8 +221,9 @@ void do_reading() {
 
 void ready_to_measure() {
     display_on();
-    display_clear_screen(true);
+    display_clear(false);
     display_rle_image(image_laser2);
+    display_show_buffer();
     laser_on();    
 }
 
@@ -228,7 +231,7 @@ void measure() {
     ready_to_measure();
     while (true) {
         wdt_clear();
-        show_status(display_buffer);
+        show_status(display_screen);
         display_show_buffer();
         if (measure_requested) {
             measure_requested = false;

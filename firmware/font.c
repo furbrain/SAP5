@@ -1,5 +1,16 @@
 #include "font.h"
 
+int font_get_len(const struct FONT *font, const char *text) {
+    int i = 0;
+    const struct GLYPH_DATA *glyph;
+    while (*text) {
+        glyph = font_get_glyph_data(font, *text);
+        i += glyph->width + font->advance;
+        text++;
+    }
+    return i;
+}
+
 
 const struct GLYPH_DATA large_indices[96] = {
 {0x00,0x4,0x0000}, /*   */

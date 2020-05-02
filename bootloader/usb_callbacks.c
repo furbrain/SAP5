@@ -133,7 +133,7 @@ static void write_display_cb(void)
 	/* For OUT control transfers, data from the data stage of the request
 	 * is in buf[]. */
 
-    render_data_to_page(write_address>>16,write_address&0xFF,(char*)prog_buf,write_length);
+    render_data_to_screen(write_address>>16,write_address&0xFF,(char*)prog_buf,write_length);
 }
 
 static void write_datetime_cb(void) {

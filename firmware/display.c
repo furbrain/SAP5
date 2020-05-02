@@ -10,8 +10,8 @@
 #define DISPLAY_ADDRESS 0x3c
 
 #ifndef BOOTLOADER
+uint8_t display_screen[NUM_PAGES][128];
 uint8_t display_buffer[NUM_PAGES][128];
-uint8_t display_secondary_buffer[NUM_PAGES][128];
 #endif
 
 bool display_inverted = true;
@@ -73,39 +73,24 @@ void set_column(int column) {
 void display_send_data(const uint8_t *data, uint8_t length) {
 #ifndef BOOTLOADER
 	if (length+cur_column<=128) { 
-		memcpy(&(display_buffer[cur_page][cur_column]),data,length);
+		memcpy(&(display_screen[cur_page][cur_column]),data,length);
 	}
 #endif
 	write_i2c_command_block(DISPLAY_ADDRESS,0x40,data,length);
 }
 
 
-void render_data_to_page(uint8_t page, uint8_t column, const uint8_t *data, uint8_t length) {
+void render_data_to_screen(uint8_t page, uint8_t column, const uint8_t *data, uint8_t length) {
     set_page(page);
     set_column(column);
     display_send_data(data,length);
 }
 
-
-void display_clear_page(uint8_t page, bool immediate) {
-	set_column(0);
-	set_page(page);
-#ifdef BOOTLOADER
-	uint8_t display_buffer[128];
-	memset(display_buffer,0,128);
-	write_i2c_command_block(DISPLAY_ADDRESS,0x40,display_buffer,128);
-#else
-	memset(display_buffer[page],0,128);
+void display_clear(bool immediate) {
+    memset(display_buffer, 0, sizeof(display_buffer));
     if (immediate) {
-        write_i2c_command_block(DISPLAY_ADDRESS,0x40,display_buffer[page],128);
+        display_show_buffer();
     }
-#endif
-}
-void display_clear_screen(bool immediate) {
-	int x = 0;
-	for(x=0;x<8;++x) {
-		display_clear_page(x, immediate);
-	}
 }
 
 void display_set_brightness(uint8_t brightness){
@@ -113,50 +98,33 @@ void display_set_brightness(uint8_t brightness){
 }
 
 #ifndef BOOTLOADER
-void display_write_text(int page, int column, const char* text, const struct FONT *font, bool right_justify, bool immediate) {
-    int i = 0;
-    int end_col;
-    uint8_t temp_buffer[128];
-    while (i<font->max_pages) {
-        memset(temp_buffer,0,128);
-        if (immediate) set_page(page+i);
-        if (right_justify) {
-            end_col = render_text_to_page(temp_buffer,i,0,text,font);
-            if (immediate) {
-                if (end_col > column) {
-                    set_column(0);
-                } else {
-                    set_column(column-end_col);
-                }
-                display_send_data(temp_buffer,end_col);
-            } else {
-                if (end_col > column) {
-                    render_text_to_page(display_buffer[page+i], i, 0, text, font);
-                } else {
-                    render_text_to_page(display_buffer[page+i], i, column-end_col, text, font);                    
-                }
-            }
-        } else {
-            if (immediate) {
-                end_col = render_text_to_page(temp_buffer,i,column,text,font);
-                set_column(column);
-                display_send_data(&temp_buffer[column],end_col-column);
-            } else {
-                render_text_to_page(display_buffer[page+i],i, column, text, font);
-            }
-            
+
+void display_load_buffer(uint8_t page, uint8_t column, const uint8_t* data, uint8_t length) {
+    memcpy(&display_buffer[page][column], data, length);
+}
+
+
+void display_write_text(int page, int column, const char* text, const struct FONT *font, bool right_justify) {
+    int i;
+    if (right_justify) {
+        column  = column - font_get_len(font, text);
+        if (column < 0) {
+            column = 0;
         }
-        i++;
+    }
+    for (i=0; i<font->max_pages; i++) {
+        render_text_to_page(display_buffer[(page+i) % 8], i, column, text, font);
     }
 }
 
 void display_write_multiline(int page, const char* text, bool immediate) {
 	char buf[18];
 	int i = 0;
+    if (immediate) display_clear(false);
 	while (*text) {
 		if (*text=='\n') {
             buf[i] = 0;
-            display_write_text(page, 0, buf, &small_font, false, immediate);
+            display_write_text(page, 0, buf, &small_font, false);
             i = 0;
             page+=2;
 		} else {
@@ -168,7 +136,8 @@ void display_write_multiline(int page, const char* text, bool immediate) {
 		text++;
 	}
     buf[i]=0;
-	display_write_text(page, 0, buf, &small_font, false, immediate);
+	display_write_text(page, 0, buf, &small_font, false);
+    if (immediate) display_show_buffer();
 }
 
 /* display an rle encoded image */
@@ -202,13 +171,6 @@ void display_rle_image(const char* image) {
 			}
 		}
 	}
-	for (page=0; page<8; ++page) {
-	    set_column(0);
-	    set_page(page);
-	    display_send_data(display_buffer[page],128);
-	}
-
-	
 }
 
 /* render a text string to a buffer */ 
@@ -220,7 +182,7 @@ int render_text_to_page(uint8_t *buffer, int page, int column, const char *text,
     const struct GLYPH_DATA *glyph;
     while (*text) {
         i = 0;
-        glyph = get_glyph_data(font,*text);        
+        glyph = font_get_glyph_data(font,*text);        
         while((column<128) && (i < glyph->width)) {
             if (page < glyph->pages) {
                 buffer[column] = font->bitmaps[glyph->index+page*glyph->width+i];
@@ -242,7 +204,7 @@ int render_text_to_page(uint8_t *buffer, int page, int column, const char *text,
 }
 
 /* scroll in a piece of text, finishing at page and column specified*/
-void display_scroll_buffer(display_buf_t data, bool up) {
+void display_scroll_buffer(bool up) {
     int i, j, k;
     uint8_t mask, inverse_mask;
     uint8_t temp_buffer[128];
@@ -256,7 +218,7 @@ void display_scroll_buffer(display_buf_t data, bool up) {
                 mask = ((1<<(j+1))-1);
                 inverse_mask = ~mask;
                 for(k=0;k<128;++k){
-                    temp_buffer[k] = data[i][k] & mask | display_buffer[i][k] & inverse_mask;
+                    temp_buffer[k] = (display_buffer[i][k] & mask) | (display_screen[i][k] & inverse_mask);
                 }
                 display_send_data(temp_buffer,128);
                 send1(0x40 | (i*8+j+1) % 64);
@@ -273,7 +235,7 @@ void display_scroll_buffer(display_buf_t data, bool up) {
                 inverse_mask = ((1<<j)-1);
                 mask = ~inverse_mask;
                 for(k=0; k<128; ++k){
-                    temp_buffer[k] = data[i][k] & mask | display_buffer[i][k] & inverse_mask;
+                    temp_buffer[k] = (display_buffer[i][k] & mask) | (display_screen[i][k] & inverse_mask);
                 }
                 display_send_data(temp_buffer,128);
                 send1(0x40 | (i*8+j) % 64);
@@ -283,20 +245,20 @@ void display_scroll_buffer(display_buf_t data, bool up) {
     }
 }
 
-void display_swipe_pages(int start_page, display_buf_t data, int page_count, bool left){
+void display_swipe_pages(int start_page, int page_count, bool left){
     int offset;
-    int page, real_page;
+    int page;
     uint8_t temp_buffer[128];
     for(offset=0;offset<128;offset+=SWIPE_STEP){
         for(page=start_page; page < start_page + page_count; ++page){
             memset(temp_buffer,0,128);
             // copy from current buffer over into temp_buffer, 
            if (left){
-                memcpy(temp_buffer, &display_buffer[page][SWIPE_STEP], 128-SWIPE_STEP-offset);
-                memcpy(&temp_buffer[128-SWIPE_STEP-offset], &data[page][0], offset);
+                memcpy(temp_buffer, &display_screen[page][SWIPE_STEP], 128-SWIPE_STEP-offset);
+                memcpy(&temp_buffer[128-SWIPE_STEP-offset], &display_buffer[page][0], offset);
             } else {
-                memcpy(&temp_buffer[SWIPE_STEP], &display_buffer[page][0], 128-SWIPE_STEP);
-                memcpy(temp_buffer, &data[page][128-SWIPE_STEP-offset], SWIPE_STEP);
+                memcpy(&temp_buffer[SWIPE_STEP], &display_screen[page][0], 128-SWIPE_STEP);
+                memcpy(temp_buffer, &display_buffer[page][128-SWIPE_STEP-offset], SWIPE_STEP);
             }
             set_page(page);
             set_column(0);

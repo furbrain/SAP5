@@ -9,5 +9,5 @@
 
 extern struct menu main_menu;
 void show_menu(struct menu *menu);
-void show_status(display_buf_t buf);
+void show_status();
 #endif
