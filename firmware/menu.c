@@ -18,7 +18,7 @@ void menu_clear(struct menu *menu) {
 }
 
 /* add an info entry to a menu */
-void menu_append_info(struct menu *menu, const char *text){
+void menu_append_info(struct menu *menu, const char *text, menu_display_callback display_action){
     struct menu_entry *entry;
     if (menu->length >= menu->max_length) {
         Throw(ERROR_MENU_FULL);
@@ -26,7 +26,7 @@ void menu_append_info(struct menu *menu, const char *text){
     entry = menu->entries + menu->length;
     SAFE_STRING_COPY(entry->text, text, MENU_TEXT_LENGTH-1);
     entry->type = Info;
-    entry->action = NULL;
+    entry->action = display_action;
     entry->argument = 0;
     menu->length++;
 }
@@ -60,7 +60,7 @@ void menu_append_action(struct menu *menu, const char *text, menu_callback actio
 }
 
 /* add a back entry to a menu */
-void menu_append_back(struct menu *menu, const char *text){
+void menu_append_back(struct menu *menu, const char *text, menu_display_callback display_action){
     struct menu_entry *entry;
     if (menu->length >= menu->max_length) {
         Throw(ERROR_MENU_FULL);
@@ -68,13 +68,13 @@ void menu_append_back(struct menu *menu, const char *text){
     entry = menu->entries + menu->length;
     SAFE_STRING_COPY(entry->text, text, MENU_TEXT_LENGTH-1);
     entry->type = Back;
-    entry->action = NULL;
+    entry->display_action = display_action;
     entry->argument = 0;
     menu->length++;
 }
 
 /* add an exit entry to a menu */
-void menu_append_exit(struct menu *menu, const char *text) {
+void menu_append_exit(struct menu *menu, const char *text, menu_display_callback display_action) {
     struct menu_entry *entry;
     if (menu->length >= menu->max_length) {
         Throw(ERROR_MENU_FULL);
@@ -82,7 +82,7 @@ void menu_append_exit(struct menu *menu, const char *text) {
     entry = menu->entries + menu->length;
     SAFE_STRING_COPY(entry->text, text, MENU_TEXT_LENGTH-1);
     entry->type = Exit;
-    entry->action = NULL;
+    entry->action = display_action;
     entry->argument = 0;
     menu->length++;
 }
@@ -122,21 +122,21 @@ struct menu_entry* menu_get_entry(struct menu *menu) {
 bool menu_needs_status(struct menu *menu) {
     struct menu_entry *entry = menu_get_entry(menu);
     switch (entry->type) {
-    case Action:
-    case SubMenu:
-        return false;
-    case Info:
-    case Back:
-    case Exit:
-        if (entry->display_action != NULL) {
-            return true;
-        }
+        case Info:
+        case Back:
+        case Exit:
+            if (entry->display_action != NULL) {
+                return false;
+            }
+            break;
+        default:
+            break;
     }
-    return false;
+    return true;
 }
 
-void menu_do_display(struct menu *menu, display_buf_t buf) {
-    menu_get_entry(menu)->display_action(buf);    
+void menu_do_display(struct menu *menu) {
+    menu_get_entry(menu)->display_action();    
 }
 
 /* undertake the action defined by the menu (go to sub-menu, go back up a level or execute function */

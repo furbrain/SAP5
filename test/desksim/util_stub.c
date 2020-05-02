@@ -29,6 +29,7 @@ void util_setup() {
     delay_ms_StubWithCallback(delay_ms_Stub);
     delay_ms_safe_StubWithCallback(delay_ms_Stub);
     battery_get_units_IgnoreAndReturn(10);
+    battery_get_voltage_IgnoreAndReturn(3.7);
     RTCC_TimeGet_StubWithCallback(RTCC_TimeGet_Stub);
     utils_turn_off_StubWithCallback(utils_turn_off_Stub);
 }

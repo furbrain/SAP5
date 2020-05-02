@@ -80,6 +80,28 @@ void fill_cartesian_strings() {
     sprintf(texts.extension2, "%.2f%c", get_extension(orientation) * length_scale, length_unit);
 }
 
+TESTABLE_STATIC
+void display_polar() {
+    char temp[80];
+    sprintf(temp, "Compass: %7s\n"
+                  "Clino:   %7s\n"
+                  "Distance:%7s\n"
+                  "Extended:%7s\n",
+            texts.compass, texts.clino, texts.distance, texts.extension);
+    display_write_multiline(0, temp, false);
+}
+
+TESTABLE_STATIC
+void display_cartesian() {
+    char temp[80];
+    sprintf(temp, "North:   %7s\n"
+                  "East:    %7s\n"
+                  "Vertical:%7s\n"
+                  "Extended:%7s\n",
+            texts.north, texts.east, texts.vertical, texts.extension2);
+    display_write_multiline(0, temp, false);
+}
+
 /* calculate compass and inclination from an orientation */
 void measure_calculate_bearings(gsl_vector *orientation, double *compass, double *inclination){
     *compass = atan2(gsl_vector_get(orientation, 0), gsl_vector_get(orientation, 1)) * DEGREES_PER_RADIAN;
@@ -92,14 +114,18 @@ TESTABLE_STATIC
 void add_polar_entries_to_menu(struct menu *menu) {
     char text[16];
     fill_polar_strings();
-    menu_append_submenu(menu, texts.compass, &main_menu);
-    menu_append_submenu(menu, texts.clino, &main_menu);
+    if (config.compact) {
+        menu_append_exit(menu, "", display_polar);
+    } else {
+        menu_append_exit(menu, texts.compass, NULL);
+        menu_append_exit(menu, texts.clino, NULL);
 
-    sprintf(text, "Dist  %s", texts.distance);
-    menu_append_submenu(menu, text, &main_menu);
+        sprintf(text, "Dist  %s", texts.distance);
+        menu_append_exit(menu, text, NULL);
 
-    sprintf(text, "Ext  %s", texts.extension);
-    menu_append_submenu(menu, text, &main_menu);
+        sprintf(text, "Ext  %s", texts.extension);
+        menu_append_exit(menu, text, NULL);
+    }
 }
 
 /* add a set of cartesian entries to a menu */
@@ -109,12 +135,16 @@ void add_cartesian_entries_to_menu(struct menu *menu) {
     char text[16];
     int i;
     fill_cartesian_strings();
-    for (i=0; i<3; i++) {
-        sprintf(text, format[i], texts.raw_text[i]);
-        menu_append_submenu(menu, text, &main_menu);
+    if (config.compact) {
+        menu_append_exit(menu, "", display_cartesian);
+    } else {
+        for (i=0; i<3; i++) {
+            sprintf(text, format[i], texts.raw_text[i]);
+            menu_append_exit(menu, text, NULL);
+        }
+        sprintf(text, "Ext  %s", texts.extension2);
+        menu_append_exit(menu, text, NULL);
     }
-    sprintf(text, "Ext  %s", texts.extension2);
-    menu_append_submenu(menu, text, &main_menu);
 }
 
 
@@ -166,7 +196,7 @@ void setup_storage_menu(void) {
     add_storage_menu_entry(&storage_menu, last+1, last);
     add_storage_menu_entry(&storage_menu, last+1, LEG_SPLAY);
     menu_append_action(&storage_menu, "Custom", custom_storage, last+2);
-    menu_append_back(&storage_menu, "Back");
+    menu_append_back(&storage_menu, "Back", NULL);
 }
 
 void measure_show_reading() {
@@ -179,7 +209,7 @@ void measure_show_reading() {
     }
     setup_storage_menu();
     menu_append_submenu(&measure_menu, "Store", &storage_menu);
-    menu_append_exit(&measure_menu, "Discard");
+    menu_append_exit(&measure_menu, "Discard", NULL);
     menu_append_submenu(&measure_menu, "Main   menu", &main_menu);
     // run menus
     show_menu(&measure_menu);

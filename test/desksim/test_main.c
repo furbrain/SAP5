@@ -7,7 +7,6 @@
 #include "mock_input.h"
 #include "mock_uart1.h"
 #include "mock_interrupt_manager.h"
-#include "mock_debug.h"
 #include "mock_memory.h"
 #include "mock_battery.h"
 #include "mock_rtcc.h"
@@ -18,7 +17,6 @@
 #include "i2c_stub.h"
 #include "input_stub.h"
 #include "uart_stub.h"
-#include "debug_stub.h"
 #include "util_stub.h"
 
 
@@ -44,6 +42,7 @@
 #include "model.h"
 #include "datetime.h"
 #include "ui.h"
+#include "debug.h"
 
 void suiteSetUp(void) {
     zmq_setup();
@@ -67,6 +66,8 @@ void tearDown(void)
 
 void test_ui(void)
 {
+    config.display_style = CARTESIAN;
+    config.compact = true;
     TEST_ASSERT_THROWS(measure(), ERROR_UNSPECIFIED);
 }
 

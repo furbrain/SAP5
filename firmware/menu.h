@@ -57,7 +57,7 @@ struct menu{
 void menu_clear(struct menu *menu);
 
 /* add an info entry to a menu */
-void menu_append_info(struct menu *menu, const char *text);
+void menu_append_info(struct menu *menu, const char *text, menu_display_callback display_action);
 
 /* add a submenu entry to a menu */
 void menu_append_submenu(struct menu *menu, const char *text, struct menu *submenu);
@@ -66,10 +66,10 @@ void menu_append_submenu(struct menu *menu, const char *text, struct menu *subme
 void menu_append_action(struct menu *menu, const char *text, void (*action) (int), int argument);
 
 /* add a back entry to a menu */
-void menu_append_back(struct menu *menu, const char *text);
+void menu_append_back(struct menu *menu, const char *text, menu_display_callback display_action);
 
 /* add an exit entry to a menu */
-void menu_append_exit(struct menu *menu, const char *text);
+void menu_append_exit(struct menu *menu, const char *text, menu_display_callback display_action);
 
 /* move the menu to the next item, wrapping if necessary */
 void menu_next(struct menu *menu);

@@ -405,4 +405,38 @@ void test_fill_cartesian_imperial(void) {
         }
     }  
 }
+
+void test_display_polar(void) {
+    struct test_field {
+        double deltas[3];
+        char text[80];        
+    };
+    struct test_field test_cases[] = {
+        {{0, 0, 0}, "Compass:  000.0`\n"
+                    "Clino:     +0.0`\n"
+                    "Distance:  0.00m\n" 
+                    "Extended:  0.00m\n"},
+        {{0, -3, 4},"Compass:  180.0`\n"
+                    "Clino:    +53.1`\n"
+                    "Distance:  5.00m\n"
+                    "Extended:  3.00m\n"},
+        {{0.3, 0.4, 0.0}, "Compass:  036.9`\n"
+                          "Clino:     +0.0`\n"
+                          "Distance:  0.50m\n"
+                          "Extended:  0.50m\n"}, 
+        {{3, -4, 12}, "Compass:  143.1`\n"
+                      "Clino:    +67.4`\n"
+                      "Distance: 13.00m\n" 
+                      "Extended:  5.00m\n"},
+    };
+    int i, j;
+    gsl_vector_view orientation;
+    for (i=0; i<4; i++) {
+        orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
+        sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
+        display_write_multiline_Expect(0,test_cases[i].text, false);
+        display_polar(display_buffer);
+    }  
+    
+}
     

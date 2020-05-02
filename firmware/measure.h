@@ -43,6 +43,12 @@ void fill_polar_strings();
 /* add a set of cartesian entries to text strings*/
 void fill_cartesian_strings();
 
+/* put polar readings on screen in small font */
+void display_polar();
+
+/* put cartesian readings on screen in small font */
+void display_cartesian();
+
 /* add a set of polar entries to a menu */
 void add_polar_entries_to_menu(struct menu *menu);
 
