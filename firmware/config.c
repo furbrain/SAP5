@@ -27,8 +27,6 @@ struct CONFIG default_config = {
 
 struct CONFIG config;
 
-bool day;
-
 void config_save(void){
     CONST_STORE struct CONFIG *ptr = config_store.configs;
     CONST_STORE struct CONFIG *overflow = &config_store.configs[MAX_CONFIG_COUNT];
@@ -70,16 +68,9 @@ void config_set_style(int32_t style) {
 }
 
 
-void config_set_day(int32_t on) {
-    if (on) {
-        day = true;
-        display_set_day(day);
-    //    laser_set_day(day);
-    } else {
-        day = false;
-        display_set_day(day);
-    //    laser_set_day(day);
-    }
+void config_set_compact(int32_t on) {
+    config.compact = on;
+    config_save();
 }
 
 void config_set_timeout(int32_t timeout) {

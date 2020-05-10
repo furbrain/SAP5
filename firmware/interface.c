@@ -37,8 +37,8 @@ DECLARE_MENU(timeout_menu, {
 
 DECLARE_MENU(display_menu, {
     /* Display menu */
-    {"Day", Action, {config_set_day}, true},
-    {"Night", Action, {config_set_day}, false},
+    {"Compact", Action, {config_set_compact}, true},
+    {"Large", Action, {config_set_compact}, false},
     {"Back", Back, {NULL}, 0}
 });
 

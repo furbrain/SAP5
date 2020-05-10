@@ -69,14 +69,12 @@ extern struct CONFIG config;
 
 extern uint16_t current_leg;
 
-extern bool day;
-
 void config_save(void);
 void config_load(void);
 
 void config_set_units(int32_t units);
 void config_set_style(int32_t style);
-void config_set_day(int32_t on);
+void config_set_compact(int32_t on);
 void config_set_timeout(int32_t timeout);
 
 #endif
