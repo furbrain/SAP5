@@ -44,8 +44,9 @@ void sensors_read(struct COOKED_SENSORS *sensors, int count, int num_calls) {
 
 
 void setUp(void) {
-    display_clear_screen_Ignore();
+    display_clear_Ignore();
     display_write_multiline_StubWithCallback(write_multiline);
+    display_show_buffer_Ignore();
     delay_ms_safe_Ignore();
     wdt_clear_Ignore();
     beep_beep_Ignore();

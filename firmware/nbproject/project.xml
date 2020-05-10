@@ -17,6 +17,7 @@
                 <sourceRootElem>../bootloader</sourceRootElem>
                 <sourceRootElem>/home/phil/Projects/SAP5/test/test</sourceRootElem>
                 <sourceRootElem>/home/phil/Projects/SAP5/test/desksim</sourceRootElem>
+                <sourceRootElem>/home/phil/Projects/SAP5/test/simulator</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

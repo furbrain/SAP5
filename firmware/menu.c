@@ -26,7 +26,7 @@ void menu_append_info(struct menu *menu, const char *text, menu_display_callback
     entry = menu->entries + menu->length;
     SAFE_STRING_COPY(entry->text, text, MENU_TEXT_LENGTH-1);
     entry->type = Info;
-    entry->action = display_action;
+    entry->display_action = display_action;
     entry->argument = 0;
     menu->length++;
 }
@@ -82,7 +82,7 @@ void menu_append_exit(struct menu *menu, const char *text, menu_display_callback
     entry = menu->entries + menu->length;
     SAFE_STRING_COPY(entry->text, text, MENU_TEXT_LENGTH-1);
     entry->type = Exit;
-    entry->action = display_action;
+    entry->display_action = display_action;
     entry->argument = 0;
     menu->length++;
 }

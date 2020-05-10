@@ -56,6 +56,13 @@
                    projectFiles="true">
       <itemPath>/home/phil/Projects/SAP5/firmware/linker.ld</itemPath>
     </logicalFolder>
+    <logicalFolder name="f2" displayName="Simulator" projectFiles="true">
+      <itemPath>/home/phil/Projects/SAP5/test/simulator/gui.py</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/simulator/gui.wxg</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/simulator/imagepanel.py</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/simulator/main.py</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/test/simulator/simulator.py</itemPath>
+    </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
@@ -73,47 +80,6 @@
         <itemPath>mcc_generated_files/tmr1.c</itemPath>
         <itemPath>mcc_generated_files/tmr2.c</itemPath>
         <itemPath>mcc_generated_files/uart2.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f1" displayName="Test Cmd" projectFiles="true">
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_battery.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_bt.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_calibrate.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_config.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_datetime.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_exception.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_gsl_static.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_laser.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_leg.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_maths.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_measure.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_memory.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_menu.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_model.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_survey.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_ui.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/test/test_visualise.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f2" displayName="Test UI" projectFiles="true">
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/adc_stub.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/beep_stub.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/debug_stub.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/i2c_stub.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/input_stub.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_beep.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_custom.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_datetime.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_display.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_input.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_main.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_measure.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_sensors.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_time.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_uart.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_ui.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/time_stub.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/uart_stub.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/util_stub.c</itemPath>
-        <itemPath>/home/phil/Projects/SAP5/test/desksim/zmqstubs.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>display.c</itemPath>
@@ -146,6 +112,49 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/version.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/ui.c</itemPath>
     </logicalFolder>
+    <logicalFolder name="f1" displayName="Test" projectFiles="true">
+      <logicalFolder name="f1" displayName="Cmd" projectFiles="true">
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_maths.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_datetime.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_bt.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_gsl_static.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_leg.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_measure.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_ui.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_menu.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_battery.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_config.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_visualise.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_calibrate.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_memory.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_model.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_survey.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_exception.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/test/test_laser.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="UI" projectFiles="true">
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/adc_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/beep_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/debug_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/i2c_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/input_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_beep.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_custom.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_datetime.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_display.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_input.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_main.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_measure.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_sensors.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_time.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_uart.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/test_ui.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/time_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/uart_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/util_stub.c</itemPath>
+        <itemPath>/home/phil/Projects/SAP5/test/desksim/zmqstubs.c</itemPath>
+      </logicalFolder>
+    </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="false">
@@ -165,6 +174,7 @@
     <Elem>../bootloader</Elem>
     <Elem>/home/phil/Projects/SAP5/test/test</Elem>
     <Elem>/home/phil/Projects/SAP5/test/desksim</Elem>
+    <Elem>/home/phil/Projects/SAP5/test/simulator</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -210,150 +220,668 @@
       <item path="/home/phil/Projects/SAP5/test/desksim/adc_stub.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/beep_stub.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/debug_stub.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/i2c_stub.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/input_stub.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_beep.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_custom.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_datetime.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_display.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_input.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_main.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_measure.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_sensors.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_time.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_uart.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/test_ui.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/time_stub.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/uart_stub.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/util_stub.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/desksim/zmqstubs.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_battery.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_bt.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_calibrate.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_config.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_datetime.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_exception.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_gsl_static.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_laser.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_leg.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_maths.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_measure.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_memory.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_menu.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_model.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_survey.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_ui.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="/home/phil/Projects/SAP5/test/test/test_visualise.c"
             ex="true"
             overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <C32>
         <property key="additional-warnings" value="true"/>
@@ -967,6 +1495,672 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <item path="/home/phil/Projects/SAP5/test/desksim/adc_stub.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/beep_stub.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/debug_stub.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/i2c_stub.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/input_stub.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_beep.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_custom.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_datetime.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_display.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_input.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_main.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_measure.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_sensors.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_time.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_uart.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/test_ui.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/time_stub.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/uart_stub.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/util_stub.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/desksim/zmqstubs.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_battery.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_bt.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_calibrate.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_config.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_datetime.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_exception.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_gsl_static.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_laser.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_leg.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_maths.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_measure.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_memory.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_menu.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_model.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_survey.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_ui.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="/home/phil/Projects/SAP5/test/test/test_visualise.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
       <C32>
         <property key="additional-warnings" value="true"/>
         <property key="addresss-attribute-use" value="false"/>

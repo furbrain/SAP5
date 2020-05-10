@@ -19,8 +19,6 @@ void display_on();
 
 void display_off();
 
-void display_clear_page(uint8_t page, bool immediate);
-
 void display_clear(bool immediate);
 
 void display_set_brightness(uint8_t brightness);
