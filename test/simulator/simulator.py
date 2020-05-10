@@ -125,14 +125,14 @@ class Sensor(I2CDevice):
         self.set_registers()
         
     def set_registers(self):
-        gravity = q.rotate_vectors(self.quat, [0,1,0])
+        gravity = q.rotate_vectors(self.quat, [0,0,-1])
         mag = q.rotate_vectors(self.quat, [0,0.6,-0.8])
         gravity *= 0x4000
         mag *= 800
         vals = np.hstack([gravity, mag]).astype("int")
         struct.pack_into(">3h8x3h",self.registers, 0x3B, 
-            -vals[1],
-            vals[0],
+            vals[1],
+            -vals[0],
             -vals[2],
             vals[3],
             -vals[4],
@@ -142,7 +142,7 @@ class Sensor(I2CDevice):
         self.roll = roll
         self.quat = (q.y * np.deg2rad(roll)/2).exp()
         self.inclination = inclination
-        self.quat = self.quat * (q.x * np.deg2rad(inclination)/2).exp()
+        self.quat = self.quat * (q.x * np.deg2rad(-inclination)/2).exp()
         self.azimuth = azimuth
         self.quat = self.quat * (q.z * np.deg2rad(azimuth)/2).exp()
         self.set_registers()
