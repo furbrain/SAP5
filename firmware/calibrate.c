@@ -35,7 +35,7 @@ DECLARE_MENU(calibration_menu, {
 
 
 static
-int get_greatest_axis(struct RAW_SENSORS *raw) {
+int get_greatest_accel_axis(struct RAW_SENSORS *raw) {
     int max_abs = 0;
     int axis = 0;
     int i;
@@ -52,20 +52,48 @@ int get_greatest_axis(struct RAW_SENSORS *raw) {
     return axis;
 }
 
-const int compass_axis_map[] = {4,3,2,1,0,5};
-
 static
-int get_compass_axis(int axis) {
-    return compass_axis_map[axis];
+int get_greatest_mag_axis(struct RAW_SENSORS *a, struct RAW_SENSORS *b) {
+    int max_abs = 0;
+    int val;
+    int axis = 0;
+    int i;
+    for (i=0; i<3; i++) {
+        val = a->mag[i] - b->mag[i];
+        if (abs(val)> max_abs) {
+            if (val > 0) {
+                axis = i;
+            } else {
+                axis = i+3;
+            }
+            max_abs = abs(val);
+        }
+    }   
+    return axis;
 }
 
 static
-void set_axis(int i) {
+void get_accel_axis(int i, const char *instruction) {
     struct RAW_SENSORS raw;
+    display_write_multiline(0, instruction, true);
+    delay_ms_safe(3000);
     sensors_read_raw(&raw);
-    config.axes.accel[i] = get_greatest_axis(&raw);
-    config.axes.mag[i] = get_compass_axis(config.axes.accel[i]);
+    config.axes.accel[i] = get_greatest_accel_axis(&raw);
 }
+
+static
+void get_mag_axis(int i, const char *instructions[]) {
+    struct RAW_SENSORS raw_a;
+    struct RAW_SENSORS raw_b;
+    display_write_multiline(0, instructions[0], true);
+    delay_ms_safe(3000);
+    sensors_read_raw(&raw_a);
+    display_write_multiline(0, instructions[1], true);
+    delay_ms_safe(3000);
+    sensors_read_raw(&raw_b);
+    config.axes.mag[i] = get_greatest_mag_axis(&raw_a, &raw_b);
+}
+
 
 static
 bool check_sane_axes(void) {
@@ -85,15 +113,24 @@ bool check_sane_axes(void) {
 void calibrate_axes(int32_t dummy) {
     int i;
     char text[18];
-    const char *instructions[] = {
+    const char *accel_instructions[] = {
         "Please place on\nedge with the\nlaser pointing\nleft",
         "Please point the\nlaser upwards",
         "Please place the\ndisplay flat on\na level surface"
     };
+    const char *mag_instructions[] = {
+        "Place flat with\nthe laser going\nleft and the top\nedge towards north",
+        "Rotate 180'",
+        "Please point the\nlaser north",
+        "Rotate 180'",
+        "Place on end\nwith the laser\ndown and display\n facing north",
+        "Rotate 180'",
+    };
     for (i=2; i>=0; i--) {
-        display_write_multiline(0, instructions[i], true);
-        delay_ms_safe(3000);
-        set_axis(i);
+        get_accel_axis(i, accel_instructions[i]);
+    }
+    for (i=0; i<3; i++) {
+        get_mag_axis(i, &mag_instructions[i*2]);
     }
     if (!check_sane_axes()) {
         display_write_multiline(0, "Invalid axes\nfound.\nAborting", true);
