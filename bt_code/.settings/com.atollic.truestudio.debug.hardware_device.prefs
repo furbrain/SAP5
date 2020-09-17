@@ -1,0 +1,11 @@
+BOARD=None
+CODE_LOCATION=FLASH
+ENDIAN=Little-endian
+MCU=BlueNRG-132
+MCU_VENDOR=STMicroelectronics
+MODEL=Lite
+PROBE=OpenOCD
+PROJECT_FORMAT_VERSION=2
+TARGET=ARM\u00AE
+VERSION=8.1.0
+eclipse.preferences.version=1

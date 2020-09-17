@@ -1,0 +1,40 @@
+Pony EMB1061 comms
+
+We use a serial port 115200, 8 data, 1 stop, no parity
+
+We're going yarkshire on this one
+
+P=Pony
+E=EMB1061
+
+Error code: "OOECK {error:s}"
+
+
+Initialise:
+P: "EYUP"
+E: "OWDO"
+
+Make noise
+P: "BEEP {frequency:d}"
+E: "BEEPIN" 
+
+Stop beep
+P: "HUSH"
+E: "HUSHIN"
+
+Send data
+P: "SEZYU {data:x}"
+E: "ALLSED"
+
+Receive data
+P: "SEZIM?"
+e: "ESEZ 
+
+Check if connected:
+P: "CHATTIN?"
+E: "AYE" or "NAH"
+
+Check errors:
+P: "OWSTHADOIN?"
+E: "OOECK {error:s}" or "GRAND"
+

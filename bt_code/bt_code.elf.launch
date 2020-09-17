@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="com.atollic.hardwaredebug.launch.launchConfigurationType">
+<intAttribute key="com.atollic.hardwaredebug.launch.formatVersion" value="2"/>
+<stringAttribute key="com.atollic.hardwaredebug.launch.hwinitCommands" value="# Initialize your hardware here&#10;"/>
+<stringAttribute key="com.atollic.hardwaredebug.launch.initCommands" value=""/>
+<stringAttribute key="com.atollic.hardwaredebug.launch.ipAddress" value="localhost"/>
+<stringAttribute key="com.atollic.hardwaredebug.launch.jtagDevice" value="OpenOCD"/>
+<intAttribute key="com.atollic.hardwaredebug.launch.portNumber" value="3333"/>
+<stringAttribute key="com.atollic.hardwaredebug.launch.remoteCommand" value="target remote"/>
+<stringAttribute key="com.atollic.hardwaredebug.launch.runCommands" value="# Load the program executable&#10;load&#10;# Set a breakpoint at main().&#10;tbreak main&#10;&#10;# Run to the breakpoint.&#10;continue"/>
+<stringAttribute key="com.atollic.hardwaredebug.launch.serverParam" value=""/>
+<booleanAttribute key="com.atollic.hardwaredebug.launch.startServer" value="false"/>
+<booleanAttribute key="com.atollic.hardwaredebug.launch.useRemoteTarget" value="true"/>
+<stringAttribute key="com.atollic.hardwaredebug.openocd.server_target" value="remote"/>
+<stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="${TOOLCHAIN_PATH}/arm-atollic-eabi-gdb"/>
+<intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
+<stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_REGISTER_GROUPS" value=""/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/bt_code.elf"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="bt_code"/>
+<booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="false"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/bt_code"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;/&gt;&#10;"/>
+<stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
+</launchConfiguration>
