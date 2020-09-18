@@ -66,9 +66,9 @@ DECLARE_MENU(settings_menu, {    /* settings menu */
 });
 
 DECLARE_MENU(main_menu, {
+    {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
     {"Measure", Exit, {NULL}, 0},
     {"Calibrate  >", SubMenu, .submenu = &calibration_menu, 0},
-    {"Settings  >", SubMenu, .submenu = &settings_menu, 0},
     {"Visualise", Action, {visualise_show_menu}, 0},
     {"Info  >", SubMenu, .submenu = &debug_menu, 0},
     {"Off", Action, {utils_turn_off}, 0}
@@ -211,6 +211,10 @@ void show_menu(struct menu *menu) {
             case LONG_CLICK:
                 measure_requested=true;
                 return;
+                break;
+            case SHAKE:
+                menu_initialise(menu);
+                swipe_menu(menu, false);
                 break;
             default:
                 break;

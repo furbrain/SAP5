@@ -17,7 +17,8 @@ enum INPUT {
     FLIP_RIGHT,
     SINGLE_CLICK,
     LONG_CLICK,
-    DOUBLE_CLICK
+    DOUBLE_CLICK,
+    SHAKE
 };
 
 /* setup features related to button presses etc*/

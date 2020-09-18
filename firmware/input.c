@@ -68,10 +68,16 @@ void timeout_reset() {
 enum INPUT get_input() {
     struct COOKED_SENSORS sensors;
     enum INPUT temp;
-
+    int i;
     sensors_read_cooked(&sensors, 3);
     /* look for "flip" movements */
     //debug("f%.2g",sensors.gyro[1]);
+    for (i=0; i<3; i++) {
+        if (abs(sensors.accel[i]> 1.6)) {
+            last_activity_counter = 0;
+            return SHAKE;
+        }
+    }
     if (sensors.gyro[1] < -30.0) {
         last_activity_counter = 0;
         return display_inverted ? FLIP_DOWN : FLIP_UP;

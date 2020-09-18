@@ -271,7 +271,7 @@ void measure() {
             continue;
         }
         switch (get_input()) {
-            case SINGLE_CLICK:
+            case SHAKE:
                 show_menu(&main_menu);
                 ready_to_measure();
                 break;
