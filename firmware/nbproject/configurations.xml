@@ -50,6 +50,7 @@
       <itemPath>beep.h</itemPath>
       <itemPath>input.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/ui.h</itemPath>
+      <itemPath>/home/phil/Projects/SAP5/firmware/version.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -109,7 +110,6 @@
       <itemPath>beep.c</itemPath>
       <itemPath>input.c</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/version.c</itemPath>
-      <itemPath>/home/phil/Projects/SAP5/firmware/version.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/ui.c</itemPath>
     </logicalFolder>
     <logicalFolder name="f1" displayName="Test" projectFiles="true">

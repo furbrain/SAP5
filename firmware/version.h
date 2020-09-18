@@ -16,7 +16,7 @@ extern "C" {
 //Version 1.1.0
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 1
-#define VERSION_REVISION 0
+#define VERSION_REVISION 1
 
 #define VERSION_CONFIG 1
 #define VERSION_LEG 1

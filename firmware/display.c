@@ -87,10 +87,22 @@ void render_data_to_screen(uint8_t page, uint8_t column, const uint8_t *data, ui
 }
 
 void display_clear(bool immediate) {
+#ifdef BOOTLOADER
+	uint8_t display_buffer[132];
+    int i;
+	memset(display_buffer, 0, 132);
+    for(i=0; i<8; i++) {
+        set_page(i);
+        set_column(0);
+        write_i2c_command_block(DISPLAY_ADDRESS, 0x40, display_buffer, 128);
+    }
+#else
+    
     memset(display_buffer, 0, sizeof(display_buffer));
     if (immediate) {
         display_show_buffer();
     }
+#endif
 }
 
 void display_set_brightness(uint8_t brightness){

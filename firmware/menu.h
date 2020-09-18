@@ -96,5 +96,6 @@ void menu_do_display(struct menu *menu);
 /* undertake the action defined by the menu (go to sub-menu, go back up a level or execute function */
 enum action menu_action(struct menu *menu);
 
-
+/* reset the menu to the initial point*/
+void menu_go_to_root(struct menu *menu);
 #endif // _MENU_H

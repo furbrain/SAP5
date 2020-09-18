@@ -14,3 +14,11 @@ Check resistor value before sending ***FIXME***
 add mounting holes
 check spacing is ok
 maybe move battery a bit?
+
+NEEDED BEFORE PRODUCTION
+
+Automatic phone home and pull most recent software and firmware
+Best to just bundle the firmware with the software
+Check firmware versions prior to download
+Do warning if recalibration needed
+Ensure data is restored after firmware upload

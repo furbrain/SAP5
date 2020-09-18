@@ -31,9 +31,15 @@ GSL_VECTOR_DECLARE(last_reading, 3);
 const uint8_t MPU9250_ACCEL_AXES[] = {4,0,5};
 const uint8_t MPU9250_MAG_AXES[] = {0,4,5};
 const uint8_t BM1422_MAG_AXES[] = {4,3,5};
+const uint8_t LSM6DS3_ACCEL_AXES[] = {0,1,2};
 
 #define BM1422_ADDRESS 0x0e
+#define BM1422_ADDRESS_V11 0x0f
 #define BM1422_MAG_FULL_SCALE 1376
+
+#define LSM6DS3_ADDRESS 0x6b
+#define LSM6DS3_ACCEL_FULL_SCALE 2 
+#define LSM6DS3_ACCEL_GYRI_SCALE 250
 
 float ACCEL_FULL_SCALE, MAG_FULL_SCALE, GYRO_FULL_SCALE;
 
@@ -82,6 +88,13 @@ const i2c_multi_commands BM1422_init_commands[] = {
     {0x1D, 0x40}, //set it going    
 };
 
+const i2c_multi_commands LSM6DS3_init_commands[] = {
+    {0x1A, 0x0C}, //enable I2c pass-through and pull-ups
+    {0x10, 0x43}, //accelerometer 104Hz output, 50Hz filter
+    {0x11, 0x40}, //gyro 104Hz output, 250 dps fullscale
+    {0x13, 0x80}, //enable filter for accelerometer
+};
+
 
 void sensors_init() {
     switch (version_hardware) {
@@ -110,6 +123,15 @@ void sensors_init() {
             }
             break;
         case VERSION_V1_1:
+            send_multi(LSM6DS3_ADDRESS, LSM6DS3_init_commands);
+            send_multi(BM1422_ADDRESS_V11, BM1422_init_commands);
+            ACCEL_FULL_SCALE = LSM6DS3_ACCEL_FULL_SCALE;
+            GYRO_FULL_SCALE = LSM6DS3_ACCEL_GYRI_SCALE;
+            MAG_FULL_SCALE = BM1422_MAG_FULL_SCALE;
+            if (config.axes.accel[0]>=5) {
+                memcpy(config.axes.accel, LSM6DS3_ACCEL_AXES, sizeof(MPU9250_ACCEL_AXES));
+                memcpy(config.axes.mag, BM1422_MAG_AXES, sizeof(BM1422_MAG_AXES));
+            }
             break;
         default:
             break;          
@@ -144,6 +166,20 @@ void sensors_read_raw(struct RAW_SENSORS *sensors){
                 THROW_WITH_REASON("BM1422 communication failed", ERROR_MAGNETOMETER_FAILED);
             }
             break;
+        case VERSION_V1_1:
+            if (read_i2c_data(LSM6DS3_ADDRESS, 0x28, (uint8_t *)sensors, 6)) {
+                THROW_WITH_REASON("LSM6DS3 communication failed", ERROR_MAGNETOMETER_FAILED);
+            }
+            if (read_i2c_data(LSM6DS3_ADDRESS, 0x20, (uint8_t *)&sensors->temp, 2)) {
+                THROW_WITH_REASON("LSM6DS3 communication failed", ERROR_MAGNETOMETER_FAILED);
+            }
+            if (read_i2c_data(LSM6DS3_ADDRESS, 0x22, (uint8_t *)sensors->gyro, 6)) {
+                THROW_WITH_REASON("LSM6DS3 communication failed", ERROR_MAGNETOMETER_FAILED);
+            }
+            if (read_i2c_data(BM1422_ADDRESS_V11, 0x10, (uint8_t *)sensors->mag, 6)) {
+                THROW_WITH_REASON("BM1422 communication failed", ERROR_MAGNETOMETER_FAILED);
+            }
+            break;            
         default:
             THROW_WITH_REASON("Bad Hardware", ERROR_HARDWARE_NOT_IDENTIFIED);
             break;

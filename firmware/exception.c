@@ -14,8 +14,16 @@ const char exception_strings[][20] = {
     "No survey data",
     "Survey too big",
     "Survey is disjoint",
+    "Accelerometer Error",
     "Magnetometer Error",
+    "No bluetooth device",
+    "BT no response",
+    "BT overflow",
+    "BT command failed",
+    "Sim comms fail",
+    "Hardware unknown",   
     };
+
 
 const char global_exception_strings[][20] = {
     "Interrupt",
@@ -35,7 +43,7 @@ const char global_exception_strings[][20] = {
     "Invalid exception",
     "Invalid exception",
     "Implementn specific",
-    "CorExtend Unuseable",
+    "CorExtend Unusable",
     "CoCPU 2 unusable"
 };
 
