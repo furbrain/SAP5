@@ -41,6 +41,7 @@ SOFTWARE.
 #include "clock.h"
 #include "Chat_config.h"
 #include "hal_types.h"
+#include "uart.h"
 /* Private typedef */
 
 /* Private define  */
@@ -61,30 +62,35 @@ volatile uint32_t lSystickCounter=0;
 **
 **===========================================================================
 */
+
+#define BUF_SIZE 40
 int main(void)
 {
   uint8_t ret;
+  char buffer[BUF_SIZE];
   SystemInit();
+  uart_init();
+  uart_send_response("Hello there!\n", 20);
   beep_init();
   beep_start(250);
   /* TODO - Add your application code here */
   /* BlueNRG-1 stack init */
   ret = BlueNRG_Stack_Initialization(&BlueNRG_Stack_Init_params);
   if (ret != BLE_STATUS_SUCCESS) {
-    printf("Error in BlueNRG_Stack_Initialization() 0x%02x\r\n", ret);
+    //printf("Error in BlueNRG_Stack_Initialization() 0x%02x\r\n", ret);
     while(1);
   }
 
-  printf("BlueNRG-1 serial\n");
+  //printf("BlueNRG-1 serial\n");
 
   /* Init Chat Device */
   ret = CHAT_DeviceInit();
   if (ret != BLE_STATUS_SUCCESS) {
-    printf("CHAT_DeviceInit()--> Failed 0x%02x\r\n", ret);
+    //printf("CHAT_DeviceInit()--> Failed 0x%02x\r\n", ret);
     while(1);
   }
 
-  printf("BLE Stack Initialized & Device Configured\r\n");
+  //printf("BLE Stack Initialized & Device Configured\r\n");
 
   while(1) {
     /* BlueNRG-1 stack tick */
@@ -92,6 +98,12 @@ int main(void)
 
     /* Application tick */
     APP_Tick();
+
+    if (uart_receive_cmd(buffer, BUF_SIZE)) {
+    	uart_send_response(buffer, BUF_SIZE);
+    	Process_InputData(buffer, strnlen(buffer, BUF_SIZE));
+    	buffer[0] = 0;
+    }
   }
 }
 

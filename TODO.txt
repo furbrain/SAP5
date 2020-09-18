@@ -1,0 +1,10 @@
+Fix single click from measure screen - shake to access menu?
+Update axis calibration routine
+Check calibration routine
+Check cal routine works on new hardware
+Update manual to match hardware
+
+Work on shetland attack pony website and migrate to webfaction
+cancel server on mythic beasts
+
+Try and order a bluenrg1 dev kit somehow?

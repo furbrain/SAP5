@@ -49,11 +49,11 @@ uint8_t Add_Chat_Service(void)
                 16, 1, &RXCharHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 
-  printf("Chat Service added.\nTX Char Handle %04X, RX Char Handle %04X\n", TXCharHandle, RXCharHandle);
+  //printf("Chat Service added.\nTX Char Handle %04X, RX Char Handle %04X\n", TXCharHandle, RXCharHandle);
   return BLE_STATUS_SUCCESS; 
 
 fail:
-  printf("Error while adding Chat service.\n");
+  //printf("Error while adding Chat service.\n");
   return BLE_STATUS_ERROR ;
 }
 
@@ -68,8 +68,8 @@ void Attribute_Modified_CB(uint16_t handle, uint16_t data_length, uint8_t *att_d
 {
   if(handle == RXCharHandle + 1)
   {
-    for(int i = 0; i < data_length; i++)
-      printf("%c", att_data[i]);
+    //for(int i = 0; i < data_length; i++)
+      //printf("%c", att_data[i]);
   }
   else if(handle == TXCharHandle + 2)
   {        

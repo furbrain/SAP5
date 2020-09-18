@@ -41,6 +41,7 @@
 							<tool id="com.atollic.truestudio.exe.debug.toolchain.gcc.1125929076" name="C Compiler" superClass="com.atollic.truestudio.exe.debug.toolchain.gcc">
 								<option id="com.atollic.truestudio.gcc.symbols.defined.369595461" name="Defined symbols" superClass="com.atollic.truestudio.gcc.symbols.defined" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="NO_SMART_POWER_MANAGEMENT"/>
+									<listOptionValue builtIn="false" value="UART_BAUDRATE=115200"/>
 									<listOptionValue builtIn="false" value="SERVER=1"/>
 									<listOptionValue builtIn="false" value="CLIENT=0"/>
 									<listOptionValue builtIn="false" value="HS_SPEED_XTAL=HS_SPEED_XTAL_16MHZ"/>

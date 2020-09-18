@@ -8,8 +8,8 @@
 <intAttribute key="com.atollic.hardwaredebug.launch.portNumber" value="3333"/>
 <stringAttribute key="com.atollic.hardwaredebug.launch.remoteCommand" value="target remote"/>
 <stringAttribute key="com.atollic.hardwaredebug.launch.runCommands" value="# Load the program executable&#10;load&#10;# Set a breakpoint at main().&#10;tbreak main&#10;&#10;# Run to the breakpoint.&#10;continue"/>
-<stringAttribute key="com.atollic.hardwaredebug.launch.serverParam" value=""/>
-<booleanAttribute key="com.atollic.hardwaredebug.launch.startServer" value="false"/>
+<stringAttribute key="com.atollic.hardwaredebug.launch.serverParam" value="-f interface/stlink.cfg -f target/bluenrg-x.cfg"/>
+<booleanAttribute key="com.atollic.hardwaredebug.launch.startServer" value="true"/>
 <booleanAttribute key="com.atollic.hardwaredebug.launch.useRemoteTarget" value="true"/>
 <stringAttribute key="com.atollic.hardwaredebug.openocd.server_target" value="remote"/>
 <stringAttribute key="org.eclipse.cdt.dsf.gdb.DEBUG_NAME" value="${TOOLCHAIN_PATH}/arm-atollic-eabi-gdb"/>
