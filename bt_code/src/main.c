@@ -30,6 +30,7 @@ SOFTWARE.
 /* Includes */
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 #include "bluenrg_x_device.h"
 #include "BlueNRG1_sysCtrl.h"
 #include "BlueNRG1_gpio.h"
@@ -42,6 +43,8 @@ SOFTWARE.
 #include "Chat_config.h"
 #include "hal_types.h"
 #include "uart.h"
+#include "my_utils.h"
+#include "gatt_db.h"
 /* Private typedef */
 
 /* Private define  */
@@ -63,11 +66,12 @@ volatile uint32_t lSystickCounter=0;
 **===========================================================================
 */
 
-#define BUF_SIZE 40
+
 int main(void)
 {
   uint8_t ret;
   char buffer[BUF_SIZE];
+  const char *bt_text;
   SystemInit();
   uart_init();
   uart_send_response("Hello there!\n", 20);
@@ -101,8 +105,12 @@ int main(void)
 
     if (uart_receive_cmd(buffer, BUF_SIZE)) {
     	uart_send_response(buffer, BUF_SIZE);
-    	Process_InputData(buffer, strnlen(buffer, BUF_SIZE));
-    	buffer[0] = 0;
+    	Process_InputData((uint8_t *)buffer, strnlen(buffer, BUF_SIZE));
+    	clearStr(buffer);
+    }
+    bt_text = get_bt_text();
+    if (bt_text) {
+    	uart_send_response(bt_text, BUF_SIZE);
     }
   }
 }

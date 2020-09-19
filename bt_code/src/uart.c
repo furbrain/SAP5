@@ -5,6 +5,7 @@
 #include "BlueNRG1_uart.h"
 #include "BlueNRG1_sysCtrl.h"
 #include "BlueNRG1_gpio.h"
+#include "my_utils.h"
 
 void uart_init(void)
 {
@@ -51,16 +52,10 @@ void uart_init(void)
 }
 
 bool uart_receive_cmd(char *buffer, int maxlen) {
-	int buf_len;
 	char c;
 	while (UART_GetFlagStatus(UART_FLAG_RXFE)!=SET) {
-		buf_len = strnlen(buffer, maxlen);
-		if (buf_len>=maxlen-1) {
-			buf_len = maxlen - 2;
-		}
 		c = UART_ReceiveData();
-		buffer[buf_len] = c;
-		buffer[buf_len+1] = 0;
+		appendChar(buffer, c, maxlen);
 		if (c=='\n') {
 			return true;
 		}
@@ -68,7 +63,7 @@ bool uart_receive_cmd(char *buffer, int maxlen) {
 	return false;
 }
 
-void uart_send_response(char *buffer, int maxlen) {
+void uart_send_response(const char *buffer, int maxlen) {
 	int len = strnlen(buffer, maxlen);
 	for (int i=0; i < len; i++) {
 		//make sure transmit buffer is empty

@@ -10,6 +10,6 @@
 #include <stdbool.h>
 void uart_init();
 bool uart_receive_cmd(char *buffer, int maxlen);
-void uart_send_response(char *buffer, int maxlen);
+void uart_send_response(const char *buffer, int maxlen);
 
 #endif /* UART_H_ */
