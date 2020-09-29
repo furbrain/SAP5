@@ -34,7 +34,7 @@ void display_write_text(int page, int column, const char* text, const struct FON
 
 void display_write_multiline(int page, const char* text, bool immediate);
 
-void display_rle_image(const char image[]);
+void display_rle_image(const char* image, int page_start, int page_end, int column_start, int column_end);
 
 int render_text_to_page(uint8_t *buffer, int page, int column, const char *text, const struct FONT *font);
 

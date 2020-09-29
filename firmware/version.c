@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <proc/p32mm0256gpm028.h>
 
 #include "version.h"
 #include "i2c_util.h"
@@ -6,6 +7,34 @@
 #include "mem_locations.h"
 #include "memory.h"
 enum HARDWARE_VERSION version_hardware;
+
+static
+const char *adjectives[] = {
+    "Angry", 
+    "Bored", 
+    "Curious", 
+    "Devious", 
+    "Excited", 
+    "Fierce", 
+    "Grumpy", 
+    "Hungry", 
+    "Idle",
+    "Jealous"
+};
+
+static
+const char *animals[] = {
+    "Antelope", 
+    "Badger", 
+    "Cheetah", 
+    "Dolphin", 
+    "Eagle", 
+    "Fox", 
+    "Gorilla", 
+    "Hamster", 
+    "Iguana", 
+    "Jaguar"
+};
 
 struct SOFTWARE_VERSION version_software PLACE_DATA_AT(VERSION_LOCATION) = {
     .version = {
@@ -46,5 +75,20 @@ void find_version(void) {
         return;
     }
     version_hardware = VERSION_UNDEFINED;
+}
+
+struct VERSION_ID version_get_id() {
+    uint8_t *id_byte = (uint8_t*) &UDID1;
+    int i;
+    int value = 0;
+    struct VERSION_ID result;
+    for (i=0; i< 20; i++) {
+        value ^= *id_byte++;
+    }
+    value *= 57;
+    value %= 100;
+    result.adjective = adjectives[value/10];
+    result.animal = animals[value%10];
+    return result;
 }
 

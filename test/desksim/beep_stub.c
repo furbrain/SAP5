@@ -26,6 +26,6 @@ void beep_stub(double frequency, int duration, int numcalls) {
 }
 
 void beep_setup() {
-    beep_initialise_Ignore();
+    bt_and_beep_initialise_Ignore();
     beep_StubWithCallback(beep_stub);
 }

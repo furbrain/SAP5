@@ -24,6 +24,10 @@
 #include "mcc_generated_files/tmr2.h"
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
+#include "bt.h"
+#include "images.h"
+#include "images/bt_on2.xbm"
+#include "images/bt_off2.xbm"
 
 
 DECLARE_MENU(timeout_menu, {
@@ -163,6 +167,18 @@ void show_status() {
         bat_status[x] = reverse(bat_status[x]);
     }
     display_load_buffer(1, 104, bat_status, 24);
+    if (bt_present) {
+        if (bt_connected()) {
+            memcpy(bat_status, bt_on2_bits, 11);
+        } else {
+            memcpy(bat_status, bt_off2_bits, 11);
+        }
+        display_load_buffer(0, 86, bat_status, bt_on2_height);
+        for (x = 0; x < 24; ++x) {
+            bat_status[x] = reverse(bat_status[x]);
+        }
+        display_load_buffer(1, 86, bat_status, bt_on2_height);
+    }
 }
 
 void show_menu(struct menu *menu) {

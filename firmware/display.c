@@ -154,13 +154,13 @@ void display_write_multiline(int page, const char* text, bool immediate) {
 
 /* display an rle encoded image */
 /* each line starts with a blank pixel */
-void display_rle_image(const char* image) {
-	int page = 0;
+void display_rle_image(const char* image, int page_start, int page_end, int column_start, int column_end) {
+    int page = page_start;
+    int column = column_start;
 	int row = 0;
 	int image_counter;
-	int column = 0;
 	int colour = 1;
-	while (page<8) {
+	while (page<page_end) {
 		image_counter = *image;
 		image++;
 		colour ^= 1;
@@ -171,8 +171,8 @@ void display_rle_image(const char* image) {
 				display_buffer[page][column] &= ~(1<<row);
 			}
 			column++;
-			if (column>=128) {
-				column = 0;
+			if (column>=column_end) {
+				column = column_start;
 				row++;
 				colour = 1;
 				if (row>=8) {

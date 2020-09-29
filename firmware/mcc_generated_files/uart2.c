@@ -416,6 +416,11 @@ bool UART2_TransmitBufferIsFull(void)
     return(uart2_obj.txStatus.s.full);
 }
 
+void UART2_ReceiveBufferClear(void) {
+    uint8_t buffer[UART2_CONFIG_RX_BYTEQ_LENGTH];
+    UART2_ReadBuffer(buffer, UART2_CONFIG_RX_BYTEQ_LENGTH);
+}
+
 
 UART2_STATUS UART2_StatusGet (void)
 {

@@ -49,7 +49,7 @@ struct __attribute__((aligned(8))) CONFIG {
     uint8_t display_style;
     uint8_t length_units;
     uint16_t timeout;
-    unsigned bt_present :1;
+    unsigned dummy :1;
     unsigned compact :1;
 };
 

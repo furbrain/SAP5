@@ -10,6 +10,7 @@
 #include "mock_memory.h"
 #include "mock_battery.h"
 #include "mock_rtcc.h"
+#include "mock_bt.h"
 
 #include "zmqstubs.h"
 #include "beep_stub.h"
@@ -18,6 +19,7 @@
 #include "input_stub.h"
 #include "uart_stub.h"
 #include "util_stub.h"
+#include "bt_stub.h"
 
 
 #include "beep.h"
@@ -57,6 +59,7 @@ void setUp(void)
     uart1_setup();
     util_setup();
     sensors_init();
+    bt_setup();
 }
 
 void tearDown(void)

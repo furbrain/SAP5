@@ -161,12 +161,16 @@ void show_bearings(int32_t a) {
     char stext[80];
     GSL_VECTOR_DECLARE(orientation, 3);
     double compass, inclination;
+    struct VERSION_ID id;
     if (cycle-- <= 0) {
         cycle = 10;
+        id = version_get_id();
+        sprintf(stext, "%s\n%s", id.adjective, id.animal);
+        display_write_multiline(0, stext, false);
         sensors_get_orientation(&orientation, 3);
         measure_calculate_bearings(&orientation, &compass, &inclination);
         sprintf(stext,"Compass: %5.1f`\n  Clino: %+.1f`", compass, inclination);
-        display_write_multiline(2, stext, false);
+        display_write_multiline(4, stext, false);
     }
 }
 

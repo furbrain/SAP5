@@ -1,29 +1,24 @@
 #ifndef _BT_H
 #define _BT_H
-
+#include <stdbool.h>
 /* set up communications with BT module */
 void bt_init(void);
 
-/* enter command mode */
-void bt_enter_command_mode(void);
-
 /* send command cmd, then wait timeout milliseconds for response */
-void bt_send_command(const char* cmd, unsigned int timeout);
+void bt_send_command(const char* cmd, const char* expected_response, unsigned int timeout);
 
-/* leave command mode */
-void bt_leave_command_mode(void);
+void bt_send_packet(const char* packet, int length);
 
 /* start beeping at frequency freq */
-void bt_beep(double freq);
+void bt_beep_start(int freq);
 
 /* stop beeping */
-void bt_beep_off(void);
+void bt_beep_stop(void);
 
-/* reset firmware on BT module to default */
-void bt_reset(void);
+/* return true if bt connected to other device*/
+bool bt_connected(void);
 
-/* advertise BT module */
-void bt_advertise(void);
+extern bool bt_present;
 
 #ifdef TEST
 void bt_write_str(const char* text);

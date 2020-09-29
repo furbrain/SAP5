@@ -50,14 +50,14 @@ void initialise() {
     wdt_clear();
     RTCC_TimeReset(true);
     SYSTEM_Initialize();
-    beep_initialise();
+    TMR2_Start();
     PERIPH_EN_SetHigh();
     exception_init();
     memory_clear_errors();
-    TMR2_Start();
     config_load();
     survey_current_init();
     delay_ms_safe(300);
+    bt_and_beep_initialise();
     if (battery_get_voltage()<3.4) {
         beep_sad();
         utils_turn_off(0);

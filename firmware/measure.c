@@ -20,6 +20,7 @@
 #include "exception.h"
 #include "beep.h"
 #include "images.h"
+#include "bt.h"
 
 #define FEET_PER_METRE 3.281
 #define DEGREES_PER_RADIAN 57.296
@@ -103,7 +104,9 @@ void display_cartesian() {
 }
 
 /* calculate compass and inclination from an orientation */
-void measure_calculate_bearings(gsl_vector *orientation, double *compass, double *inclination){
+void measure_calculate_bearings(gsl_vector *orientation, 
+                                double *compass, 
+                                double *inclination){
     *compass = atan2(gsl_vector_get(orientation, 0), gsl_vector_get(orientation, 1)) * DEGREES_PER_RADIAN;
 	if (*compass<0) *compass+=360;
 	*inclination = atan2(gsl_vector_get(orientation, 2), get_extension(orientation))*DEGREES_PER_RADIAN;
@@ -147,7 +150,38 @@ void add_cartesian_entries_to_menu(struct menu *menu) {
     }
 }
 
+TESTABLE_STATIC
+void fill_short(char *address, uint16_t value) {
+    address[0] = value & 0xff;
+    address[1] = (value >> 8) & 0xff;
+}
 
+TESTABLE_STATIC
+void make_bt_packet(char *packet) {
+    static int sequence = 0;
+    gsl_vector *orientation = sensors_get_last_reading();
+    int distance = (int)(get_distance(orientation)*1000.0);
+    int long_bit = distance > 32767 ? 1 : 0;
+    double compass, clino;
+    int i_compass, i_clino;
+    measure_calculate_bearings(orientation, &compass, &clino);
+    i_clino = (int)(clino*32768.0/180.0);
+    i_compass = (int)(compass*32768.0/180.0);
+    packet[0] = sequence << 7 | long_bit << 6 | 0x01; 
+    fill_short(&packet[1], distance);
+    fill_short(&packet[3], i_compass);
+    fill_short(&packet[5], i_clino);
+    packet[7] = 0x00;    
+    sequence ^= 0x01;
+}
+
+
+TESTABLE_STATIC
+void bt_send_measurement(void) {
+    char packet[8];
+    make_bt_packet(packet);
+    bt_send_packet(packet, 8);
+}
 
 static
 void add_storage_menu_entry(struct menu *menu, uint8_t from, uint8_t to) {
@@ -201,6 +235,7 @@ void setup_storage_menu(void) {
 
 void measure_show_reading() {
     // set up menus
+    if (bt_present) bt_send_measurement();
     menu_clear(&measure_menu);
     if (config.display_style==CARTESIAN) {
         add_cartesian_entries_to_menu(&measure_menu);
@@ -252,7 +287,7 @@ void do_reading() {
 void ready_to_measure() {
     display_on();
     display_clear(false);
-    display_rle_image(image_laser2);
+    display_rle_image(image_laser2, 0, 8, 0, 128);
     display_show_buffer();
     laser_on();    
 }

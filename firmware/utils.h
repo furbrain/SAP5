@@ -24,7 +24,7 @@ enum FLASH_OP {
 
 #ifndef BOOTLOADER
 /* initialise beeping circuitry...*/
-void beep_initialise(void);
+void bt_and_beep_initialise(void);
 
 /* beep at freq for duration milliseconds*/
 void beep(double freq, int duration);

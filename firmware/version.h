@@ -61,6 +61,12 @@ extern struct SOFTWARE_VERSION version_software;
 void find_version(void);
 
 
+struct VERSION_ID {
+   const char *adjective;
+   const char *animal;
+};
+
+struct VERSION_ID version_get_id();
 #ifdef	__cplusplus
 }
 #endif
