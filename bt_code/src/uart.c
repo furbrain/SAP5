@@ -55,16 +55,16 @@ bool uart_receive_cmd(char *buffer, int maxlen) {
 	char c;
 	while (UART_GetFlagStatus(UART_FLAG_RXFE)!=SET) {
 		c = UART_ReceiveData();
-		appendChar(buffer, c, maxlen);
 		if (c=='\n') {
 			return true;
 		}
+		appendChar(buffer, c, maxlen);
 	}
 	return false;
 }
 
-void uart_send_response(const char *buffer, int maxlen) {
-	int len = strnlen(buffer, maxlen);
+void uart_send_response(const char *buffer) {
+	int len = strnlen(buffer, BUF_SIZE);
 	for (int i=0; i < len; i++) {
 		//make sure transmit buffer is empty
 		while (UART_GetFlagStatus(UART_FLAG_TXFE) == RESET) {
@@ -72,4 +72,8 @@ void uart_send_response(const char *buffer, int maxlen) {
 		}
 		UART_SendData(buffer[i]);
 	}
+	while (UART_GetFlagStatus(UART_FLAG_TXFE) == RESET) {
+	      ;
+	}
+	UART_SendData('\n');
 }

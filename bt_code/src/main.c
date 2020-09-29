@@ -45,6 +45,7 @@ SOFTWARE.
 #include "uart.h"
 #include "my_utils.h"
 #include "gatt_db.h"
+#include "app_state.h"
 /* Private typedef */
 
 /* Private define  */
@@ -66,17 +67,63 @@ volatile uint32_t lSystickCounter=0;
 **===========================================================================
 */
 
+void processCommand(const char *cmd) {
+	char text[BUF_SIZE] = "text";
+	char bytes[BUF_SIZE] = "";
+	const char *bt_text;
+	int freq, byte_count;
+	if (sscanf(cmd, "EYUP %10s", text)==1) {
+		Set_ID_And_Set_Discoverable(text);
+		uart_send_response("OWDO");
+		// set up bluetooth with correct name
+	} else if (sscanf(cmd, "BEEP %d", &freq)==1) {
+		beep_start(freq);
+		uart_send_response("BEEPIN");
+	} else if (sscanf(cmd, "SEZYU %s", text)==1) {
+		// send data packet
+		byte_count = hexToChar(bytes, text, BUF_SIZE);
+		if (byte_count<0) {
+			uart_send_response("OOECK malformed hex string");
+		} else {
+			Process_InputData(bytes, byte_count);
+		    uart_send_response("ALLSED");
+		}
+	} else if (strcmp(cmd, "HUSH")==0) {
+		//stop beeping
+		beep_stop();
+		uart_send_response("HUSHIN");
+	} else if (strcmp(cmd, "SEZIM?")==0) {
+		bt_text = get_bt_text();
+		if (bt_text) {
+			uart_send_response("ESEZ ");
+			uart_send_response(bt_text);
+		} else {
+			uart_send_response("OOECK No messages");
+		}
+	} else if (strcmp(cmd, "NATTERIN?")==0) {
+		if (APP_FLAG(CONNECTED)) {
+			uart_send_response("AYE");
+		} else {
+			uart_send_response("NAH");
+		}
+	} else if (strcmp(cmd, "OWSTHADOIN?")==0) {
+		/* FIXME */
+		uart_send_response("GRAND");
+	} else {
+		uart_send_response("OOECK could not grok");
+		uart_send_response(cmd);
+	}
+}
+
 
 int main(void)
 {
   uint8_t ret;
-  char buffer[BUF_SIZE];
-  const char *bt_text;
+  char buffer[BUF_SIZE] = "";
   SystemInit();
   uart_init();
-  uart_send_response("Hello there!\n", 20);
   beep_init();
-  beep_start(250);
+  uart_send_response("Now then...");
   /* TODO - Add your application code here */
   /* BlueNRG-1 stack init */
   ret = BlueNRG_Stack_Initialization(&BlueNRG_Stack_Init_params);
@@ -90,7 +137,8 @@ int main(void)
   /* Init Chat Device */
   ret = CHAT_DeviceInit();
   if (ret != BLE_STATUS_SUCCESS) {
-    //printf("CHAT_DeviceInit()--> Failed 0x%02x\r\n", ret);
+    sprintf(buffer, "CHAT_DeviceInit()--> Failed 0x%02x\r\n", ret);
+    uart_send_response(buffer);
     while(1);
   }
 
@@ -104,13 +152,8 @@ int main(void)
     APP_Tick();
 
     if (uart_receive_cmd(buffer, BUF_SIZE)) {
-    	uart_send_response(buffer, BUF_SIZE);
-    	Process_InputData((uint8_t *)buffer, strnlen(buffer, BUF_SIZE));
+    	processCommand(buffer);
     	clearStr(buffer);
-    }
-    bt_text = get_bt_text();
-    if (bt_text) {
-    	uart_send_response(bt_text, BUF_SIZE);
     }
   }
 }

@@ -29,29 +29,24 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private defines -----------------------------------------------------------*/
 
-#define CMD_BUFF_SIZE 512
+#define CMD_BUFF_SIZE 64
 
-#if SERVER
-  #define SERVER_ADDRESS 0xaa, 0x00, 0x00, 0xE1, 0x80, 0x02
-  #define LOCAL_NAME  'C','h','a','t','_','1','_','2'
-  #define MANUF_DATA_SIZE 27
-#endif 
-
+#define SERVER_ADDRESS 0xaa, 0x00, 0x00, 0xE1, 0x80, 0x02
+#define LOCAL_NAME  'C','h','a','t','_','1','_','2'
+#define MANUF_DATA_SIZE 39
+#define NAME_MAX_LEN 22
 /* Private macros ------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
 
 uint8_t connInfo[20];
-volatile int app_flags = SET_CONNECTABLE;
+volatile int app_flags = 0;
 volatile uint16_t connection_handle = 0;
+static char name[NAME_MAX_LEN] = "Shetland";
 
 /** 
   * @brief  Handle of TX,RX  Characteristics.
   */ 
-#ifdef CLIENT
-uint16_t tx_handle;
-uint16_t rx_handle;
-#endif 
 
 /* UUIDs */
 UUID_t UUID_Tx;
@@ -126,8 +121,31 @@ uint8_t CHAT_DeviceInit(void)
     //printf("Add_Chat_Service() --> SUCCESS\r\n");
   }
   
-  
+  ret = aci_gap_set_io_capability(IO_CAP_DISPLAY_ONLY);
+  if (ret != BLE_STATUS_SUCCESS) {
+    //printf("Error in Set IO Cap 0x%02x\r\n", ret);
+    return ret;
+  }
+
+  ret = aci_gap_set_authentication_requirement(BONDING,
+                                               MITM_PROTECTION_REQUIRED,
+                                               SC_IS_NOT_SUPPORTED,
+                                               KEYPRESS_IS_NOT_SUPPORTED,
+                                               0x07,
+                                               0x10,
+                                               USE_FIXED_PIN_FOR_PAIRING,
+                                               0x00,
+                                               0x00);
+  if (ret != BLE_STATUS_SUCCESS) {
+    //printf("Error in Authentication 0x%02x\r\n", ret);
+    return ret;
+  }
   return BLE_STATUS_SUCCESS;
+}
+
+void Set_ID_And_Set_Discoverable(const char *id) {
+	snprintf(name, NAME_MAX_LEN, "Shetland_%s", id);
+	APP_FLAG_SET(SET_CONNECTABLE);
 }
 
 void Send_Data_Over_BLE(void)
@@ -157,36 +175,18 @@ void Send_Data_Over_BLE(void)
 *	           Nb_bytes: number of received bytes.
 * Return         : none.
 *******************************************************************************/
-void Process_InputData(uint8_t* data_buffer, uint16_t Nb_bytes)
+void Process_InputData(const char* data, uint16_t Nb_bytes)
 {
-  uint8_t i;
-  
-  for (i = 0; i < Nb_bytes; i++)
-  {
-    if(cmd_buff_end >= CMD_BUFF_SIZE-1){
-      cmd_buff_end = 0;
-    }
-    
-    cmd[cmd_buff_end] = data_buffer[i];
-    /* FIXME sort out somewhere to send the data */
-    cmd_buff_end++;
-    
-    if(cmd[cmd_buff_end-1] == '\n'){
-      if(cmd_buff_end != 1){
-        
-        cmd[cmd_buff_end] = '\0'; // Only a termination character. Not strictly needed.
-        
-        // Set flag to send data. Disable UART IRQ to avoid overwriting buffer with new incoming data
-        APP_FLAG_SET(SEND_DATA);
-        
-        cmd_buff_start = 0;        
-        
-      }
-      else {
-        cmd_buff_end = 0; // Discard
-      }
-    }
+  if (Nb_bytes>CMD_BUFF_SIZE-1) {
+      memcpy(cmd, data, CMD_BUFF_SIZE-1);
+      cmd_buff_end = CMD_BUFF_SIZE-1;
+  } else {
+      memcpy(cmd, data, Nb_bytes);
+      cmd_buff_end = Nb_bytes;
   }
+		// Set flag to send data. Disable UART IRQ to avoid overwriting buffer with new incoming data
+  APP_FLAG_SET(SEND_DATA);
+  cmd_buff_start = 0;
 }
 
 
@@ -200,44 +200,17 @@ void Process_InputData(uint8_t* data_buffer, uint16_t Nb_bytes)
 void Make_Connection(void)
 {  
   tBleStatus ret;
+  int name_len = strlen(name);
+  uint8_t name_data[NAME_MAX_LEN+1] = {0x09,0x00};
   
-  /* NOTE: Updated original Server advertising data in order to be also recognized by �BLE Sensor� app Client */
-  
-  tBDAddr bdaddr = {SERVER_ADDRESS};
-/* FIXME this needs to be dynamically generated with shetland id */
-  uint8_t manuf_data[MANUF_DATA_SIZE] = { 
-    2,                      /* Length of AD type Transmission Power */
-    0x0A, 0x00,             /* Transmission Power = 0 dBm */ 
-    9,                      /* Length of AD type Complete Local Name */
-    0x09,                   /* AD type Complete Local Name */ 
-    LOCAL_NAME,             /* Local Name */            
-    13,                     /* Length of AD type Manufacturer info */
-    0xFF,                   /* AD type Manufacturer info */
-    0x01,                   /* Protocol version */
-    0x05,		            /* Device ID: 0x05 */
-    0x00,                   /* Feature Mask byte#1 */
-    0x00,                   /* Feature Mask byte#2 */
-    0x00,                   /* Feature Mask byte#3 */
-    0x00,                   /* Feature Mask byte#4 */
-    0x00,                   /* BLE MAC start */
-    0x00, 
-    0x00, 
-    0x00, 
-    0x00, 
-    0x00                    /* BLE MAC stop */
-  };
-  
-  
-  for (int var = 0; var < 6; ++var) {
-    manuf_data[MANUF_DATA_SIZE -1  - var] = bdaddr[var];
-  }
-  
-  uint8_t local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME, LOCAL_NAME };
+  /* add name */
+  name_data[0] = 0x09; /* AD type complet local name */
+  memcpy(&name_data[1], name, name_len);
 
   hci_le_set_scan_response_data(0,NULL);
 
   ret = aci_gap_set_discoverable(ADV_IND, 0, 0, PUBLIC_ADDR, NO_WHITE_LIST_USE,
-                                 sizeof(local_name), local_name, 0, NULL, 0, 0);
+                                 name_len+1, name_data, 0, NULL, 0, 0);
   if(ret != BLE_STATUS_SUCCESS)
   {
     //printf ("Error in aci_gap_set_discoverable(): 0x%02x\r\n", ret);
@@ -246,9 +219,6 @@ void Make_Connection(void)
   {
     //printf ("aci_gap_set_discoverable() --> SUCCESS\r\n");
   }
-  
-  /* Update Advertising data with manuf_data */
-  aci_gap_update_adv_data(MANUF_DATA_SIZE, manuf_data);
   
 }
 

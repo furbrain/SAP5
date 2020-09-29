@@ -11,7 +11,7 @@ Error code: "OOECK {error:s}"
 
 
 Initialise:
-P: "EYUP"
+P: "EYUP {name:2cs}"
 E: "OWDO"
 
 Make noise
@@ -28,10 +28,10 @@ E: "ALLSED"
 
 Receive data
 P: "SEZIM?"
-e: "ESEZ 
+e: "ESEZ {response:s}"
 
 Check if connected:
-P: "CHATTIN?"
+P: "NATTERIN?"
 E: "AYE" or "NAH"
 
 Check errors:

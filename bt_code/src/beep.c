@@ -64,11 +64,13 @@ void beep_stop() {
 	MFT2->TNCNT1 = 0;
 	MFT2->TNCNT2 = 0;
 	MFT1->TNMCTRL_b.TNAOUT = 0;
-	MFT2->TNMCTRL_b.TNAOUT = 1;
+	MFT2->TNMCTRL_b.TNAOUT = 0;
 }
 
 void beep_start(int freq) {
 	int delay = (1000000/2) / freq;
+	MFT1->TNMCTRL_b.TNAOUT = 0;
+	MFT2->TNMCTRL_b.TNAOUT = 1;
 	MFT_SetCounter(MFT1, 0, 0);
 	MFT_SetCounter(MFT2, 0, 0);
 	MFT1->TNCRA = delay;

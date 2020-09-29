@@ -13,5 +13,7 @@
 bool startsWith(const char* s, const char *prefix);
 void appendChar(char *s, const char c, int len);
 void clearStr(char *s);
+int hexToChar(char *dest, const char *src, int maxlen);
+
 
 #endif /* MY_UTILS_H_ */
