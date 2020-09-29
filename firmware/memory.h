@@ -30,7 +30,7 @@
     Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-void memory_clear_errors();
+void memory_clear_errors(void);
 
 /**
   @Summary
@@ -66,7 +66,7 @@ void memory_erase_page(const void *ptr);
     Throws ERROR_FLASH_STORE_FAILED if there is a problem
 
 */
-void memory_erase_all();
+void memory_erase_all(void);
 
 /**
   @Summary

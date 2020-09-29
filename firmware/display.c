@@ -29,7 +29,7 @@ int8_t send2(uint8_t command, uint8_t data) {
 	return write_i2c_command_block(DISPLAY_ADDRESS,0x00,both_bytes,2);
 }
 
-void display_init() {
+void display_init(void) {
 	//set up and power up display
 	send1(0xAD);
 	send1(0x8B);
@@ -46,15 +46,15 @@ void display_init() {
 	send1(0xA6);
 }
 
-void display_close() {
+void display_close(void) {
 	send1(0xAE);
 }
 
-void display_on(){
+void display_on(void){
     send1(0xAF); 
 }
 
-void display_off() {
+void display_off(void) {
     send1 (0xAE);
 }
 

@@ -113,7 +113,7 @@ const struct LEG *leg_find(int survey, int index) {
 /*find most recent_leg*/
 const struct LEG *leg_find_last(void) {
     time_t last_tm = LONG_MIN;
-    int16_t last_survey = 0;
+    uint16_t last_survey = 0;
     const struct LEG *leg  = NULL;
     const struct LEG *last_leg = NULL;
     // find last survey

@@ -54,7 +54,7 @@ double get_distance(gsl_vector *orientation) {
 }
 
 TESTABLE_STATIC
-void fill_polar_strings() {
+void fill_polar_strings(void) {
     double compass, inclination;
     double degree_scale = (config.display_style==GRAD) ? GRADS_PER_DEGREE : 1.0;
     double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
@@ -70,7 +70,7 @@ void fill_polar_strings() {
 }
 
 TESTABLE_STATIC
-void fill_cartesian_strings() {
+void fill_cartesian_strings(void) {
     double length_scale = (config.length_units==IMPERIAL) ? FEET_PER_METRE : 1.0;
     char length_unit = (config.length_units==IMPERIAL) ? IMPERIAL_UNIT : METRIC_UNIT;
     gsl_vector *orientation = sensors_get_last_reading();
@@ -82,7 +82,7 @@ void fill_cartesian_strings() {
 }
 
 TESTABLE_STATIC
-void display_polar() {
+void display_polar(void) {
     char temp[80];
     sprintf(temp, "Compass: %7s\n"
                   "Clino:   %7s\n"
@@ -93,7 +93,7 @@ void display_polar() {
 }
 
 TESTABLE_STATIC
-void display_cartesian() {
+void display_cartesian(void) {
     char temp[80];
     sprintf(temp, "North:   %7s\n"
                   "East:    %7s\n"
@@ -233,7 +233,7 @@ void setup_storage_menu(void) {
     menu_append_back(&storage_menu, "Back", NULL);
 }
 
-void measure_show_reading() {
+void measure_show_reading(void) {
     // set up menus
     if (bt_present) bt_send_measurement();
     menu_clear(&measure_menu);
@@ -250,7 +250,7 @@ void measure_show_reading() {
     show_menu(&measure_menu);
 }
 
-void do_reading() {
+void do_reading(void) {
     CEXCEPTION_T e;
     Try {
         sensors_get_reading();
@@ -258,8 +258,8 @@ void do_reading() {
     }
     Catch (e) {
         if (e==ERROR_LASER_READ_FAILED) {
-            display_on(true);
-            laser_on(false);
+            display_on();
+            laser_on();
             display_clear(false);
             display_write_text(0, 0, "Laser read", &large_font, false);
             display_write_text(4, 0, "failed", &large_font, false);
@@ -268,8 +268,8 @@ void do_reading() {
             delay_ms_safe(1000);
             return;
         } else if (e==ERROR_LASER_TIMEOUT) {
-            display_on(true);
-            laser_on(false);
+            display_on();
+            laser_on();
             display_clear(false);
             display_write_text(0, 0, "Laser read", &large_font, false);
             display_write_text(4, 0, "timed out", &large_font, false);
@@ -284,7 +284,7 @@ void do_reading() {
     measure_show_reading();    
 }
 
-void ready_to_measure() {
+void ready_to_measure(void) {
     display_on();
     display_clear(false);
     display_rle_image(image_laser2, 0, 8, 0, 128);
@@ -292,11 +292,11 @@ void ready_to_measure() {
     laser_on();    
 }
 
-void measure() {
+void measure(void) {
     ready_to_measure();
     while (true) {
         wdt_clear();
-        show_status(display_screen);
+        show_status();
         display_show_buffer();
         if (measure_requested) {
             measure_requested = false;

@@ -4,7 +4,7 @@
 #include <gsl/gsl_vector.h>
 
 /* take one or more measurements and store them */
-void measure();
+void measure(void);
 extern bool measure_requested;
 
 /* calculate compass and inclination from an orientation */

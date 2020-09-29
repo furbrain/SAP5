@@ -19,7 +19,7 @@ TESTABLE_STATIC int processed_leg_count;
 
 /*reset all lists*/
 TESTABLE_STATIC
-void reset_lists() {
+void reset_lists(void) {
     model_leg_count = 0;
     station_count = 0;
     processed_leg_count = 0;

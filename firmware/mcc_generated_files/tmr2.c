@@ -102,7 +102,7 @@ void TMR2_Initialize (void)
 
 
 
-void __attribute__ ((vector(_TIMER_2_VECTOR), interrupt(IPL1SOFT))) TMR2_ISR()
+void __attribute__ ((vector(_TIMER_2_VECTOR), interrupt(IPL1SOFT))) TMR2_ISR(void)
 {
     /* Check if the Timer Interrupt/Status is set */
 

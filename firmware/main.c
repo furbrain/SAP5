@@ -18,6 +18,18 @@
 #include "version.h"
 #define TXT_LENGTH 50
 
+void double_click_start(void) {
+    int i=0;
+    while (i++<50) {
+        delay_ms(10);
+        if (get_clicks()!=NONE) {
+            return;
+        }
+    }
+    //no double_click in relevant time....
+    utils_turn_off(0);
+}
+
 void display_error(CEXCEPTION_T e) {
     char text[20];
     const char *error;
@@ -46,17 +58,19 @@ void display_error(CEXCEPTION_T e) {
     delay_ms_safe(5000);
 }
 
-void initialise() {
+void initialise(void) {
     wdt_clear();
     RTCC_TimeReset(true);
     SYSTEM_Initialize();
     TMR2_Start();
-    PERIPH_EN_SetHigh();
     exception_init();
     memory_clear_errors();
     config_load();
     survey_current_init();
-    delay_ms_safe(300);
+    delay_ms_safe(3);
+    PERIPH_EN_SetHigh();
+    delay_ms_safe(100);
+    double_click_start();
     bt_and_beep_initialise();
     if (battery_get_voltage()<3.4) {
         beep_sad();
@@ -65,7 +79,6 @@ void initialise() {
     find_version();
     display_init();
     sensors_init();
-    input_init();
     wdt_clear();
     display_clear(true);
     if (battery_get_voltage() < 3.5) {

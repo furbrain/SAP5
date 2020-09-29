@@ -23,7 +23,7 @@ struct COOKED_SENSORS {
     double mag[3];      //measured in uT
 };
 
-void sensors_init();
+void sensors_init(void);
 
 void sensors_read_raw(struct RAW_SENSORS *sensors);
 
@@ -38,9 +38,9 @@ void sensors_uncalibrated_to_cooked(struct COOKED_SENSORS *sensors);
 void sensors_get_orientation(gsl_vector *orientation, int count);
 
 /* take a reading */
-void sensors_get_reading();
+void sensors_get_reading(void);
 
 /* get the value of the last reading */
-gsl_vector* sensors_get_last_reading();
+gsl_vector* sensors_get_last_reading(void);
 
 #endif

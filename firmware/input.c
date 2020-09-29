@@ -9,19 +9,14 @@
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
 
-static volatile enum INPUT last_click;
+static volatile enum INPUT last_click = NONE;
 
 /* set up timer interrupts etc */
 /* Timer 2 is our input poller counter */
 /* timer 3 is click length counter */
 /* timer 2 delay: 2ms  = */
-static uint32_t last_activity_counter;
+static uint32_t last_activity_counter = 10000;
 static bool display_inverted;
-
-void input_init() {
-    last_activity_counter = 0;
-    last_click = NONE;
-}
 
 /* change notification interrupt, called every 2ms*/
 /* 0 = button pressed, 1 is released*/
@@ -32,7 +27,7 @@ void TMR2_CallBack(void) {
     
     state = ((state << 1) | SWITCH_GetValue()) & 0xffff;
     if (state == 0x8000) {
-        /* we have just pressed the button and held it for 12 T2 cycles*/
+        /* we have just pressed the button and held it for 15 T2 cycles*/
         if (last_activity_counter < 100) {
             /* it's been less than 0.2s since the last press finished */
             last_click = DOUBLE_CLICK;

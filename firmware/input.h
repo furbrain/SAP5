@@ -21,17 +21,14 @@ enum INPUT {
     SHAKE
 };
 
-/* setup features related to button presses etc*/
-void input_init();
-
 /* reset the timeout feature*/
-void timeout_reset();
+void timeout_reset(void);
 
 /* get most recent input*/
-enum INPUT get_input();
+enum INPUT get_input(void);
 
 /* get most recent input*/
-enum INPUT get_clicks();
+enum INPUT get_clicks(void);
 
 #endif	/* INPUT_H */
 

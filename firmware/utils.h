@@ -36,7 +36,7 @@ void delay_ms(int count);
 void delay_ms_safe(int count);
 
 /* get current time in time_t format */
-int utils_get_time();
+int utils_get_time(void);
 
 void wdt_clear(void);
 

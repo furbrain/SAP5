@@ -11,13 +11,13 @@
 
 typedef uint8_t display_buf_t[NUM_PAGES][128];
 
-void display_init();
+void display_init(void);
 
-void display_close();
+void display_close(void);
 
-void display_on();
+void display_on(void);
 
-void display_off();
+void display_off(void);
 
 void display_clear(bool immediate);
 

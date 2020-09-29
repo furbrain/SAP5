@@ -122,7 +122,7 @@ void wdt_clear(void){
 }
 
 
-void sys_reset(){
+void sys_reset(void){
     /* The following reset procedure is from the Family Reference Manual,
 	 * Chapter 7, "Resets," under "Software Resets." */
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"

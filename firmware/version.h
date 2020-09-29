@@ -66,7 +66,7 @@ struct VERSION_ID {
    const char *animal;
 };
 
-struct VERSION_ID version_get_id();
+struct VERSION_ID version_get_id(void);
 #ifdef	__cplusplus
 }
 #endif

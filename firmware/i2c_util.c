@@ -8,11 +8,11 @@
 #define I2C_TIMEOUT 10
 #define I2C_RETRIES 10
 
-void i2c_init(){
+void i2c_init(void){
     I2C1_Initialize();
 }
 
-void i2c_close(){
+void i2c_close(void){
     /* FIXME */
     //CloseI2C();
 }
