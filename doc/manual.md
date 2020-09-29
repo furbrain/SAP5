@@ -1,13 +1,12 @@
-# Shetland Attack Pony v5
+#Shetland Attack Pony v5
 
 
-The Shetland Attack Pony (SAP) now has an integrated laser range finder, and comes with a OLED display and a wide
-variety of beeping noises.
+The Shetland Attack Pony (SAP) now has an integrated laser range finder, and comes with a OLED display, optional bluetooth capability and a wide variety of beeping noises.
 
 [Demo video on YouTube](http://www.youtube.com/watch?v=q_M8_QxNhjs)
 
 
-## General Usage
+##Quick Start
 
 
 **To turn on:**<br>
@@ -16,76 +15,112 @@ Press the button
 **To turn off:**<br>
 Press the button twice in quick succession
 
-**To navigate in menus:**<br>
+**Take a measurement**<br>
+Press and hold the button
+
+**To access the menu from the ready to measure screen**<br>
+Shake the device
+
+**Navigating menus:**<br>
 Tilt the device briefly towards you - this will move on to the 
 next menu item. Clicking the button will select that menu item
-
-__DO NOT SQUEEZE THE DEVICE:__ this can cause errors, especially during calibration. Gently hold it
-by the edges. Squeezing the top and bottom surfaces can move internal components and significantly affect accuracy
-
 
 __DO NOT LOOK DIRECTLY INTO THE LASER BEAM:__ this can cause permanent
 eye damage, although a brief exposure of less than a second is
 unlikely to cause harm.
 
-## Measurement
+##Introduction
 
+The SAP has three main operating modes: 
 
-The device starts on the measurement screen - a laser symbol.
-Top left shows the time (currently unreliable), and top right shows current battery
+* [Ready to Measure](#Ready to Measure)
+* [Data](#Data)
+* [Menu](#Menu)
+
+In many of these modes you will have top and bottom information rows.
+Top left shows the time, and top right shows current battery. If you have a bluetooth module installed, you will see a bluetooth symbol, which will indicate whether the device is connected via bluetooth or not. 
 The bottom row shows the current measurement style and units
 
-To take a reading:
-Press and hold the button at any time (this also works in all the menus)
 
-Once the reading is taken, you can scroll through the various bits of info by tipping the device away from you.
-By default you are shown the compass bearing of the leg just taken, the inclination, the distance, and the
-horizontal distance (extension)
+##Ready to Measure
 
-### Store
+This is the first mode you will meet on starting the SAP. You will see a laser symbol, indicating the SAP is ready to take a reading. When taking a measurement, make sure the SAP is not near any sources of magnetic interference -  headlights, watches, metal anchors.
 
-Pressing the button while on this menu takes you to the leg storage menu. You can select the stations
-for the current leg (* means a splay leg).
+Press and hold the button to take a reading, keeping the laser dot lined up on your target. The SAP will make a single beep if the reading was successful, and will enter the [Data mode](#Data).
 
-### Discard
+If the reading was unsuccessful you will hear an error noise and the display will briefly display the cause of the error, then return to Ready to Measure.
 
+To directly access [Menu mode](#Menu), just shake the device.
 
-Discard the current reading and return to the measurement screen
+##Data
 
-### Off
+This mode shows the data from the most recent measurement. If you have set the [display style](#Display style) to Compact then everything will be visible on a single screen. If not, you will need to scroll between the various readings. The default is to display compass reading in degreees, followed by clinometer reading, then distance in metres and finally extension (horizontal distance). You can choose different units of length and angle in [Settings -> Units](#Units), and you can also choose to just view offset in terms of Easting, Northing and Vertical in [Settings -> Style](#Style).
+If you press the button on any of the data screens you will return to [Ready to Measure](#Ready to Measure).
 
-Turn the device off
+There are a few additional options:
 
-## Accessing the main menu
+###Store
+This allows you to store the data to the memory of the SAP and later retrieve it as a survex file using PonyTrainer. If you select this item, it will default to choosing the next leg (e.g) 1 -> 2 or 2->1. You can also select a splay leg with 1-> - or 2 -> -. If neither of these are suitable you can choose custom and specify which two stations this leg connects.
 
+###Discard
+Discards the data and return to [Ready to Measure](#Ready to Measure).
 
-To access the main menu from the measurement screen press the button briefly.
-To access the main menu from the reading menu press the button on any of the information
-(bearing, inclination, distance, extension) items.
+###Main Menu
+Go to the [Menu](#Menu).
 
-### Measure
+##Menu
+### Settings
 
+#### Units (default: metric)
+Choose between *metric* (metres) and *imperial* (decimal feet).
 
-Return to the measurement screen
+#### Style
+##### Polar (default)
+Directional readings are shown in degrees.
+
+##### Grad
+Directional readings are shown in grads. There are 400 grads in a circle.
+
+##### Cartesian
+Instead of compass and clino readings, the northing, easting, and vertical distances are
+shown. This can aid sketching when used with graph paper. It is also the format
+that data is stored internally.
+
+#### Display
+##### Compact
+When you have taken a reading, show all the data on a single screen
+##### Large
+When you have taken a readingm, show each data item on it's own screen.
+
+#### Timeout (default 30s)
+Select the length of time after which the device turns itself off without any input.
+
+#### Set Date
+Sets the current date. For each digit in the date, flip the device away or towards
+you to set the correct date. Move on to the next digit by pressing the button.
+
+#### Set Time
+Sets the current time. For each digit in the time, flip the device away or towards you to set the correct date. Move on to the next digit by pressing the button.
 
 ### Calibrate
-
+This option allows you to calibrate the various sensors within the device. With normal operation, you should only need to use the Calibrate Sensors item - you should do this every few months, or whenever you change general location so that the strength and dip of the magnetic field has changed
 
 #### Sensors
-
-This is the main calibration routine. Remember to hold the device __gently__ by the edges.
+At each stage the screen will give instructions.
 
 1. Place the device flat against an __inclined__ surface and wait for the beep. 
 After each beep rotate through 90 degrees - it will take four readings in total.
 The positions do not have to be exact, but the device must be still for the half-second before each beep.
 
-2. Place the device flat on a level(ish) surface. After the first beep turn it so the laser is pointing upwards.
-After second beep place it upside down. After the third beep place it pointing downwards
+2. Place the device flat on a level(ish) surface. After the first beep turn it so the laser is pointing straight up.
+After second beep place it with the display facing down. After the third beep place it so the laser is pointing downwards
 The positions do not have to be exact, but the device must be still for the half-second before each beep.
 
 3. Hold the laser against a solid point with the laser on a fixed point at least 2 metres away. After each beep
 rotate by about 45 degrees, while keeping the laser pointing at the same place. There will be eight
 readings in total. It is important that you keep the laser pointing at the same point for each reading.
+
+4. Repeat step 3 using different points, ideally about 90 degrees from the previous set.
 
 The screen will then display some accuracy statistics - ideally the final number should be 1.00 or less.
 If the accuracy is good enough, then the calibration will be saved to the devices memory.
@@ -107,53 +142,20 @@ be 0.002 or less.
 This allows the device to work out which sensors are pointing in which direction. You should not
 need to do this unless you have an experimental device.
 
-### Settings
-
-#### Units (default: metric)
-
-Choose between *metric* (metres) and *imperial* (decimal feet).
-
-#### Style
-
-##### Polar (default)
-Directional readings are shown in degrees.
-
-##### Grad
-Directional readings are shown in grads. There are 400 grads in a circle.
-
-##### Cartesian
-Instead of compass and clino readings, the northing, easting, and vertical distances are
-shown. This can aid sketching when used with graph paper. It is also the format
-that data is stored internally
-
-#### Display (default day)
-Choose between *night* and *day*. Currently not implemented.
-
-#### Timeout (default 30s)
-Select the length of time after which the device turns itself off without any input.
-
-#### Set Date
-Sets the current date. For each digit in the date, flip the device away or towards
-you to set the correct date. Move on to the next digit by pressing the button.
-Please note timekeeping is currently very inaccurate
-
-#### Set Time
-Sets the current time. For each digit in the time, flip the device away or towards
-you to set the correct date. Move on to the next digit by pressing the button.
-Please note timekeeping is currently very inaccurate
+### Measure
+Return to [Ready to Measure](#Ready to Measure)
 
 ### Visualise
 If you have been storing your recorded legs, this allows you to see what you have recorded so far.
 You will see all the legs recorded in the curent survey, move the device to get a different perspective.
 Hold the device horizontal and you will see it in plan view. Hold it vertically and you will get an elevation.
 
-Not fully tested
+This feature is still in development.
 
-### Debug
-This menu item holds several entries to inspect the internal state of the device. Several of 
+### Info
+This menu item shows several screens with basic information. It can allow some troubleshooting. Several of 
 these refer to the various axes of the device. The y-axis is in the direction of the laser beam. The z-axis goes
 up through the top of the device, and the x-axis is at right-angles to both of these.
-
 
 #### Raw
 Show the raw sensor readings. Magnetic readings are in μT, gravitational readings are in g (1g = 9.81ms<sup>-2</sup>).
@@ -162,8 +164,9 @@ Show the raw sensor readings. Magnetic readings are in μT, gravitational readin
 Show the calibrated readings, the top reading is the total field strength (in μT for magnetism, g for gravity).
 
 #### Bearings
-Show the current compass and clin readings for the device. Press on the top of the device to see the effect
-of squeezing it too tightly!
+Show the current compass and clin readings for the device. Also displays the device name
+
+There are also screens that show the exact battery voltage and firmware/hardware versions
 
 ### Off
 Turns the device off
@@ -179,13 +182,5 @@ When the battery is getting low you will first get a warning when the device tur
 critically low, the device will not turn on and just make an "error" noise.
 
 ## Known Issues
-
-* The device is sensitive to pressure on the top surface. You can see the effect
-of this by choosing Debug->Bearings, and then applying pressure to the top of the device.
-
-* Time is inaccurate. The PCB manufacturer put the timing chips on back to front
-and so we have to rely on the inaccurate internal CPU clock.
-
-* Night and day mode are ineffective.
 
 * Visualisation mode is not thoroughly tested.
