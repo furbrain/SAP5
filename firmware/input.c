@@ -67,7 +67,6 @@ void timeout_reset() {
 
 enum INPUT get_input() {
     struct COOKED_SENSORS sensors;
-    enum INPUT temp;
     int i;
     sensors_read_cooked(&sensors, 3);
     /* look for "flip" movements */
@@ -105,6 +104,11 @@ enum INPUT get_input() {
         display_inverted = true;
     }
     /* search for a click */
+    return get_clicks();
+}
+
+enum INPUT get_clicks() {
+    enum INPUT temp;
     if (last_click != NONE) {
         /* momentarily disable interrupts */
         INTERRUPT_GlobalDisable();
@@ -115,4 +119,5 @@ enum INPUT get_input() {
     }
     //nothing else found - so return NONE
     return NONE;
+    
 }

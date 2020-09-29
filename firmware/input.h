@@ -30,5 +30,8 @@ void timeout_reset();
 /* get most recent input*/
 enum INPUT get_input();
 
+/* get most recent input*/
+enum INPUT get_clicks();
+
 #endif	/* INPUT_H */
 

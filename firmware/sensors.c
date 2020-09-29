@@ -28,6 +28,12 @@ GSL_VECTOR_DECLARE(last_reading, 3);
 #define MPU9250_GYRO_FULL_SCALE 250
 #define MPU9250_ACCEL_FULL_SCALE 2 
 #define MPU9250_MAG_FULL_SCALE 4800
+
+static const uint8_t ALPHA_AXES[] = {4, 0, 5, 0, 4, 5};
+static const uint8_t V1_0_AXES[] = {4, 0, 5, 4, 3, 5};
+static const uint8_t V1_1_AXES[] = {3, 4, 5, 4, 0, 2};
+
+
 const uint8_t MPU9250_ACCEL_AXES[] = {4,0,5};
 const uint8_t MPU9250_MAG_AXES[] = {0,4,5};
 const uint8_t BM1422_MAG_AXES[] = {4,3,5};
@@ -95,6 +101,12 @@ const i2c_multi_commands LSM6DS3_init_commands[] = {
     {0x13, 0x80}, //enable filter for accelerometer
 };
 
+static
+void set_axes(const uint8_t *axes) {
+    memcpy(config.axes.accel, axes, 3);
+    memcpy(config.axes.mag, &axes[3], 3);    
+}
+
 
 void sensors_init() {
     switch (version_hardware) {
@@ -106,8 +118,7 @@ void sensors_init() {
             GYRO_FULL_SCALE = MPU9250_GYRO_FULL_SCALE;
             MAG_FULL_SCALE = MPU9250_MAG_FULL_SCALE;
             if (config.axes.accel[0]>=5) {
-                memcpy(config.axes.accel, MPU9250_ACCEL_AXES, sizeof(MPU9250_ACCEL_AXES));
-                memcpy(config.axes.mag, MPU9250_MAG_AXES, sizeof(MPU9250_MAG_AXES));
+                set_axes(ALPHA_AXES);
             }
             break;
         case VERSION_V1_0:
@@ -118,8 +129,7 @@ void sensors_init() {
             GYRO_FULL_SCALE = MPU9250_GYRO_FULL_SCALE;
             MAG_FULL_SCALE = BM1422_MAG_FULL_SCALE;
             if (config.axes.accel[0]>=5) {
-                memcpy(config.axes.accel, MPU9250_ACCEL_AXES, sizeof(MPU9250_ACCEL_AXES));
-                memcpy(config.axes.mag, BM1422_MAG_AXES, sizeof(BM1422_MAG_AXES));
+                set_axes(V1_0_AXES);
             }
             break;
         case VERSION_V1_1:
@@ -129,8 +139,7 @@ void sensors_init() {
             GYRO_FULL_SCALE = LSM6DS3_ACCEL_GYRI_SCALE;
             MAG_FULL_SCALE = BM1422_MAG_FULL_SCALE;
             if (config.axes.accel[0]>=5) {
-                memcpy(config.axes.accel, LSM6DS3_ACCEL_AXES, sizeof(MPU9250_ACCEL_AXES));
-                memcpy(config.axes.mag, BM1422_MAG_AXES, sizeof(BM1422_MAG_AXES));
+                set_axes(V1_1_AXES);
             }
             break;
         default:
