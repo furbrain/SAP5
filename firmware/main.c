@@ -20,9 +20,12 @@
 
 void double_click_start(void) {
     int i=0;
+    while (!SWITCH_GetValue()) {
+        delay_ms_safe(10);
+        }
     while (i++<50) {
         delay_ms(10);
-        if (get_clicks()!=NONE) {
+        if (!SWITCH_GetValue()) {
             return;
         }
     }
@@ -62,15 +65,15 @@ void initialise(void) {
     wdt_clear();
     RTCC_TimeReset(true);
     SYSTEM_Initialize();
-    TMR2_Start();
     exception_init();
     memory_clear_errors();
     config_load();
     survey_current_init();
     delay_ms_safe(3);
-    PERIPH_EN_SetHigh();
-    delay_ms_safe(100);
     double_click_start();
+    PERIPH_EN_SetHigh();
+    input_init();
+    delay_ms_safe(100);
     bt_and_beep_initialise();
     if (battery_get_voltage()<3.4) {
         beep_sad();

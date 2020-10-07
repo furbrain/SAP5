@@ -414,7 +414,7 @@
           <makeArtifact PL="/home/phil/Projects/SAP5/firmware"
                         CT="1"
                         CN="default"
-                        AC="true"
+                        AC="false"
                         BL="true"
                         WD="/home/phil/Projects/SAP5/firmware"
                         BC="${MAKE}  -f Makefile CONF=default"

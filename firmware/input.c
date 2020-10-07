@@ -9,14 +9,23 @@
 #include "mcc_generated_files/pin_manager.h"
 #include "mcc_generated_files/interrupt_manager.h"
 
-static volatile enum INPUT last_click = NONE;
+static volatile enum INPUT last_click;
 
 /* set up timer interrupts etc */
 /* Timer 2 is our input poller counter */
 /* timer 3 is click length counter */
 /* timer 2 delay: 2ms  = */
-static uint32_t last_activity_counter = 10000;
+static uint32_t last_activity_counter;
 static bool display_inverted;
+
+/* setup input detection*/
+void input_init(void) {
+    INTERRUPT_GlobalDisable();
+    last_click = NONE;
+    last_activity_counter = 10000;
+    INTERRUPT_GlobalEnable();
+}
+
 
 /* change notification interrupt, called every 2ms*/
 /* 0 = button pressed, 1 is released*/

@@ -21,6 +21,9 @@ enum INPUT {
     SHAKE
 };
 
+/* setup input detection*/
+void input_init(void);
+
 /* reset the timeout feature*/
 void timeout_reset(void);
 

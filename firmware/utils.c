@@ -18,6 +18,9 @@
 
 #ifndef BOOTLOADER
 
+static bool beep_initialised = false;
+
+
 static
 bool check_if_bt(void) {
     TRISBbits.TRISB0 = 1;
@@ -52,6 +55,7 @@ void bt_and_beep_initialise(void){
     } else {
         pwm_beep_init();
     }
+    beep_initialised = true;
 }
 
 static
@@ -70,6 +74,9 @@ void pwm_beep_stop(void) {
 }
 /* beep at freq for duration milliseconds*/
 void beep(double freq, int duration) {
+    if (!beep_initialised) {
+        THROW_WITH_REASON("Beep not initialised", ERROR_HARDWARE_NOT_IDENTIFIED);
+    }
     if (bt_present) {
         bt_beep_start(freq);
     } else {
@@ -129,6 +136,10 @@ void sys_reset(void){
     int x;
 #pragma GCC diagnostic pop
     INTERRUPT_GlobalDisable();
+    IFS0CLR = 0xffffffff;
+    IFS1CLR = 0xffffffff;
+    IFS2CLR = 0xffffffff;
+    IFS3CLR = 0xffffffff;
 	/* Unlock sequence */
 	SYSKEY = 0x00000000;
 	SYSKEY = 0xaa996655;
@@ -144,10 +155,12 @@ void sys_reset(void){
 
 void utils_turn_off(int32_t a) {
     //turn off peripherals
-    beep_finish();
+    if (beep_initialised) {
+        beep_finish();        
+    }
     PERIPH_EN_SetLow();
     while (!SWITCH_GetValue()) {
-        delay_ms_safe(10);
+        delay_ms_safe(1);
     }
     sys_reset();
 }
