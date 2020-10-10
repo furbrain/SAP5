@@ -21,7 +21,8 @@ const char exception_strings[][20] = {
     "BT overflow",
     "BT command failed",
     "Sim comms fail",
-    "Hardware unknown",   
+    "Hardware unknown",
+    "Procedure aborted"
     };
 
 

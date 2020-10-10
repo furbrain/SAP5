@@ -107,9 +107,11 @@ int main(void)
             measure();
         }
         Catch(e) {
-            err_count++;
-            display_error(e);
-            beep_sad();
+            if (e!=ERROR_PROCEDURE_ABORTED) {
+                err_count++;
+                display_error(e);
+                beep_sad();
+            }
         }
     }
     utils_turn_off(0);

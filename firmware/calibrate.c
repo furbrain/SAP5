@@ -18,6 +18,8 @@
 #include "beep.h"
 #include "input.h"
 #include "menu.h"
+#include "ui.h"
+#include "exception.h"
 
 GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES, 3);
 GSL_MATRIX_DECLARE(grav_readings, CALIBRATION_SAMPLES, 3);
@@ -77,6 +79,9 @@ void get_accel_axis(int i, const char *instruction) {
     struct RAW_SENSORS raw;
     display_write_multiline(0, instruction, true);
     delay_ms_safe(3000);
+    if (get_clicks()!=NONE) {
+        THROW_WITH_REASON("Axis calibration aborted", ERROR_PROCEDURE_ABORTED);
+    }
     sensors_read_raw(&raw);
     config.axes.accel[i] = get_greatest_accel_axis(&raw);
 }
@@ -87,9 +92,15 @@ void get_mag_axis(int i, const char *instructions[]) {
     struct RAW_SENSORS raw_b;
     display_write_multiline(0, instructions[0], true);
     delay_ms_safe(3000);
+    if (get_clicks()!=NONE) {
+        THROW_WITH_REASON("Axis calibration aborted", ERROR_PROCEDURE_ABORTED);
+    }
     sensors_read_raw(&raw_a);
     display_write_multiline(0, instructions[1], true);
     delay_ms_safe(3000);
+    if (get_clicks()!=NONE) {
+        THROW_WITH_REASON("Axis calibration aborted", ERROR_PROCEDURE_ABORTED);
+    }
     sensors_read_raw(&raw_b);
     config.axes.mag[i] = get_greatest_mag_axis(&raw_a, &raw_b);
 }
@@ -126,6 +137,7 @@ void calibrate_axes(int32_t dummy) {
         "Place on end\nwith the laser\ndown and display\n facing north",
         "Rotate 180'",
     };
+    if (!ui_yes_no("Calib.\nAxes?")) return;
     for (i=2; i>=0; i--) {
         get_accel_axis(i, accel_instructions[i]);
     }
@@ -201,7 +213,13 @@ void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int c
     beep_beep();
     for (i=0; i< count; i++) {
         //delay to let user move to position
+        if (get_clicks()!=NONE) {
+            THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
+        }
         delay_ms_safe(5000);
+        if (get_clicks()!=NONE) {
+            THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
+        }
         //read in samples
         sensors_read_uncalibrated(&sensors, SAMPLES_PER_READING);
         gsl_matrix_set_row(mag_data, i+offset, &mag_sensors.vector);
@@ -268,6 +286,7 @@ void calibrate_sensors(int32_t dummy) {
             CAL_TARGET_COUNT, 3);
     double grav_error, mag_error, accuracy;
     /* get data */
+    if (!ui_yes_no("Calib.\nSensors?")) return;
     get_calibration_data(&mag_readings, &grav_readings);
     display_write_multiline(0, "Processing", true);
     delay_ms_safe(2000);
@@ -331,11 +350,15 @@ void calibrate_laser(int32_t dummy) {
                               "from the rearmost\n"
                               "point of the\n"
                               "device", true);
+    if (!ui_yes_no("Calib.\nLaser?")) return;
     laser_on();
     delay_ms_safe(4000);
     for (i=0; i<samples.size; ++i) {
         laser_on();
         delay_ms_safe(100);
+        if (get_clicks()!=NONE) {
+            THROW_WITH_REASON("Axis calibration aborted", ERROR_PROCEDURE_ABORTED);
+        }
         distance = laser_read_raw(LASER_MEDIUM, 4000);
         gsl_vector_set(&samples, i, distance);
         beep_beep();
