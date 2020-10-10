@@ -51,7 +51,7 @@ void *leg_spans_boundary(const struct LEG *leg) {
 }
 
 static inline bool _is_valid(const struct LEG *leg) {
-    return (leg->tm != ULONG_MAX);
+    return (leg->tm != -1);
 }
 
 void leg_save(struct LEG *leg) {
@@ -80,11 +80,11 @@ void leg_save(struct LEG *leg) {
 
 
 /* find a leg */
-const struct LEG *leg_find(int survey, int index) {
-    int i;
-    int first_point=0xffffffff;
+const struct LEG *leg_find(int survey, size_t index) {
+    size_t i;
+    size_t first_point=0xffffffff;
     time_t first_tm=LONG_MAX;
-    int count = 0;
+    size_t count = 0;
     const struct LEG *leg;
     /* first scan through to find the first relevant point */
     for (i=0; i< MAX_LEG_COUNT; i++) {

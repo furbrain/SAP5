@@ -23,6 +23,7 @@
 #include "mock_memory.h"
 #include "mock_beep.h"
 #include "mock_input.h"
+#include "mock_ui.h"
 
 
 #define DEGREES_PER_RADIAN 57.296
@@ -59,6 +60,8 @@ void setUp(void) {
     memory_write_data_Ignore();
     memory_erase_page_Ignore();
     timeout_reset_Ignore();
+    ui_yes_no_IgnoreAndReturn(true);
+    get_clicks_IgnoreAndReturn(NONE);
 }
 
 void test_calibrate_sensors(void) {

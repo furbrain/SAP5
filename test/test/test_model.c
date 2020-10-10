@@ -4,6 +4,9 @@
 #include "leg.h"
 #include "exception.h"
 #include "mock_memory.h"
+#include "mock_utils.h"
+#include "mock_survey.h"
+#include "mock_sensors.h"
 
 struct LEG test_leg_array[] = {
     {13, 3, 1, 2, {1.0, 2.0, 3.0}},
@@ -24,6 +27,8 @@ struct LEG test_leg_array[] = {
 };
 
 int test_leg_count = sizeof(test_leg_array) / sizeof(test_leg_array[0]);
+
+struct SURVEY survey_current;
 
 void write_data_replacement(const void* ptr, const void* src, int length, int num_calls) {
     int i;

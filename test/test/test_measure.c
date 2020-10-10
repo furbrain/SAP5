@@ -9,6 +9,7 @@
 #include "mock_sensors.h"
 #include "mock_ui.h"
 #include "mock_utils.h"
+#include "mock_bt.h"
 #include "menu.h"
 #include "font.h"
 #include "mock_maths.h"
@@ -29,6 +30,9 @@ DECLARE_MENU(main_menu, {
 });
 
 display_buf_t display_buffer;
+
+bool bt_present = false;
+
 
 void setUp(void) {
     config.length_units=METRIC;
@@ -435,6 +439,7 @@ void test_display_polar(void) {
         orientation = gsl_vector_view_array(test_cases[i].deltas, 3);
         sensors_get_last_reading_ExpectAndReturn(&orientation.vector);
         display_write_multiline_Expect(0,test_cases[i].text, false);
+        fill_polar_strings();
         display_polar(display_buffer);
     }  
     

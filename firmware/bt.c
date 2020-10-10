@@ -45,6 +45,7 @@ void bt_read_str(char* buffer, unsigned int max_len) {
 void bt_init(void) {
     struct VERSION_ID id;
     char buffer[20];
+    check_bt_present();
 	UART2_Initialize();
     id = version_get_id();
     sprintf(buffer, "EYUP %c%c", *id.adjective, *id.animal);

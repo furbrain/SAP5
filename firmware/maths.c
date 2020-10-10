@@ -55,7 +55,7 @@ void apply_calibration(const gsl_vector *a, const calibration *b, gsl_vector *c)
 }
 
 void apply_calibration_to_matrix(const gsl_matrix *input, const calibration *cal, gsl_matrix *output) {
-    int i;
+    size_t i;
     for (i=0; i< input->size1; ++i) {
         gsl_vector_const_view in_row = gsl_matrix_const_row(input, i);
         gsl_vector_view out_row = gsl_matrix_row(output, i);
@@ -93,7 +93,7 @@ void maths_get_orientation_as_vector(const gsl_vector *magnetism,
 void maths_get_orientation_of_multiple_vectors(const gsl_matrix *magnetism,
         const gsl_matrix *acceleration,
         gsl_matrix *orientation) {
-    int i;
+    size_t i;
     for (i=0; i< magnetism->size1; ++i) {
         gsl_vector_const_view mag_row = gsl_matrix_const_row(magnetism, i);
         gsl_vector_const_view grav_row = gsl_matrix_const_row(acceleration, i);
@@ -309,7 +309,7 @@ double sync_sensor_value(double x, void *params) {
     GSL_VECTOR_DECLARE(grav, 3);    
     struct sync_params *p = (struct sync_params*) params;
     GSL_VECTOR_RESIZE(angles, p->mag->size1);
-    int i;
+    size_t i;
     double f;
     double c = cos(x);
     double s = sin(x);

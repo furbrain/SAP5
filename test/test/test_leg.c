@@ -4,6 +4,9 @@
 #include "unity.h"
 #include "leg.h"
 #include "mock_memory.h"
+#include "mock_survey.h"
+#include "mock_sensors.h"
+#include "mock_utils.h"
 #include "mem_locations.h"
 #include "exception.h"
 
@@ -50,6 +53,7 @@ void memory_erase_page_replacement(const void *ptr, int num_calls) {
     memset((void*)ptr, 0xff, 0x800);
 }
 
+struct SURVEY survey_current;
 
 void setUp(void)
 {
@@ -59,20 +63,6 @@ void setUp(void)
 
 void tearDown(void)
 {
-}
-
-void test_leg_create(void) {
-    struct LEG leg;
-    double data[3] = {1.2,3.4,5.6};
-    gsl_vector_view vector = gsl_vector_view_array(data, 3);
-    leg = leg_create(10,1,2,3,&vector.vector);
-    TEST_ASSERT_EQUAL(10,leg.tm);
-    TEST_ASSERT_EQUAL(10,leg.tm);
-    TEST_ASSERT_EQUAL(10,leg.tm);
-    TEST_ASSERT_EQUAL(10,leg.tm);
-    TEST_ASSERT_EQUAL_FLOAT(1.2,leg.delta[0]);
-    TEST_ASSERT_EQUAL_FLOAT(3.4,leg.delta[1]);
-    TEST_ASSERT_EQUAL_FLOAT(5.6,leg.delta[2]);
 }
 
 void add_test_legs(void) {

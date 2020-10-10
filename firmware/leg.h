@@ -13,7 +13,7 @@
 
 
 struct __attribute__((aligned(8))) LEG {
-    int tm; // time of reading
+    time_t tm; // time of reading
     uint16_t survey; //survey number
     uint8_t from; //origin station
     uint8_t to; //destination station
@@ -44,7 +44,7 @@ void *leg_spans_boundary(const struct LEG *leg);
 
 
 /* find a leg */
-const struct LEG *leg_find(int survey, int index);
+const struct LEG *leg_find(int survey, size_t index);
 
 /*find most recent_leg*/
 const struct LEG *leg_find_last(void);

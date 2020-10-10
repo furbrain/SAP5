@@ -135,7 +135,7 @@ void test_display_cave(void) {
     GSL_MATRIX_DECLARE(orientation, 3, 3);
     gsl_matrix_set_identity(&orientation);
                                             // origin = 64,32
-    display_clear_screen_Expect(false);     //scl=32 ofs = {0.5, 0.0}
+    display_clear_Expect(false);     //scl=32 ofs = {0.5, 0.0}
     display_draw_line_Expect(80,32,80,0); //{0,0,0} -> {0.5,0}
     display_draw_line_Expect(80,0,48,32);  //{1,0,0} -> {0.5,-1}
     display_draw_line_Expect(48,32,80,32);   //{0,1,0} -> {-0.5,0}

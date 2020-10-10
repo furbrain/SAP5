@@ -83,13 +83,13 @@ void test_menu_clear(void) {
 /* add an info entry to a menu */
 void test_menu_append_info(void) {
     reset_menus();
-    menu_append_info(&dynamic,"Info");
+    menu_append_info(&dynamic,"Info", NULL);
     TEST_ASSERT_EQUAL(1, dynamic.length);
     TEST_ASSERT_EQUAL_STRING("Info",menu_get_text(&dynamic));
     TEST_ASSERT_EQUAL(Info, dynamic_entries[0].type);
-    TEST_ASSERT_THROWS(menu_append_info(&dynamic, long_str), ERROR_STRING_TOO_BIG);
-    menu_append_info(&dynamic,"Info2");
-    TEST_ASSERT_THROWS(menu_append_info(&dynamic,"Info3"), ERROR_MENU_FULL);
+    TEST_ASSERT_THROWS(menu_append_info(&dynamic, long_str, NULL), ERROR_STRING_TOO_BIG);
+    menu_append_info(&dynamic,"Info2", NULL);
+    TEST_ASSERT_THROWS(menu_append_info(&dynamic,"Info3", NULL), ERROR_MENU_FULL);
 }
 
 /* add a submenu entry to a menu */
@@ -122,25 +122,25 @@ void test_menu_append_action(void) {
 /* add a back entry to a menu */
 void test_menu_append_back(void) {
     reset_menus();
-    menu_append_back(&dynamic,"Back");
+    menu_append_back(&dynamic,"Back", NULL);
     TEST_ASSERT_EQUAL(1, dynamic.length);
     TEST_ASSERT_EQUAL_STRING("Back",menu_get_text(&dynamic));
     TEST_ASSERT_EQUAL(Back, dynamic_entries[0].type);
-    TEST_ASSERT_THROWS(menu_append_back(&dynamic, long_str), ERROR_STRING_TOO_BIG);
-    menu_append_back(&dynamic,"Back2");
-    TEST_ASSERT_THROWS(menu_append_back(&dynamic,"Back3"), ERROR_MENU_FULL);
+    TEST_ASSERT_THROWS(menu_append_back(&dynamic, long_str, NULL), ERROR_STRING_TOO_BIG);
+    menu_append_back(&dynamic,"Back2", NULL);
+    TEST_ASSERT_THROWS(menu_append_back(&dynamic,"Back3", NULL), ERROR_MENU_FULL);
 }
 
 /* add an exit entry to a menu */
 void test_menu_append_exit(void) {
     reset_menus();
-    menu_append_exit(&dynamic,"Exit");
+    menu_append_exit(&dynamic,"Exit", NULL);
     TEST_ASSERT_EQUAL(1, dynamic.length);
     TEST_ASSERT_EQUAL_STRING("Exit",menu_get_text(&dynamic));
     TEST_ASSERT_EQUAL(Exit, dynamic_entries[0].type);
-    TEST_ASSERT_THROWS(menu_append_exit(&dynamic, long_str), ERROR_STRING_TOO_BIG);
-    menu_append_back(&dynamic,"Exit2");
-    TEST_ASSERT_THROWS(menu_append_exit(&dynamic,"Exit3"), ERROR_MENU_FULL);
+    TEST_ASSERT_THROWS(menu_append_exit(&dynamic, long_str, NULL), ERROR_STRING_TOO_BIG);
+    menu_append_back(&dynamic,"Exit2", NULL);
+    TEST_ASSERT_THROWS(menu_append_exit(&dynamic,"Exit3", NULL), ERROR_MENU_FULL);
 }
 void test_menu_prev(void) {
     reset_menus();

@@ -343,7 +343,7 @@ void calibrate_sensors(int32_t dummy) {
 
 void calibrate_laser(int32_t dummy) {
     GSL_VECTOR_DECLARE(samples, 10);
-    int i;
+    size_t i;
     double distance, error, offset;
     char text[80];
     display_write_multiline(0,"Place a target 1m\n"

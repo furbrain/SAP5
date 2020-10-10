@@ -114,11 +114,11 @@ void delay_ms_safe(int count) {
     wdt_clear();
 }
 
-uint8_t get_time_buffer[0x40];
+struct tm get_time_buffer;
 /* get current time in time_t format */
-int32_t utils_get_time() {
-    RTCC_TimeGet((struct tm*)&get_time_buffer);
-    return (int32_t)mktime((struct tm*)&get_time_buffer);
+time_t utils_get_time() {
+    RTCC_TimeGet(&get_time_buffer);
+    return (int32_t)mktime(&get_time_buffer);
 }
 
 

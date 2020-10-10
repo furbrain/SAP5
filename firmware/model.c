@@ -47,7 +47,7 @@ struct MODEL_STATION *add_station(uint8_t number, double *pos) {
   Throws ERROR_SURVEY_PROCESS_FAIL if no legs found*/
 TESTABLE_STATIC
 void initialise_first_station(uint16_t survey){
-    int i;
+    size_t i;
     for (i=0; i < MAX_LEG_COUNT; i++) {
         if (leg_store.legs[i].survey == survey) {
             add_station(leg_store.legs[i].from, (double[3]){0,0,0});
@@ -148,7 +148,7 @@ void model_generate(uint16_t survey, struct MODEL_CAVE *cave) {
     struct MODEL_STATION *from;
     struct MODEL_STATION *to;
     struct MODEL_STATION *fake;
-    int i;
+    size_t i;
     reset_lists();
     //set first station to 0,0,0
     initialise_first_station(survey);

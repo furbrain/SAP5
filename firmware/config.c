@@ -22,7 +22,8 @@ struct CONFIG default_config = {
         POLAR,                               //Polar display style
         METRIC,                              //metric units
         120,                                  //2 minute timeout
-        false								 //no bluetooth module
+        false,								 //no bluetooth module
+        false                                //normal display style (not compact)
     };
 
 struct CONFIG config;

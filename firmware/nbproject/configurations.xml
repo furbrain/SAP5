@@ -930,7 +930,7 @@
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
-        <appendMe value="-Wstrict-prototypes -Wshadow"/>
+        <appendMe value="-Wextra -Wstrict-prototypes -Wshadow -W -Wno-unused-parameter -Wcast-align -Wformat=2 -fno-common -Wno-format-nonliteral"/>
       </C32>
       <C32-AR>
         <property key="additional-options-chop-files" value="false"/>

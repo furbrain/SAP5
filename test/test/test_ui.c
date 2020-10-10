@@ -16,20 +16,20 @@ void tearDown(void)
 }
 
 void expectDrawMarkers(int column) {
-    render_data_to_page_Expect(1, column, up_marker, 15);
-    render_data_to_page_Expect(6, column, down_marker, 15);
+    render_data_to_screen_Expect(1, column, up_marker, 15);
+    render_data_to_screen_Expect(6, column, down_marker, 15);
 }
 
 void expectEraseMarkers(int column) {
-    render_data_to_page_Expect(1, column, empty_marker, 15);
-    render_data_to_page_Expect(6, column, empty_marker, 15);
+    render_data_to_screen_Expect(1, column, empty_marker, 15);
+    render_data_to_screen_Expect(6, column, empty_marker, 15);
 }
 
 void expectEraseCharacter(int column) {
-    render_data_to_page_Expect(2, column, empty_marker, 14);
-    render_data_to_page_Expect(3, column, empty_marker, 14);
-    render_data_to_page_Expect(4, column, empty_marker, 14);
-    render_data_to_page_Expect(5, column, empty_marker, 14);
+    render_data_to_screen_Expect(2, column, empty_marker, 14);
+    render_data_to_screen_Expect(3, column, empty_marker, 14);
+    render_data_to_screen_Expect(4, column, empty_marker, 14);
+    render_data_to_screen_Expect(5, column, empty_marker, 14);
 }
 
 void test_get_digit() {

@@ -26,7 +26,7 @@ typedef void (*menu_display_callback)(void);
                         name##_entries}
 
 #define DECLARE_EMPTY_MENU(name, count) \
-    struct menu_entry name##_entries[count] = {{{0}}};\
+    struct menu_entry name##_entries[count] = {};\
     struct menu name = {0, \
                         0, \
                         count, \
