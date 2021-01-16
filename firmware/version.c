@@ -1,5 +1,5 @@
+#include <xc.h>
 #include <stdbool.h>
-#include <proc/p32mm0256gpm028.h>
 
 #include "version.h"
 #include "i2c_util.h"

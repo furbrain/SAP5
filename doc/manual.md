@@ -1,4 +1,4 @@
-#Shetland Attack Pony v5
+# Shetland Attack Pony v5
 
 
 The Shetland Attack Pony (SAP) now has an integrated laser range finder, and comes with a OLED display, optional bluetooth capability and a wide variety of beeping noises.
@@ -6,11 +6,11 @@ The Shetland Attack Pony (SAP) now has an integrated laser range finder, and com
 [Demo video on YouTube](http://www.youtube.com/watch?v=q_M8_QxNhjs)
 
 
-##Quick Start
+## Get Started
 
 
 **To turn on:**<br>
-Press the button
+Press the button twice in quick succession
 
 **To turn off:**<br>
 Press the button twice in quick succession
@@ -25,11 +25,14 @@ Shake the device
 Tilt the device briefly towards you - this will move on to the 
 next menu item. Clicking the button will select that menu item
 
+**Bluetooth:**<br>
+The Pin (if you need it) is 000000 (yes, six zeroes)
+
 __DO NOT LOOK DIRECTLY INTO THE LASER BEAM:__ this can cause permanent
 eye damage, although a brief exposure of less than a second is
 unlikely to cause harm.
 
-##Introduction
+## Introduction
 
 The SAP has three main operating modes: 
 
@@ -42,7 +45,7 @@ Top left shows the time, and top right shows current battery. If you have a blue
 The bottom row shows the current measurement style and units
 
 
-##Ready to Measure
+## Ready to Measure
 
 This is the first mode you will meet on starting the SAP. You will see a laser symbol, indicating the SAP is ready to take a reading. When taking a measurement, make sure the SAP is not near any sources of magnetic interference -  headlights, watches, metal anchors.
 
@@ -52,23 +55,23 @@ If the reading was unsuccessful you will hear an error noise and the display wil
 
 To directly access [Menu mode](#Menu), just shake the device.
 
-##Data
+## Data
 
 This mode shows the data from the most recent measurement. If you have set the [display style](#Display style) to Compact then everything will be visible on a single screen. If not, you will need to scroll between the various readings. The default is to display compass reading in degreees, followed by clinometer reading, then distance in metres and finally extension (horizontal distance). You can choose different units of length and angle in [Settings -> Units](#Units), and you can also choose to just view offset in terms of Easting, Northing and Vertical in [Settings -> Style](#Style).
 If you press the button on any of the data screens you will return to [Ready to Measure](#Ready to Measure).
 
 There are a few additional options:
 
-###Store
+### Store
 This allows you to store the data to the memory of the SAP and later retrieve it as a survex file using PonyTrainer. If you select this item, it will default to choosing the next leg (e.g) 1 -> 2 or 2->1. You can also select a splay leg with 1-> - or 2 -> -. If neither of these are suitable you can choose custom and specify which two stations this leg connects.
 
-###Discard
+### Discard
 Discards the data and return to [Ready to Measure](#Ready to Measure).
 
-###Main Menu
+### Main Menu
 Go to the [Menu](#Menu).
 
-##Menu
+## Menu
 ### Settings
 
 #### Units (default: metric)

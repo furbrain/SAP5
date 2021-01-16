@@ -1,0 +1,213 @@
+<h1>Shetland Attack Pony v5</h1>
+
+<p>The Shetland Attack Pony (SAP) now has an integrated laser range finder, and comes with a OLED display, optional bluetooth capability and a wide variety of beeping noises.</p>
+
+<p><a href="http://www.youtube.com/watch?v=q_M8_QxNhjs">Demo video on YouTube</a></p>
+
+<h2>Get Started</h2>
+
+<p><strong>To turn on:</strong><br>
+Press the button</p>
+
+<p><strong>To turn off:</strong><br>
+Press the button twice in quick succession</p>
+
+<p><strong>Take a measurement</strong><br>
+Press and hold the button</p>
+
+<p><strong>To access the menu from the ready to measure screen</strong><br>
+Shake the device</p>
+
+<p><strong>Navigating menus:</strong><br>
+Tilt the device briefly towards you - this will move on to the 
+next menu item. Clicking the button will select that menu item</p>
+
+<p><strong>DO NOT LOOK DIRECTLY INTO THE LASER BEAM:</strong> this can cause permanent
+eye damage, although a brief exposure of less than a second is
+unlikely to cause harm.</p>
+
+<h2>Introduction</h2>
+
+<p>The SAP has three main operating modes: </p>
+
+<ul>
+<li><a href="#Ready to Measure">Ready to Measure</a></li>
+<li><a href="#Data">Data</a></li>
+<li><a href="#Menu">Menu</a></li>
+</ul>
+
+<p>In many of these modes you will have top and bottom information rows.
+Top left shows the time, and top right shows current battery. If you have a bluetooth module installed, you will see a bluetooth symbol, which will indicate whether the device is connected via bluetooth or not. 
+The bottom row shows the current measurement style and units</p>
+
+<h2>Ready to Measure</h2>
+
+<p>This is the first mode you will meet on starting the SAP. You will see a laser symbol, indicating the SAP is ready to take a reading. When taking a measurement, make sure the SAP is not near any sources of magnetic interference -  headlights, watches, metal anchors.</p>
+
+<p>Press and hold the button to take a reading, keeping the laser dot lined up on your target. The SAP will make a single beep if the reading was successful, and will enter the <a href="#Data">Data mode</a>.</p>
+
+<p>If the reading was unsuccessful you will hear an error noise and the display will briefly display the cause of the error, then return to Ready to Measure.</p>
+
+<p>To directly access <a href="#Menu">Menu mode</a>, just shake the device.</p>
+
+<h2>Data</h2>
+
+<p>This mode shows the data from the most recent measurement. If you have set the <a href="#Display style">display style</a> to Compact then everything will be visible on a single screen. If not, you will need to scroll between the various readings. The default is to display compass reading in degreees, followed by clinometer reading, then distance in metres and finally extension (horizontal distance). You can choose different units of length and angle in <a href="#Units">Settings -> Units</a>, and you can also choose to just view offset in terms of Easting, Northing and Vertical in <a href="#Style">Settings -> Style</a>.
+If you press the button on any of the data screens you will return to <a href="#Ready to Measure">Ready to Measure</a>.</p>
+
+<p>There are a few additional options:</p>
+
+<h3>Store</h3>
+
+<p>This allows you to store the data to the memory of the SAP and later retrieve it as a survex file using PonyTrainer. If you select this item, it will default to choosing the next leg (e.g) 1 -> 2 or 2->1. You can also select a splay leg with 1-> - or 2 -> -. If neither of these are suitable you can choose custom and specify which two stations this leg connects.</p>
+
+<h3>Discard</h3>
+
+<p>Discards the data and return to <a href="#Ready to Measure">Ready to Measure</a>.</p>
+
+<h3>Main Menu</h3>
+
+<p>Go to the <a href="#Menu">Menu</a>.</p>
+
+<h2>Menu</h2>
+
+<h3>Settings</h3>
+
+<h4>Units (default: metric)</h4>
+
+<p>Choose between <em>metric</em> (metres) and <em>imperial</em> (decimal feet).</p>
+
+<h4>Style</h4>
+
+<h5>Polar (default)</h5>
+
+<p>Directional readings are shown in degrees.</p>
+
+<h5>Grad</h5>
+
+<p>Directional readings are shown in grads. There are 400 grads in a circle.</p>
+
+<h5>Cartesian</h5>
+
+<p>Instead of compass and clino readings, the northing, easting, and vertical distances are
+shown. This can aid sketching when used with graph paper. It is also the format
+that data is stored internally.</p>
+
+<h4>Display</h4>
+
+<h5>Compact</h5>
+
+<p>When you have taken a reading, show all the data on a single screen</p>
+
+<h5>Large</h5>
+
+<p>When you have taken a readingm, show each data item on it's own screen.</p>
+
+<h4>Timeout (default 30s)</h4>
+
+<p>Select the length of time after which the device turns itself off without any input.</p>
+
+<h4>Set Date</h4>
+
+<p>Sets the current date. For each digit in the date, flip the device away or towards
+you to set the correct date. Move on to the next digit by pressing the button.</p>
+
+<h4>Set Time</h4>
+
+<p>Sets the current time. For each digit in the time, flip the device away or towards you to set the correct date. Move on to the next digit by pressing the button.</p>
+
+<h3>Calibrate</h3>
+
+<p>This option allows you to calibrate the various sensors within the device. With normal operation, you should only need to use the Calibrate Sensors item - you should do this every few months, or whenever you change general location so that the strength and dip of the magnetic field has changed</p>
+
+<h4>Sensors</h4>
+
+<p>At each stage the screen will give instructions.</p>
+
+<ol>
+<li><p>Place the device flat against an <strong>inclined</strong> surface and wait for the beep. 
+After each beep rotate through 90 degrees - it will take four readings in total.
+The positions do not have to be exact, but the device must be still for the half-second before each beep.</p></li>
+<li><p>Place the device flat on a level(ish) surface. After the first beep turn it so the laser is pointing straight up.
+After second beep place it with the display facing down. After the third beep place it so the laser is pointing downwards
+The positions do not have to be exact, but the device must be still for the half-second before each beep.</p></li>
+<li><p>Hold the laser against a solid point with the laser on a fixed point at least 2 metres away. After each beep
+rotate by about 45 degrees, while keeping the laser pointing at the same place. There will be eight
+readings in total. It is important that you keep the laser pointing at the same point for each reading.</p></li>
+<li><p>Repeat step 3 using different points, ideally about 90 degrees from the previous set.</p></li>
+</ol>
+
+<p>The screen will then display some accuracy statistics - ideally the final number should be 1.00 or less.
+If the accuracy is good enough, then the calibration will be saved to the devices memory.</p>
+
+<h4>Laser</h4>
+
+<p>This allows you to calibrate the distance returned by the laser. You should only need to do
+this if you add anything to the rear of the device or if you want to measure from the front
+of the device.</p>
+
+<ol>
+<li>Before selecting this option measure a distance of exactly 1m to a flat surface.</li>
+<li>After selecting this option, place the device so the point you want to measure from is exactly
+1m from the flat surface.</li>
+<li>The device will make 10 beeps and display the new offset for the laser and the error number - this should
+be 0.002 or less.</li>
+</ol>
+
+<h4>Axes</h4>
+
+<p>This allows the device to work out which sensors are pointing in which direction. You should not
+need to do this unless you have an experimental device.</p>
+
+<h3>Measure</h3>
+
+<p>Return to <a href="#Ready to Measure">Ready to Measure</a></p>
+
+<h3>Visualise</h3>
+
+<p>If you have been storing your recorded legs, this allows you to see what you have recorded so far.
+You will see all the legs recorded in the curent survey, move the device to get a different perspective.
+Hold the device horizontal and you will see it in plan view. Hold it vertically and you will get an elevation.</p>
+
+<p>This feature is still in development.</p>
+
+<h3>Info</h3>
+
+<p>This menu item shows several screens with basic information. It can allow some troubleshooting. Several of 
+these refer to the various axes of the device. The y-axis is in the direction of the laser beam. The z-axis goes
+up through the top of the device, and the x-axis is at right-angles to both of these.</p>
+
+<h4>Raw</h4>
+
+<p>Show the raw sensor readings. Magnetic readings are in μT, gravitational readings are in g (1g = 9.81ms<sup>-2</sup>).</p>
+
+<h4>Calibrated</h4>
+
+<p>Show the calibrated readings, the top reading is the total field strength (in μT for magnetism, g for gravity).</p>
+
+<h4>Bearings</h4>
+
+<p>Show the current compass and clin readings for the device. Also displays the device name</p>
+
+<p>There are also screens that show the exact battery voltage and firmware/hardware versions</p>
+
+<h3>Off</h3>
+
+<p>Turns the device off</p>
+
+<h2>Battery Life</h2>
+
+<p>The main draw on the battery is the laser pointer. From a full charge
+the device will remain on continuously for about 2½ hours, assuming 15 seconds to read out the compass and clino, 3s
+of laser usage to identify the target station and 3s of reading. You should get approx 300 sets of readings,
+but your actual results will vary depending on how long you keep the laser on for and
+the ambient temperature.</p>
+
+<p>When the battery is getting low you will first get a warning when the device turns on. When the battery is
+critically low, the device will not turn on and just make an "error" noise.</p>
+
+<h2>Known Issues</h2>
+
+<ul>
+<li>Visualisation mode is not thoroughly tested.</li>
+</ul>
