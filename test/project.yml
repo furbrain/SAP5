@@ -36,7 +36,7 @@
   :support:
     - test/support
   :include:
-    - +:/home/phil/Projects/gsl-2.5
+    - +:/home/phil/Projects/gsl.X
 
 :defines:
   # in order to add common defines:

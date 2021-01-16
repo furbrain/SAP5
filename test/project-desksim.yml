@@ -34,7 +34,7 @@
     - src/**
   :support:
   :include:
-    - +:/home/phil/Projects/gsl-2.5
+    - +:/home/phil/Projects/gsl.X
     - +:desksim_includes
 
 :defines:
