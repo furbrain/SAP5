@@ -58,7 +58,7 @@ class Display (I2CDevice):
         self.colour_invert = False
         self.all_on = False
         self.on = False
-        self.data = np.zeros((128, 8), dtype=np.uint8)
+        self.data = np.zeros((132, 8), dtype=np.uint8)
         self.start_line = 0
         
         I2CDevice.__init__(self)
@@ -66,7 +66,7 @@ class Display (I2CDevice):
     def write_image(self, data):
         column = self.column_hi*16+self.column_lo
         for x in data:
-            if column < 128:
+            if column < 132:
                 self.data[column, self.page] = x
             column = (column+1) % 132
         self.column_lo = column % 16
@@ -88,18 +88,18 @@ class Display (I2CDevice):
             
     def get_image(self):
         if not self.on:
-            data = np.zeros((128,8), dtype=np.uint8)
+            data = np.zeros((132,8), dtype=np.uint8)
         elif self.all_on:
-            data = np.full((128,8), 255, dtype=np.uint8)
+            data = np.full((132,8), 255, dtype=np.uint8)
         else:
             data = self.data
-        i = Image.frombytes("1", (64,128), data, "raw", "1;R")
+        i = Image.frombytes("1", (64,132), data, "raw", "1;R")
         i = i.transpose(Image.ROTATE_90)
         i = i.transpose(Image.FLIP_TOP_BOTTOM)
         #rotate image if needed
         if self.start_line != 0:
-            bottom = i.crop((0, 0, 128, self.start_line))
-            top = i.crop((0, self.start_line, 128, 64))
+            bottom = i.crop((0, 0, 132, self.start_line))
+            top = i.crop((0, self.start_line, 132, 64))
             bottom.load()
             top.load()
             delta = 64 - self.start_line
@@ -273,11 +273,11 @@ if __name__ == "__main__":
     s.buzzer.beep(400,0.2)
     s.buzzer.beep(600,0.2)
     s.buzzer.beep(800,0.2)
-    s.display.write_image([x for x in range(128)])
+    s.display.write_image([x for x in range(132)])
     s.display.page = 2
-    s.display.write_image([192]*128)
+    s.display.write_image([192]*132)
     s.display.page = 4
-    s.display.write_image([x ^ 255 for x in range(128)])
+    s.display.write_image([x ^ 255 for x in range(132)])
     s.display.on = True
     s.display.start_line = 4
     i = s.display.get_image()

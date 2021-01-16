@@ -21,6 +21,17 @@ class MyFrame(wx.Frame):
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
         self.SetSize((400, 300))
+        
+        # Menu Bar
+        self.frame_menubar = wx.MenuBar()
+        wxglade_tmp_menu = wx.Menu()
+        wxglade_tmp_menu.Append(wx.ID_SAVE, "Screenshot", "")
+        self.Bind(wx.EVT_MENU, self.OnSave, id=wx.ID_SAVE)
+        wxglade_tmp_menu.Append(wx.ID_EXIT, "Quit", "")
+        self.Bind(wx.EVT_MENU, self.OnQuit, id=wx.ID_EXIT)
+        self.frame_menubar.Append(wxglade_tmp_menu, "File")
+        self.SetMenuBar(self.frame_menubar)
+        # Menu Bar end
         self.sim_image = ImagePanel(self, wx.ID_ANY)
         self.sim = Sim()
         self.single_click = wx.Button(self, wx.ID_ANY, "Single")
@@ -98,6 +109,12 @@ class MyFrame(wx.Frame):
             self.sim_image.paintNow(self.sim.get_image())
         return result
         
+    def OnSave(self, event):  # wxGlade: MyFrame.<event_handler>
+        fname = "screenshot.png"
+        self.sim.get_image().save(fname,"PNG")
+
+    def OnQuit(self, event):  # wxGlade: MyFrame.<event_handler>
+        self.Close()
 # end of class MyFrame
 
 class Gui(wx.App):
