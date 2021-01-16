@@ -14,7 +14,7 @@
 #include "font.h"
 #include "leg.h"
 
-#include "mag_sample_data.inc"
+#include "mag_sample_data2.inc"
 #include "mock_sensors.h"
 #include "mock_survey.h"
 #include "mock_display.h"
@@ -62,6 +62,7 @@ void setUp(void) {
     timeout_reset_Ignore();
     ui_yes_no_IgnoreAndReturn(true);
     get_clicks_IgnoreAndReturn(NONE);
+    get_single_click_IgnoreAndReturn(true);
 }
 
 void test_calibrate_sensors(void) {
