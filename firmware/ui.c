@@ -232,3 +232,21 @@ bool ui_yes_no(const char *text) {
         delay_ms_safe(10);
     }
 }
+
+bool get_single_click(void) {
+    while (true) {
+        switch(get_input()) {
+            case SINGLE_CLICK:
+                return true;
+                break;
+            case SHAKE:
+            case LONG_CLICK:
+            case DOUBLE_CLICK:
+                return false;
+                break;
+            default:
+                break;
+        }
+        delay_ms_safe(10);        
+    }
+}

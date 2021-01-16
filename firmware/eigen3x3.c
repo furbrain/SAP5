@@ -171,6 +171,6 @@ int eigen3x3(gsl_matrix *A, gsl_matrix *Q, gsl_vector *w)
       }
   }
 
-  GSL_ERROR("eigensystem failed to converg", GSL_ENOPROG);
+  GSL_ERROR("eigensystem failed to converge", GSL_ENOPROG);
 }
 

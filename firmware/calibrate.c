@@ -210,7 +210,6 @@ void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int c
     int i;
     display_off();
     laser_on();
-    beep_beep();
     for (i=0; i< count; i++) {
         //delay to let user move to position
         if (get_clicks()!=NONE) {
@@ -238,40 +237,47 @@ void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int c
 }
 
 void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
+    int count;
     /* get readings around  z-axis*/
     display_write_multiline(0, "Place device on\n"
                                "inclined surface\n"
-                               "After each beep\n"
+                               "and press button", true);
+    if (!get_single_click()){
+            THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
+        }
+    display_write_multiline(0, "After each beep\n"
                                "rotate by ~90'", true);
     delay_ms_safe(2000);
     collect_data(mag, grav, 0, CAL_AXIS_COUNT);
     
     /* now read data on x-axis*/
     display_write_multiline(0, "Place device flat\n"
-                               "After each beep\n"
+                               "and press button", true);
+    if (!get_single_click()){
+            THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
+        }
+    display_write_multiline(0, "After each beep\n"
                                "rotate end over\n"
                                "end by ~90'", true);
     delay_ms_safe(2000);
     collect_data(mag, grav, CAL_AXIS_COUNT, CAL_AXIS_COUNT);
     
     /* now read data on y-axis */
-    display_write_multiline(0, "Point laser at\nfixed target", true);
-    delay_ms_safe(2000);
-    display_write_multiline(0, "After each beep\n"
-                               "rotate by ~45'\n"
-                               "leaving laser\n"
-                               "on target", true);
-    delay_ms_safe(1500);
-    collect_data(mag, grav, CAL_AXIS_COUNT*2, CAL_TARGET_COUNT);
-    /* now read data on y-axis */
-    display_write_multiline(0, "Point laser at\nfixed target", true);
-    delay_ms_safe(2000);
-    display_write_multiline(0, "After each beep\n"
-                               "rotate by ~45'\n"
-                               "leaving laser\n"
-                               "on target", true);
-    delay_ms_safe(1500);
-    collect_data(mag, grav, CAL_AXIS_COUNT*2+CAL_TARGET_COUNT, CAL_TARGET_COUNT);
+    for (count=0; count<2; count++) {
+        laser_on();
+        display_write_multiline(0, "Point laser at\n"
+                                   "fixed target\n"
+                                   "and press button", true);
+        if (!get_single_click()){
+                THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
+            }
+        display_write_multiline(0, "After each beep\n"
+                                   "rotate by ~45'\n"
+                                   "leaving laser\n"
+                                   "on target", true);
+        delay_ms_safe(1500);
+        collect_data(mag, grav, CAL_AXIS_COUNT*2+CAL_TARGET_COUNT*count, CAL_TARGET_COUNT);
+    }
 }
 
 void calibrate_sensors(int32_t dummy) {
