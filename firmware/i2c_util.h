@@ -13,8 +13,6 @@ typedef struct {
     uint8_t value;    
 } i2c_multi_commands;
 
-void i2c_init(void);
-
 int8_t write_i2c_block(uint8_t address, uint8_t *data, uint8_t length);
 
 int8_t read_i2c_block(uint8_t address, uint8_t *data, uint8_t length);

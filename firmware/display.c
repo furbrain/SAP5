@@ -292,16 +292,6 @@ void display_flip(bool invert) {
 	display_show_buffer();	
 }
 
-void display_set_day(bool day) {
-    if (day) {
-        send2(0xA8,0x1F);
-        send2(0xD3,0x30);
-    } else {
-       	send2(0xA8,0x3F);
-        send2(0xD3,0x00);
-    }
-}
-
 void display_show_buffer(void) {
     int i;
 	for (i=0; i<8; ++i) {

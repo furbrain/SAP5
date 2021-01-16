@@ -8,15 +8,6 @@
 #define I2C_TIMEOUT 10
 #define I2C_RETRIES 10
 
-void i2c_init(void){
-    I2C1_Initialize();
-}
-
-void i2c_close(void){
-    /* FIXME */
-    //CloseI2C();
-}
-
 int8_t write_i2c_block(uint8_t address, uint8_t *data, uint8_t length) {
     I2C1_MESSAGE_STATUS status = I2C1_MESSAGE_PENDING;
     int timeout = I2C_TIMEOUT;

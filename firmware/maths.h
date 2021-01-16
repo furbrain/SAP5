@@ -28,9 +28,6 @@ void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c);
 /* returns b . a where a is a vector and b is a calibration transform. Result in vector c*/
 void apply_calibration(const gsl_vector *a, const calibration *b, gsl_vector *c);
 
-/* applies calibration cal to input, stores result in output*/
-void apply_calibration_to_matrix(const gsl_matrix *input, const calibration *cal, gsl_matrix *output);
-
 
 /* take magnetism and acceleration vectors in device coordinates
    and return devices orientation in world coordinates */
@@ -47,32 +44,10 @@ void maths_get_orientation_as_matrix(const gsl_vector *magnetism,
 /* normalise a vector to unit length n*/
 void normalise(gsl_vector *vector);
 
-/* find the vector describing a plane from a set of points *
- * data is a set of vectorrs, axes hold the two axes that should be varying most *
- * len is the number of data points */
-void find_plane(gsl_matrix *input, gsl_vector *result);
-
-/* take the vector describing a plane and produce a rotation that will rotate that
- * plane to be perpindicular to y-axis. Requires the original vector to be close to
- * the y-axis*/
-void plane_to_rotation(const gsl_vector *plane, gsl_matrix *rotation);
-
-
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
 /* find the calibration matrix that makes data best fit into a rotated ellipsoid*/
 void fit_ellipsoid(const gsl_matrix *data, int len, calibration *result);
-
-
-/* given a pre-existing calibration, find the rotation in x and z axes that makes the data given
- * all subtend the same angle form the y-axis ie aligns it with the laser pointer*/
-void align_laser(const gsl_matrix *data, calibration *cal);
-
-
-/* given a pre-existing set of data, find the rotation in th y-axis that makes the 
- * calculated magnetic dip have least variance*/
-double sync_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
-                    const gsl_matrix *grav_data, calibration *grav_cal);
 
 
 /* minimize the error by rotating magnetic and grav sensors */
