@@ -38,3 +38,6 @@ MPLABXLog*
 /firmware/nbproject/private/
 /test/experiments/
 /software/build/
+.generated_files
+*.pyu
+*Workspace.json
