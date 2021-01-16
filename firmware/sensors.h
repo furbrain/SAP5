@@ -43,4 +43,7 @@ void sensors_get_reading(void);
 /* get the value of the last reading */
 gsl_vector* sensors_get_last_reading(void);
 
+/* get the standard deviation of readings*/
+void sensors_read_stddev(struct COOKED_SENSORS *sensors);
+
 #endif

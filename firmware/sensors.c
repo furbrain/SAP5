@@ -310,3 +310,18 @@ void sensors_get_reading(){
 gsl_vector* sensors_get_last_reading() {
     return &last_reading;
 }
+
+void sensors_read_stddev(struct COOKED_SENSORS *sensors) {
+    int i;
+    gsl_vector_view samples;
+    double stdev;
+    sensors_read_uncalibrated(sensors, SAMPLES_PER_READING);
+    for (i=0; i<3; ++i) {
+        samples = gsl_matrix_column(&temp_mag_readings,i);
+        stdev = gsl_stats_sd(samples.vector.data, samples.vector.stride, samples.vector.size);
+        sensors->mag[i] = stdev;
+        samples = gsl_matrix_column(&temp_grav_readings,i);
+        stdev = gsl_stats_sd(samples.vector.data, samples.vector.stride, samples.vector.size);
+        sensors->accel[i] = stdev;
+    }    
+}

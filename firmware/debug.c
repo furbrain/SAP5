@@ -113,6 +113,23 @@ void show_raw_sensors(int32_t a) {
     }
 }
 
+void show_stdev_sensors(int32_t a) {
+    struct COOKED_SENSORS sensors;
+    char text[20];
+    int i;
+    laser_on();
+    if (cycle-- <= 0) {
+        cycle = 10;
+        sensors_read_stddev(&sensors);
+        display_write_text(0, 0, "STDEV:Mag   Grav", &small_font, false);
+        for(i=0; i<3; i++) {
+            sprintf(text,"%c: %6.3f %6.3f", 'X'+i, sensors.mag[i], sensors.accel[i]);
+            display_write_text(2+2*i, 0, text, &small_font, false);
+        }        
+    }
+}
+
+
 void show_calibrated_sensors(int32_t a) {
     struct COOKED_SENSORS sensors;
     gsl_vector_view mag = gsl_vector_view_array(sensors.mag, 3);
@@ -301,6 +318,7 @@ DECLARE_MENU(debug_menu, {
     {"Calibrated", Back, {show_calibrated_sensors}, 0},
     {"Bearings", Back, {show_bearings}, 0},
     {"Magnetism", Back, {show_magnetism}, 0},
+    {"StdDev", Back, {show_stdev_sensors}, 0},
     {"Misc", Back, {show_details}, 0},
     {"Version", Back, {show_version}, 0},
     {"Back", Back, {NULL}, 0}
