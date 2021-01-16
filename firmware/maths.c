@@ -9,6 +9,7 @@
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_min.h>
+#include <gsl/gsl_multimin.h>
 #include <gsl/gsl_statistics.h>
 #include "gsl_static.h"
 #include "maths.h"
@@ -365,3 +366,87 @@ double sync_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
     return result*180/M_PI;
 }
 
+
+
+struct alignment_params {
+    const gsl_matrix *mag_data;
+    const calibration *mag_cal;
+    const gsl_matrix *grav_data; 
+    const calibration *grav_cal;
+};
+
+// apply rotations from angles, specified in xzy order
+void rotate_calibration(double angles[3], calibration *cal) {
+    const int axes[3][2] = {{0, 1}, {1, 2}, {0, 2}};
+    GSL_MATRIX_DECLARE(rotation, 3, 3);
+    GSL_MATRIX_DECLARE(temp, 3, 3);
+    double c, s;
+    int i, j;
+    for (i=0; i<3; i++) {
+        gsl_matrix_set_identity(&rotation);
+        c = cos(angles[i]);
+        s = sin(angles[i]);
+        for (j=0; j<3; j++) {
+            gsl_vector_view column = gsl_matrix_column(&rotation, j);
+            gsl_linalg_givens_gv(&column.vector, axes[i][0], axes[i][1], c, s);
+        }
+        gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &rotation, &cal->transform.matrix, 0, &temp);
+        gsl_matrix_memcpy(&cal->transform.matrix, &temp);    
+    }
+}
+
+void apply_rotations_to_cals(const gsl_vector *rotations, calibration *mag, calibration *grav) {
+    double angles[3];
+    angles[0] = gsl_vector_get(rotations, 0);
+    angles[1] = gsl_vector_get(rotations, 1);
+    angles[2] = 0;
+    rotate_calibration(angles, mag);
+    angles[0] = gsl_vector_get(rotations, 2);
+    angles[1] = gsl_vector_get(rotations, 3);
+    angles[2] = 0;
+    rotate_calibration(angles, grav);
+}
+
+double alignment_value(const gsl_vector *rotations, void *params) {
+    struct alignment_params *p = (struct alignment_params *) params;
+    CALIBRATION_DECLARE(temp_mag_cal);
+    CALIBRATION_DECLARE(temp_grav_cal);
+    calibration_memcpy(&temp_mag_cal, p->mag_cal);
+    calibration_memcpy(&temp_grav_cal, p->grav_cal);
+    //apply rotations
+    apply_rotations_to_cals(rotations, &temp_mag_cal, &temp_grav_cal);
+    return check_accuracy(p->mag_data, &temp_mag_cal, p->grav_data, &temp_grav_cal);
+}
+
+double align_all_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
+                    const gsl_matrix *grav_data, calibration *grav_cal) {
+    struct alignment_params params = {mag_data, mag_cal, grav_data, grav_cal};
+    gsl_multimin_function func = {.f = alignment_value, .n = 4, .params = &params}; 
+    gsl_multimin_fminimizer *minimizer;
+    GSL_VECTOR_DECLARE(starting_point, 4);
+    GSL_VECTOR_DECLARE(step_size, 4);
+    int iter_count = 0;
+    int status;
+    double size;
+    double result;
+    minimizer = gsl_multimin_fminimizer_alloc(gsl_multimin_fminimizer_nmsimplex2, func.n);
+    gsl_vector_set_zero(&starting_point);
+    gsl_vector_set_all(&step_size, 0.2);
+    gsl_multimin_fminimizer_set(minimizer, &func, &starting_point, &step_size);
+    do {
+        iter_count++;
+        status = gsl_multimin_fminimizer_iterate(minimizer);
+        if (status)
+            break;
+        size = gsl_multimin_fminimizer_size(minimizer);
+        status = gsl_multimin_test_size(size, 1e-4);
+
+    } while (status==GSL_CONTINUE && iter_count < 1000);
+    
+    if (status == GSL_SUCCESS) {
+        apply_rotations_to_cals(minimizer->x, mag_cal, grav_cal);
+    }
+    result = minimizer->fval;
+    gsl_multimin_fminimizer_free(minimizer);
+    return result;
+}

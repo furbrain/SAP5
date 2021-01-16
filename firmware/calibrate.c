@@ -178,29 +178,35 @@ double check_accuracy(const gsl_matrix *mag, const calibration *mag_cal,
                       const gsl_matrix *grav, const calibration *grav_cal) {
     GSL_VECTOR_DECLARE(mag_row, 3);
     GSL_VECTOR_DECLARE(grav_row, 3);
-    GSL_VECTOR_DECLARE(result, 3);
+    GSL_VECTOR_DECLARE(deviation, 3);
     GSL_MATRIX_DECLARE(orientation, 8, 3);
-    int i;
+    int i, j;
+    int rotation_count = mag->size1 / 8;
+    double result = 0;
     /* create matrix with vectors of orientation*/
-    for (i=0; i<8; i++) {
-        gsl_vector_const_view mag_temp = gsl_matrix_const_row(mag, i);
-        gsl_vector_const_view grav_temp = gsl_matrix_const_row(grav, i);
-        apply_calibration(&mag_temp.vector, mag_cal, &mag_row);
-        apply_calibration(&grav_temp.vector, grav_cal, &grav_row);
-        gsl_vector_view orient_row = gsl_matrix_row(&orientation, i);
-        maths_get_orientation_as_vector(&mag_row,
-                                        &grav_row,
-                                        &orient_row.vector);
+    for (j=0; j< rotation_count; j++) {
+        for (i=0; i<8; i++) {
+            gsl_vector_const_view mag_temp = gsl_matrix_const_row(mag, i+j*8);
+            gsl_vector_const_view grav_temp = gsl_matrix_const_row(grav, i+j*8);
+            apply_calibration(&mag_temp.vector, mag_cal, &mag_row);
+            apply_calibration(&grav_temp.vector, grav_cal, &grav_row);
+            gsl_vector_view orient_row = gsl_matrix_row(&orientation, i);
+            maths_get_orientation_as_vector(&mag_row,
+                                            &grav_row,
+                                            &orient_row.vector);
+        }
+        /* calculate absolute deviation for each axis*/
+        for (i=0; i<3; i++) {
+            gsl_vector_view column = gsl_matrix_column(&orientation, i);
+            gsl_vector_set(&deviation, i, gsl_stats_absdev(column.vector.data, 
+                                                        column.vector.stride,
+                                                        column.vector.size));
+        }
+
+        result += gsl_blas_dnrm2(&deviation) * 180.0 / M_PI;
     }
-    /* calculate absolute deviation for each axis*/
-    for (i=0; i<3; i++) {
-        gsl_vector_view column = gsl_matrix_column(&orientation, i);
-        gsl_vector_set(&result, i, gsl_stats_absdev(column.vector.data, 
-                                                    column.vector.stride,
-                                                    column.vector.size));
-    }
-    
-    return gsl_blas_dnrm2(&result) * 180.0 / M_PI;
+    result /= rotation_count;
+    return result;
 }
 
 void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int count) {
@@ -286,10 +292,10 @@ void calibrate_sensors(int32_t dummy) {
     CALIBRATION_DECLARE(mag_cal);
     gsl_matrix_const_view mag_spins = gsl_matrix_const_submatrix(&mag_readings, 
             CAL_AXIS_COUNT*2, 0, 
-            CAL_TARGET_COUNT, 3);
+            CAL_TARGET_COUNT*2, 3);
     gsl_matrix_const_view grav_spins = gsl_matrix_const_submatrix(&grav_readings, 
             CAL_AXIS_COUNT*2, 0, 
-            CAL_TARGET_COUNT, 3);
+            CAL_TARGET_COUNT*2, 3);
     double grav_error, mag_error, accuracy;
     /* get data */
     if (!ui_yes_no("Calib.\nSensors?")) return;
@@ -300,10 +306,8 @@ void calibrate_sensors(int32_t dummy) {
     //do calibration    
     fit_ellipsoid(&mag_readings, CALIBRATION_SAMPLES, &mag_cal);
     fit_ellipsoid(&grav_readings, CALIBRATION_SAMPLES, &grav_cal);
-    align_laser(&mag_spins.matrix, &mag_cal);
-    align_laser(&grav_spins.matrix, &grav_cal);
-    sync_sensors(&mag_readings, &mag_cal, &grav_readings, &grav_cal);
-    
+    align_all_sensors(&mag_spins.matrix, &mag_cal, &grav_spins.matrix, &grav_cal);
+
     // show mag error
     display_clear(true);
     mag_error = check_calibration(&mag_readings, CALIBRATION_SAMPLES, &mag_cal);

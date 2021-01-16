@@ -74,4 +74,9 @@ void align_laser(const gsl_matrix *data, calibration *cal);
 double sync_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
                     const gsl_matrix *grav_data, calibration *grav_cal);
 
+
+/* minimize the error by rotating magnetic and grav sensors */
+double align_all_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
+                    const gsl_matrix *grav_data, calibration *grav_cal);
+
 #endif

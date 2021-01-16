@@ -6,6 +6,8 @@
 #define CALIBRATION_SAMPLES (CAL_AXIS_COUNT*2 + CAL_TARGET_COUNT*2)
 extern struct menu calibration_menu;
 
+double check_accuracy(const gsl_matrix *mag, const calibration *mag_cal,
+                      const gsl_matrix *grav, const calibration *grav_cal);
 void calibrate_axes(int32_t dummy);
 void calibrate_laser(int32_t dummy);
 void calibrate_sensors(int32_t dummy);
