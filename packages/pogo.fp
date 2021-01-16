@@ -1,1 +1,6 @@
-/home/phil/EDA/packages/pogo.fp
+
+Element["" "" "" "" 450.00mil 290.00mil 0.0000 0.0000 0 100 ""]
+(
+	Pad[0.0000 0.0000 0.0000 0.0000 2.4mm 2.4mm 3mm "" "1" ""]
+
+	)

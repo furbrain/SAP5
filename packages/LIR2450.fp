@@ -1,1 +1,9 @@
-/home/phil/EDA/packages/LIR2450.fp
+
+Element["" "" "" "" 12.6295mm 12.6295mm 0.0000 0.0000 0 100 ""]
+(
+	Pin[0.0000 -3.0000mm 60.00mil 20.00mil 66.00mil 35.00mil "-" "2" ""]
+	Pin[-5.0000mm 12.0000mm 60.00mil 20.00mil 66.00mil 35.00mil "+" "1" ""]
+	Pin[5.0000mm 12.0000mm 60.00mil 20.00mil 66.00mil 35.00mil "+" "1" ""]
+	ElementArc [0.0000 0.0000 12.5000mm 12.5000mm 0 360 10.00mil]
+
+	)
