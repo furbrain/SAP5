@@ -1,9 +1,9 @@
-Designator,"MPN/Seeed SKU",Qty,Link
+Designator,MPN/Seeed SKU,Qty,Link
 B1,320110026,1,https://statics3.seeedstudio.com/images/opl/datasheet/3410050P1.pdf
 "C1, C2, C4, C21, C23, C26, C27",302010024,7,https://statics3.seeedstudio.com/images/opl/datasheet/302010024.pdf
 "C3, C22",302010103,2,https://statics3.seeedstudio.com/images/opl/datasheet/302010103.pdf
 "C11, C12, C14, C15, C19, C20",302010146,6,https://statics3.seeedstudio.com/images/opl/datasheet/302010146.pdf
-"C24, C25",302010146,2,
+"C24, C25",302010003,2,
 J4,UJ2-MIBH-4-SMT-TR-67,1,https://www.digikey.com.cn/product-detail/zh/cui-inc-/UJ2-MIBH-4-SMT-TR-67/102-4970-1-ND/9564435?keywords=UJ2-MIBH-4-SMT-TR-67
 "R1, R10, R12",301010004,3,https://statics3.seeedstudio.com/images/opl/datasheet/301010004.pdf
 "R2, R11",301010006,2,https://statics3.seeedstudio.com/images/opl/datasheet/301010006.pdf
