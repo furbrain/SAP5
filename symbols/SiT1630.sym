@@ -1,1 +1,57 @@
-../chips/SiT1630/SiT1630.sym
+v 20180520 1
+P 1100 100 1100 400 1 0 0
+{
+T 1150 300 5 8 1 1 0 2 1
+pinnumber=2
+T 1050 300 5 8 0 1 0 8 1
+pinseq=1
+T 1100 450 9 8 1 1 0 3 1
+pinlabel=Gnd
+T 1100 600 5 8 0 1 0 3 1
+pintype=pwr
+}
+P 2100 800 1800 800 1 0 0
+{
+T 1900 850 5 8 1 1 0 0 1
+pinnumber=3
+T 1900 750 5 8 0 1 0 2 1
+pinseq=2
+T 1675 800 9 8 1 1 0 6 1
+pinlabel=CLK
+T 1675 800 5 8 0 1 0 8 1
+pintype=clk
+}
+L 1700 800 1800 725 3 0 0 0 -1 -1
+L 1700 800 1800 875 3 0 0 0 -1 -1
+P 100 800 400 800 1 0 0
+{
+T 300 850 5 8 1 1 0 6 1
+pinnumber=4
+T 300 750 5 8 0 1 0 8 1
+pinseq=3
+T 450 800 9 8 1 1 0 0 1
+pinlabel=Vdd
+T 450 800 5 8 0 1 0 2 1
+pintype=pwr
+}
+B 400 400 1400 800 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 1800 1300 8 10 1 1 0 6 1
+refdes=U?
+T 400 1300 9 10 1 0 0 0 1
+SiT1630
+T 400 1500 5 10 0 0 0 0 1
+device=SiT1630
+T 400 1700 5 10 0 0 0 0 1
+footprint=SiT1630
+T 400 1900 5 10 0 0 0 0 1
+author=Phil Underwood
+T 400 2100 5 10 0 0 0 0 1
+documentation=https://www.sitime.com/datasheet/SiT1630
+T 400 2300 5 10 0 0 0 0 1
+description=Micropower Voltage Regulator
+T 400 2500 5 10 0 0 0 0 1
+numslots=0
+T 400 2700 5 10 0 0 0 0 1
+dist-license=GPL2
+T 400 2900 5 10 0 0 0 0 1
+use-license=GPL2

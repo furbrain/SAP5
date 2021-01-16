@@ -1,1 +1,130 @@
-../chips/BM1422/BM1422.sym
+v 20180520 1
+P 100 1600 400 1600 1 0 0
+{
+T 300 1650 5 8 1 1 0 6 1
+pinnumber=1
+T 300 1550 5 8 0 1 0 8 1
+pinseq=1
+T 450 1600 9 8 1 1 0 0 1
+pinlabel=AVdd
+T 450 1600 5 8 0 1 0 2 1
+pintype=pwr
+}
+P 100 1200 400 1200 1 0 0
+{
+T 300 1250 5 8 1 1 0 6 1
+pinnumber=2
+T 300 1150 5 8 0 1 0 8 1
+pinseq=2
+T 450 1200 9 8 1 1 0 0 1
+pinlabel=GND
+T 450 1200 5 8 0 1 0 2 1
+pintype=pwr
+}
+P 100 800 400 800 1 0 0
+{
+T 300 850 5 8 1 1 0 6 1
+pinnumber=3
+T 300 750 5 8 0 1 0 8 1
+pinseq=3
+T 450 800 9 8 1 1 0 0 1
+pinlabel=Vreg
+T 450 800 5 8 0 1 0 2 1
+pintype=pwr
+}
+P 1600 100 1600 400 1 0 0
+{
+T 1550 300 5 8 1 1 90 6 1
+pinnumber=4
+T 1650 300 5 8 0 1 90 8 1
+pinseq=4
+T 1600 450 9 8 1 1 90 0 1
+pinlabel=TEST1
+T 1600 450 5 8 0 1 90 2 1
+pintype=io
+}
+P 2000 100 2000 400 1 0 0
+{
+T 1950 300 5 8 1 1 90 6 1
+pinnumber=5
+T 2050 300 5 8 0 1 90 8 1
+pinseq=5
+T 2000 450 9 8 1 1 90 0 1
+pinlabel=SDA
+T 2000 450 5 8 0 1 90 2 1
+pintype=io
+}
+P 3500 1600 3200 1600 1 0 0
+{
+T 3300 1650 5 8 1 1 0 0 1
+pinnumber=8
+T 3300 1550 5 8 0 1 0 2 1
+pinseq=6
+T 3150 1600 9 8 1 1 0 6 1
+pinlabel=DRDY
+T 3150 1600 5 8 0 1 0 8 1
+pintype=out
+}
+P 3500 1200 3200 1200 1 0 0
+{
+T 3300 1250 5 8 1 1 0 0 1
+pinnumber=7
+T 3300 1150 5 8 0 1 0 2 1
+pinseq=7
+T 3150 1200 9 8 1 1 0 6 1
+pinlabel=SCL
+T 3150 1200 5 8 0 1 0 8 1
+pintype=io
+}
+P 3500 800 3200 800 1 0 0
+{
+T 3300 850 5 8 1 1 0 0 1
+pinnumber=6
+T 3300 750 5 8 0 1 0 2 1
+pinseq=8
+T 3150 800 9 8 1 1 0 6 1
+pinlabel=TEST2
+T 3150 800 5 8 0 1 0 8 1
+pintype=io
+}
+P 1600 2300 1600 2000 1 0 0
+{
+T 1550 2100 5 8 1 1 90 0 1
+pinnumber=10
+T 1650 2100 5 8 0 1 90 2 1
+pinseq=9
+T 1600 1950 9 8 1 1 90 6 1
+pinlabel=DVdd
+T 1600 1950 5 8 0 1 90 8 1
+pintype=pwr
+}
+P 2000 2300 2000 2000 1 0 0
+{
+T 1950 2100 5 8 1 1 90 0 1
+pinnumber=9
+T 2050 2100 5 8 0 1 90 2 1
+pinseq=10
+T 2000 1950 9 8 1 1 90 6 1
+pinlabel=ADDR
+T 2000 1950 5 8 0 1 90 8 1
+pintype=in
+}
+B 400 400 2800 1600 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 3200 2100 8 10 1 1 0 6 1
+refdes=U?
+T 1600 1100 9 10 1 0 0 0 1
+BM1422
+T 1600 1400 5 10 0 0 0 0 1
+device=BM1422AGMV
+T 1600 1600 5 10 0 0 0 0 1
+footprint=LGA10
+T 1600 1800 5 10 0 0 0 0 1
+author=Phil Underwood
+T 1600 2000 5 10 0 0 0 0 1
+description=Magnetometer
+T 1600 2200 5 10 0 0 0 0 1
+numslots=0
+T 1600 2400 5 10 0 0 0 0 1
+dist-license=GPL2
+T 1600 2600 5 10 0 0 0 0 1
+use-license=GPL2
