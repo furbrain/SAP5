@@ -1,0 +1,74 @@
+{
+  "app_config": {
+    "APP_NAME": "PonyTrainer",
+    "CLIENT_CONFIG_PATH": [
+      "client_config.py"
+    ],
+    "COMPANY_NAME": "Underwood Underground",
+    "PLUGIN_CONFIGS": {},
+    "UPDATE_PATCHES": false,
+    "MAX_DOWNLOAD_RETRIES": 3,
+    "HTTP_TIMEOUT": 30,
+    "DATA_DIR": "/home/phil/Projects/SAP5",
+    "UPDATE_URLS": [
+      "http://shetlandattackpony.co.uk/releases/"
+    ]
+  },
+  "config_dir": "/home/phil/Projects/PonyTrainer/.pyupdater",
+  "count": 0,
+  "filename": "/home/phil/Projects/PonyTrainer/.pyupdater/config.pyu",
+  "version_meta": {
+    "latest": {
+      "PonyTrainer": {
+        "stable": {
+          "nix64": "1.0.74.2.0",
+          "win": "1.0.74.2.0"
+        }
+      }
+    },
+    "signature": "Ul4CUU6FHfZCVxZKuvToEQ59vxKdfDUSXivDSM9LDfWQ6OqvW31/9dxysBjjMOtxMc7gXRuuFgGs7hIDQN7SCw",
+    "updates": {
+      "PonyTrainer": {
+        "1.0.73.2.0": {
+          "nix64": {
+            "file_hash": "5bf316370d96138c984a036491b0f34aa5415a47147f842c475718eca5e5d28f",
+            "file_size": 27349897,
+            "filename": "PonyTrainer-nix64-1.0.73.tar.gz"
+          },
+          "win": {
+            "file_hash": "cddd0050e7f6fc2eb6d6d61f96fded1ff82096900a26b5fb2e244b91b7c03150",
+            "file_size": 15594229,
+            "filename": "PonyTrainer-win-1.0.73.zip"
+          }
+        },
+        "1.0.74.2.0": {
+          "nix64": {
+            "file_hash": "e3f9f92578829a5840fed87ae2578d1bbf64ddc6a454244f8c2a75c4957b630b",
+            "file_size": 27349894,
+            "filename": "PonyTrainer-nix64-1.0.74.tar.gz"
+          },
+          "win": {
+            "file_hash": "1176554e68f048b1557c1faa4b65113f6a781499371e9c78be2bffaac2a95cd1",
+            "file_size": 15594252,
+            "filename": "PonyTrainer-win-1.0.74.zip"
+          }
+        }
+      }
+    }
+  },
+  "keypack": {
+    "client": {
+      "offline_public": "L6fCl6Ec1XG4+9j0u7QA6ZxcmUZxK+kassybyb0LNGw"
+    },
+    "repo": {
+      "app_private": "yj0UgNnimAXlo14g8CUop8x5Kuf/PaF1fA1wv+rjjSI"
+    },
+    "upload": {
+      "app_public": "NH/IEBQHqBZg6EkYsM3vaIyVfZcJ9vuPJhv67EwuzHI",
+      "signature": "1//NZVyRvFFR7/X0qPbxT1Y4DyNGWHynDZYOzZtstIUORfCztSzVBRChy1UziTUbPwTDwQY2kAZUI2uu+vdHDw"
+    }
+  },
+  "py_repo_config": {
+    "patches": {}
+  }
+}
