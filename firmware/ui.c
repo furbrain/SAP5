@@ -5,6 +5,7 @@
 #include "display.h"
 #include "input.h"
 #include "font.h"
+#include "exception.h"
 
 TESTABLE_STATIC
 const uint8_t up_marker[15] = {0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
@@ -248,5 +249,11 @@ bool get_single_click(void) {
                 break;
         }
         delay_ms_safe(10);        
+    }
+}
+
+void get_single_click_or_throw(char *reason, enum EXCEPTION_CODES code) {
+    if (!get_single_click()) {
+        THROW_WITH_REASON(reason, code);
     }
 }

@@ -65,8 +65,10 @@ void maths_get_orientation_as_matrix(const gsl_vector *magnetism,
     gsl_vector_view up = gsl_matrix_column(orientation, 2);
     gsl_vector_memcpy(&up.vector, acceleration);
     gsl_vector_scale(&up.vector, -1.0);
+    gsl_vector_memcpy(&north.vector, magnetism); //use north as temporary holder for magnetism
     normalise(&up.vector);
-    cross_product(magnetism, &up.vector, &east.vector);
+    normalise(&north.vector);
+    cross_product(&north.vector, &up.vector, &east.vector);
     normalise(&east.vector);
     cross_product(&up.vector, &east.vector, &north.vector);
     normalise(&north.vector);

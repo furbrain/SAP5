@@ -11,6 +11,7 @@
 #include "eigen3x3.h"
 #include "gsl_static.h"
 #include "mag_sample_data.inc"
+#include "mock_calibrate.h"
 
 #define DEGREES_PER_RADIAN 57.296
 
@@ -189,105 +190,6 @@ void test_normalise(void) {
     }
 }
     
-void test_find_plane() {
-    char text[80];
-    struct test_field {
-        double data[40][3];
-        double result[3];
-    };
-    struct test_field test_cases[5] = {
-        {{{1.4361,-9.8286,-10.1366}, {9.9884,-9.9385,1.1253}, {-6.6328,-9.8855,-7.6774}, {-0.0254,-9.7941,-10.2421}, {-9.935,-10.0334,-0.132}, {1.6615,-10.1799,9.7162}, {3.3312,-10.1533,9.2227}, {0.742,-9.7566,-10.1455}, {4.9652,-10.1697,8.5427}, {8.5954,-10.077,5.0616}, {-3.9089,-9.8443,-9.39}, {9.6088,-9.8379,-3.0529}, {10.0823,-9.9565,0.0546}, {-9.9141,-10.105,-0.9717}, {3.9039,-9.759,-9.4798}, {-7.5386,-9.9598,-6.6886}, {-1.6807,-9.7874,-10.0059}, {-2.5128,-10.1825,9.4901}, {8.7222,-9.8084,-5.1258}, {-2.1366,-9.8183,-9.983}, {-9.5338,-10.051,-2.8424}, {6.3807,-10.0796,7.5425}, {-6.9272,-10.2319,6.9386}, {-4.5538,-9.8342,-9.0984}, {-9.2918,-10.1324,3.3318}, {-9.0601,-10.1171,3.8082}, {-7.3503,-9.8885,-6.9547}, {-9.9003,-10.0217,-0.9945}, {-5.8068,-9.848,-8.3134}, {-7.9752,-9.9271,-6.1047}, {3.5147,-9.7369,-9.6292}, {-9.7944,-10.0648,-1.5736}, {8.428,-9.8562,-5.676}, {-4.1609,-10.1686,8.8253}, {8.4676,-10.0098,5.1787}, {-3.1018,-10.1754,9.2868}, {7.6414,-10.0847,6.3417}, {4.8542,-9.7825,-8.9707}, {9.608,-9.9951,2.7099}, {-6.9373,-9.87,-7.3322}},
-        {0.0076,-0.9998,-0.0199}},
-        {{{5.4973,-10.7044,-7.3374}, {-10.1745,-9.2956,3.2009}, {4.6797,-10.6932,-7.9246}, {8.6244,-10.2187,4.5696}, {-8.932,-9.2155,5.8948}, {-4.7062,-10.3115,-8.4737}, {3.1802,-9.6766,9.856}, {-1.1971,-9.3476,10.5538}, {9.3631,-10.453,1.8787}, {-7.1004,-10.0809,-6.9898}, {6.8212,-10.7671,-6.205}, {-10.0048,-9.3099,3.8351}, {-7.6581,-10.0208,-6.4099}, {-9.5438,-9.2433,4.8834}, {9.2055,-10.6013,-1.7498}, {9.346,-10.5504,-0.9525}, {-6.4104,-10.1385,-7.4518}, {-4.314,-9.2486,9.8255}, {-10.1141,-9.5928,-2.1202}, {9.4379,-10.5761,-0.2698}, {6.3866,-9.9284,7.7283}, {2.0776,-10.6397,-9.0386}, {-2.1089,-9.317,10.4325}, {-9.5645,-9.7101,-3.6365}, {8.8891,-10.2091,4.0843}, {2.3964,-9.6046,10.0807}, {-3.4103,-9.3154,10.0966}, {-8.3013,-9.1975,6.8683}, {-9.328,-9.2395,5.2098}, {-2.7725,-9.2784,10.2877}, {-6.2968,-10.133,-7.6092}, {-4.703,-9.2951,9.5776}, {7.4892,-10.0628,6.65}, {6.0183,-9.8855,8.0768}, {6.7193,-10.7579,-6.2994}, {-10.4592,-9.4201,1.6197}, {8.5364,-10.6406,-3.7013}, {-8.0921,-9.9189,-5.9541}, {0.1054,-9.4164,10.5651}, {-3.229,-10.4016,-9.0716}},
-        {-0.0515,-0.9971,0.0563}},
-        {{{-10.7342,3.5935,8.4611}, {-9.5158,-7.2504,-7.5772}, {-9.4292,9.2935,-4.9984}, {-9.1522,-3.4273,-10.2308}, {-9.7872,-9.0098,-4.7713}, {-10.8444,-0.6755,9.0357}, {-10.0114,-9.6668,-2.575}, {-9.0001,3.576,-10.3474}, {-10.9401,-2.6273,8.6051}, {-10.7382,4.2379,8.1908}, {-9.8306,10.0785,0.296}, {-9.0186,-0.2034,-10.8189}, {-9.9856,9.9301,1.4088}, {-10.5497,-8.9257,3.0709}, {-9.1094,5.1494,-9.5619}, {-9.8756,10.1915,-0.1001}, {-10.1163,-9.7561,-1.5537}, {-10.2875,-9.7531,0.3286}, {-9.9477,9.9985,0.916}, {-9.8458,10.1513,-0.2228}, {-10.8116,-4.7319,7.7346}, {-10.1377,9.5033,2.8737}, {-9.5532,-7.9913,-6.6628}, {-9.2451,7.7503,-7.4353}, {-10.5682,-8.282,4.3366}, {-10.0184,9.8701,1.4303}, {-10.2603,8.9605,3.9376}, {-10.1928,8.9466,4.0163}, {-9.0124,3.8222,-10.1418}, {-8.9849,3.3474,-10.4163}, {-9.8686,10.1854,0.1205}, {-9.1181,6.5675,-8.5887}, {-9.3171,8.6225,-6.1939}, {-10.6006,-7.9268,4.8847}, {-10.9158,-2.0912,8.7346}, {-9.0646,5.7055,-9.1756}, {-9.4454,-7.2073,-7.5823}, {-10.5313,6.5245,6.7523}, {-10.8225,1.5652,8.9239}, {-9.0943,5.5844,-9.3049}},
-        {-0.9956,0.0194,-0.092}},
-        {{{5.9681,-9.8609,8.2149}, {-2.1782,-10.4752,-9.2783}, {4.1761,-9.6725,9.4132}, {-10.4501,-9.4672,-1.217}, {6.164,-9.9467,7.977}, {-10.582,-9.3433,0.0569}, {-10.5132,-9.2686,1.8881}, {3.552,-9.6386,9.7084}, {0.87,-10.6972,-9.2627}, {2.945,-10.7978,-8.6677}, {9.2304,-10.4346,2.2795}, {-8.3611,-9.879,-5.6352}, {9.0311,-10.3478,3.4105}, {-6.0386,-10.1214,-7.7838}, {8.9999,-10.3536,3.4543}, {9.3122,-10.5418,1.5075}, {1.298,-10.6895,-9.1182}, {5.1612,-9.831,8.7545}, {8.8783,-10.3858,3.7504}, {-3.2694,-10.3847,-9.016}, {5.8532,-9.8804,8.2688}, {9.3369,-10.5504,1.602}, {-10.1864,-9.1524,3.2561}, {6.2243,-10.8871,-6.6448}, {-9.0194,-9.7894,-4.743}, {-10.5198,-9.2833,1.6695}, {-9.7554,-9.1652,4.593}, {9.2329,-10.4552,2.54}, {-10.5564,-9.3201,0.6883}, {-7.6394,-9.052,7.6583}, {8.8693,-10.6922,-2.2828}, {1.0556,-10.703,-9.1721}, {9.1888,-10.4037,2.5085}, {-6.5135,-9.0963,8.7052}, {-3.4874,-9.1622,10.1389}, {9.0478,-10.4083,2.9242}, {1.7191,-9.5263,10.3033}, {-4.6482,-10.2497,-8.5122}, {7.5562,-10.0603,6.4541}, {4.9251,-9.7631,8.9609}},
-        {-0.062,-0.996,0.0639}},
-        {{{-0.4021,-10.7091,-9.2394}, {10.326,-3.1123,-9.1573}, {-4.0442,-9.5471,-9.5618}, {-6.2952,-7.9283,-9.868}, {10.2998,1.8258,-9.5159}, {-5.1542,7.2769,-10.9708}, {-1.4265,8.9743,-10.8033}, {-9.1165,1.4818,-10.798}, {-2.5891,8.6834,-10.8765}, {4.498,-9.9494,-9.0237}, {1.5669,-10.7048,-9.1002}, {-7.4773,-6.6666,-9.9904}, {8.6871,-6.5893,-8.9738}, {-8.6816,2.7481,-10.8546}, {-5.8089,6.869,-10.9045}, {-9.2141,0.4198,-10.6357}, {10.4484,-2.4545,-9.1856}, {10.2772,2.0023,-9.5344}, {0.8734,-10.6961,-9.2086}, {-6.8348,5.779,-10.9239}, {-8.1191,-5.6305,-10.1909}, {10.2646,1.7781,-9.4891}, {10.23,-3.4338,-9.0746}, {-9.0224,1.833,-10.8268}, {-0.4554,-10.6358,-9.2865}, {-1.0098,-10.5783,-9.327}, {-5.7226,6.8664,-10.9581}, {-8.2405,-5.3276,-10.1703}, {9.1068,4.6073,-9.7666}, {3.344,-10.3183,-8.9977}, {-8.3172,3.6513,-10.8749}, {-7.3693,-6.6619,-9.9822}, {10.0693,2.7062,-9.635}, {9.2627,4.2931,-9.7357}, {10.5447,0.4171,-9.3917}, {-5.1724,-8.8831,-9.6997}, {-8.5561,3.0987,-10.8411}, {8.305,5.738,-9.9383}, {10.0438,2.5654,-9.5447}, {-5.7917,-8.3402,-9.8034}},
-        {0.0648,-0.076,-0.995}}
-    };
-    int i;
-    double error;
-    GSL_VECTOR_DECLARE(result, 3);
-    gsl_vector_view expected;
-    gsl_matrix_view input;
-    #ifdef __MPLAB_DEBUGGER_SIMULATOR
-    TEST_IGNORE_MESSAGE("This fails on simulator due to bugs in the sim :(");
-    #endif
-    for (i=0; i<5; i++) {
-    	input = gsl_matrix_view_array((double*)test_cases[i].data, 40, 3);
-        find_plane(&input.matrix, &result);
-        expected = gsl_vector_view_array(test_cases[i].result, 3);
-        gsl_vector_sub(&result, &expected.vector);
-        snprintf(text, 80, "Iteration: %d", i);
-        
-        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.01, 0, gsl_blas_dnrm2(&result), text);
-    }
-}
-
-void test_find_plane2() {
-    GSL_VECTOR_DECLARE(result, 3);
-    GSL_MATRIX_DECLARE(calibrated, 8, 3);
-    CALIBRATION_DECLARE(cal);
-    double  mag_expected[] = {0.03114821, -0.99942283, 0.01355724};
-    int i;
-    //calibrate and adjust planar shots...
-    gsl_matrix_view mag_view = gsl_matrix_view_array(mag_sample_data,16,3);
-    fit_ellipsoid(&mag_view.matrix, 16, &cal);
-    for (i=0; i<8; ++i) {
-        gsl_vector_view src = gsl_matrix_row(&mag_view.matrix,i+8);
-        gsl_vector_view dest = gsl_matrix_row(&calibrated,i);
-        apply_calibration(&src.vector, &cal, &dest.vector);
-    }
-    find_plane(&calibrated, &result);
-    //printf("findplane\n");
-    //gsl_vector_fprintf(stdout,&result,"%f");
-    TEST_ASSERT_EQUAL_DOUBLE_ARRAY_MESSAGE(mag_expected, result_data, 3, "mag");
-}
-
-void test_plane_to_rotation() {
-    char text[20];
-    double source[20][3]  = {
-       {-0.1905,-0.9759,-0.1063} ,
-       {-0.0994,0.9936,0.0532} ,
-       {0.1099,0.9939,-0.0006} ,
-       {0.104,-0.9873,0.1198} ,
-       {-0.1639,-0.9778,0.1302} ,
-       {-0.1804,0.9809,0.0729} ,
-       {0.0049,-0.9804,0.1971} ,
-       {-0.045,0.9912,0.1246} ,
-       {-0.0832,-0.9926,-0.0883} ,
-       {0.0857,-0.9824,-0.1657} ,
-       {0.1426,0.9896,0.0168} ,
-       {-0.0696,0.9963,-0.0505} ,
-       {-0.0264,-0.9994,0.0233} ,
-       {-0.0053,0.9989,0.0471} ,
-       {-0.0404,0.9974,0.0601} ,
-       {-0.0087,0.9925,0.1218} ,
-       {-0.0722,-0.9841,-0.1623} ,
-       {0.0796,0.9835,-0.1626} ,
-       {0.1311,-0.9796,0.1525} ,
-       {-0.0505,0.9824,-0.18}        
-    };
-    int i;
-    GSL_MATRIX_DECLARE(rotation,3,3);
-    GSL_VECTOR_DECLARE(result,3);
-    double target[3] = {0,1,0};
-    for (i=0; i< 20; i++) {
-        gsl_vector_view source_v = gsl_vector_view_array(source[i],3);
-        plane_to_rotation(&source_v.vector,&rotation);
-        if (gsl_vector_get(&source_v.vector,1)<0) {
-            gsl_vector_scale(&source_v.vector, -1);
-        }
-        gsl_blas_dgemv(CblasNoTrans, 1.0, &rotation, &source_v.vector, 0, &result);
-        snprintf(text,20,"Iteration %d", i);
-        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.000001, 0, gsl_vector_get(&result, 0), text);
-        TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(1, gsl_vector_get(&result, 1), text);
-        TEST_ASSERT_DOUBLE_WITHIN_MESSAGE(0.000001, 0, gsl_vector_get(&result, 2), text);
-    }
-}
-
 void test_sqrtm() {
     char text[80];
     struct test_field {
@@ -350,36 +252,10 @@ void test_fit_ellipsoid() {
     }
 }
 
-void test_sync_sensors() {
-    CEXCEPTION_T e;
-    const char *file;
-    const char *reason;
-    int line;
-    gsl_matrix_const_view mag_data = gsl_matrix_const_view_array(mag_sample_data, 16, 3);
-    gsl_matrix_const_view grav_data = gsl_matrix_const_view_array(grav_sample_data, 16, 3);
-    gsl_matrix_const_view mag_spins = gsl_matrix_const_submatrix(&mag_data.matrix,8,0,8,3);
-    gsl_matrix_const_view grav_spins = gsl_matrix_const_submatrix(&grav_data.matrix,8,0,8,3);
-    
-    CALIBRATION_DECLARE(mag_cal);
-    CALIBRATION_DECLARE(grav_cal);
-    
-    double result;
-    
-    fit_ellipsoid(&mag_data.matrix, 16, &mag_cal);
-    fit_ellipsoid(&grav_data.matrix, 16, &grav_cal);
-    align_laser(&mag_spins.matrix, &mag_cal);
-    align_laser(&grav_spins.matrix, &grav_cal);
-
-    result = sync_sensors(&mag_data.matrix, &mag_cal, 
-                          &grav_data.matrix, &grav_cal);
-    TEST_ASSERT_DOUBLE_WITHIN(0.02, 0.6803, result);
-}
-
 void run_all_calibration_on_data(const gsl_matrix *data, calibration *cal) {
     //calibrate and adjust planar shots...
     gsl_matrix_const_view spins = gsl_matrix_const_submatrix(data,8,0,8,3);
     fit_ellipsoid(data, 16, cal);
-    align_laser(&spins.matrix, cal);
 }
 
 void print_accuracy(const gsl_matrix *mag, const gsl_matrix *grav) {
@@ -412,6 +288,16 @@ void print_accuracy(const gsl_matrix *mag, const gsl_matrix *grav) {
     
 }
 
+void apply_calibration_to_matrix(const gsl_matrix *input, const calibration *cal, gsl_matrix *output) {
+    size_t i;
+    for (i=0; i< input->size1; ++i) {
+        gsl_vector_const_view in_row = gsl_matrix_const_row(input, i);
+        gsl_vector_view out_row = gsl_matrix_row(output, i);
+        apply_calibration(&in_row.vector, cal, &out_row.vector);
+    }
+}
+
+
 void test_all_calibration() {
     CALIBRATION_DECLARE(mag_cal);
     CALIBRATION_DECLARE(grav_cal);
@@ -427,12 +313,6 @@ void test_all_calibration() {
     printf("Before syncing\n");
     run_all_calibration_on_data(&mag_view.matrix, &mag_cal);
     run_all_calibration_on_data(&grav_view.matrix, &grav_cal);
-    apply_calibration_to_matrix(&mag_view.matrix, &mag_cal, &mag_results);
-    apply_calibration_to_matrix(&grav_view.matrix, &grav_cal, &grav_results);
-    print_accuracy(&mag_results, &grav_results);
-
-    printf("After syncing\n");
-    sync_sensors(&mag_view.matrix, &mag_cal, &grav_view.matrix, &grav_cal);
     apply_calibration_to_matrix(&mag_view.matrix, &mag_cal, &mag_results);
     apply_calibration_to_matrix(&grav_view.matrix, &grav_cal, &grav_results);
     print_accuracy(&mag_results, &grav_results);

@@ -160,18 +160,18 @@ void calibrate_axes(int32_t dummy) {
 }
 
 
-double check_calibration(const gsl_matrix *data, int len, calibration *cal) {
+double check_calibration(const gsl_matrix *data, calibration *cal) {
     GSL_VECTOR_DECLARE(result,3);
-    int k;
+    unsigned int k;
     double magnitude;
     double error=0;
-    for (k=0; k<len; k++) {
+    for (k=0; k < data->size1; k++) {
         gsl_vector_const_view row = gsl_matrix_const_row(data, k);
         apply_calibration(&row.vector, cal, &result);
         magnitude = gsl_blas_dnrm2(&result);
         error += fabs(magnitude-1.0);
     }
-    return (error/len)*100;
+    return (error/data->size1)*100;
 }
 
 double check_accuracy(const gsl_matrix *mag, const calibration *mag_cal,
@@ -300,34 +300,36 @@ void calibrate_sensors(int32_t dummy) {
     /* get data */
     if (!ui_yes_no("Calib.\nSensors?")) return;
     get_calibration_data(&mag_readings, &grav_readings);
-    display_write_multiline(0, "Processing", true);
-    delay_ms_safe(2000);
-    
+    memory_erase_page(mag_cal_store);
+    memory_write_data(mag_cal_store, mag_readings_data, sizeof(mag_readings_data));
+    memory_write_data(grav_cal_store, 
+                      grav_readings_data, sizeof(grav_readings_data));
+    display_write_multiline(0, "Processing", true);    
     //do calibration    
-    fit_ellipsoid(&mag_readings, CALIBRATION_SAMPLES, &mag_cal);
-    fit_ellipsoid(&grav_readings, CALIBRATION_SAMPLES, &grav_cal);
+    fit_ellipsoid(&mag_readings, &reading_weights, &mag_cal);
+    fit_ellipsoid(&grav_readings, &reading_weights,  &grav_cal);
     align_all_sensors(&mag_spins.matrix, &mag_cal, &grav_spins.matrix, &grav_cal);
-
     // show mag error
     display_clear(true);
-    mag_error = check_calibration(&mag_readings, CALIBRATION_SAMPLES, &mag_cal);
+    mag_error = check_calibration(&mag_readings, &mag_cal);
     sprintf(text, "Mag Err:  %.2f%%", mag_error);
-    display_write_multiline(2,text, false);
+    display_write_multiline(2, text, false);
     display_show_buffer();
     
     //show grav error
-    grav_error = check_calibration(&grav_readings, CALIBRATION_SAMPLES, &grav_cal);
+    grav_error = check_calibration(&grav_readings, &grav_cal);
     sprintf(text, "Grav Err: %.2f%%", grav_error);
-    display_write_multiline(4,text, false);
+    display_write_multiline(4, text, false);
     display_show_buffer();
     
     //show accuracy
     accuracy = check_accuracy(&mag_spins.matrix, &mag_cal,
                               &grav_spins.matrix, &grav_cal);
     sprintf(text, "Accuracy: %.2f`", accuracy);
-    display_write_multiline(4,text, false);
+    display_write_multiline(6, text, false);
     display_show_buffer();
     delay_ms_safe(4000);
+    //save calibration data
     
     //check satisfactory calibration
     if (isnan(grav_error) || isnan(mag_error) || isnan(accuracy)) {
@@ -335,20 +337,15 @@ void calibrate_sensors(int32_t dummy) {
     } else if ((grav_error > 5.0) || (mag_error > 5.0) || (accuracy > 1.2)) {
         display_write_multiline(2, "Poor calibration\nNot saved", true);
     } else {
-        display_write_multiline(2, "Calibration Good\nSaved.", true);
-        calibration conf_grav = calibration_from_doubles(config.calib.accel);
-        calibration conf_mag = calibration_from_doubles(config.calib.mag);
-        calibration_memcpy(&conf_grav, &grav_cal);
-        calibration_memcpy(&conf_mag, &mag_cal);
-        wdt_clear();
-        config_save();
+        if (ui_yes_no("Cal. Good\nSave?")) {
+            calibration conf_grav = calibration_from_doubles(config.calib.accel);
+            calibration conf_mag = calibration_from_doubles(config.calib.mag);
+            calibration_memcpy(&conf_grav, &grav_cal);
+            calibration_memcpy(&conf_mag, &mag_cal);
+            wdt_clear();
+            config_save();
+        }
     }
-    //save calibration data
-    memory_erase_page(mag_cal_store);
-    memory_write_data(mag_cal_store, mag_readings_data, sizeof(mag_readings_data));
-    memory_write_data(grav_cal_store, 
-                      grav_readings_data, sizeof(grav_readings_data));
-    delay_ms_safe(4000);    
 }
 
 void calibrate_laser(int32_t dummy) {

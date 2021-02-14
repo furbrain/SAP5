@@ -18,6 +18,7 @@
 
 GSL_MATRIX_DECLARE(temp_mag_readings, SAMPLES_PER_READING, 3);
 GSL_MATRIX_DECLARE(temp_grav_readings, SAMPLES_PER_READING, 3);
+GSL_MATRIX_DECLARE(temp_gyro_readings, SAMPLES_PER_READING, 3);
 
 GSL_VECTOR_DECLARE(last_reading, 3);
 
@@ -45,7 +46,7 @@ const uint8_t LSM6DS3_ACCEL_AXES[] = {0,1,2};
 
 #define LSM6DS3_ADDRESS 0x6b
 #define LSM6DS3_ACCEL_FULL_SCALE 2 
-#define LSM6DS3_ACCEL_GYRI_SCALE 250
+#define LSM6DS3_GYRO_FULL_SCALE 286
 
 float ACCEL_FULL_SCALE, MAG_FULL_SCALE, GYRO_FULL_SCALE;
 
@@ -136,7 +137,7 @@ void sensors_init() {
             send_multi(LSM6DS3_ADDRESS, LSM6DS3_init_commands);
             send_multi(BM1422_ADDRESS_V11, BM1422_init_commands);
             ACCEL_FULL_SCALE = LSM6DS3_ACCEL_FULL_SCALE;
-            GYRO_FULL_SCALE = LSM6DS3_ACCEL_GYRI_SCALE;
+            GYRO_FULL_SCALE = LSM6DS3_GYRO_FULL_SCALE;
             MAG_FULL_SCALE = BM1422_MAG_FULL_SCALE;
             if (config.axes.accel[0]>=5) {
                 set_axes(V1_1_AXES);
@@ -231,9 +232,11 @@ void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors, int count) {
     struct RAW_SENSORS raw_sensors;
     gsl_vector_view mag_sensors = gsl_vector_view_array(sensors->mag,3);
     gsl_vector_view grav_sensors = gsl_vector_view_array(sensors->accel,3);
+    gsl_vector_view gyro_sensors = gsl_vector_view_array(sensors->gyro,3);
     gsl_vector_view samples;
     GSL_MATRIX_RESIZE(temp_mag_readings, count , 3);
     GSL_MATRIX_RESIZE(temp_grav_readings, count , 3);
+    GSL_MATRIX_RESIZE(temp_gyro_readings, count , 3);
     int i;
     double average;
     for (i=0; i<count; ++i) {
@@ -241,6 +244,7 @@ void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors, int count) {
         sensors_raw_to_uncalibrated(sensors, &raw_sensors);
         gsl_matrix_set_row(&temp_mag_readings, i, &mag_sensors.vector);
         gsl_matrix_set_row(&temp_grav_readings, i, &grav_sensors.vector);
+        gsl_matrix_set_row(&temp_gyro_readings, i, &gyro_sensors.vector);
         delay_ms_safe(10);
     }
 #if 0
@@ -262,6 +266,9 @@ void sensors_read_uncalibrated(struct COOKED_SENSORS *sensors, int count) {
         samples = gsl_matrix_column(&temp_grav_readings,i);
         average = gsl_stats_mean(samples.vector.data, samples.vector.stride, samples.vector.size);
         sensors->accel[i] = average;
+        samples = gsl_matrix_column(&temp_gyro_readings,i);
+        average = gsl_stats_mean(samples.vector.data, samples.vector.stride, samples.vector.size);
+        sensors->gyro[i] = average;
     }
 #endif 
 }

@@ -13,6 +13,7 @@ extern "C" {
 #endif
 #include <stdint.h>
 #include <stdbool.h>
+#include "exception.h"
 #define UI_SELECT_MAX_POS 3
     
 struct UI_MULTI_SELECT;
@@ -38,7 +39,7 @@ struct UI_MULTI_SELECT {
 void ui_multi_select(struct UI_MULTI_SELECT *sel);
 bool ui_yes_no(const char *text);
 bool get_single_click(void);
-
+void get_single_click_or_throw(char *reason, enum EXCEPTION_CODES code);
 #ifdef TEST
 void draw_markers(int column);
 void erase_markers(int column);
