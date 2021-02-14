@@ -47,7 +47,7 @@ void normalise(gsl_vector *vector);
 void sqrtm(gsl_matrix *a, gsl_matrix *result);
 
 /* find the calibration matrix that makes data best fit into a rotated ellipsoid*/
-void fit_ellipsoid(const gsl_matrix *data, int len, calibration *result);
+void fit_ellipsoid(const gsl_matrix *data, calibration *result);
 
 
 /* minimize the error by rotating magnetic and grav sensors */

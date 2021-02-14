@@ -62,7 +62,7 @@ void setUp(void) {
     timeout_reset_Ignore();
     ui_yes_no_IgnoreAndReturn(true);
     get_clicks_IgnoreAndReturn(NONE);
-    get_single_click_IgnoreAndReturn(true);
+    get_single_click_or_throw_Ignore();
 }
 
 void test_calibrate_sensors(void) {

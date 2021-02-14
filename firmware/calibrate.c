@@ -248,9 +248,7 @@ void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     display_write_multiline(0, "Place device on\n"
                                "inclined surface\n"
                                "and press button", true);
-    if (!get_single_click()){
-            THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
-        }
+    get_single_click_or_throw("Calibration aborted", ERROR_PROCEDURE_ABORTED);
     display_write_multiline(0, "After each beep\n"
                                "rotate by ~90'", true);
     delay_ms_safe(2000);
@@ -259,9 +257,7 @@ void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     /* now read data on x-axis*/
     display_write_multiline(0, "Place device flat\n"
                                "and press button", true);
-    if (!get_single_click()){
-            THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
-        }
+    get_single_click_or_throw("Calibration aborted", ERROR_PROCEDURE_ABORTED);
     display_write_multiline(0, "After each beep\n"
                                "rotate end over\n"
                                "end by ~90'", true);
@@ -274,9 +270,7 @@ void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
         display_write_multiline(0, "Point laser at\n"
                                    "fixed target\n"
                                    "and press button", true);
-        if (!get_single_click()){
-                THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
-            }
+        get_single_click_or_throw("Calibration aborted", ERROR_PROCEDURE_ABORTED);
         display_write_multiline(0, "After each beep\n"
                                    "rotate by ~45'\n"
                                    "leaving laser\n"
@@ -300,14 +294,15 @@ void calibrate_sensors(int32_t dummy) {
     /* get data */
     if (!ui_yes_no("Calib.\nSensors?")) return;
     get_calibration_data(&mag_readings, &grav_readings);
+    
     memory_erase_page(mag_cal_store);
     memory_write_data(mag_cal_store, mag_readings_data, sizeof(mag_readings_data));
     memory_write_data(grav_cal_store, 
                       grav_readings_data, sizeof(grav_readings_data));
     display_write_multiline(0, "Processing", true);    
     //do calibration    
-    fit_ellipsoid(&mag_readings, &reading_weights, &mag_cal);
-    fit_ellipsoid(&grav_readings, &reading_weights,  &grav_cal);
+    fit_ellipsoid(&mag_readings, &mag_cal);
+    fit_ellipsoid(&grav_readings, &grav_cal);
     align_all_sensors(&mag_spins.matrix, &mag_cal, &grav_spins.matrix, &grav_cal);
     // show mag error
     display_clear(true);

@@ -231,7 +231,7 @@ void test_fit_ellipsoid() {
     TEST_IGNORE_MESSAGE("This fails on simulator due to bugs in the sim :(");
     #endif
     Try {
-        fit_ellipsoid(&cal1_m.matrix, 16, &result);
+        fit_ellipsoid(&cal1_m.matrix, &result);
     }
     Catch(e) {
         exception_get_details(&reason, &file, &line);
@@ -255,7 +255,7 @@ void test_fit_ellipsoid() {
 void run_all_calibration_on_data(const gsl_matrix *data, calibration *cal) {
     //calibrate and adjust planar shots...
     gsl_matrix_const_view spins = gsl_matrix_const_submatrix(data,8,0,8,3);
-    fit_ellipsoid(data, 16, cal);
+    fit_ellipsoid(data, cal);
 }
 
 void print_accuracy(const gsl_matrix *mag, const gsl_matrix *grav) {

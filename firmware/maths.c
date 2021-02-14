@@ -207,14 +207,14 @@ static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *ce
     sqrtm(&temp2_submat.matrix, results);
 }
 
-void fit_ellipsoid(const gsl_matrix *data, const int len, calibration *result) {
+void fit_ellipsoid(const gsl_matrix *data, calibration *result) {
     GSL_MATRIX_DECLARE(a4, 4, 4);
     GSL_VECTOR_DECLARE(params, 9);
 
-    GSL_MATRIX_RESIZE(lsq_input, len, 9);
-    GSL_VECTOR_RESIZE(lsq_output, len);
+    GSL_MATRIX_RESIZE(lsq_input, data->size1, 9);
+    GSL_VECTOR_RESIZE(lsq_output, data->size1);
 
-    prepare_input_matrix(&lsq_input, data, len);
+    prepare_input_matrix(&lsq_input, data, data->size1);
     gsl_vector_set_all(&lsq_output,1.0);
     solve_least_squares(&lsq_input, &lsq_output, 9, &params);
     make_ellipsoid_matrix(&a4, &params);
