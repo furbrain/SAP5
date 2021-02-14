@@ -41,4 +41,6 @@
         &name##_A, &name##_Q, &name##_QSI, \
         &name##_S, &name##_t, &name##_xt, &name##_D, 0.0}
 
+#define gsl_matrix_get_rows(mat, index, count) gsl_matrix_submatrix(mat, index, 0, count, mat->size2)
+
 #endif

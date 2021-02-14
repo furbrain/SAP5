@@ -66,6 +66,21 @@ void setUp(void) {
 }
 
 void test_calibrate_sensors(void) {
-    calibrate_sensors(0);
+    CEXCEPTION_T e;
+    Try {
+        calibrate_sensors(0);
+    }
+    Catch(e) {
+        if (e!=ERROR_PROCEDURE_ABORTED) {
+            char text[20];
+            const char *error;
+            const char *reason;
+            const char *file;
+            int line;
+            error = exception_get_string(e);
+            exception_get_details(&reason, &file, &line);
+            printf("ERRROR:\n%s\n%s\n%s:%d", error, reason, file, line);
+        }
+    }
 }
 

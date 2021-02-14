@@ -16,11 +16,12 @@
 #include "display.h"
 #include "calibrate.h"
 #include "eigen3x3.h"
+#include "utils.h"
 /* return AxB in C, where A B and C are all pointers to double[3] */
 
-GSL_MATRIX_DECLARE(lsq_input, CALIBRATION_SAMPLES, 9);
-GSL_VECTOR_DECLARE(lsq_output, CALIBRATION_SAMPLES);
-
+GSL_MATRIX_DECLARE(lsq_input, CALIBRATION_SAMPLES + MAG_EXTRA_SAMPLES, 9);
+GSL_VECTOR_DECLARE(lsq_output, CALIBRATION_SAMPLES + MAG_EXTRA_SAMPLES);
+GSL_VECTOR_DECLARE(lsq_weights, CALIBRATION_SAMPLES + MAG_EXTRA_SAMPLES);
 
 void cross_product(const gsl_vector *a, const gsl_vector *b, gsl_vector *c) {
     int i, j, k;
@@ -88,9 +89,10 @@ void normalise(gsl_vector *vector) {
     gsl_vector_scale(vector, 1.0/ gsl_blas_dnrm2(vector));
 }
 
-static void solve_least_squares(gsl_matrix *input, gsl_vector *output, int num_params, gsl_vector *results) {
+static void solve_least_squares(gsl_matrix *input, gsl_vector *output, const gsl_vector *weights, int num_params, gsl_vector *results) {
     double fit, sfit;
     gsl_multilarge_linear_workspace *workspace = gsl_multilarge_linear_alloc(gsl_multilarge_linear_normal, num_params);
+    gsl_multifit_linear_applyW(input, weights, output, input, output);
     gsl_multilarge_linear_accumulate(input, output, workspace);
     gsl_multilarge_linear_solve(0.0, results, &fit, &sfit, workspace);
     gsl_multilarge_linear_free(workspace);
@@ -207,16 +209,16 @@ static void convert_ellipsoid_to_transform(gsl_matrix *ellipsoid, gsl_vector *ce
     sqrtm(&temp2_submat.matrix, results);
 }
 
-void fit_ellipsoid(const gsl_matrix *data, const int len, calibration *result) {
+void fit_ellipsoid(const gsl_matrix *data, const gsl_vector *weights, calibration *result) {
     GSL_MATRIX_DECLARE(a4, 4, 4);
     GSL_VECTOR_DECLARE(params, 9);
 
-    GSL_MATRIX_RESIZE(lsq_input, len, 9);
-    GSL_VECTOR_RESIZE(lsq_output, len);
-
-    prepare_input_matrix(&lsq_input, data, len);
+    GSL_MATRIX_RESIZE(lsq_input, data->size1, 9);
+    GSL_VECTOR_RESIZE(lsq_output, data->size1);
+    const gsl_vector_const_view weight_view = gsl_vector_const_subvector(weights, 0, data->size1);
+    prepare_input_matrix(&lsq_input, data, data->size1);
     gsl_vector_set_all(&lsq_output,1.0);
-    solve_least_squares(&lsq_input, &lsq_output, 9, &params);
+    solve_least_squares(&lsq_input, &lsq_output, &weight_view.vector, 9, &params);
     make_ellipsoid_matrix(&a4, &params);
     get_centre_coords(&a4, &result->offset.vector);
     convert_ellipsoid_to_transform(&a4, &result->offset.vector, &result->transform.matrix);
@@ -256,12 +258,27 @@ void apply_rotations_to_cals(const gsl_vector *rotations, calibration *mag, cali
     angles[0] = gsl_vector_get(rotations, 0);
     angles[1] = gsl_vector_get(rotations, 1);
     angles[2] = 0;
+    //angles[2] = gsl_vector_get(rotations, 5);
     rotate_calibration(angles, mag);
     angles[0] = gsl_vector_get(rotations, 2);
     angles[1] = gsl_vector_get(rotations, 3);
-    angles[2] = 0;
+    //angles[2] = 0;
+    angles[2] = gsl_vector_get(rotations, 4);
     rotate_calibration(angles, grav);
 }
+
+void apply_shears_to_cals(const gsl_vector *rotations, calibration *mag) {
+    GSL_MATRIX_DECLARE(shear, 3, 3);
+    GSL_MATRIX_DECLARE(temp, 3, 3);
+    gsl_matrix_set_identity(&shear);
+    gsl_matrix_set(&shear, 0, 2, gsl_vector_get(rotations, 0));
+    gsl_matrix_set(&shear, 1, 0, gsl_vector_get(rotations, 1));
+    gsl_matrix_set(&shear, 1, 2, gsl_vector_get(rotations, 2));
+    gsl_matrix_set(&shear, 2, 0, gsl_vector_get(rotations, 3));
+    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &shear, &mag->transform.matrix, 0, &temp);
+    gsl_matrix_memcpy(&mag->transform.matrix, &temp);    
+}
+
 
 double alignment_value(const gsl_vector *rotations, void *params) {
     struct alignment_params *p = (struct alignment_params *) params;
@@ -274,13 +291,26 @@ double alignment_value(const gsl_vector *rotations, void *params) {
     return check_accuracy(p->mag_data, &temp_mag_cal, p->grav_data, &temp_grav_cal);
 }
 
+double shear_value(const gsl_vector *rotations, void *params) {
+    struct alignment_params *p = (struct alignment_params *) params;
+    CALIBRATION_DECLARE(temp_mag_cal);
+    double result;
+    calibration_memcpy(&temp_mag_cal, p->mag_cal);
+    //apply rotations
+    apply_shears_to_cals(rotations, &temp_mag_cal);
+    result = check_accuracy(p->mag_data, &temp_mag_cal, p->grav_data, p->grav_cal);
+    result += check_calibration(p->mag_data, &temp_mag_cal);
+    return result;
+}
+
+
 double align_all_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
                     const gsl_matrix *grav_data, calibration *grav_cal) {
     struct alignment_params params = {mag_data, mag_cal, grav_data, grav_cal};
-    gsl_multimin_function func = {.f = alignment_value, .n = 4, .params = &params}; 
+    gsl_multimin_function func = {.f = alignment_value, .n = 5, .params = &params}; 
     gsl_multimin_fminimizer *minimizer;
-    GSL_VECTOR_DECLARE(starting_point, 4);
-    GSL_VECTOR_DECLARE(step_size, 4);
+    GSL_VECTOR_DECLARE(starting_point, func.n);
+    GSL_VECTOR_DECLARE(step_size, func.n);
     int iter_count = 0;
     int status;
     double size;
@@ -296,11 +326,54 @@ double align_all_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
             break;
         size = gsl_multimin_fminimizer_size(minimizer);
         status = gsl_multimin_test_size(size, 1e-4);
-
+        wdt_clear();
     } while (status==GSL_CONTINUE && iter_count < 1000);
-    
     if (status == GSL_SUCCESS) {
         apply_rotations_to_cals(minimizer->x, mag_cal, grav_cal);
+#ifdef TEST
+        printf("%d iterations", iter_count);
+        for (iter_count=0; iter_count < starting_point.size; iter_count++) {
+            printf("Results[%d] = %f\n", iter_count, gsl_vector_get(minimizer->x, iter_count)*180.0/M_PI);
+        }
+#endif
+    }
+    result = minimizer->fval;
+    gsl_multimin_fminimizer_free(minimizer);
+    return result;
+}
+
+double get_shear(const gsl_matrix *mag_data, calibration *mag_cal,
+                    const gsl_matrix *grav_data, calibration *grav_cal) {
+    struct alignment_params params = {mag_data, mag_cal, grav_data, grav_cal};
+    gsl_multimin_function func = {.f = shear_value, .n = 4, .params = &params}; 
+    gsl_multimin_fminimizer *minimizer;
+    GSL_VECTOR_DECLARE(starting_point, func.n);
+    GSL_VECTOR_DECLARE(step_size, func.n);
+    int iter_count = 0;
+    int status;
+    double size;
+    double result;
+    minimizer = gsl_multimin_fminimizer_alloc(gsl_multimin_fminimizer_nmsimplex2, func.n);
+    gsl_vector_set_zero(&starting_point);
+    gsl_vector_set_all(&step_size, 0.2);
+    gsl_multimin_fminimizer_set(minimizer, &func, &starting_point, &step_size);
+    do {
+        iter_count++;
+        status = gsl_multimin_fminimizer_iterate(minimizer);
+        if (status)
+            break;
+        size = gsl_multimin_fminimizer_size(minimizer);
+        status = gsl_multimin_test_size(size, 1e-4);
+        wdt_clear();
+    } while (status==GSL_CONTINUE && iter_count < 1000);
+    if (status == GSL_SUCCESS) {
+        apply_shears_to_cals(minimizer->x, mag_cal);
+#ifdef TEST
+        printf("%d iterations", iter_count);
+        for (iter_count=0; iter_count < starting_point.size; iter_count++) {
+            printf("Results[%d] = %f\n", iter_count, gsl_vector_get(minimizer->x, iter_count));
+        }
+#endif
     }
     result = minimizer->fval;
     gsl_multimin_fminimizer_free(minimizer);

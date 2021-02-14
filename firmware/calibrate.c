@@ -20,12 +20,13 @@
 #include "menu.h"
 #include "ui.h"
 #include "exception.h"
+#include "mcc_generated_files/mcc.h"
 
-GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES, 3);
+GSL_MATRIX_DECLARE(mag_readings, CALIBRATION_SAMPLES + MAG_EXTRA_SAMPLES, 3);
 GSL_MATRIX_DECLARE(grav_readings, CALIBRATION_SAMPLES, 3);
-double mag_cal_store[0x400/sizeof(double)] PLACE_DATA_AT(APP_CALIBRATION_LOCATION) = {0};
-double grav_cal_store[0x400/sizeof(double)] PLACE_DATA_AT(APP_CALIBRATION_LOCATION+0x400) = {0};
-
+GSL_VECTOR_DECLARE(reading_weights, CALIBRATION_SAMPLES + MAG_EXTRA_SAMPLES);
+double mag_cal_store[0x680/sizeof(double)] PLACE_DATA_AT(APP_CALIBRATION_LOCATION) = {0};
+double grav_cal_store[0x180/sizeof(double)] PLACE_DATA_AT(APP_CALIBRATION_LOCATION+0x680) = {0};
 
 DECLARE_MENU(calibration_menu, {
     /* calibrate menu */
@@ -209,26 +210,63 @@ double check_accuracy(const gsl_matrix *mag, const calibration *mag_cal,
     return result;
 }
 
-void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int count) {
+void collect_mag_data(gsl_matrix *mag_data, gsl_vector *weights, double gyro_zero[3], int axis) {
+    struct COOKED_SENSORS sensors;
+    gsl_vector_view mag_sensors = gsl_vector_view_array(sensors.mag,3);
+    double angle = 0;
+    double angle_wanted = MAG_DEGS_PER_SAMPLE;
+    unsigned int elapsed,old;
+    double time;
+    int count = 0;
+    laser_on();
+    display_off();
+    _CP0_SET_PERFCNT0_CONTROL(0);
+    _CP0_SET_PERFCNT0_COUNT(0);
+    old = 0.0;
+    while (fabs(angle) < 360.0) {
+        delay_ms_safe(10);
+        sensors_read_uncalibrated(&sensors, 1);
+        elapsed = _CP0_GET_PERFCNT0_COUNT();
+        time = (elapsed-old)*1.0/_XTAL_FREQ;
+        old=elapsed;
+        angle += (sensors.gyro[axis] - gyro_zero[axis]) * time;
+        if (fabs(angle) > angle_wanted) {
+            angle_wanted += MAG_DEGS_PER_SAMPLE;
+            gsl_matrix_set_row(mag_data, count, &mag_sensors.vector);
+            gsl_vector_set(weights, count, 1);
+            count++;
+        }
+    }
+    beep_happy();
+    laser_off();
+    display_on();
+}
+
+void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, gsl_vector *weights) {
     struct COOKED_SENSORS sensors;
     gsl_vector_view mag_sensors = gsl_vector_view_array(sensors.mag,3);
     gsl_vector_view grav_sensors = gsl_vector_view_array(sensors.accel,3);
-    int i;
+    unsigned int i;
     display_off();
     laser_on();
-    for (i=0; i< count; i++) {
+    for (i=0; i< mag_data->size1; i++) {
         //delay to let user move to position
         if (get_clicks()!=NONE) {
             THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
         }
-        delay_ms_safe(5000);
+        if (i==0) {
+            delay_ms_safe(2000);
+        } else {
+            delay_ms_safe(4000);
+        }
         if (get_clicks()!=NONE) {
             THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
         }
         //read in samples
         sensors_read_uncalibrated(&sensors, SAMPLES_PER_READING);
-        gsl_matrix_set_row(mag_data, i+offset, &mag_sensors.vector);
-        gsl_matrix_set_row(grav_data, i+offset, &grav_sensors.vector);
+        gsl_matrix_set_row(mag_data, i, &mag_sensors.vector);
+        gsl_matrix_set_row(grav_data, i, &grav_sensors.vector);
+        gsl_vector_set(weights, i, SAMPLES_PER_READING);
         //beep to let user know to move to next position.
         laser_off();
         delay_ms_safe(300);
@@ -244,45 +282,68 @@ void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int c
 
 void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     int count;
-    /* get readings around  z-axis*/
+    int row;
+    struct COOKED_SENSORS sensors;
+    gsl_matrix_view mag_view;
+    gsl_matrix_view grav_view;
+    gsl_vector_view weight_view;
+    const char *mag_rotate_instructions[] = {
+        "Press the button\nthen rotate\nend over end\nuntil the beep",
+        "Press the button\nthen rotate\nside over side\nuntil the beep",
+        "Press the button\nthen rotate\nahorizontally\nuntil the beep",
+    };
+    const char *stepped_rotate_instructions[] = {
+        "Place device on\ninclined surface\nand press button",
+        "After each beep\nrotate by ~90'",
+        "Place device flat\nand press button",
+        "After each beep\nrotate end over\nend by ~90'"
+    };
+    
+    /* get continuous readings in 3 axes*/
     display_write_multiline(0, "Place device on\n"
-                               "inclined surface\n"
+                               "a flat surface\n"
                                "and press button", true);
-    if (!get_single_click()){
-            THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
-        }
-    display_write_multiline(0, "After each beep\n"
-                               "rotate by ~90'", true);
-    delay_ms_safe(2000);
-    collect_data(mag, grav, 0, CAL_AXIS_COUNT);
+    get_single_click_or_throw("Calibration aborted", ERROR_PROCEDURE_ABORTED);
+    delay_ms_safe(100);
+    sensors_read_uncalibrated(&sensors, 50);
+    for (count = 0; count< 3; count++) {
+        display_write_multiline(0, mag_rotate_instructions[count], true);
+        get_single_click_or_throw("Calibration aborted", ERROR_PROCEDURE_ABORTED);
+        row = CALIBRATION_SAMPLES + count * MAG_SAMPLES_PER_AXIS;
+        mag_view = gsl_matrix_get_rows(mag, row, MAG_SAMPLES_PER_AXIS);
+        weight_view = gsl_vector_subvector(&reading_weights, row, MAG_SAMPLES_PER_AXIS);
+        collect_mag_data(&mag_view.matrix, &weight_view.vector, sensors.gyro, count);
+    }
     
-    /* now read data on x-axis*/
-    display_write_multiline(0, "Place device flat\n"
-                               "and press button", true);
-    if (!get_single_click()){
-            THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
-        }
-    display_write_multiline(0, "After each beep\n"
-                               "rotate end over\n"
-                               "end by ~90'", true);
-    delay_ms_safe(2000);
-    collect_data(mag, grav, CAL_AXIS_COUNT, CAL_AXIS_COUNT);
+    /* get static readings around x and z axes*/
+    for(count=0; count < 2; count++) {
+        display_write_multiline(0, stepped_rotate_instructions[count*2], true);
+        get_single_click_or_throw("Calibration aborted", ERROR_PROCEDURE_ABORTED);
+        display_write_multiline(0, stepped_rotate_instructions[count*2+1], true);
+        row = count * CAL_AXIS_COUNT;
+        mag_view = gsl_matrix_get_rows(mag, row, CAL_AXIS_COUNT);
+        grav_view = gsl_matrix_get_rows(grav, row, CAL_AXIS_COUNT);
+        weight_view = gsl_vector_subvector(&reading_weights, row, CAL_AXIS_COUNT);
+        collect_data(&mag_view.matrix, &grav_view.matrix, &weight_view.vector);
+    }
     
-    /* now read data on y-axis */
+    /*get static readings around y-axis */
     for (count=0; count<2; count++) {
         laser_on();
         display_write_multiline(0, "Point laser at\n"
                                    "fixed target\n"
                                    "and press button", true);
-        if (!get_single_click()){
-                THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
-            }
+        get_single_click_or_throw("Calibration aborted", ERROR_PROCEDURE_ABORTED);
         display_write_multiline(0, "After each beep\n"
                                    "rotate by ~45'\n"
                                    "leaving laser\n"
                                    "on target", true);
-        delay_ms_safe(1500);
-        collect_data(mag, grav, CAL_AXIS_COUNT*2+CAL_TARGET_COUNT*count, CAL_TARGET_COUNT);
+        delay_ms_safe(3000);
+        row  = CAL_AXIS_COUNT*2 + CAL_TARGET_COUNT * count;
+        mag_view = gsl_matrix_get_rows(mag, row, CAL_TARGET_COUNT);
+        grav_view = gsl_matrix_get_rows(grav, row, CAL_TARGET_COUNT);
+        weight_view = gsl_vector_subvector(&reading_weights, row, CAL_TARGET_COUNT);
+        collect_data(&mag_view.matrix, &grav_view.matrix, &weight_view.vector);
     }
 }
 
@@ -309,6 +370,9 @@ void calibrate_sensors(int32_t dummy) {
     fit_ellipsoid(&mag_readings, &reading_weights, &mag_cal);
     fit_ellipsoid(&grav_readings, &reading_weights,  &grav_cal);
     align_all_sensors(&mag_spins.matrix, &mag_cal, &grav_spins.matrix, &grav_cal);
+    get_shear(&mag_spins.matrix, &mag_cal, &grav_spins.matrix, &grav_cal);
+    
+    
     // show mag error
     display_clear(true);
     mag_error = check_calibration(&mag_readings, &mag_cal);

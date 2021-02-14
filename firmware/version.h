@@ -15,12 +15,12 @@ extern "C" {
 #include <stdint.h>
 //Version 1.1.0
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 1
+#define VERSION_MINOR 3
 #define VERSION_REVISION 1
 
-#define VERSION_CONFIG 1
+#define VERSION_CONFIG 2
 #define VERSION_LEG 1
-#define VERSION_CALIBRATION 1
+#define VERSION_CALIBRATION 2
 
 enum HARDWARE_VERSION {
     VERSION_ALPHA,
