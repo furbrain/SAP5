@@ -1,4 +1,4 @@
-# release: pcb 4.0.2
+# release: pcb 4.2.2
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
 FileVersion[20100606]
@@ -12,7 +12,6 @@ DRC[0.1800mm 0.1800mm 0.1800mm 0.1800mm 0.3310mm 0.1800mm]
 Flags("showdrc,rubberband,nameonpcb,autodrc,uniquename,clearnew,snappin")
 Groups("1,2,3,c:4,5,6,s:7:8")
 Styles["Signal,10.00mil,1.3000mm,0.7000mm,10.00mil:Power,25.00mil,60.00mil,35.00mil,10.00mil:Fat,40.00mil,60.00mil,35.00mil,10.00mil:Skinny,0.1810mm,24.02mil,11.81mil,6.00mil"]
-
 Symbol[' ' 18.00mil]
 (
 )
@@ -1046,6 +1045,7 @@ Element["" "SOT25" "U8" "unknown" 9.7160mm 15.6980mm 0.3440mm -2.2280mm 0 100 ""
 	ElementLine [-29.00mil -20.00mil -29.00mil 98.00mil 10.00mil]
 	ElementLine [-29.00mil 98.00mil 110.00mil 98.00mil 10.00mil]
 	ElementLine [110.00mil -20.00mil 110.00mil 98.00mil 10.00mil]
+	ElementLine [110.00mil 98.00mil 120.00mil 108.00mil 10.00mil]
 
 	)
 
@@ -1114,10 +1114,10 @@ Element["lock" "oled2" "DISPLAY1" "unknown" 21.8000mm 18.7900mm 13.8600mm -2.670
 	ElementLine [14.2300mm -5.0700mm 16.7700mm -5.0700mm 10.00mil]
 	ElementLine [14.2300mm -2.5300mm 16.7700mm -2.5300mm 10.00mil]
 	ElementLine [16.7700mm -5.0700mm 16.7700mm -2.5300mm 10.00mil]
-	ElementArc [13.5000mm -15.3000mm 3.0000mm 3.0000mm 318 190 10.00mil]
-	ElementArc [13.5000mm 15.3000mm 3.0000mm 3.0000mm 210 190 10.00mil]
-	ElementArc [-13.5000mm -15.3000mm 3.0000mm 3.0000mm 32 190 10.00mil]
-	ElementArc [-13.5000mm 15.3000mm 3.0000mm 3.0000mm 140 190 10.00mil]
+	ElementArc [13.5000mm -15.3000mm 3.0000mm 3.0000mm 318.000000 190.000000 10.00mil]
+	ElementArc [13.5000mm 15.3000mm 3.0000mm 3.0000mm 210.000000 190.000000 10.00mil]
+	ElementArc [-13.5000mm -15.3000mm 3.0000mm 3.0000mm 32.000000 190.000000 10.00mil]
+	ElementArc [-13.5000mm 15.3000mm 3.0000mm 3.0000mm 140.000000 190.000000 10.00mil]
 
 	)
 
@@ -1136,12 +1136,12 @@ Element["found,selected" "CUI_UJ2-MIBH-4-SMT-TR-67" "J4" "unknown" 21.7799mm 38.
 	ElementLine [-196.85mil -137.79mil -70.86mil -137.79mil 5.00mil]
 	ElementLine [70.86mil -137.79mil 196.85mil -137.79mil 5.00mil]
 	ElementLine [196.85mil -137.79mil 196.85mil 0.0000 5.00mil]
-	ElementArc [-110.23mil -165.35mil 11.81mil 11.81mil 270 180 0.0000]
-	ElementArc [-90.55mil -165.35mil 11.81mil 11.81mil 90 180 0.0000]
-	ElementArc [90.55mil -165.35mil 11.81mil 11.81mil 270 180 0.0000]
-	ElementArc [110.23mil -165.35mil 11.81mil 11.81mil 90 180 0.0000]
-	ElementArc [-51.18mil -216.53mil 3.94mil 3.94mil 90 360 7.87mil]
-	ElementArc [-51.18mil -216.53mil 3.94mil 3.94mil 90 360 7.87mil]
+	ElementArc [-110.23mil -165.35mil 11.81mil 11.81mil 270.000000 180.000000 0.0000]
+	ElementArc [-90.55mil -165.35mil 11.81mil 11.81mil 90.000000 180.000000 0.0000]
+	ElementArc [90.55mil -165.35mil 11.81mil 11.81mil 270.000000 180.000000 0.0000]
+	ElementArc [110.23mil -165.35mil 11.81mil 11.81mil 90.000000 180.000000 0.0000]
+	ElementArc [-51.18mil -216.53mil 3.94mil 3.94mil 90.000000 360.000000 7.87mil]
+	ElementArc [-51.18mil -216.53mil 3.94mil 3.94mil 90.000000 360.000000 7.87mil]
 
 	)
 
@@ -1280,7 +1280,7 @@ Element["" "SSOP28" "U1" "unknown" 22.3400mm 300.00mil 3.4752mm 1.7242mm 0 100 "
 	ElementLine [326.00mil -22.00mil 326.00mil 356.00mil 10.00mil]
 	ElementLine [326.00mil 356.00mil -43.00mil 356.00mil 10.00mil]
 	ElementLine [-43.00mil 356.00mil -43.00mil -22.00mil 10.00mil]
-	ElementArc [141.00mil -22.00mil 25.00mil 25.00mil 0 180 10.00mil]
+	ElementArc [141.00mil -22.00mil 25.00mil 25.00mil 0.000000 180.000000 10.00mil]
 
 	)
 Layer(1 "top power" "copper")
