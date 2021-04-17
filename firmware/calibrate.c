@@ -221,7 +221,11 @@ void collect_data(gsl_matrix *mag_data, gsl_matrix *grav_data, int offset, int c
         if (get_clicks()!=NONE) {
             THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
         }
-        delay_ms_safe(5000);
+        if (i==0) {
+            delay_ms_safe(1000);
+        } else {
+            delay_ms_safe(3000);
+        }
         if (get_clicks()!=NONE) {
             THROW_WITH_REASON("Calibration aborted", ERROR_PROCEDURE_ABORTED);
         }
@@ -251,7 +255,6 @@ void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     get_single_click_or_throw("Calibration aborted", ERROR_PROCEDURE_ABORTED);
     display_write_multiline(0, "After each beep\n"
                                "rotate by ~90'", true);
-    delay_ms_safe(2000);
     collect_data(mag, grav, 0, CAL_AXIS_COUNT);
     
     /* now read data on x-axis*/
@@ -261,7 +264,6 @@ void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
     display_write_multiline(0, "After each beep\n"
                                "rotate end over\n"
                                "end by ~90'", true);
-    delay_ms_safe(2000);
     collect_data(mag, grav, CAL_AXIS_COUNT, CAL_AXIS_COUNT);
     
     /* now read data on y-axis */
@@ -275,7 +277,6 @@ void get_calibration_data(gsl_matrix *mag, gsl_matrix *grav) {
                                    "rotate by ~45'\n"
                                    "leaving laser\n"
                                    "on target", true);
-        delay_ms_safe(1500);
         collect_data(mag, grav, CAL_AXIS_COUNT*2+CAL_TARGET_COUNT*count, CAL_TARGET_COUNT);
     }
 }
@@ -299,13 +300,20 @@ void calibrate_sensors(int32_t dummy) {
     memory_write_data(mag_cal_store, mag_readings_data, sizeof(mag_readings_data));
     memory_write_data(grav_cal_store, 
                       grav_readings_data, sizeof(grav_readings_data));
-    display_write_multiline(0, "Processing", true);    
+    display_write_multiline(0, "Fitting mag", true);    
     //do calibration    
     fit_ellipsoid(&mag_readings, &mag_cal);
+    display_write_multiline(2, "Fitting grav", false);    
+    display_show_buffer();
     fit_ellipsoid(&grav_readings, &grav_cal);
+    display_write_multiline(4, "Aligning", false);
+    display_show_buffer();    
     align_all_sensors(&mag_spins.matrix, &mag_cal, &grav_spins.matrix, &grav_cal);
+    display_write_multiline(6, "Optimizing", false);    
+    display_show_buffer();    
+    optimize_rbf(&mag_readings, &mag_cal, &grav_readings, &grav_cal);
+    display_write_multiline(0, "Calibration done", true);    
     // show mag error
-    display_clear(true);
     mag_error = check_calibration(&mag_readings, &mag_cal);
     sprintf(text, "Mag Err:  %.2f%%", mag_error);
     display_write_multiline(2, text, false);

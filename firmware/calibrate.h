@@ -14,8 +14,6 @@ extern struct menu calibration_menu;
 
 double check_accuracy(const gsl_matrix *mag, const calibration *mag_cal,
                       const gsl_matrix *grav, const calibration *grav_cal);
-double check_accuracy2(const gsl_matrix *mag, const calibration *mag_cal,
-                      const gsl_matrix *grav, const calibration *grav_cal);
 double check_calibration(const gsl_matrix *data, calibration *cal);
 
 void calibrate_axes(int32_t dummy);
