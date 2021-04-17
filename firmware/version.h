@@ -13,12 +13,12 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-//Version 1.1.0
+//Version 1.2.0
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 1
-#define VERSION_REVISION 1
+#define VERSION_MINOR 2
+#define VERSION_REVISION 0
 
-#define VERSION_CONFIG 1
+#define VERSION_CONFIG 2
 #define VERSION_LEG 1
 #define VERSION_CALIBRATION 1
 

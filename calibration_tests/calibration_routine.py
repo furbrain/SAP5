@@ -22,6 +22,7 @@ from scipy.spatial.transform import Rotation as R
 # X = East
 # Y = North
 # Z = Up
+import readings
 from calset import CalSet, graph
 
 RESOLUTION = 100
@@ -47,15 +48,6 @@ def show_points(data, autoscale=False, labels=None):
     plt.show()
 
 
-def get_rotated_cals(rots, cals):
-    M = get_transform([rots[0], 0.0, rots[1]])
-    G = get_transform([rots[2], 0.0, rots[3]])
-    c = copy.deepcopy(cals)
-    c.mag_cal.apply_matrix(M.as_dcm())
-    c.grav_cal.apply_matrix(G.as_dcm())
-    return c
-
-
 def get_offset_cals(xz, cals):
     c = copy.deepcopy(cals)
     c.mag_cal.apply_matrix(get_shears(xz))
@@ -63,29 +55,19 @@ def get_offset_cals(xz, cals):
     return c
 
 
-def get_transform(rot):
-    return R.from_euler('xyz', rot, degrees=True)
-
-
 def get_shears(x):
     return np.array([[1, x[0], x[1]], [0, 1, 0], [x[2], x[3], 1]]).T
-
-
-def minimisation_function(rots, cals, mag, grav):
-    # rots is a set of 6 rotations, 3 for mag, 3 for grav
-    c = get_rotated_cals(rots, cals)
-    return c.check_alignment2(mag[8:], grav[8:])
 
 
 def minimisation_xz_function(rots, cals, mag, grav):
     # rots is a set of 6 rotations, 3 for mag, 3 for grav
     c = get_offset_cals(rots, cals)
-    return c.check_alignment2(mag[8:], grav[8:]) + c.check_uniformity(mag, grav) / 4
+    return c.check_alignment2(mag[8:], grav[8:]) + c.check_uniformity_multiple(mag, grav) / 4
 
 
 def minimisation_mat_function(vector, cals, mag, grav):
     c = CalSet.from_vector(vector)
-    return c.check_alignment2(mag[8:], grav[8:]) + c.check_uniformity(mag, grav)
+    return c.check_alignment2(mag[8:], grav[8:]) + c.check_uniformity_multiple(mag, grav)
 
 
 def minimize_matrix(cals, mag, grav):
@@ -99,13 +81,6 @@ def minimize_matrix(cals, mag, grav):
     return CalSet.from_vector(ret.x)
 
 
-def minimize(cals, mag, grav):
-    x0 = np.zeros(4)
-    print("Starting minimization: ", minimisation_function(x0, cals, mag, grav))
-    ret = scipy.optimize.minimize(lambda x: minimisation_function(x, cals, mag, grav), x0, method="Nelder-Mead",
-                                  options={"disp": True, "maxiter": 20000})
-    print(ret.success, ret.message)
-    return get_rotated_cals(ret.x, cals)
 
 
 def minimize_offset(cals, mag, grav):
@@ -203,71 +178,51 @@ def show_rotated_positions(cals: CalSet, mag, grav):
     plt.show()
 
 
-def print_neatness(calibs: CalSet, m, g):
-    print(calibs.check_uniformity(m, g))
-    print(calibs.check_alignment2(m[8:24], g[8:24]))
+def print_neatness(calibs: CalSet, r: readings.ReadingSet):
+    print(calibs.check_uniformity_multiple(r))
+    print(calibs.check_alignment2(r))
 
 
 # do_test_runs()
 if len(sys.argv) > 1:
-    data = np.load(sys.argv[1])
-    m = data['m'].T
-    g = data['g'].T
-    if len(sys.argv) > 2:
-        data = np.load(sys.argv[2])
-        m_fine = data['m'].T
-        g_fine = data['g'].T
+    readingset = readings.load_from_npz(sys.argv[1])
 else:
-    data = np.load("data.npz")
-    m = data['m'].T
-    g = data['g'].T
-print(m)
-print(g)
-EXTENDED = m.shape[0] > 16
-m_spins = m[8:16]
-g_spins = g[8:16]
-m_spins2 = m[16:24]
-g_spins2 = g[16:24]
-m_spins_all = m[8:24]
-g_spins_all = g[8:24]
-m_static = m[:24]
+    readingset = readings.load_from_npz("data.npz")
 
 cals = CalSet()
 print("uncalibrated")
-print_neatness(cals, m_static, g)
+print_neatness(cals, readingset)
 
 print("\nunaligned")
-cals.fit_ellipsoid(m, g)
-print_neatness(cals, m_static, g)
+cals.fit_ellipsoid(readingset)
+print_neatness(cals, readingset)
 
 #cals.grav_cal.fit_higher_order(g)
-print_neatness(cals, m_static, g)
-print(cals.check_accuracy(m_spins_all, g_spins_all, display=True))
+print_neatness(cals, readingset)
 
-cals = minimize(cals, m_static, g)
-print_neatness(cals, m_static, g)
-print(cals.check_accuracy(m_spins_all, g_spins_all, display=True))
+cals = cals.minimize(readingset)
+print_neatness(cals, readingset)
 
 print("\nhigher order mag")
 #cals.mag_cal.fit_higher_order(m)
-linear = [[],[],[]]
-labels = []
-uniformity = [cals.check_uniformity(m, g)]
-accuracy = [cals.check_alignment2(m_spins_all, g_spins_all)]
+linear = [[], [], []]
+uniformity = [cals.check_uniformity_multiple(readingset)]
+accuracy = [cals.check_alignment2(readingset)]
 combined = [accuracy[-1]+uniformity[-1]]
-for x in range(1,7):
-    cals.minimize_heading_error(m, g, order=x)
-    accuracy.append(cals.check_alignment2(m_spins_all, g_spins_all))
-    uniformity.append(cals.check_uniformity(m, g))
+for k in range(1, 7):
+    min_cals = cals.full_calibration(readingset, order=k)
+    print(k, ": ", min_cals.mag_cal.second_order)
+    accuracy.append(min_cals.check_alignment2(readingset))
+    uniformity.append(min_cals.check_uniformity_multiple(readingset))
     combined.append(accuracy[-1]+uniformity[-1])
     for i in range(3):
-        x, y  = cals.mag_cal.second_order[i].linspace(100, (-1.3, 1.3))
+        x, y = min_cals.mag_cal.second_order[i].linspace(100, (-1.3, 1.3))
         linear[i].append(y)
-    labels.append(i)
 graph(list(range(0,7)), accuracy, uniformity, combined, labels=["accuracy", "uniformity", "combined"])
 for i in range(3):
-    graph(x, *linear[i])
+    graph(x, *linear[i], labels=range(1,7))
 print(cals.mag_cal.second_order)
-print_neatness(cals, m_static, g)
-print(cals.check_accuracy(m_spins_all, g_spins_all, display=True))
+print_neatness(cals, readingset)
+print(cals.check_accuracy(readingset.aligned[0], display=True))
+print(cals.check_accuracy(readingset.aligned[1], display=True))
 

@@ -12,11 +12,13 @@
 #include "gsl_static.h"
 #include "mag_sample_data.inc"
 #include "mock_calibrate.h"
+#include "mock_utils.h"
 
 #define DEGREES_PER_RADIAN 57.296
 
 void suiteSetUp(void) {
     exception_init();
+    wdt_clear_Ignore();
 }
 
 void test_cross_product(void) {
@@ -49,7 +51,7 @@ void test_cross_product(void) {
 }
 
 void test_calibration_from_doubles(void) {
-    double data[12] = {1,2,3,4,5,6,7.2,8,9,10,11};
+    double data[21] = {1,2,3,4,5,6,7.2,8,9,10,11,12,13,14,15,16,17,18,19,20,21};
     calibration cal = calibration_from_doubles(data);
     int i,j;
     char text[24];
@@ -60,13 +62,17 @@ void test_calibration_from_doubles(void) {
         }
         snprintf(text,24,"Offset: %d:%d",i,j);
         TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(data[9+i], gsl_vector_get(&cal.offset.vector,i), text);
+        for (j=0; j<3; ++j) {
+            snprintf(text,24,"RBF: %d:%d",i,j);
+            TEST_ASSERT_EQUAL_DOUBLE_MESSAGE(data[i*3+j+12], gsl_matrix_get(&cal.rbf.matrix,i,j), text);
+        }
         
     }
 }
 
 void test_calibration_memcpy(void) {
-    double data1[12] = {1,2,3,4,5,6,7.2,8,9,10,11};
-    double data2[12] = {0};
+    double data1[21] = {1,2,3,4,5,6,7.2,8,9,10,11,12,13,14,15,16,17,18,19,20,21};
+    double data2[21] = {0};
     calibration cal1 = calibration_from_doubles(data1);
     calibration cal2 = calibration_from_doubles(data2);
     calibration_memcpy(&cal2, &cal1);

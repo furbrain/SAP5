@@ -6,15 +6,18 @@ import scipy
 import scipy.optimize
 from matplotlib import pyplot as plt
 from numpy.polynomial import Polynomial
-from scipy.spatial.transform import Rotation
+from scipy.spatial.transform import Rotation, Rotation as R
 
 from rbf import RBF
+from readings import ReadingSet, Readings
 
 ORDER = 3
 
 ORTHOGONAL = True
 
 RBF_GAUSSIAN = True
+
+MIN_DIP = False
 
 
 def normalise(vectors):
@@ -32,6 +35,7 @@ class Calibration:
             self.second_order = [np.zeros((ORDER, ORDER, ORDER))] * 3
         self.centre = np.zeros(3)
         self.transform = np.identity(3)
+        self.gaussians = None
 
     def fit(self, readings, rotated=True, non_linear=False):
         if rotated:
@@ -154,20 +158,19 @@ class Calibration:
 
     def apply(self, v):
         v = v - self.centre
-        v = v.dot(self.transform)
         v = self.apply_non_linear(v)
+        v = v.dot(self.transform)
         return v
-
-    def gaussian(self, x, offset):
-        offsets = np.linspace(-1,1,len(self.second_order[0]))
-        return np.exp(x,)
 
     def apply_non_linear(self, vectors):
         v = copy.copy(vectors)
+        scale = self.transform[0, 0]
+        normalised_v = v * scale
         if ORTHOGONAL:
-            v[:, 0] += self.second_order[0](v[:, 0])
-            v[:, 1] += self.second_order[1](v[:, 1])
-            v[:, 2] += self.second_order[2](v[:, 2])
+            if RBF_GAUSSIAN:
+                v[:, 0] += self.second_order[0](normalised_v[:, 0])/scale
+                v[:, 1] += self.second_order[1](normalised_v[:, 1])/scale
+                v[:, 2] += self.second_order[2](normalised_v[:, 2])/scale
         else:
             v[:, 0] += np.polynomial.polynomial.polyval3d(vectors[:, 0],vectors[:, 1], vectors[:, 2], self.second_order[0])
             v[:, 1] += np.polynomial.polynomial.polyval3d(vectors[:, 0], vectors[:, 1], vectors[:, 2], self.second_order[0])
@@ -254,11 +257,10 @@ class CalSet:
         self.mag_cal = Calibration()
         self.grav_cal = Calibration()
 
-    def fit_ellipsoid(self, mag, grav):
-        self.mag_cal.fit(mag)
-        self.grav_cal.fit(grav)
-        print(self.mag_cal.transform/self.mag_cal.transform[0,0])
-        print(self.grav_cal.transform, self.grav_cal.centre)
+    def fit_ellipsoid(self, r: ReadingSet):
+        all_readings = r.all()
+        self.mag_cal.fit(all_readings.mag)
+        self.grav_cal.fit(all_readings.grav)
 
     def align_laser(self, mag, grav):
         self.mag_cal.align_laser(mag)
@@ -275,17 +277,12 @@ class CalSet:
             print("Angles", angles)
         return np.std(angles, ddof=1)
 
-    def check_alignment2(self, mag, grav):
-        if mag.shape[0] > 8:
-            a = np.linalg.norm(self.check_accuracy(mag[:8], grav[:8]))
-            b = np.linalg.norm(self.check_accuracy(mag[8:], grav[8:]))
-            result = a + b / 2
-        else:
-            result = np.linalg.norm(self.check_accuracy(mag, grav))
+    def check_alignment2(self, r: ReadingSet):
+        result = sum(np.linalg.norm(self.check_accuracy(x)) for x in r.aligned)/len(r.aligned)
         return result
 
-    def check_accuracy(self, mag, grav, display=False):
-        east, north, orientation = self.get_orientation(mag, grav)
+    def check_accuracy(self, r: Readings, display=False):
+        east, north, orientation = self.get_orientation(r.mag, r.grav)
         if display:
             compass = np.arctan2(east[:, 1], north[:, 1])
             inclination = np.arctan2(orientation[:, 2], np.linalg.norm(orientation[:, 0:2], axis=1))
@@ -302,10 +299,23 @@ class CalSet:
         orientation = normalise(np.stack((east[:, 1], north[:, 1], up[:, 1])).T)
         return east, north, orientation
 
+    def check_uniformity_multiple(self, r: ReadingSet):
+        all_readings = r.all()
+        return self.check_uniformity(all_readings.mag, all_readings.grav)
+
     def check_uniformity(self, mag, grav):
         m = np.sqrt(np.mean(self.mag_cal.uniformity(mag)))
         g = np.sqrt(np.mean(self.grav_cal.uniformity(grav)))
         return np.rad2deg(m + g)
+
+    def check_dip(self, r: ReadingSet):
+        all_readings = r.all()
+        return self.check_alignment(all_readings.mag, all_readings.grav)
+
+    def check_alignment_single(self, mag, grav, r: Readings):
+        main_orientation = np.mean(self.get_orientation(r.mag, r.grav)[2], axis=0)
+        test_orientation = self.get_orientation(mag, grav)[2]
+        return np.rad2deg(np.linalg.norm(test_orientation-main_orientation))
 
     def sync_sensors(self, mag, grav, x=False):
         angles = np.linspace(-np.pi / 100, np.pi / 100, 800)
@@ -329,13 +339,35 @@ class CalSet:
         print("angles: ", np.rad2deg(q.as_euler_angles(best_q)))
         self.mag_cal.transform = np.dot(old_transform, q.as_rotation_matrix(best_q))
 
-    def minimize_heading_error(self, mag, grav, order=ORDER):
+    def minimize_heading_error(self, r: ReadingSet, order=ORDER):
         def min_func(x):
-            self.mag_cal.set_higher_order_params(x, order)
-            return self.check_alignment2(mag[8:24],grav[8:24]) + self.check_uniformity(mag, grav)
+            c = copy.deepcopy(self)
+            c.mag_cal.set_higher_order_params(x, order)
+            return c.check_alignment2(r) + c.check_uniformity_multiple(r)
 
         x0 = self.mag_cal.make_params_list(order)
-        scipy.optimize.minimize(min_func, x0)
+        ret = scipy.optimize.minimize(min_func, x0)
+        c = copy.deepcopy(self)
+        c.mag_cal.set_higher_order_params(ret.x, order)
+        if not ret.success:
+            print("Minimisation error: ", ret.message)
+        return c
+
+
+    def minimize_dip_error(self, r: ReadingSet, order=ORDER):
+        gaussians =
+        def min_func(x):
+            c = copy.deepcopy(self)
+            c.mag_cal.set_higher_order_params(x, order)
+            return c.check_dip(r) + c.check_uniformity_multiple(r)
+
+        x0 = self.mag_cal.make_params_list(order)
+        ret = scipy.optimize.minimize(min_func, x0)
+        c = copy.deepcopy(self)
+        c.mag_cal.set_higher_order_params(ret.x, order)
+        if not ret.success:
+            print("Minimisation error: ", ret.message)
+        return c
 
     def to_vector(self):
         return np.hstack((self.mag_cal.to_vector(), self.grav_cal.to_vector()))
@@ -347,6 +379,41 @@ class CalSet:
         self.grav_cal = Calibration.from_vector(vector[12:])
         return self
 
+    def rotate(self, rots):
+        rot = [rots[0], 0.0, rots[1]]
+        M = R.from_euler('xyz', rot, degrees=True)
+        rot1 = [rots[2], 0.0, rots[3]]
+        G = R.from_euler('xyz', rot1, degrees=True)
+        self.mag_cal.apply_matrix(M.as_dcm())
+        self.grav_cal.apply_matrix(G.as_dcm())
+
+    def minimize(self, r: ReadingSet) -> "CalSet":
+        def minimisation_function(rots):
+            # rots is a set of 6 rotations, 3 for mag, 3 for grav
+            c = copy.deepcopy(self)
+            c.rotate(rots)
+            return c.check_alignment2(r)
+
+        x0 = np.zeros(4)
+        ret = scipy.optimize.minimize(minimisation_function, x0, method="Nelder-Mead",
+                                      options={"maxiter": 20000})
+        c = copy.deepcopy(self)
+        c.rotate(ret.x)
+        return c
+
+    @classmethod
+    def full_calibration(cls, r: ReadingSet, order=ORDER):
+        c = cls()
+        c.fit_ellipsoid(r)
+        c = c.minimize(r)
+        if order > 0:
+            if MIN_DIP:
+                c = c.minimize_dip_error(r, order)
+            else:
+                c = c.minimize_heading_error(r, order)
+        return c
+
+
 
 def graph(x, *ys, labels=None):
     fig = plt.figure()
@@ -357,3 +424,7 @@ def graph(x, *ys, labels=None):
         ax.plot(x, y, label=label)
     ax.legend()
     plt.show()
+
+
+
+

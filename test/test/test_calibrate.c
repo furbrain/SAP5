@@ -14,7 +14,7 @@
 #include "font.h"
 #include "leg.h"
 
-#include "mag_sample_data2.inc"
+#include "mag_sample_data3.inc"
 #include "mock_sensors.h"
 #include "mock_survey.h"
 #include "mock_display.h"

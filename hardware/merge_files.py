@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import sys
 import re
@@ -21,5 +21,5 @@ b = partition(b)
 if a['header'] != b['header']:
     raise ValueError("Headers do not match")
 result = a['header'] + a['def'] + b['def'] + ["%"] + a['drill'] + b['drill'] + ["M30"]
-print '\r\n'.join(result)
+print =('\r\n'.join(result))
 

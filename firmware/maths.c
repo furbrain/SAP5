@@ -16,6 +16,7 @@
 #include "display.h"
 #include "calibrate.h"
 #include "eigen3x3.h"
+#include "utils.h"
 /* return AxB in C, where A B and C are all pointers to double[3] */
 
 GSL_MATRIX_DECLARE(lsq_input, CALIBRATION_SAMPLES, 9);
@@ -36,6 +37,7 @@ calibration calibration_from_doubles(double *data) {
     calibration c;
     c.transform = gsl_matrix_view_array(data,3,3);
     c.offset = gsl_vector_view_array(&data[9],3);
+    c.rbf = gsl_matrix_view_array(&data[12], 3, CALIBRATION_RBF_COUNT);
     return c;
 }
 
@@ -44,6 +46,24 @@ calibration calibration_from_doubles(double *data) {
 void calibration_memcpy(calibration *dest, const calibration *src) {
     gsl_matrix_memcpy(&dest->transform.matrix, &src->transform.matrix);
     gsl_vector_memcpy(&dest->offset.vector, &src->offset.vector);
+    gsl_matrix_memcpy(&dest->rbf.matrix, &src->rbf.matrix);
+}
+
+void apply_rbf(const gsl_vector *a, const calibration *b, gsl_vector *c) {
+    int i, j;
+    double radius;
+    double offset;
+    double x;
+    for (i=0; i<3; i++) {
+        x = gsl_vector_get(a, i);
+        for (j=0; j<CALIBRATION_RBF_COUNT; j++) {
+            offset = (j * (CALIBRATION_RBF_COUNT-1.0)/2.0) - 1.0;
+            radius = (x-offset)/(2.0/CALIBRATION_RBF_COUNT);
+            radius *= -radius;
+            x += exp(radius) * gsl_matrix_get(&b->rbf.matrix, i, j);
+        }
+        gsl_vector_set(c, i, x);
+    }
 }
 
 
@@ -53,6 +73,7 @@ void apply_calibration(const gsl_vector *a, const calibration *b, gsl_vector *c)
     gsl_vector_memcpy(&temp, a);
     gsl_vector_add(&temp, &b->offset.vector);
     gsl_blas_dgemv(CblasNoTrans, 1.0, &b->transform.matrix, &temp, 0, c);
+    apply_rbf(c, b, c);
 }
 
 /* take magnetism and acceleration vectors in device coordinates
@@ -224,7 +245,7 @@ void fit_ellipsoid(const gsl_matrix *data, calibration *result) {
 }
 
 
-struct alignment_params {
+struct optimize_params {
     const gsl_matrix *mag_data;
     const calibration *mag_cal;
     const gsl_matrix *grav_data; 
@@ -264,7 +285,7 @@ void apply_rotations_to_cals(const gsl_vector *rotations, calibration *mag, cali
 }
 
 double alignment_value(const gsl_vector *rotations, void *params) {
-    struct alignment_params *p = (struct alignment_params *) params;
+    struct optimize_params *p = (struct optimize_params *) params;
     CALIBRATION_DECLARE(temp_mag_cal);
     CALIBRATION_DECLARE(temp_grav_cal);
     calibration_memcpy(&temp_mag_cal, p->mag_cal);
@@ -276,11 +297,11 @@ double alignment_value(const gsl_vector *rotations, void *params) {
 
 double align_all_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
                     const gsl_matrix *grav_data, calibration *grav_cal) {
-    struct alignment_params params = {mag_data, mag_cal, grav_data, grav_cal};
+    struct optimize_params params = {mag_data, mag_cal, grav_data, grav_cal};
     gsl_multimin_function func = {.f = alignment_value, .n = 4, .params = &params}; 
     gsl_multimin_fminimizer *minimizer;
-    GSL_VECTOR_DECLARE(starting_point, 4);
-    GSL_VECTOR_DECLARE(step_size, 4);
+    GSL_VECTOR_DECLARE(starting_point, func.n);
+    GSL_VECTOR_DECLARE(step_size, func.n);
     int iter_count = 0;
     int status;
     double size;
@@ -290,6 +311,7 @@ double align_all_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
     gsl_vector_set_all(&step_size, 0.2);
     gsl_multimin_fminimizer_set(minimizer, &func, &starting_point, &step_size);
     do {
+        wdt_clear();
         iter_count++;
         status = gsl_multimin_fminimizer_iterate(minimizer);
         if (status)
@@ -301,6 +323,69 @@ double align_all_sensors(const gsl_matrix *mag_data, calibration *mag_cal,
     
     if (status == GSL_SUCCESS) {
         apply_rotations_to_cals(minimizer->x, mag_cal, grav_cal);
+    }
+    result = minimizer->fval;
+    gsl_multimin_fminimizer_free(minimizer);
+    return result;
+}
+
+void apply_rbf_to_cal(const gsl_vector *p, calibration *cal){
+    gsl_matrix_const_view param_matrix = gsl_matrix_const_view_vector(p, 3, CALIBRATION_RBF_COUNT);
+    gsl_matrix_memcpy(&cal->rbf.matrix, &param_matrix.matrix);
+}
+
+double rbf_value(const gsl_vector *x, void *params) {
+    struct optimize_params *p = (struct optimize_params *) params;
+    double result;
+    CALIBRATION_DECLARE(temp_mag_cal);
+    gsl_matrix_const_view mag_spins = gsl_matrix_const_submatrix(p->mag_data, 
+            CAL_AXIS_COUNT*2, 0, 
+            CAL_TARGET_COUNT*2, 3);
+    gsl_matrix_const_view grav_spins = gsl_matrix_const_submatrix(p->grav_data, 
+            CAL_AXIS_COUNT*2, 0, 
+            CAL_TARGET_COUNT*2, 3);
+
+    calibration_memcpy(&temp_mag_cal, p->mag_cal);
+    //apply rotations
+    apply_rbf_to_cal(x, &temp_mag_cal);
+    result = check_accuracy(&mag_spins.matrix, &temp_mag_cal, &grav_spins.matrix, p->grav_cal);
+    result += check_calibration(p->mag_data, &temp_mag_cal);
+    return result;
+}
+
+double optimize_rbf(const gsl_matrix *mag_data, calibration *mag_cal,
+                    const gsl_matrix *grav_data, calibration *grav_cal) {
+    struct optimize_params params = {mag_data, mag_cal, grav_data, grav_cal};
+    gsl_multimin_function func = {.f = rbf_value, .n = 3*CALIBRATION_RBF_COUNT, .params = &params}; 
+    gsl_multimin_fminimizer *minimizer;
+    GSL_VECTOR_DECLARE(starting_point, func.n);
+    GSL_VECTOR_DECLARE(step_size, func.n);
+    unsigned int iter_count = 0;
+    int status;
+    double size;
+    double result;
+    minimizer = gsl_multimin_fminimizer_alloc(gsl_multimin_fminimizer_nmsimplex2, func.n);
+    gsl_vector_set_zero(&starting_point);
+    gsl_vector_set_all(&step_size, 0.2);
+    gsl_multimin_fminimizer_set(minimizer, &func, &starting_point, &step_size);
+    do {
+        wdt_clear();
+        iter_count++;
+        status = gsl_multimin_fminimizer_iterate(minimizer);
+        if (status)
+            break;
+        size = gsl_multimin_fminimizer_size(minimizer);
+        status = gsl_multimin_test_size(size, 1e-4);
+
+    } while (status==GSL_CONTINUE && iter_count < 1000);
+#ifdef TEST
+    printf("Running optimization\n");
+    for(iter_count=0; iter_count < func.n; iter_count++) {
+        printf("non-linear param %d: %3.6f\n", iter_count, gsl_vector_get(minimizer->x, iter_count));
+    }
+#endif
+    if (status == GSL_SUCCESS) {
+        apply_rbf_to_cal(minimizer->x, mag_cal);
     }
     result = minimizer->fval;
     gsl_multimin_fminimizer_free(minimizer);

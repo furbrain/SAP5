@@ -15,8 +15,8 @@ const
 struct CONFIG default_config = {
     {{9,9,9}, {9,9,9}}, //use default axes for hardware
         { //calib section
-            {1,0,0, 0,1,0, 0,0,1, 0,0,0}, //accel matrix
-            {1,0,0, 0,1,0, 0,0,1, 0,0,0}, //mag matrix
+            {1,0,0, 0,1,0, 0,0,1, 0,0,0, 0,0,0, 0,0,0, 0,0,0}, //accel matrix
+            {1,0,0, 0,1,0, 0,0,1, 0,0,0, 0,0,0, 0,0,0, 0,0,0}, //mag matrix
             0.090                              //laser offset
         },
         POLAR,                               //Polar display style
