@@ -3,8 +3,10 @@ import numpy as np
 import json
 import sys
 import math
+from pathlib import Path
 
-f = open(sys.argv[1])
+fname = Path(sys.argv[1])
+f = open(fname)
 g = json.load(f)
 
 mag = g['shots']['mag']
@@ -16,4 +18,4 @@ m = np.reshape(mag,(-1,3))
 g = np.reshape(grav,(-1,3))
 print(m)
 print(g)
-np.savez("out",m=m.T, g=g.T)
+np.savez(fname.with_suffix(".npz"),m=m.T, g=g.T)

@@ -343,19 +343,19 @@ class CalSet:
         def min_func(x):
             c = copy.deepcopy(self)
             c.mag_cal.set_higher_order_params(x, order)
-            return c.check_alignment2(r) + c.check_uniformity_multiple(r)
-
+            return c.check_alignment2(r) + c.check_uniformity_multiple(r)/4
+        print(f"Before: alginment: {self.check_alignment2(r)} uniform: {self.check_uniformity_multiple(r)}")
         x0 = self.mag_cal.make_params_list(order)
         ret = scipy.optimize.minimize(min_func, x0)
         c = copy.deepcopy(self)
         c.mag_cal.set_higher_order_params(ret.x, order)
+        print(f"After: alginment: {c.check_alignment2(r)} uniform: {c.check_uniformity_multiple(r)}, params: {ret.x}")
         if not ret.success:
             print("Minimisation error: ", ret.message)
         return c
 
 
     def minimize_dip_error(self, r: ReadingSet, order=ORDER):
-        gaussians =
         def min_func(x):
             c = copy.deepcopy(self)
             c.mag_cal.set_higher_order_params(x, order)
