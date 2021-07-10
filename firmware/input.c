@@ -37,7 +37,7 @@ void TMR2_CallBack(void) {
     state = ((state << 1) | SWITCH_GetValue()) & 0xffff;
     if (state == 0x8000) {
         /* we have just pressed the button and held it for 15 T2 cycles*/
-        if (last_activity_counter < 100) {
+        if (last_activity_counter < 100 & last_activity_counter > 15) {
             /* it's been less than 0.2s since the last press finished */
             last_click = DOUBLE_CLICK;
             ignore_release = true;
