@@ -17,12 +17,14 @@ static volatile enum INPUT last_click;
 /* timer 2 delay: 2ms  = */
 static uint32_t last_activity_counter;
 static bool display_inverted;
+static uint32_t button_click_counter;
 
 /* setup input detection*/
 void input_init(void) {
     INTERRUPT_GlobalDisable();
     last_click = NONE;
-    last_activity_counter = 10000;
+    last_activity_counter = 0;
+    button_click_counter=10000;
     INTERRUPT_GlobalEnable();
 }
 
@@ -33,20 +35,22 @@ void TMR2_CallBack(void) {
     static uint16_t state = 0x0001;
     static bool ignore_release = true;
     last_activity_counter++;
+    button_click_counter++;
     
     state = ((state << 1) | SWITCH_GetValue()) & 0xffff;
     if (state == 0x8000) {
         /* we have just pressed the button and held it for 15 T2 cycles*/
-        if (last_activity_counter < 100) {
+        if (button_click_counter < 100) {
             /* it's been less than 0.2s since the last press finished */
             last_click = DOUBLE_CLICK;
             ignore_release = true;
         }
-        last_activity_counter=0;
+        last_activity_counter = 0;
     }
     if (state == 0x7fff) {
         /* we have just released the button*/
         last_activity_counter = 0;
+        button_click_counter = 0;
         if (!ignore_release) {
             last_click = SINGLE_CLICK;
         }
