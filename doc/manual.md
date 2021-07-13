@@ -93,7 +93,7 @@ that data is stored internally.
 ##### Compact
 When you have taken a reading, show all the data on a single screen
 ##### Large
-When you have taken a readingm, show each data item on it's own screen.
+When you have taken a reading, show each data item on it's own screen.
 
 #### Timeout (default 30s)
 Select the length of time after which the device turns itself off without any input.
@@ -125,7 +125,7 @@ readings in total. It is important that you keep the laser pointing at the same 
 
 4. Repeat step 3 using different points, ideally about 90 degrees from the previous set.
 
-The screen will then display some accuracy statistics - ideally the final number should be 1.00 or less.
+The screen will then display some accuracy statistics - ideally the final number should be 0.40 or less.
 If the accuracy is good enough, then the calibration will be saved to the devices memory.
 
 #### Laser
@@ -150,7 +150,7 @@ Return to [Ready to Measure](#Ready to Measure)
 
 ### Visualise
 If you have been storing your recorded legs, this allows you to see what you have recorded so far.
-You will see all the legs recorded in the curent survey, move the device to get a different perspective.
+You will see all the legs recorded in the current survey, move the device to get a different perspective.
 Hold the device horizontal and you will see it in plan view. Hold it vertically and you will get an elevation.
 
 This feature is still in development.
