@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+#this file is a replacement for pyupdater but pretends to be running on windows to give everything the correct names etc
+# -*- coding: utf-8 -*-
+import sys
+import re
+import dsdev_utils.system
+dsdev_utils.system._PLATFORM = "win"
+from pyupdater.cli import main
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(main())
