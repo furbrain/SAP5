@@ -42,4 +42,5 @@ MPLABXLog*
 *.pyu
 *Workspace.json
 button_hole.json
+/pyu-data/
 .ipynb_checkpoints
