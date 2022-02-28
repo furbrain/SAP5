@@ -24,11 +24,12 @@ cp doc/manual.pdf firmware.hex pyu-data/new/
 pyupdater archive --name manual.pdf --version $1
 pyupdater archive --name firmware.hex --version $1
 
-for f in pyu-data/new/*gz
-do
-  cp $f `echo $f | sed -e "s/nix64/win/"`
-done
+cp doc/manual.pdf firmware.hex pyu-data/new/
+./pyupdater-win archive --name manual.pdf --version $1
+./pyupdater-win archive --name firmware.hex --version $1
 
 pyupdater pkg -p -s
+./pyupdater-win pkg -p -s
 
 pyupdater upload --service scp
+
