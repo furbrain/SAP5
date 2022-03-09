@@ -11,9 +11,7 @@
             <header-extensions>h</header-extensions>
             <asminc-extensions/>
             <sourceEncoding>UTF-8</sourceEncoding>
-            <make-dep-projects>
-                <make-dep-project>/home/phil/Projects/SAP5/firmware</make-dep-project>
-            </make-dep-projects>
+            <make-dep-projects/>
             <sourceRootList>
                 <sourceRootElem>usb</sourceRootElem>
                 <sourceRootElem>mcc_generated_files</sourceRootElem>

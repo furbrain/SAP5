@@ -115,12 +115,12 @@ void PIN_MANAGER_Initialize(void)
     /****************************************************************************
      * Interrupt On Change for group CNEN0C - positive
      ***************************************************************************/
-	CNEN0Cbits.CNIE0C9 = 0; // Pin : RC9
+	CNEN0Cbits.CNIE0C9 = 1; // Pin : RC9
 
     /****************************************************************************
      * Interrupt On Change for group CNEN1B - negative
      ***************************************************************************/
-	CNEN1Bbits.CNIE1B6 = 0; // Pin : RB6
+	CNEN1Bbits.CNIE1B6 = 1; // Pin : RB6
 
     /****************************************************************************
      * Interrupt On Change for group CNEN1C - negative

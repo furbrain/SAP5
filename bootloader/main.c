@@ -111,8 +111,6 @@ void sleep(void) {
 void JumpToApp(void)
 {       
         void (*fptr)(void);
-        PERIPH_EN_SetDigitalOutput();
-        PERIPH_EN_SetHigh();
         INTERRUPT_GlobalDisable();
         DMACONbits.ON = 0;
         fptr = (void (*)(void))APP_BASE+1;
