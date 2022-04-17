@@ -12,6 +12,7 @@
 #include "usb_callbacks.h"
 #include "utils.h"
 #include "memory.h"
+#include "version.h"
 #include "mcc_generated_files/usb/usb_hal_pic32mm.h"
 
 #define DISPLAY_ADDRESS 0x3C

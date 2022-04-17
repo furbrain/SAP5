@@ -37,6 +37,7 @@
       <itemPath>mem_locations.h</itemPath>
       <itemPath>app_type.h</itemPath>
       <itemPath>usb_callbacks.h</itemPath>
+      <itemPath>version.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -86,6 +87,7 @@
       <itemPath>battery.c</itemPath>
       <itemPath>mcc_generated_files/usb/utilities/mchpwinusb_template.inf</itemPath>
       <itemPath>usb_callbacks.c</itemPath>
+      <itemPath>version.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -403,7 +405,7 @@
         </archiverTool>
         <loading>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
-          <parseOnProdLoad>false</parseOnProdLoad>
+          <parseOnProdLoad>true</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
         <subordinates>

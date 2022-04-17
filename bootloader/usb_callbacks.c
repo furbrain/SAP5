@@ -9,6 +9,7 @@
 #include "utils.h"
 
 #include "usb_callbacks.h"
+#include "version.h"
 
 extern volatile CTRL_TRF_SETUP SetupPkt;
 
@@ -22,6 +23,7 @@ struct chip_info {
 	uint8_t instructions_per_row;
 	uint8_t pad0;
 	uint8_t pad1;
+    
 };
 
 static struct chip_info chip_info = { };
@@ -47,6 +49,7 @@ static struct chip_info chip_info = { };
 #define GET_CHIP_INFO 102
 #define REQUEST_DATA 103
 #define SEND_RESET 105
+#define GET_BOOTLOADER_VERSION 106
 
 /* I2C commands */
 #define WRITE_I2C_DATA 110
@@ -249,9 +252,11 @@ int8_t app_unknown_setup_request_callback()
 
 			chip_info.bytes_per_instruction = BYTES_PER_INSTRUCTION;
 			chip_info.instructions_per_row = INSTRUCTIONS_PER_ROW;
-
+            chip_info.pad0 = version_bootloader.version.checksum;
             USBEP0SendRAMPtr((char*)&chip_info,	MIN(sizeof(struct chip_info), SetupPkt.wLength), USB_EP0_NO_OPTIONS);
 		}
+
+
 
 		if (SetupPkt.bRequest == REQUEST_DATA) {
 			/* Request program data */

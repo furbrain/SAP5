@@ -21,24 +21,24 @@
     "latest": {
       "PonyTrainer": {
         "stable": {
-          "nix64": "1.0.82.2.0",
-          "win": "1.0.82.2.0"
+          "nix64": "1.0.85.2.0",
+          "win": "1.0.85.2.0"
         }
       },
       "firmware": {
         "stable": {
-          "nix64": "1.2.2.2.0",
-          "win": "1.2.2.2.0"
+          "nix64": "1.2.3.2.0",
+          "win": "1.2.3.2.0"
         }
       },
       "manual": {
         "stable": {
-          "nix64": "1.2.2.2.0",
-          "win": "1.2.2.2.0"
+          "nix64": "1.2.3.2.0",
+          "win": "1.2.3.2.0"
         }
       }
     },
-    "signature": "lHNXIiRHMZJrqe4m1HVDtKghncGpAhrJNny3HatWcLpXJODNaGKYDzEyvGYarRWMB+PCMKwKXD9MspcdmoImAw",
+    "signature": "dZ+CzB6f6VeUhBG8BSw1RTh0b1Fkmo2ZTN4MLHJrYL51d8VxF2nQu0/pJHqDFqIK4UmPHsJ3Fz2r7liHGpo4Aw",
     "updates": {
       "PonyTrainer": {
         "1.0.73.2.0": {
@@ -160,6 +160,25 @@
             "file_size": 15605232,
             "filename": "PonyTrainer-win-1.0.82.zip"
           }
+        },
+        "1.0.84.2.0": {
+          "nix64": {
+            "file_hash": "2e0aad831ccd101e34ce68fab5c22a152bae31e071886c0d6cea17b8dd9d189e",
+            "file_size": 27024871,
+            "filename": "PonyTrainer-nix64-1.0.84.tar.gz"
+          }
+        },
+        "1.0.85.2.0": {
+          "nix64": {
+            "file_hash": "3846a4395504537671db18af4801c3b7490d37c3aeee1c7885663f9baefe05f5",
+            "file_size": 26896352,
+            "filename": "PonyTrainer-nix64-1.0.85.tar.gz"
+          },
+          "win": {
+            "file_hash": "07a451304275c69e009564d3c803b273164d400b3f9102184d3d8d864f8f70af",
+            "file_size": 15614121,
+            "filename": "PonyTrainer-win-1.0.85.zip"
+          }
         }
       },
       "firmware": {
@@ -186,6 +205,18 @@
             "file_size": 622242,
             "filename": "firmware-win-1.2.2.zip"
           }
+        },
+        "1.2.3.2.0": {
+          "nix64": {
+            "file_hash": "a291fcd32935e46c5025f91322c9d8938641c6e982eedb349ff8151d2971c8a8",
+            "file_size": 635023,
+            "filename": "firmware-nix64-1.2.3.tar.gz"
+          },
+          "win": {
+            "file_hash": "8b548a858f34181fb07e155585f44ca575e56b894cb8763376798b9cdd0f3418",
+            "file_size": 622206,
+            "filename": "firmware-win-1.2.3.zip"
+          }
         }
       },
       "manual": {
@@ -202,15 +233,27 @@
           }
         },
         "1.2.2.2.0": {
-          "win": {
-            "file_hash": "6262e1eafc45d7741701b74119f41eb5bfe81ab389d6408561b4f7c7a47c8299",
-            "file_size": 46643,
-            "filename": "manual-win-1.2.2.zip"
-          },
           "nix64": {
             "file_hash": "d66ba25be63a3837fcf969570878bd759638bded4d99db97716d162a88317bbf",
             "file_size": 51251,
             "filename": "manual-nix64-1.2.2.tar.gz"
+          },
+          "win": {
+            "file_hash": "6262e1eafc45d7741701b74119f41eb5bfe81ab389d6408561b4f7c7a47c8299",
+            "file_size": 46643,
+            "filename": "manual-win-1.2.2.zip"
+          }
+        },
+        "1.2.3.2.0": {
+          "win": {
+            "file_hash": "865c5fce651e53dfb69c54f8bbd8572a7d9ee32a6af070bb13f4909cbacdec7b",
+            "file_size": 46643,
+            "filename": "manual-win-1.2.3.zip"
+          },
+          "nix64": {
+            "file_hash": "a994c8d420215fed0e0268c0899eee3af2492bd6124ef34540552050e738299c",
+            "file_size": 51251,
+            "filename": "manual-nix64-1.2.3.tar.gz"
           }
         }
       }
@@ -231,13 +274,13 @@
   "py_repo_config": {
     "patches": {},
     "package": {
-      "firmware": {
-        "nix64": "1.2.2.2.0",
-        "win": "1.2.2.2.0"
-      },
       "manual": {
-        "win": "1.2.2.2.0",
-        "nix64": "1.2.2.2.0"
+        "win": "1.2.3.2.0",
+        "nix64": "1.2.3.2.0"
+      },
+      "firmware": {
+        "nix64": "1.2.3.2.0",
+        "win": "1.2.3.2.0"
       }
     }
   }
