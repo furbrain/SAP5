@@ -67,6 +67,8 @@ struct VERSION_ID {
 };
 
 struct VERSION_ID version_get_id(void);
+
+uint8_t version_get_case_length(void);
 #ifdef	__cplusplus
 }
 #endif

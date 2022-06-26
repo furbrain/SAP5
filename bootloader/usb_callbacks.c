@@ -9,7 +9,7 @@
 #include "utils.h"
 
 #include "usb_callbacks.h"
-#include "version.h"
+#include "bl_version.h"
 
 extern volatile CTRL_TRF_SETUP SetupPkt;
 

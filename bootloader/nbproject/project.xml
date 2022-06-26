@@ -18,11 +18,11 @@
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>internal_clock</name>
+                    <name>old_case</name>
                     <type>2</type>
                 </confElem>
                 <confElem>
-                    <name>external_clock</name>
+                    <name>new_case</name>
                     <type>2</type>
                 </confElem>
             </confList>

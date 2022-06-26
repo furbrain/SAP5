@@ -30,5 +30,6 @@
 #define APP_LEG_SIZE                0x00008000
 
 #define VERSION_LOCATION            0x9D008100
+#define BL_VERSION_LOCATION         0x9D003000
 #endif	/* MEM_LOCATIONS_H */
 

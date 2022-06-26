@@ -8,6 +8,7 @@
 #include <gsl/gsl_matrix.h>
 
 #include "config.h"
+#include "version.h"
 
 union CONFIG_STORE config_store PLACE_DATA_AT(APP_CONFIG_LOCATION) = {.raw = {[0 ... APP_CONFIG_SIZE-1]=0xff}};
 
@@ -49,6 +50,7 @@ void config_load(void){
     CONST_STORE struct CONFIG *ptr = &config_store.configs[0];
     CONST_STORE struct CONFIG *overflow = &config_store.configs[MAX_CONFIG_COUNT];
     config = default_config;
+    config.calib.laser_offset = version_get_case_length()/1000.0;
     while (config_ptr_is_valid(ptr) && ptr < overflow) {
         config = *ptr;
         ptr++;

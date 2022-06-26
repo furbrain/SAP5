@@ -52,6 +52,7 @@
       <itemPath>/home/phil/Projects/SAP5/firmware/ui.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/version.h</itemPath>
       <itemPath>/home/phil/Projects/SAP5/firmware/bt.h</itemPath>
+      <itemPath>bl_version.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

@@ -6,6 +6,7 @@
 #include "exception.h"
 #include "mem_locations.h"
 #include "memory.h"
+#include "bl_version.h"
 enum HARDWARE_VERSION version_hardware;
 
 static
@@ -92,3 +93,8 @@ struct VERSION_ID version_get_id() {
     return result;
 }
 
+
+uint8_t version_get_case_length(void) {
+    struct BL_VERSION *ptr = (struct BL_VERSION*)BL_VERSION_LOCATION;
+    return ptr->version.case_length;
+}

@@ -37,7 +37,7 @@
       <itemPath>mem_locations.h</itemPath>
       <itemPath>app_type.h</itemPath>
       <itemPath>usb_callbacks.h</itemPath>
-      <itemPath>version.h</itemPath>
+      <itemPath>bl_version.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -87,7 +87,7 @@
       <itemPath>battery.c</itemPath>
       <itemPath>mcc_generated_files/usb/utilities/mchpwinusb_template.inf</itemPath>
       <itemPath>usb_callbacks.c</itemPath>
-      <itemPath>version.c</itemPath>
+      <itemPath>bl_version.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -103,13 +103,13 @@
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="internal_clock" type="2">
+    <conf name="old_case" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC32MM0256GPM028</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
+        <platformTool>noID</platformTool>
         <languageToolchain>XC32</languageToolchain>
         <languageToolchainVersion>2.50</languageToolchainVersion>
         <platform>2</platform>
@@ -162,7 +162,7 @@
         <property key="place-data-into-section" value="true"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value=""/>
+        <property key="preprocessor-macros" value="EXTERNAL_CLOCK"/>
         <property key="strict-ansi" value="false"/>
         <property key="support-ansi" value="false"/>
         <property key="toplevel-reordering" value=""/>
@@ -380,13 +380,13 @@
         <property key="voltagevalue" value="3.25"/>
       </PK3OBPlatformTool>
     </conf>
-    <conf name="external_clock" type="2">
+    <conf name="new_case" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
         <targetDevice>PIC32MM0256GPM028</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>PICkit3PlatformTool</platformTool>
+        <platformTool>noID</platformTool>
         <languageToolchain>XC32</languageToolchain>
         <languageToolchainVersion>2.50</languageToolchainVersion>
         <platform>2</platform>
@@ -439,7 +439,7 @@
         <property key="place-data-into-section" value="true"/>
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
-        <property key="preprocessor-macros" value="EXTERNAL_CLOCK"/>
+        <property key="preprocessor-macros" value="EXTERNAL_CLOCK;NEW_CASE"/>
         <property key="strict-ansi" value="false"/>
         <property key="support-ansi" value="false"/>
         <property key="toplevel-reordering" value=""/>
