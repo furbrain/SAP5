@@ -1,0 +1,14 @@
+install stm32loader:
+  sudo pip install stm32loader
+  
+copy program_emb1061.sh and bt_code.binary to the pi
+
+make sure the raspi serial port is enabled
+
+Connect the GPIO serial port to the EMB1061
+Carefully apply 3.3V pin to Boot pin (pin 6), then briefly apply ground to REset pin (pin 3)
+This should put the device in bootloader mode
+
+now run program emb1061.sh
+
+now just ground the reset pin
