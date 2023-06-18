@@ -237,6 +237,12 @@ void measure_show_reading(void) {
     // set up menus
     if (bt_present) bt_send_measurement();
     menu_clear(&measure_menu);
+    if (config.discard) {
+        laser_off();
+        wdt_clear();
+        delay_ms(50);
+        return;
+    }
     if (config.display_style==CARTESIAN) {
         add_cartesian_entries_to_menu(&measure_menu);
     } else {
