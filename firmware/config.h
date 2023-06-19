@@ -23,8 +23,6 @@
 
 #define SWITCH_ACTIVE_HIGH false
 
-#define DEFAULT_CASE_LENGTH 0.090
-
 enum DISPLAY_STYLE {
     POLAR = 0,
     GRAD,
