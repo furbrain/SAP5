@@ -9,6 +9,7 @@
 
 #include "config.h"
 #include "version.h"
+#include "bl_version.h"
 
 union CONFIG_STORE config_store PLACE_DATA_AT(APP_CONFIG_LOCATION) = {.raw = {[0 ... APP_CONFIG_SIZE-1]=0xff}};
 
@@ -18,7 +19,7 @@ struct CONFIG default_config = {
         { //calib section
             {1,0,0, 0,1,0, 0,0,1, 0,0,0, 0,0,0, 0,0,0, 0,0,0}, //accel matrix
             {1,0,0, 0,1,0, 0,0,1, 0,0,0, 0,0,0, 0,0,0, 0,0,0}, //mag matrix
-            0.090                              //laser offset
+            DEFAULT_CASE_LENGTH                                //laser offset
         },
         POLAR,                               //Polar display style
         METRIC,                              //metric units
@@ -49,8 +50,11 @@ bool config_ptr_is_valid(const struct CONFIG *conf) {
 void config_load(void){
     CONST_STORE struct CONFIG *ptr = &config_store.configs[0];
     CONST_STORE struct CONFIG *overflow = &config_store.configs[MAX_CONFIG_COUNT];
+    struct BL_VERSION* bl_version = version_get_bootloader_version();
     config = default_config;
-    config.calib.laser_offset = version_get_case_length()/1000.0;
+    if (bl_version != NULL) {
+        config.calib.laser_offset = bl_version->version.case_length * 0.001;
+    }
     while (config_ptr_is_valid(ptr) && ptr < overflow) {
         config = *ptr;
         ptr++;
