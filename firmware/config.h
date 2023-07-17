@@ -51,6 +51,7 @@ struct __attribute__((aligned(8))) CONFIG {
     uint16_t timeout;
     unsigned dummy :1;
     unsigned compact :1;
+    unsigned discard :1;
 };
 
 /* Note it is important to keep this as a union to ensure that no other data/ program 
@@ -76,6 +77,7 @@ void config_set_units(int32_t units);
 void config_set_style(int32_t style);
 void config_set_compact(int32_t on);
 void config_set_timeout(int32_t timeout);
+void config_set_discard(int32_t on);
 
 #endif
 #ifdef TEST

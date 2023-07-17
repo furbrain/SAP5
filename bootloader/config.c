@@ -23,7 +23,8 @@ struct CONFIG default_config = {
         METRIC,                              //metric units
         120,                                  //2 minute timeout
         false,								 //no bluetooth module
-        false                                //normal display style (not compact)
+        false,                                //normal display style (not compact)
+        false                                //don't discard measurements by default
     };
 
 struct CONFIG config;
@@ -76,5 +77,10 @@ void config_set_compact(int32_t on) {
 
 void config_set_timeout(int32_t timeout) {
     config.timeout = timeout;
+    config_save();
+}
+
+void config_set_discard(int32_t on) {
+    config.discard = on;
     config_save();
 }

@@ -53,6 +53,12 @@ DECLARE_MENU(style_menu, {
     {"Back", Back, {NULL}, 0}
 });
 
+DECLARE_MENU(discard_menu, {
+    {"Show Menu", Action, {config_set_discard}, 0},
+    {"Discard", Action, {config_set_discard}, 1},
+    {"Back", Back, {NULL}, 0}
+});
+
 DECLARE_MENU(units_menu, {
     {"Metric", Action, {config_set_units}, METRIC},
     {"Imperial", Action, {config_set_units}, IMPERIAL},
@@ -64,6 +70,7 @@ DECLARE_MENU(settings_menu, {    /* settings menu */
     {"Style  >", SubMenu, .submenu = &style_menu, 0},
     {"Display  >", SubMenu, .submenu = &display_menu, 0},
     {"Timeout  >", SubMenu, .submenu = &timeout_menu, 0},
+    {"Post-shot  >", SubMenu, .submenu = &discard_menu, 0},
     {"Set  Date", Action, {datetime_set_date}, 0},
     {"Set  Time", Action, {datetime_set_time}, 0},
     {"Back", Back, {NULL}, 0},
